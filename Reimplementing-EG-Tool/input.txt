@@ -1,0 +1,205 @@
+t # 0
+v 0 Module
+v 9 Name#id=x
+v 8 Name#id=print
+v 7 Attribute#attr=split
+v 6 Store
+v 5 Call
+v 4 Call
+v 3 Name#id=x
+v 2 Expr
+v 14 Load
+v 13 Load
+v 12 Load
+v 11 Load
+v 10 Name#id=txt
+v 1 Assign
+e 9 13 ctx
+e 8 12 ctx
+e 7 11 ctx
+e 7 10 value
+e 5 9 args
+e 5 8 func
+e 4 7 func
+e 3 6 ctx
+e 2 5 value
+e 10 14 ctx
+e 1 4 value
+e 1 3 targets
+e 0 2 body1
+e 0 1 body0
+t # 1
+v 0 Module
+v 9 Name#id=content
+v 8 Call
+v 7 Str
+v 6 Attribute#attr=split
+v 5 Store
+v 4 Expr
+v 3 Call
+v 2 Name#id=line
+v 15 Load
+v 14 Load
+v 13 Load
+v 12 Name#id=line
+v 11 Name#id=print
+v 10 Load
+v 1 For
+e 9 13 ctx
+e 8 12 args
+e 8 11 func
+e 6 9 value
+e 6 10 ctx
+e 4 8 value
+e 3 7 args
+e 3 6 func
+e 2 5 ctx
+e 12 15 ctx
+e 11 14 ctx
+e 1 4 body
+e 1 3 iter
+e 1 2 target
+e 0 1 body
+t # 2
+v 0 Module
+v 9 Name#id=words
+v 8 Str
+v 7 Attribute#attr=split
+v 6 Store
+v 5 Subscript
+v 4 Call
+v 3 Name#id=words
+v 2 Return
+v 16 Load
+v 15 Num
+v 14 Load
+v 13 Load
+v 12 Name#id=dir
+v 11 Load
+v 10 Index
+v 1 Assign
+e 9 14 ctx
+e 7 13 ctx
+e 7 12 value
+e 5 9 value
+e 5 11 ctx
+e 5 10 slice
+e 4 8 args
+e 4 7 func
+e 3 6 ctx
+e 2 5 value
+e 12 16 ctx
+e 10 15 value
+e 1 4 value
+e 1 3 targets
+e 0 2 body1
+e 0 1 body0
+t # 3
+v 0 Module
+v 9 Str
+v 8 Attribute#attr=split
+v 7 Store
+v 6 Call
+v 5 Name#id=first
+v 4 Call
+v 3 Name#id=lines
+v 2 Assign
+v 17 Load
+v 16 Load
+v 15 Load
+v 14 Name#id=lines
+v 13 Load
+v 12 Name#id=k
+v 11 Attribute#attr=pop
+v 10 Store
+v 1 Assign
+e 8 13 ctx
+e 8 12 value
+e 6 11 func
+e 5 10 ctx
+e 4 9 args
+e 4 8 func
+e 3 7 ctx
+e 2 6 value
+e 2 5 targets
+e 14 17 ctx
+e 12 16 ctx
+e 11 15 ctx
+e 11 14 value
+e 1 4 value
+e 1 3 targets
+e 0 2 body1
+e 0 1 body0
+t # 4
+v 0 Module
+v 9 Str
+v 8 Attribute#attr=split
+v 7 Store
+v 6 Call
+v 5 Name#id=line
+v 4 Call
+v 3 Name#id=parts
+v 2 Assign
+v 17 Load
+v 16 Load
+v 15 Load
+v 14 Name#id=lines
+v 13 Load
+v 12 Name#id=k
+v 11 Attribute#attr=pop
+v 10 Store
+v 1 Assign
+e 8 13 ctx
+e 8 12 value
+e 6 11 func
+e 5 10 ctx
+e 4 9 args
+e 4 8 func
+e 3 7 ctx
+e 2 6 value
+e 2 5 targets
+e 14 17 ctx
+e 12 16 ctx
+e 11 15 ctx
+e 11 14 value
+e 1 4 value
+e 1 3 targets
+e 0 2 body1
+e 0 1 body0
+t # 5
+v 0 Module
+v 9 Str
+v 8 Attribute#attr=split
+v 7 Store
+v 6 Call
+v 5 Name#id=name
+v 4 Call
+v 3 Name#id=parts
+v 2 Assign
+v 17 Load
+v 16 Load
+v 15 Load
+v 14 Name#id=parts
+v 13 Load
+v 12 Name#id=package_name
+v 11 Attribute#attr=pop
+v 10 Store
+v 1 Assign
+e 8 13 ctx
+e 8 12 value
+e 6 11 func
+e 5 10 ctx
+e 4 9 args
+e 4 8 func
+e 3 7 ctx
+e 2 6 value
+e 2 5 targets
+e 14 17 ctx
+e 12 16 ctx
+e 11 15 ctx
+e 11 14 value
+e 1 4 value
+e 1 3 targets
+e 0 2 body1
+e 0 1 body0
+t # -1
