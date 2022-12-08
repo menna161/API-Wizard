@@ -100,6 +100,8 @@ public class ConvertJava {
       parser.setBuildParseTree(false);
       setRuleNames(parser);
 
+      System.out.println(t.getText());
+
       t2 = System.currentTimeMillis();
 
       JSONArray tree = getSerializedTree(t, tokens);
@@ -206,40 +208,40 @@ public class ConvertJava {
   // }
 
   private void dumpMethodAst(String thisRuleName, JSONArray simpleTree) {
-    System.out.println("test " + funcFlag + "   " + thisRuleName);
+    // System.out.println("test " + funcFlag + " " + thisRuleName);
 
     // if (thisRuleName.equals("funcdef")) {
     // funcFlag = true;
     // }
-    if (thisRuleName.equals("suite")) { // thisClassName != null &&
+    // if (thisRuleName.equals("suite")) { // thisClassName != null &&
 
-      // funcFlag = false;
-      // System.out.println("test entered " + funcFlag);
-      // System.out.println("if trueeeeeeeeeeeee ");
-      if (simpleTree.length() == 2) {
-        try {
-          simpleTree = simpleTree.getJSONArray(1);
-        } catch (Exception e) {
-          // System.err.println(simpleTree);
-          // e.printStackTrace();
-          // System.out.println("In " + thisFileName + ":" + thisClassName + ":" +
-          // thisMethodName+":"+beginLine);
-          return;
-        }
+    // funcFlag = false;
+    // System.out.println("test entered " + funcFlag);
+    // System.out.println("if trueeeeeeeeeeeee ");
+    if (simpleTree.length() == 2) {
+      try {
+        simpleTree = simpleTree.getJSONArray(1);
+      } catch (Exception e) {
+        // System.err.println(simpleTree);
+        // e.printStackTrace();
+        // System.out.println("In " + thisFileName + ":" + thisClassName + ":" +
+        // thisMethodName+":"+beginLine);
+        return;
       }
-      JSONObject tmp = new JSONObject();
-      tmp.put("path", thisFileName);
-      tmp.put("class", thisClassName);
-      tmp.put("method", thisMethodName);
-      tmp.put("beginline", beginLine);
-      tmp.put("endline", endLine);
-      tmp.put("ast", simpleTree);
-      writer.println(tmp);
-      writer.flush();
-      totalMethods++;
-      // System.out.println("Logged " + thisFileName + ":" + thisClassName + ":" +
-      // thisMethodName);
     }
+    JSONObject tmp = new JSONObject();
+    tmp.put("path", thisFileName);
+    tmp.put("class", thisClassName);
+    tmp.put("method", thisMethodName);
+    tmp.put("beginline", beginLine);
+    tmp.put("endline", endLine);
+    tmp.put("ast", simpleTree);
+    writer.println(tmp);
+    writer.flush();
+    totalMethods++;
+    // System.out.println("Logged " + thisFileName + ":" + thisClassName + ":" +
+    // thisMethodName);
+    // }
   }
 
   private JSONArray getSerializedTree(RuleContext t, CommonTokenStream tokens) {
@@ -262,15 +264,6 @@ public class ConvertJava {
     }
     // System.out.println("test 4 ////////" + thisRuleName);
     // System.out.println("test 4 ////////" + thisMethodName);
-    if (thisRuleName.equals("funcdef")) {
-      oldMethodName = thisMethodName;
-      thisMethodName = t.getChild(1).getText();
-      // System.out.println("test 5 *****" + t.getChild(1) + thisMethodName);
-      oldBeginLine = beginLine;
-      // beginLine = ((TerminalNodeImpl) t.getChild(1)).getSymbol().getLine();
-      // beginLine = 100;
-    }
-
     JSONArray simpleTree = new JSONArray();
     simpleTree.put("");
     StringBuilder sb = new StringBuilder();
@@ -334,7 +327,100 @@ public class ConvertJava {
     simpleTree.put(0, sb.toString());
     childHasLeaf = hasLeaf;
 
-    dumpMethodAst(thisRuleName, simpleTree);
+    if (thisRuleName.equals("funcdef")) {
+      oldMethodName = thisMethodName;
+      thisMethodName = t.getChild(1).getText();
+      for (int i = 0; i < t.getChildCount(); i++) {
+        ParseTree child = t.getChild(i);
+        if (child instanceof TerminalNodeImpl) {
+          System.out.println("terminal node" + child);
+          continue;
+        }
+        if (getRuleName(child).equals("suite")) {
+          System.out.println("suite:" + child);
+          System.out.println(child.getText());
+          dumpMethodAst(thisRuleName, simpleTree);
+          oldBeginLine = beginLine;
+          // beginLine = ((TerminalNodeImpl) child).getSymbol().getLine();
+
+          for (int j = 0; j < child.getChildCount(); j++) {
+            System.out.println("child:" + child.getChild(1).getText() + " " + child.getChild(1).getClass());
+          }
+          System.out.println("----- end method");
+        } else {
+          System.out.println("not a suite");
+        }
+      }
+      // System.out.println("test 5 *****" + t.getChild(1) + thisMethodName);
+
+      // oldBeginLine = beginLine;
+
+    }
+
+    // JSONArray simpleTree = new JSONArray();
+    // simpleTree.put("");
+    // StringBuilder sb = new StringBuilder();
+    // for (int i = 0; i < n; i++) {
+    // ParseTree tree = t.getChild(i);
+    // if (tree instanceof TerminalNodeImpl) {
+    // String s = tree.getText();
+
+    // if (!s.equals("<EOF>")) {
+    // Token thisToken = ((TerminalNodeImpl) tree).getSymbol();
+    // String ruleName = vocab.getDisplayName(thisToken.getType());
+    // String ws1 = getLeadingOrTrailing(tree, tokens, true);
+    // String ws2 = getLeadingOrTrailing(tree, tokens, false);
+
+    // JSONObject tok = new JSONObject();
+    // tok.put("token", s);
+    // tok.put("leading", ws1);
+    // tok.put("trailing", ws2);
+    // boolean isLeaf;
+    // if (identifiersRuleNames.contains(ruleName)) {
+    // // System.out.println("get the rule correct /////////////// ");
+    // if (localVarContexts.contains(thisRuleName)) {
+    // tok.put("var", true);
+    // // System.out.println(s);
+    // }
+    // isLeaf = true;
+    // sb.append("#");
+    // hasLeaf = true;
+    // setClassName(thisRuleName, t, i);
+    // } else {
+    // isLeaf = false;
+    // sb.append(s);
+    // }
+    // if (isLeaf)
+    // tok.put("leaf", isLeaf);
+    // tok.put("line", thisToken.getLine());
+    // endLine = thisToken.getLine();
+    // simpleTree.put(tok);
+    // }
+    // } else {
+    // JSONArray child = getSerializedTree((RuleContext) tree, tokens);
+    // if (child != null && child.length() > 0) {
+    // if (child.length() == 2) {
+    // simpleTree.put(child.get(1));
+    // sb.append(child.get(0));
+    // hasLeaf = hasLeaf || childHasLeaf;
+    // } else if (!childHasLeaf
+    // && !child.get(0).equals("{}")) { // see the while(m.find()){} query
+    // sb.append(child.get(0));
+    // for (int j = 1; j < child.length(); j++) {
+    // simpleTree.put(child.get(j));
+    // }
+    // } else {
+    // sb.append("#");
+    // hasLeaf = true;
+    // simpleTree.put(child);
+    // }
+    // }
+    // }
+    // }
+    // simpleTree.put(0, sb.toString());
+    // childHasLeaf = hasLeaf;
+
+    // dumpMethodAst(thisRuleName, simpleTree);
 
     if (thisRuleName.equals("classdef")) {
       thisClassName = oldClassName;
