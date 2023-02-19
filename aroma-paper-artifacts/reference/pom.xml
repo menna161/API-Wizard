@@ -10,7 +10,7 @@
 
     <properties>
 		<!-- location of java sources -->
-		<src.dir>/Users/nehalfooda/Downloads/Thesis/Aroma/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/src/main/antlr4/Java</src.dir>
+		<src.dir>/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/src/main/antlr4/Java</src.dir>
 	</properties>
     <build>
     <sourceDirectory>${src.dir}</sourceDirectory>
@@ -20,7 +20,7 @@
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <version>4.7.1</version>
                 <configuration>
-					<sourceDirectory>/Users/nehalfooda/Downloads/Thesis/Aroma/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/src/main/antlr4</sourceDirectory>
+					<sourceDirectory>/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/src/main/antlr4/java</sourceDirectory>
 					<includes>
 						<include>PythonLexer.g4</include>
 						<include>PythonParser.g4</include>

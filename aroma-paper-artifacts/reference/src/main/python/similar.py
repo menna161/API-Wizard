@@ -120,7 +120,8 @@ class Vocab:
     def add_and_get_index(self, word):
         if not (word in self.vocab):
             self.words.append(word)
-            self.vocab[word] = [0, len(self.vocab) + 1 + config.NUM_FEATURE_MIN]
+            self.vocab[word] = [
+                0, len(self.vocab) + 1 + config.NUM_FEATURE_MIN]
         value = self.vocab[word]
         value[0] += 1
         return value[1]
@@ -196,7 +197,8 @@ def featurize_records_file(rpath, wpath):
             i = 0
             for line in inp:
                 obj = json.loads(line)
-                obj["features"] = collect_features_as_list(obj["ast"], True, False)[0]
+                obj["features"] = collect_features_as_list(
+                    obj["ast"], True, False)[0]
                 obj["index"] = i
                 i += 1
                 outp.write(json.dumps(obj))
@@ -297,7 +299,8 @@ def collect_features_aux(
                 if p != "(#)" and re.match("^\{#*\}$", p) is None:
                     count += 1
                     key2 = p + str(i) + ">" + key
-                    append_feature_index(is_init, is_counter, key2, feature_list, c)
+                    append_feature_index(
+                        is_init, is_counter, key2, feature_list, c)
                     if count >= config.N_PARENTS:
                         break
             count = 0
@@ -714,8 +717,10 @@ def get_completions3(query_record, candidate_records, top_n, threshold1, thresho
                 pscore = iscore / qlen
                 #                pscore = find_similarity_score_features_set(record_list1)
                 if pscore > threshold1:
-                    query_score_un = find_similarity_score_features_set_un(record_list1)
-                    tmp_score = find_similarity_score_features_set_un(record_list2)
+                    query_score_un = find_similarity_score_features_set_un(
+                        record_list1)
+                    tmp_score = find_similarity_score_features_set_un(
+                        record_list2)
                     if tmp_score > threshold2 * query_score_un and tmp_score > maxscore:
                         kmax = k
                         maxscore = tmp_score
@@ -770,7 +775,8 @@ def find_indices_similar_to_features(
     vectorizer, counter_matrix, feature_lists, num_similars, min_similarity_score
 ):
     doc_counter_vector = vectorizer.transform(feature_lists)
-    len = my_similarity_score(doc_counter_vector, doc_counter_vector).flatten()[0]
+    len = my_similarity_score(
+        doc_counter_vector, doc_counter_vector).flatten()[0]
     cosine_similarities = my_similarity_score(
         doc_counter_vector, counter_matrix
     ).flatten()
@@ -791,7 +797,8 @@ def find_similarity_score_features(record1, record2):
 def prune_last_jd(records, record2):
     other_features = [Counter(record["features"]) for record in records]
     ast = record2["ast"]
-    leaf_features, leaf_pair_features = collect_features_as_list(ast, False, True)
+    leaf_features, leaf_pair_features = collect_features_as_list(
+        ast, False, True)
     out_features = [None] * len(leaf_features)
     current_features = Counter()
     current_leaf_indices = []
@@ -864,10 +871,13 @@ def find_similar(
     candidate_records = []
     for (idx, score) in similars:
         pruned_record = prune_second_jd(query_record, records[idx])
-        pruned_score = find_similarity_score_features(query_record, pruned_record)
+        pruned_score = find_similarity_score_features(
+            query_record, pruned_record)
         if pruned_score > min_pruned_score:
-            candidate_records.append((records[idx], score, pruned_record, pruned_score))
-    candidate_records = sorted(candidate_records, key=lambda v: v[3], reverse=True)
+            candidate_records.append(
+                (records[idx], score, pruned_record, pruned_score))
+    candidate_records = sorted(
+        candidate_records, key=lambda v: v[3], reverse=True)
     logging.info(f"# of similar snippets = {len(candidate_records)}")
     return candidate_records
 
@@ -911,15 +921,21 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         print("---------------- extracted from ---------------")
         print(ast_to_code(records[query_record["index"]]["ast"]))
 
+    print(
+        f"------------------- suggested code examples ------------------"
+    )
+    print("")
+    count = 1
     for clustered_record in clustered_records:
         print(
-            f"------------------- suggested code completion ------------------"
+            f"------------------------- example {count} ------------------------"
         )  # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
         print(
             ast_to_code_with_full_lines(
                 clustered_record[0]["ast"], clustered_record[1]["ast"]
             )
         )
+        count += 1
 
     if config.PRINT_SIMILAR:
         j = 0
@@ -963,7 +979,8 @@ def read_and_featurize_record_file(rpath):
     with open(rpath, "r") as inp:
         for line in inp:
             obj = json.loads(line)
-            obj["features"] = collect_features_as_list(obj["ast"], False, False)[0]
+            obj["features"] = collect_features_as_list(
+                obj["ast"], False, False)[0]
             obj["index"] = -1
             return obj
 
@@ -971,7 +988,8 @@ def read_and_featurize_record_file(rpath):
 def test_record_at_index(idx):
     record = get_record_part(records[idx])
     if record != None:
-        print_similar_and_completions(record, records, vectorizer, counter_matrix)
+        print_similar_and_completions(
+            record, records, vectorizer, counter_matrix)
 
 
 def featurize_and_test_record(record_files, keywords):
@@ -991,11 +1009,13 @@ def featurize_and_test_record(record_files, keywords):
     for keyword in keywords:
         set_tmp[vocab.get_index(keyword)] += 1
     if record_final is None:
-        record_final = {"ast": None, "index": -1, "features": list(set_tmp.elements())}
+        record_final = {"ast": None, "index": -1,
+                        "features": list(set_tmp.elements())}
     else:
         record_final["features"] = list(set_tmp.elements())
     if len(record_final["features"]) > 0:
-        print_similar_and_completions(record_final, records, vectorizer, counter_matrix)
+        print_similar_and_completions(
+            record_final, records, vectorizer, counter_matrix)
 
 
 def test_all():
@@ -1003,7 +1023,8 @@ def test_all():
     (sampled_indices, sampled_records) = sample_n_records(records, N)
     for k, record in enumerate(sampled_records):
         print(f"{k}: ", end="")
-        print_similar_and_completions(record, records, vectorizer, counter_matrix)
+        print_similar_and_completions(
+            record, records, vectorizer, counter_matrix)
 
 
 def load_all(counter_path, asts_path):
@@ -1028,7 +1049,8 @@ def setup(records_file):
     else:
         vocab = Vocab.load(True)
         featurize_records_file(
-            records_file, os.path.join(options.working_dir, config.FEATURES_FILE)
+            records_file, os.path.join(
+                options.working_dir, config.FEATURES_FILE)
         )
         vocab.dump()
         logging.info("Done featurizing.")

@@ -1,4 +1,4 @@
-// Generated from /Users/nehalfooda/Downloads/Thesis/Aroma/aroma-paper-artifacts/reference/src/main/antlr4/PythonLexer.g4 by ANTLR 4.9.2
+// Generated from /Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/src/main/antlr4/PythonLexer.g4 by ANTLR 4.9.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

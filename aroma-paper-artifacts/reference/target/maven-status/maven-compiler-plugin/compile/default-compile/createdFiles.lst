@@ -38,7 +38,6 @@ PythonParser$ClassdefContext.class
 PythonParser$NumberContext.class
 PythonParser$Yield_stmtContext.class
 PythonParser$Del_stmtContext.class
-PythonParser.interp
 PythonParser$SubscriptlistContext.class
 PythonParser$Dotted_as_namesContext.class
 PythonParser$Yield_argContext.class
@@ -67,6 +66,7 @@ PythonParser$Assign_partContext.class
 PythonParser$ArgsContext.class
 PythonParser$Named_parameterContext.class
 PythonParser$Simple_stmtContext.class
+PythonLexer.class
 PythonParser$File_inputContext.class
 PythonParser$While_stmtContext.class
 PythonParser$TestContext.class
@@ -86,5 +86,4 @@ PythonParser$Import_as_nameContext.class
 PythonParser$IntegerContext.class
 PythonParser$From_stmtContext.class
 PythonParser$TypedargslistContext.class
-PythonParser.tokens
 PythonParser$Elif_clauseContext.class
