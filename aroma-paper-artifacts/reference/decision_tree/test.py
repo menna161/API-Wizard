@@ -1,0 +1,1 @@
+clf = tree.DecisionTreeClassifier()

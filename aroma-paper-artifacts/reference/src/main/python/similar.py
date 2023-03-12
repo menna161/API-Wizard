@@ -191,12 +191,28 @@ def ast_to_code_print_lines(ast, line_list, token_list):
                 token_list.append("//")
 
 
+def delete_imports(obj):
+    hash = obj["ast"][0]
+    count_hash = hash.count('#')
+    hash_index = []
+    for i in range(1, count_hash+1):
+        if "import" in obj["ast"][i][1][0]:
+            hash_index.append(i)
+            # print("here 1 ")
+    for x in hash_index:
+        del obj["ast"][x]
+    obj["ast"][0] = obj["ast"][0].replace("#", "", len(hash_index))
+
+
 def featurize_records_file(rpath, wpath):
     with open(rpath, "r") as inp:
         with open(wpath, "w") as outp:
             i = 0
             for line in inp:
                 obj = json.loads(line)
+                #########
+                # delete_imports(obj)
+                # print(obj)
                 obj["features"] = collect_features_as_list(
                     obj["ast"], True, False)[0]
                 obj["index"] = i
@@ -265,6 +281,7 @@ def collect_features_aux(
 ):
     global leaf_idx
     if isinstance(ast, list):
+
         i = 0
         for elem in ast:
             parents.append((i, ast[0], ast))
@@ -731,9 +748,12 @@ def get_completions3(query_record, candidate_records, top_n, threshold1, thresho
         ret = ret2
     ret = []
     acc = sorted(acc, key=lambda t: t[0] * 1000 - len(t))
+    print("acc", acc)
     for i in range(len(acc)):
         tuple = acc[i]
         logging.info(f"Pruning {len(tuple)} {tuple}")
+        # print("pruned1", candidate_records[tuple[0]][2])
+        # print("pruned2", candidate_records[tuple[1]][2])
         is_subset = False
         s = set(tuple)
         for j in reversed(range(i)):
@@ -861,6 +881,10 @@ def find_similar(
 ):
     print("Query features: ")
     print_features(query_record["features"])
+    # print("find_similar", "query", query_record, "records", records)
+    #       [feature_list_to_doc(query_record)],
+    #       num_similars,
+    #       min_similarity_score)
     similars = find_indices_similar_to_features(
         vectorizer,
         counter_matrix,
@@ -879,6 +903,7 @@ def find_similar(
     candidate_records = sorted(
         candidate_records, key=lambda v: v[3], reverse=True)
     logging.info(f"# of similar snippets = {len(candidate_records)}")
+    # print("candidate records", candidate_records)
     return candidate_records
 
 

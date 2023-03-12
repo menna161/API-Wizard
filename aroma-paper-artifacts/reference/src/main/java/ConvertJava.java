@@ -150,7 +150,7 @@ public class ConvertJava {
   }
 
   private String getLeadingOrTrailing(ParseTree tree, CommonTokenStream tokens, boolean isBefore) {
-    System.out.println("getLeadingOrTrailing //////  p3");
+    // System.out.println("getLeadingOrTrailing ////// p3");
     int lastIndexOfToken;
     StringBuilder builder = new StringBuilder("");
     lastIndexOfToken = ((TerminalNodeImpl) tree).getSymbol().getTokenIndex();
@@ -184,7 +184,7 @@ public class ConvertJava {
   private boolean funcFlag = false;
 
   private void setClassName(String thisRuleName, RuleContext t, int i) {
-    System.out.println("setClassName //////  p4");
+    // System.out.println("setClassName ////// p4");
     if (thisRuleName.equals("classdef") && i > 0) {
       ParseTree prev = t.getChild(i - 1);
       ParseTree curr = t.getChild(i);
@@ -211,7 +211,7 @@ public class ConvertJava {
   // }
 
   private void dumpMethodAst(String thisRuleName, JSONArray simpleTree) {
-    System.out.println("dumpMethodAst //////  p5 " + simpleTree);
+    // System.out.println("dumpMethodAst ////// p5 " + simpleTree);
     // System.out.println("test " + funcFlag + " " + thisRuleName);
 
     // if (thisRuleName.equals("funcdef")) {
@@ -251,7 +251,7 @@ public class ConvertJava {
   }
 
   private JSONArray getSerializedTree(RuleContext t, CommonTokenStream tokens) {
-    System.out.println("getSerializedTree //// p6");
+    // System.out.println("getSerializedTree //// p6");
     stackDepth++;
     int n = t.getChildCount();
     boolean hasLeaf = false;
@@ -268,7 +268,8 @@ public class ConvertJava {
     if (thisRuleName.equals("classdef")) {
       oldClassName = thisClassName;
     }
-    // System.out.println("test 4 ////////" + thisRuleName);
+    System.out.println("RuleContext // " + t.getText());
+    System.out.println("RuleName // " + thisRuleName);
     // System.out.println("test 4 ////////" + thisMethodName);
     JSONArray simpleTree = new JSONArray();
     simpleTree.put("");
@@ -290,7 +291,7 @@ public class ConvertJava {
           tok.put("trailing", ws2);
           boolean isLeaf;
           if (identifiersRuleNames.contains(ruleName)) {
-            System.out.println("get the rule correct /////////////// p7 " + ruleName);
+            // System.out.println("get the rule correct /////////////// p7 " + ruleName);
             if (localVarContexts.contains(thisRuleName)) {
               tok.put("var", true);
               // System.out.println(s);

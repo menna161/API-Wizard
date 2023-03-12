@@ -1,0 +1,7 @@
+df['category'] = df['category'].replace(['shopping_net'], 'shopping')
+df = df.drop('trans_date_trans_time', axis=1)
+df = df.drop('last', axis=1)
+df = df.drop('first', axis=1)
+df = df.drop('city', axis=1)
+df = df.drop('Unnamed: 0', axis=1)
+tm.assert_series_equal(s, y)
