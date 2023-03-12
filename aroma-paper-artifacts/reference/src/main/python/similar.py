@@ -211,7 +211,7 @@ def featurize_records_file(rpath, wpath):
             for line in inp:
                 obj = json.loads(line)
                 #########
-                # delete_imports(obj)
+                delete_imports(obj)
                 # print(obj)
                 obj["features"] = collect_features_as_list(
                     obj["ast"], True, False)[0]
