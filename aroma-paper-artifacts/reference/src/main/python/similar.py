@@ -39,6 +39,16 @@ def parse_args():
         help="Working directory.",
         required=True,
     )
+
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        action="store",
+        dest="output_file",
+        default=None,
+        help="Output file.",
+    )
+
     parser.add_argument(
         "-f",
         "--file-query",
@@ -919,7 +929,7 @@ def cluster_and_intersect(
     return clustered_records
 
 
-def print_similar_and_completions(query_record, records, vectorizer, counter_matrix):
+def print_similar_and_completions(query_record, records, vectorizer, counter_matrix, output_file):
     candidate_records = find_similar(
         query_record,
         records,
@@ -938,6 +948,8 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         config.THRESHOLD2,
     )
 
+    f = open(output_file, "w")
+
     print(
         f"################ query code ################ index = {query_record['index']}"
     )
@@ -954,12 +966,18 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
     for clustered_record in clustered_records:
         print(
             f"------------------------- example {count} ------------------------"
-        )  # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
+        )
+        f.write(
+            f"------------------------- example {count} ------------------------")
+        # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
         print(
             ast_to_code_with_full_lines(
                 clustered_record[0]["ast"], clustered_record[1]["ast"]
             )
         )
+        f.write(ast_to_code_with_full_lines(
+                clustered_record[0]["ast"], clustered_record[1]["ast"]
+                ))
         count += 1
 
     if config.PRINT_SIMILAR:
@@ -968,13 +986,27 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
             print(
                 f"idx = {j}:------------------- similar code ------------------ index = {candidate_record['index']}, score = {score}"
             )
+            f.write(
+                f"idx = {j}:------------------- similar code ------------------ index = {candidate_record['index']}, score = {score} \n")
+
             print(ast_to_code(candidate_record["ast"]))
+            f.write(ast_to_code(candidate_record["ast"]))
+
             print(
                 f"------------------- similar code (pruned) ------------------ score = {pruned_score}"
             )
+            f.write(
+                f"------------------- similar code (pruned) ------------------ score = {pruned_score} \n"
+            )
+
             print(ast_to_code(pruned_record["ast"]))
+            f.write(ast_to_code(pruned_record["ast"]))
+
             j += 1
     print("", flush=True)
+    # f.write("", flush=True)
+
+    f.close()
 
 
 def collect_features_as_list(ast, is_init, is_counter):
@@ -1014,10 +1046,10 @@ def test_record_at_index(idx):
     record = get_record_part(records[idx])
     if record != None:
         print_similar_and_completions(
-            record, records, vectorizer, counter_matrix)
+            record, records, vectorizer, counter_matrix, output_file)
 
 
-def featurize_and_test_record(record_files, keywords):
+def featurize_and_test_record(record_files, keywords, output_file):
     set_tmp = None
     record_final = None
     for record_file in record_files:
@@ -1040,7 +1072,7 @@ def featurize_and_test_record(record_files, keywords):
         record_final["features"] = list(set_tmp.elements())
     if len(record_final["features"]) > 0:
         print_similar_and_completions(
-            record_final, records, vectorizer, counter_matrix)
+            record_final, records, vectorizer, counter_matrix, output_file)
 
 
 def test_all():
@@ -1049,7 +1081,7 @@ def test_all():
     for k, record in enumerate(sampled_records):
         print(f"{k}: ", end="")
         print_similar_and_completions(
-            record, records, vectorizer, counter_matrix)
+            record, records, vectorizer, counter_matrix, output_file)
 
 
 def load_all(counter_path, asts_path):
@@ -1095,9 +1127,12 @@ setup(options.corpus)
     os.path.join(options.working_dir, config.FEATURES_FILE),
 )
 
+output_file = options.output_file
+
 if options.index_query is not None:
     test_record_at_index(options.index_query)
 elif len(options.file_query) > 0 or len(options.keywords) > 0:
-    featurize_and_test_record(options.file_query, options.keywords)
+    featurize_and_test_record(
+        options.file_query, options.keywords, output_file)
 elif options.testall:
     test_all()
