@@ -76,7 +76,7 @@ public class ConvertJava {
   private int totalMethods = 0;
 
   public void serializeFile(String f, String startSymbol) {
-    System.out.println("serializeFile ////// p1");
+    // System.out.println("serializeFile ////// p1");
     try {
       long t1, t2, t3;
 
@@ -100,7 +100,7 @@ public class ConvertJava {
       parser.setBuildParseTree(false);
       setRuleNames(parser);
 
-      System.out.println(t.getText() + "///// p2");
+      // System.out.println(t.getText() + "///// p2");
 
       t2 = System.currentTimeMillis();
 
@@ -268,8 +268,8 @@ public class ConvertJava {
     if (thisRuleName.equals("classdef")) {
       oldClassName = thisClassName;
     }
-    System.out.println("RuleContext // " + t.getText());
-    System.out.println("RuleName // " + thisRuleName);
+    // System.out.println("RuleContext // " + t.getText());
+    // System.out.println("RuleName // " + thisRuleName);
     // System.out.println("test 4 ////////" + thisMethodName);
     JSONArray simpleTree = new JSONArray();
     simpleTree.put("");
@@ -458,41 +458,42 @@ public class ConvertJava {
 
   public static void main(String args[]) throws IOException {
     ///// TODO : can add number to indicate whether to scan folder or single file
-    System.out.println("/" + args[2]);
-    // ArrayList<String> fileNames = new ArrayList<String>();
-    // File[] files = new
-    // File("/Users/nehalfooda/Downloads/Thesis/Aroma/aroma-paper-artifacts/reference/"
-    // + args[2])
-    // .listFiles();
-    // // If this pathname does not denote a directory, then listFiles() returns
-    // null.
-
-    // for (File file : files) {
-    // if (file.isFile()) {
-    // fileNames.add(file.getName());
-    // }
-    // }
+    //// another way: check if the second argument has .py or not
 
     ConvertJava p = new ConvertJava();
     p.openWriter(args[1]);
-    int count = args.length;
 
-    // for (int i = 0; i < fileNames.size(); i++) {
-    // if (Files.isRegularFile(new File(fileNames.get(i)).toPath())) {
-    // p.serializeFile(fileNames.get(i), args[0]);
-    // } else {
-    // Files.walk(Paths.get(fileNames.get(i)))
-    // .filter(path -> !Files.isDirectory(path) &&
-    // path.toString().endsWith(".java"))
-    // .forEach(path -> p.serializeFile(path.normalize().toString(), args[0]));
-    // }
-    // }
+    if (!(args[2].contains(".py"))) {
+      ArrayList<String> fileNames = new ArrayList<String>();
+      File[] files = new File(
+          "/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/"
+              + args[2])
+          .listFiles();
 
-    for (int i = 2; i < count; i++) {
-      if (Files.isRegularFile(new File(args[i]).toPath())) {
-        p.serializeFile(args[i], args[0]);
+      for (File file : files) {
+        if (file.isFile() && file.getName().contains("ex")) {
+          String tmp = args[2] + "/" + file.getName();
+          fileNames.add(tmp);
+          // System.out.println(tmp);
+        }
+      }
+
+      for (int i = 0; i < fileNames.size(); i++) {
+        if (Files.isRegularFile(new File(fileNames.get(i)).toPath())) {
+          // System.out.println("here okay");
+          p.serializeFile(fileNames.get(i), args[0]);
+        } else {
+          Files.walk(Paths.get(fileNames.get(i)))
+              .filter(path -> !Files.isDirectory(path) &&
+                  path.toString().endsWith(".java"))
+              .forEach(path -> p.serializeFile(path.normalize().toString(), args[0]));
+        }
+      }
+    } else {
+      if (Files.isRegularFile(new File(args[2]).toPath())) {
+        p.serializeFile(args[2], args[0]);
       } else {
-        Files.walk(Paths.get(args[i]))
+        Files.walk(Paths.get(args[2]))
             .filter(path -> !Files.isDirectory(path) &&
                 path.toString().endsWith(".java"))
             .forEach(path -> p.serializeFile(path.normalize().toString(), args[0]));
