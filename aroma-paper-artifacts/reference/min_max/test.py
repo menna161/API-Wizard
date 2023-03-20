@@ -1,1 +1,1 @@
-minmaxscalar = MinMaxScaler()
+scaler = MinMaxScaler()

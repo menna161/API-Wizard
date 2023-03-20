@@ -206,10 +206,19 @@ def delete_imports(obj):
     count_hash = hash.count('#')
     hash_index = []
     for i in range(1, count_hash+1):
+        # print(obj["ast"][i][1][0])
+        # print("2 " + obj["ast"][i][0])
+        if "def" in obj["ast"][i][0]:
+            # print("def found")
+            break
         if "import" in obj["ast"][i][1][0]:
+            # print(" yes")
             hash_index.append(i)
             # print("here 1 ")
-    for x in hash_index:
+    # print(hash_index)
+    for x in reversed(hash_index):
+        # print(x)
+        # print(obj["ast"][x])
         del obj["ast"][x]
     obj["ast"][0] = obj["ast"][0].replace("#", "", len(hash_index))
 
@@ -968,7 +977,7 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
             f"------------------------- example {count} ------------------------"
         )
         f.write(
-            f"------------------------- example {count} ------------------------")
+            f"------------------------- example {count} ------------------------ \n")
         # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
         print(
             ast_to_code_with_full_lines(

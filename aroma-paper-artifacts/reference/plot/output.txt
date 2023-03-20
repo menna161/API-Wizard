@@ -1,16 +1,8 @@
-------------------------- example 1 ------------------------plt.plot([1, 2, 3, 4])
-plt.ylabel('some numbers')
+------------------------- example 1 ------------------------plt.plot([1, 2, 3, 4], [3, 6, 9, 12])
+plt.axis([0, 10, 0, 25])
 plt.show()
 
-idx = 0:------------------- similar code ------------------ index = 3, score = 7.0 
-plt.plot([1, 2, 3, 4])
-plt.ylabel('some numbers')
-plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-plt.plot
-
-idx = 1:------------------- similar code ------------------ index = 2, score = 7.0 
+idx = 0:------------------- similar code ------------------ index = 2, score = 7.0 
 plt.plot([1, 2, 3, 4], [3, 6, 9, 12])
 plt.axis([0, 10, 0, 25])
 plt.show()
@@ -18,17 +10,9 @@ plt.show()
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 plt.plot
 
-idx = 2:------------------- similar code ------------------ index = 1, score = 7.0 
+idx = 1:------------------- similar code ------------------ index = 1, score = 7.0 
 plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 plt.axis([0, 6, 0, 20])
-plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-plt.plot
-
-idx = 3:------------------- similar code ------------------ index = 0, score = 7.0 
-plt.plot([5, 6, 7, 8])
-plt.xlabel('my x values')
 plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
