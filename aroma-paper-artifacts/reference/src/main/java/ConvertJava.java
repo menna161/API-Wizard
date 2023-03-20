@@ -467,12 +467,12 @@ public class ConvertJava {
       ArrayList<String> fileNames = new ArrayList<String>();
       File[] files = new File(
           "/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/"
-              + args[2])
+              + args[2] + "/snippets")
           .listFiles();
 
       for (File file : files) {
-        if (file.isFile() && file.getName().contains("ex")) {
-          String tmp = args[2] + "/" + file.getName();
+        if (file.isFile()) {
+          String tmp = args[2] + "/snippets/" + file.getName();
           fileNames.add(tmp);
           // System.out.println(tmp);
         }
