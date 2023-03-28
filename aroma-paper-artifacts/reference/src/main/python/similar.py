@@ -726,7 +726,7 @@ def get_completions2(query_record, candidate_records):
     return ret2 + ret
 
 
-def get_completions3(query_record, candidate_records, top_n, threshold1, threshold2):
+def get_completions3(query_record, candidate_records, top_n, threshold1, threshold2, rep):
     l = len(candidate_records)
     ret = []
     acc = []
@@ -780,6 +780,7 @@ def get_completions3(query_record, candidate_records, top_n, threshold1, thresho
             if distance(Counter(tuple), Counter(acc[j])) > 0.5:
                 is_subset = True
         if not is_subset:
+            rep.append(len(tuple))
             print(f"Pruning {len(tuple)} {tuple}")
             logging.info("recommending")
             pruned_record = candidate_records[tuple[0]][0]
@@ -881,12 +882,15 @@ def ast_to_code(tree):
     return "".join(token_list)
 
 
-def ast_to_code_with_full_lines(tree, fulltree):
+def ast_to_code_with_full_lines(tree, fulltree, lines_count, comments_count):
     line_list = []
     ast_to_code_collect_lines(tree, line_list)
     token_list = []
     ast_to_code_print_lines(fulltree, line_list, token_list)
     token_list.append("\n")
+    print(token_list)
+    lines_count.append(token_list.count('\n')-1)
+    comments_count.append(token_list.count(' your code ...\n'))
     return "".join(token_list)
 
 
@@ -928,18 +932,21 @@ def find_similar(
 
 
 def cluster_and_intersect(
-    query_record, candidate_records, top_n, threshold1, threshold2
+    query_record, candidate_records, top_n, threshold1, threshold2, rep
 ):
     clustered_records = []
     if len(candidate_records) > 0:
         if config.CLUSTER:
             clustered_records = get_completions3(
-                query_record, candidate_records, top_n, threshold1, threshold2
+                query_record, candidate_records, top_n, threshold1, threshold2, rep
             )
     return clustered_records
 
 
 def print_similar_and_completions(query_record, records, vectorizer, counter_matrix, output_file):
+    rep = []  # to count representativeness
+    lines_count = []  # to count number of lines
+    comments_count = []  # to count number of comments
     candidate_records = find_similar(
         query_record,
         records,
@@ -956,6 +963,7 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         config.TOP_N,
         config.THRESHOLD1,
         config.THRESHOLD2,
+        rep
     )
 
     f = open(output_file, "w")
@@ -982,13 +990,29 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
         print(
             ast_to_code_with_full_lines(
-                clustered_record[0]["ast"], clustered_record[1]["ast"]
+                clustered_record[0]["ast"], clustered_record[1]["ast"], lines_count, comments_count
             )
         )
+        lines_count.pop()
+        comments_count.pop()
         f.write(ast_to_code_with_full_lines(
-                clustered_record[0]["ast"], clustered_record[1]["ast"]
+                clustered_record[0]["ast"], clustered_record[1]["ast"], lines_count, comments_count
                 ))
         count += 1
+
+    print(rep, lines_count, comments_count)
+    print("representativeness", rep, "\n")
+    print("number of lines", lines_count, "\n")
+    print("number of comments", comments_count, "\n")
+
+    f.write(
+        "examples  ||  representativeness  ||  number of lines  || number of comments \n")
+    for i in range(len(rep)):
+        f.write("example"+str(i+1)+"  ||          "+str(rep[i])+"           ||        "+str(
+            lines_count[i])+"         ||         "+str(comments_count[i])+"        ")
+        f.write("\n")
+
+    f.write("\n\n")
 
     if config.PRINT_SIMILAR:
         j = 0

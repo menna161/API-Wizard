@@ -29,6 +29,11 @@ def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=Fa
         print(new_col_names, ', ', end='')
     return df
 
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        14         ||         0
+example2  ||          2           ||        13         ||         0
+
+
 idx = 0:------------------- similar code ------------------ index = 10, score = 8.0 
 @timeit
 def get_key2_feature(df, key1, key2, target_col, agg, sub='', scale=False):
