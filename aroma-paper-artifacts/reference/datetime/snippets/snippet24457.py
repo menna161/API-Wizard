@@ -1,0 +1,15 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+import datetime
+import importlib
+import inspect
+import re
+import trafaret as t
+from croniter import croniter
+from trafaret import Any, Bool, Dict, Email, Enum, Int, Key, List, Mapping, Null, String
+from inspect import signature
+from funcsigs import signature
+
+
+def check_value(self, value):
+    if (not isinstance(value, datetime.timedelta)):
+        self._failure('value should be a timedelta', value=value)

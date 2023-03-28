@@ -1,0 +1,637 @@
+------------------------- example 1 ------------------------ 
+def reset_state(self):
+    np.random.seed(self.seed)
+    for _ in range(self._size):
+        label = np.random.randint(low=0, high=10)
+        img = np.random.randn(28, 28, 3)
+        self.cache.append([label, img])
+
+------------------------- example 2 ------------------------ 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    args = parser.parse_args()
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/hanoi_npi_{}-{}.pth'.format(date_time, seed)
+    results_save_path = '../results/hanoi_npi_{}-{}.txt'.format(date_time, seed)
+    tensorboard_path = 'runs/hanoi_npi_{}-{}'.format(date_time, seed)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = HanoiEnv(n=5, encoding_dim=conf.encoding_dim)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = HanoiEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    max_depth_dict = {1: 8}
+    mcts_train_params = {'number_of_simulations': 1500, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True, 'dir_epsilon': 0.5, 'dir_noise': 0.5}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': False}
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_n = 1
+    max_n = 2
+    validation_n = 3
+    t_i = time.time()
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        n = np.random.randint(min_n, (max_n + 1))
+        env = HanoiEnv(n=n, encoding_dim=conf.encoding_dim)
+        trainer.env = env
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            n = validation_n
+            env = HanoiEnv(n=n, encoding_dim=conf.encoding_dim)
+            trainer.env = env
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    t_f = time.time()
+    if verbose:
+        print('End of training !')
+        duration = (t_f - t_i)
+// your code ...
+
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+------------------------- example 3 ------------------------ 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    parser.add_argument('--max-length', help='number of cpus to use', default=3, type=int)
+    parser.add_argument('--val-length', help='number of cpus to use', default=3, type=int)
+    args = parser.parse_args()
+    val_length = args.val_length
+    max_length = args.max_length
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/list_npi_nohierarchy_{}-{}_max_{}_val_{}.pth'.format(date_time, seed, max_length, val_length)
+    results_save_path = '../results/list_npi_nohierarchy_{}-{}_max_{}_val_{}.txt'.format(date_time, seed, max_length, val_length)
+    tensorboard_path = 'runs/list_npi_nohierarchy_{}-{}_max_{}_val_{}'.format(date_time, seed, max_length, val_length)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = ListEnv(length=5, encoding_dim=conf.encoding_dim, hierarchy=False)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = ListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    mcts_train_params = {'number_of_simulations': conf.number_of_simulations, 'max_depth_dict': {}, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': {}, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma}
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_length = 2
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        task_level = env_tmp.get_program_level_from_index(task_index)
+        length = np.random.randint(min_length, (max_length + 1))
+        env = ListEnv(length=length, encoding_dim=conf.encoding_dim, hierarchy=False)
+        max_depth_dict = {1: ((6 * length) * length)}
+        trainer.env = env
+        trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+        trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            length = val_length
+            env = ListEnv(length=length, encoding_dim=conf.encoding_dim, hierarchy=False)
+            max_depth_dict = {1: ((6 * length) * length)}
+            trainer.env = env
+            trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+            trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+            print('Seed : {}'.format(seed))
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    if verbose:
+        print('End of training !')
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+idx = 0:------------------- similar code ------------------ index = 8, score = 11.0 
+def reset_state(self):
+    np.random.seed(self.seed)
+    for _ in range(self._size):
+        label = np.random.randint(low=0, high=10)
+        img = np.random.randn(28, 28, 3)
+        self.cache.append([label, img])
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+def  ... ( ... ):
+    np.random
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 1:------------------- similar code ------------------ index = 149, score = 11.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    args = parser.parse_args()
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/hanoi_npi_{}-{}.pth'.format(date_time, seed)
+    results_save_path = '../results/hanoi_npi_{}-{}.txt'.format(date_time, seed)
+    tensorboard_path = 'runs/hanoi_npi_{}-{}'.format(date_time, seed)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = HanoiEnv(n=5, encoding_dim=conf.encoding_dim)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = HanoiEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    max_depth_dict = {1: 8}
+    mcts_train_params = {'number_of_simulations': 1500, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True, 'dir_epsilon': 0.5, 'dir_noise': 0.5}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': False}
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_n = 1
+    max_n = 2
+    validation_n = 3
+    t_i = time.time()
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        n = np.random.randint(min_n, (max_n + 1))
+        env = HanoiEnv(n=n, encoding_dim=conf.encoding_dim)
+        trainer.env = env
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            n = validation_n
+            env = HanoiEnv(n=n, encoding_dim=conf.encoding_dim)
+            trainer.env = env
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    t_f = time.time()
+    if verbose:
+        print('End of training !')
+        duration = (t_f - t_i)
+        print('Number of iterations: {}, Training time: {} minutes'.format(iteration, (duration / 60)))
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+if:
+    np.random
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 2:------------------- similar code ------------------ index = 60, score = 11.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    parser.add_argument('--max-length', help='number of cpus to use', default=3, type=int)
+    parser.add_argument('--val-length', help='number of cpus to use', default=3, type=int)
+    args = parser.parse_args()
+    val_length = args.val_length
+    max_length = args.max_length
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/list_npi_nohierarchy_{}-{}_max_{}_val_{}.pth'.format(date_time, seed, max_length, val_length)
+    results_save_path = '../results/list_npi_nohierarchy_{}-{}_max_{}_val_{}.txt'.format(date_time, seed, max_length, val_length)
+    tensorboard_path = 'runs/list_npi_nohierarchy_{}-{}_max_{}_val_{}'.format(date_time, seed, max_length, val_length)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = ListEnv(length=5, encoding_dim=conf.encoding_dim, hierarchy=False)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = ListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    mcts_train_params = {'number_of_simulations': conf.number_of_simulations, 'max_depth_dict': {}, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': {}, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma}
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_length = 2
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        task_level = env_tmp.get_program_level_from_index(task_index)
+        length = np.random.randint(min_length, (max_length + 1))
+        env = ListEnv(length=length, encoding_dim=conf.encoding_dim, hierarchy=False)
+        max_depth_dict = {1: ((6 * length) * length)}
+        trainer.env = env
+        trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+        trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            length = val_length
+            env = ListEnv(length=length, encoding_dim=conf.encoding_dim, hierarchy=False)
+            max_depth_dict = {1: ((6 * length) * length)}
+            trainer.env = env
+            trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+            trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+            print('Seed : {}'.format(seed))
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    if verbose:
+        print('End of training !')
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+if:
+    np.random
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 3:------------------- similar code ------------------ index = 163, score = 11.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    args = parser.parse_args()
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/recursive_list_npi_{}-{}.pth'.format(date_time, seed)
+    results_save_path = '../results/recursive_list_npi_{}-{}.txt'.format(date_time, seed)
+    tensorboard_path = 'runs/recursive_list_npi_{}-{}'.format(date_time, seed)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = RecursiveListEnv(length=5, encoding_dim=conf.encoding_dim)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = RecursiveListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    max_depth_dict = {1: 5, 2: 5, 3: 5}
+    mcts_train_params = {'number_of_simulations': conf.number_of_simulations, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma}
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_length = 2
+    max_length = 4
+    validation_length = 7
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        task_level = env_tmp.get_program_level_from_index(task_index)
+        length = np.random.randint(min_length, (max_length + 1))
+        env = RecursiveListEnv(length=length, encoding_dim=conf.encoding_dim)
+        trainer.env = env
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            length = validation_length
+            env = RecursiveListEnv(length=length, encoding_dim=conf.encoding_dim)
+            trainer.env = env
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    if verbose:
+        print('End of training !')
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+if:
+    np.random
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 4:------------------- similar code ------------------ index = 114, score = 11.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', help='random seed', default=1, type=int)
+    parser.add_argument('--tensorboard', help='display on tensorboard', action='store_true')
+    parser.add_argument('--verbose', help='print training monitoring in console', action='store_true')
+    parser.add_argument('--save-model', help='save neural network model', action='store_true')
+    parser.add_argument('--save-results', help='save training progress in .txt file', action='store_true')
+    parser.add_argument('--num-cpus', help='number of cpus to use', default=8, type=int)
+    args = parser.parse_args()
+    seed = args.seed
+    tensorboard = args.tensorboard
+    verbose = args.verbose
+    save_model = args.save_model
+    save_results = args.save_results
+    num_cpus = args.num_cpus
+    torch.set_num_threads(num_cpus)
+    ts = time.localtime(time.time())
+    date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
+    model_save_path = '../models/list_npi_{}-{}.pth'.format(date_time, seed)
+    results_save_path = '../results/list_npi_{}-{}.txt'.format(date_time, seed)
+    tensorboard_path = 'runs/list_npi_{}-{}'.format(date_time, seed)
+    if tensorboard:
+        writer = SummaryWriter(tensorboard_path)
+    if save_results:
+        results_file = open(results_save_path, 'w')
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    env_tmp = ListEnv(length=5, encoding_dim=conf.encoding_dim)
+    num_programs = env_tmp.get_num_programs()
+    num_non_primary_programs = env_tmp.get_num_non_primary_programs()
+    observation_dim = env_tmp.get_observation_dim()
+    programs_library = env_tmp.programs_library
+    encoder = ListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    indices_non_primary_programs = [p['index'] for (_, p) in programs_library.items() if (p['level'] > 0)]
+    policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim, conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
+    idx_tasks = [prog['index'] for (key, prog) in env_tmp.programs_library.items() if (prog['level'] > 0)]
+    buffer = PrioritizedReplayBuffer(conf.buffer_max_length, idx_tasks, p1=conf.proba_replay_buffer)
+    curriculum_scheduler = CurriculumScheduler(conf.reward_threshold, num_non_primary_programs, programs_library, moving_average=0.99)
+    length = 5
+    max_depth_dict = {1: 5, 2: ((2 * length) + 3), 3: ((2 * length) + 3)}
+    mcts_train_params = {'number_of_simulations': conf.number_of_simulations, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': False, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma, 'use_dirichlet_noise': True}
+    mcts_test_params = {'number_of_simulations': conf.number_of_simulations_for_validation, 'max_depth_dict': max_depth_dict, 'temperature': conf.temperature, 'c_puct': conf.c_puct, 'exploit': True, 'level_closeness_coeff': conf.level_closeness_coeff, 'gamma': conf.gamma}
+    trainer = Trainer(env_tmp, policy, buffer, curriculum_scheduler, mcts_train_params, mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size, conf.num_updates_per_episode, verbose)
+    min_length = 2
+    max_length = 7
+    validation_length = 7
+    for iteration in range(conf.num_iterations):
+        task_index = curriculum_scheduler.get_next_task_index()
+        task_level = env_tmp.get_program_level_from_index(task_index)
+        length = np.random.randint(min_length, (max_length + 1))
+        env = ListEnv(length=length, encoding_dim=conf.encoding_dim)
+        max_depth_dict = {1: 5, 2: ((2 * length) + 3), 3: ((2 * length) + 3)}
+        trainer.env = env
+        trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+        trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+        trainer.play_iteration(task_index)
+        if verbose:
+            print('Start validation .....')
+        for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+            task_level = env_tmp.get_program_level_from_index(idx)
+            length = validation_length
+            env = ListEnv(length=length, encoding_dim=conf.encoding_dim)
+            max_depth_dict = {1: 5, 2: ((2 * length) + 3), 3: ((2 * length) + 3)}
+            trainer.env = env
+            trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
+            trainer.mcts_test_params['max_depth_dict'] = max_depth_dict
+            (v_rewards, v_lengths, programs_failed_indices) = trainer.perform_validation_step(idx)
+            curriculum_scheduler.update_statistics(idx, v_rewards)
+        if tensorboard:
+            for idx in curriculum_scheduler.get_tasks_of_maximum_level():
+                v_task_name = env.get_program_from_index(idx)
+                writer.add_scalar(('validation/' + v_task_name), curriculum_scheduler.get_statistic(idx), iteration)
+        if save_results:
+            str = 'Iteration: {}'.format(iteration)
+            for idx in curriculum_scheduler.indices_non_primary_programs:
+                task_name = env.get_program_from_index(idx)
+                str += (', %s:%.3f' % (task_name, curriculum_scheduler.get_statistic(idx)))
+            str += '\n'
+            results_file.write(str)
+        if verbose:
+            curriculum_scheduler.print_statistics()
+            print('')
+            print('')
+        if (curriculum_scheduler.maximum_level > env.get_maximum_level()):
+            break
+        if save_model:
+            torch.save(policy.state_dict(), model_save_path)
+    if verbose:
+        print('End of training !')
+    if tensorboard:
+        writer.close()
+    if save_results:
+        results_file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+if:
+    np.random
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 5:------------------- similar code ------------------ index = 230, score = 11.0 
+def show_result(img, result, class_names, score_thr=0.3, wait_time=0, show=True, out_file=None):
+    'Visualize the detection results on the image.\n\n    Args:\n        img (str or np.ndarray): Image filename or loaded image.\n        result (tuple[list] or list): The detection result, can be either\n            (bbox, segm) or just bbox.\n        class_names (list[str] or tuple[str]): A list of class names.\n        score_thr (float): The threshold to visualize the bboxes and masks.\n        wait_time (int): Value of waitKey param.\n        show (bool, optional): Whether to show the image with opencv or not.\n        out_file (str, optional): If specified, the visualization result will\n            be written to the out file instead of shown in a window.\n\n    Returns:\n        np.ndarray or None: If neither `show` nor `out_file` is specified, the\n            visualized image is returned, otherwise None is returned.\n    '
+    assert isinstance(class_names, (tuple, list))
+    img = mmcv.imread(img)
+    img = img.copy()
+    if isinstance(result, tuple):
+        (bbox_result, segm_result) = result
+    else:
+        (bbox_result, segm_result) = (result, None)
+    bboxes = np.vstack(bbox_result)
+    labels = [np.full(bbox.shape[0], i, dtype=np.int32) for (i, bbox) in enumerate(bbox_result)]
+    labels = np.concatenate(labels)
+    if (segm_result is not None):
+        segms = mmcv.concat_list(segm_result)
+        inds = np.where((bboxes[:, (- 1)] > score_thr))[0]
+        np.random.seed(42)
+        color_masks = [np.random.randint(0, 256, (1, 3), dtype=np.uint8) for _ in range((max(labels) + 1))]
+        for i in inds:
+            i = int(i)
+            color_mask = color_masks[labels[i]]
+            mask = maskUtils.decode(segms[i]).astype(np.bool)
+            img[mask] = ((img[mask] * 0.5) + (color_mask * 0.5))
+    mmcv.imshow_det_bboxes(img, bboxes, labels, class_names=class_names, score_thr=score_thr, show=show, wait_time=wait_time, out_file=out_file)
+    if (not (show or out_file)):
+        return img
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+def  ... ():
+    if:
+        np.random
+         ...  = [ ... .randint]
+

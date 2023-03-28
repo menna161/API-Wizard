@@ -1,0 +1,316 @@
+------------------------- example 1 ------------------------ 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import logging
+import joblib
+import datetime
+import sys
+import collections
+from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import time
+import multiprocessing
+from sklearn.preprocessing import MinMaxScaler
+import warnings
+from sklearn import metrics
+from functools import wraps
+import wrapt
+import random
+import tarfile
+import zipfile
+
+
+@timeit
+def get_key2_feature(df, key1, key2, target_col, agg, sub='', scale=False):
+    t = df.groupby([key1, key2])[target_col].agg(agg).reset_index()
+    cols = []
+    for a in agg:
+        cols.append(f'{key1}_{key2}_{target_col}_w{sub}_{a}')
+    t.columns = ([key1, key2] + cols)
+    if scale:
+        scaler = MinMaxScaler()
+        for col in t.columns:
+            if (key1 == col):
+                continue
+            t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
+    return t
+
+------------------------- example 2 ------------------------ 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import logging
+import joblib
+import datetime
+import sys
+import collections
+from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import time
+import multiprocessing
+from sklearn.preprocessing import MinMaxScaler
+import warnings
+from sklearn import metrics
+from functools import wraps
+import wrapt
+import random
+import tarfile
+import zipfile
+
+
+def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=False):
+    logger.info('df %s, col_key %s, col_target %s, agg %s, sub %s', df.shape, col_key, col_target, agg, sub)
+    for ag in agg:
+        new_col_names = f'{col_key}_{col_target}_w{sub}_{ag}'
+        tmp_df = feature_df.groupby(col_key)[col_target].agg([ag]).reset_index().rename(columns={ag: new_col_names})
+        tmp_df.index = list(tmp_df[col_key])
+        if scale:
+            scaler = MinMaxScaler()
+            tmp_df[new_col_names] = scaler.fit_transform(tmp_df[new_col_names].values.reshape((- 1), 1))
+        tmp_df = tmp_df[new_col_names].to_dict()
+        df[new_col_names] = df[col_key].map(tmp_df).astype('float32')
+        print(new_col_names, ', ', end='')
+    return df
+
+idx = 0:------------------- similar code ------------------ index = 10, score = 8.0 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import logging
+import joblib
+import datetime
+import sys
+import collections
+from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import time
+import multiprocessing
+from sklearn.preprocessing import MinMaxScaler
+import warnings
+from sklearn import metrics
+from functools import wraps
+import wrapt
+import random
+import tarfile
+import zipfile
+
+
+@timeit
+def get_key2_feature(df, key1, key2, target_col, agg, sub='', scale=False):
+    t = df.groupby([key1, key2])[target_col].agg(agg).reset_index()
+    cols = []
+    for a in agg:
+        cols.append(f'{key1}_{key2}_{target_col}_w{sub}_{a}')
+    t.columns = ([key1, key2] + cols)
+    if scale:
+        scaler = MinMaxScaler()
+        for col in t.columns:
+            if (key1 == col):
+                continue
+            t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
+    return t
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    if  ... :
+        scaler = MinMaxScaler()
+
+idx = 1:------------------- similar code ------------------ index = 6, score = 8.0 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import logging
+import joblib
+import datetime
+import sys
+import collections
+from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import time
+import multiprocessing
+from sklearn.preprocessing import MinMaxScaler
+import warnings
+from sklearn import metrics
+from functools import wraps
+import wrapt
+import random
+import tarfile
+import zipfile
+
+
+def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=False):
+    logger.info('df %s, col_key %s, col_target %s, agg %s, sub %s', df.shape, col_key, col_target, agg, sub)
+    for ag in agg:
+        new_col_names = f'{col_key}_{col_target}_w{sub}_{ag}'
+        tmp_df = feature_df.groupby(col_key)[col_target].agg([ag]).reset_index().rename(columns={ag: new_col_names})
+        tmp_df.index = list(tmp_df[col_key])
+        if scale:
+            scaler = MinMaxScaler()
+            tmp_df[new_col_names] = scaler.fit_transform(tmp_df[new_col_names].values.reshape((- 1), 1))
+        tmp_df = tmp_df[new_col_names].to_dict()
+        df[new_col_names] = df[col_key].map(tmp_df).astype('float32')
+        print(new_col_names, ', ', end='')
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    for  ...  in  ... :
+        if  ... :
+            scaler = MinMaxScaler()
+
+idx = 2:------------------- similar code ------------------ index = 3, score = 8.0 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import logging
+import joblib
+import datetime
+import sys
+import collections
+from tqdm import tqdm
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import time
+import multiprocessing
+from sklearn.preprocessing import MinMaxScaler
+import warnings
+from sklearn import metrics
+from functools import wraps
+import wrapt
+import random
+import tarfile
+import zipfile
+
+
+@timeit
+def get_key1_feature(df, key1, target, agg, sub='', ret_dict=False, scale=False):
+    t = df.groupby([key1])[target].agg(agg).reset_index()
+    cols = []
+    for a in agg:
+        cols.append(f'{key1}_{target}_w{sub}_{a}')
+    t.columns = ([key1] + cols)
+    logger.info('columns %s', t.columns.values.tolist())
+    if scale:
+        scaler = MinMaxScaler()
+        for col in t.columns:
+            if (key1 == col):
+                continue
+            t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
+    if ret_dict:
+        t = t.set_index(key1).to_dict()
+    return t
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    if  ... :
+        scaler = MinMaxScaler()
+
+idx = 3:------------------- similar code ------------------ index = 0, score = 8.0 
+import getopt
+import sys
+from pathlib import Path
+from algorithm import *
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import StratifiedKFold
+from scipy import sparse
+from tensorflow import keras
+from sklearn import metrics
+import os
+import pandas
+import time
+import gc
+import shutil
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler
+
+
+def learn(algorithm_instance: Algorithm, undersampling: bool, oversampling: bool, timestamp: str):
+    scaler = MinMaxScaler()
+    skf = StratifiedKFold(n_splits=splits, shuffle=True)
+    run_sets = []
+    seperated = Path.exists(processed_path.joinpath('train_labels.txt'))
+    if seperated:
+        bag_of_words_train = sparse.load_npz(processed_path.joinpath('bag_of_words_train.npz'))
+        bag_of_words_test = sparse.load_npz(processed_path.joinpath('bag_of_words_test.npz'))
+        y_train_raw = list(map(int, open(str(processed_path.joinpath('train_labels.txt'))).read().splitlines()))
+        y_test_raw = list(map(int, open(str(processed_path.joinpath('test_labels.txt'))).read().splitlines()))
+        num_classes = (np.max([np.max(y_train_raw), np.max(y_test_raw)]) + 1)
+        x_train_raw = scaler.fit_transform(bag_of_words_train.toarray().astype(float))
+        x_test_raw = scaler.fit_transform(bag_of_words_test.toarray().astype(float))
+        train_runs = []
+        test_runs = []
+        runs = []
+        for (train_index, _) in skf.split(x_train_raw, y_train_raw):
+            train_runs.append(train_index)
+        for (test_index, _) in skf.split(x_test_raw, y_test_raw):
+            test_runs.append(test_index)
+        for i in range(splits):
+            runs.append((train_runs[i], test_runs[i]))
+        del bag_of_words_train, bag_of_words_test, train_runs, test_runs
+    else:
+        bag_of_words = sparse.load_npz(processed_path.joinpath('bag_of_words.npz'))
+        y_raw = list(map(int, open(str(processed_path.joinpath('labels.txt'))).read().splitlines()))
+        num_classes = (np.max(y_raw) + 1)
+        x_raw = scaler.fit_transform(bag_of_words.toarray().astype(float))
+        runs = []
+        for (train_index, test_index) in skf.split(x_raw, y_raw):
+            runs.append((train_index, test_index))
+        del bag_of_words
+    del scaler, skf
+    accuracies = []
+    for i in range(splits):
+        if seperated:
+            ((x_train, y_train), (x_test, y_test)) = ((x_train_raw[runs[i][0]], keras.utils.to_categorical([y_train_raw[j] for j in runs[i][0]], num_classes)), (x_test_raw[runs[i][1]], keras.utils.to_categorical([y_test_raw[j] for j in runs[i][1]], num_classes)))
+        else:
+            ((x_train, y_train), (x_test, y_test)) = ((x_raw[runs[i][0]], keras.utils.to_categorical([y_raw[j] for j in runs[i][0]], num_classes)), (x_raw[runs[i][1]], keras.utils.to_categorical([y_raw[j] for j in runs[i][1]], num_classes)))
+        if undersampling:
+            rus = RandomUnderSampler()
+            (x_train, y_train) = rus.fit_resample(x_train, y_train)
+        if oversampling:
+            ros = RandomOverSampler()
+            (x_train, y_train) = ros.fit_resample(x_train, y_train)
+        if (y_train.shape[1] != num_classes):
+            y_train = keras.utils.to_categorical(y_train, num_classes)
+        algorithm_instance.fit(x_train, y_train)
+        y_pred_proba = algorithm_instance.predict_proba(x_test)
+        y_pred = [np.argmax(y) for y in y_pred_proba]
+        y_pred = keras.utils.to_categorical(y_pred, num_classes)
+        col_test = []
+        col_pred_proba = []
+        col_pred = []
+        for j in range(num_classes):
+            col_test.append(('y_test_%s' % j))
+            col_pred_proba.append(('y_pred_proba_%s' % j))
+            col_pred.append(('y_pred_%s' % j))
+        columns = col_test
+        columns.extend(col_pred_proba)
+        columns.extend(col_pred)
+        data = np.concatenate((y_test, y_pred_proba), axis=1)
+        data = np.concatenate((data, y_pred), axis=1)
+        df = pandas.DataFrame(data=data, columns=columns)
+        df.to_csv(out_path.joinpath(timestamp, ('run%s.csv' % i)))
+        accuracies.append(metrics.accuracy_score(y_test.argmax(axis=1), y_pred.argmax(axis=1)))
+        del x_train, x_test, y_train, y_test, y_pred_proba, y_pred, data, df
+        gc.collect()
+    print('Accuracy:', np.average(accuracies))
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    scaler = MinMaxScaler()
+

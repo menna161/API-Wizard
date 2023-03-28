@@ -202,19 +202,20 @@ def ast_to_code_print_lines(ast, line_list, token_list):
 
 
 def delete_imports(obj):
+    print(obj['path'])
     hash = obj["ast"][0]
     count_hash = hash.count('#')
     hash_index = []
     for i in range(1, count_hash+1):
         # print(obj["ast"][i][1][0])
         # print("2 " + obj["ast"][i][0])
-        if "def" in obj["ast"][i][0]:
-            # print("def found")
-            break
-        if "import" in obj["ast"][i][1][0]:
-            # print(" yes")
+
+        if (isinstance(obj["ast"][i][1], list)) and ("import" in obj["ast"][i][1][0]):
+            # print("yes")
             hash_index.append(i)
             # print("here 1 ")
+        else:
+            break
     # print(hash_index)
     for x in reversed(hash_index):
         # print(x)

@@ -1,4 +1,4 @@
-time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root plot/snippets.json plot"
-time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root plot/test.json plot/test.py"
-time python3 src/main/python/similar.py -c plot/snippets.json -d plot/tmpout
-time python3 src/main/python/similar.py -d plot/tmpout -f plot/test.json -o plot/output.txt
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root min_max/snippets.json min_max"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root min_max/test.json min_max/test.py"
+time python3 src/main/python/similar.py -c min_max/snippets.json -d min_max/tmpout
+time python3 src/main/python/similar.py -d min_max/tmpout -f min_max/test.json -o min_max/output.txt
