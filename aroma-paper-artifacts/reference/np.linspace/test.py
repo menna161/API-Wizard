@@ -1,1 +1,1 @@
-np.linspace
+x = np.linspace

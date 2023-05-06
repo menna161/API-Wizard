@@ -1,3 +1,193 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+------------------------- example 1 ------------------------ 
+def plot_schedules(self):
+    x = np.linspace(0, self.n_epochs, self.n_iter)
+    (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
+    ax[0].set_title('LR Schedule')
+    ax[0].set_ylabel('lr')
+// your code ...
 
+    ax[0].plot(x, self.lrs)
+    ax[1].set_title('Momentum Schedule')
+    ax[1].set_ylabel('momentum')
+    ax[1].set_xlabel('epoch')
+    ax[1].plot(x, self.moms)
+
+------------------------- example 2 ------------------------ 
+def _create_data_for_splitting_tests(n):
+    x = np.linspace((- 1), 1, num=n)
+    np.random.seed(2)
+    t = np.array(np.random.binomial(1, 0.5, n), dtype=bool)
+    y = np.repeat([(- 1), 1], int((n / 2)))
+    y = np.insert(y, int((n / 2)), (- 1))
+    y = (y + ((2 * y) * t))
+    return (x, t, y)
+
+------------------------- example 3 ------------------------ 
+
+def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
+    '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
+// your code ...
+
+    x = np.linspace(0, 1, n_points)
+    y_upper_af1 = airfoil1.y_upper(x)
+    y_lower_af1 = airfoil1.y_lower(x)
+    y_upper_af2 = airfoil2.y_upper(x)
+// your code ...
+
+    lower = np.array([x, y_lower_new])
+    return cls(upper, lower)
+
+------------------------- example 4 ------------------------ 
+def _construct_meshgrid(left=(- 15), right=15, npoints=100):
+    x = np.linspace(left, right, npoints)
+    y = x.copy()
+    (X, Y) = np.meshgrid(x, y)
+    return (X, Y)
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        11         ||         1        
+example2  ||          2           ||        8         ||         0        
+example3  ||          3           ||        11         ||         2        
+example4  ||          2           ||        5         ||         0        
+
+
+idx = 0:------------------- similar code ------------------ index = 3, score = 12.0 
+def plot_schedules(self):
+    x = np.linspace(0, self.n_epochs, self.n_iter)
+    (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
+    ax[0].set_title('LR Schedule')
+    ax[0].set_ylabel('lr')
+    ax[0].set_xlabel('epoch')
+    ax[0].plot(x, self.lrs)
+    ax[1].set_title('Momentum Schedule')
+    ax[1].set_ylabel('momentum')
+    ax[1].set_xlabel('epoch')
+    ax[1].plot(x, self.moms)
+
+------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+def  ... ( ... ):
+    x = np.linspace
+
+idx = 1:------------------- similar code ------------------ index = 34, score = 12.0 
+def _create_data_for_splitting_tests(n):
+    x = np.linspace((- 1), 1, num=n)
+    np.random.seed(2)
+    t = np.array(np.random.binomial(1, 0.5, n), dtype=bool)
+    y = np.repeat([(- 1), 1], int((n / 2)))
+    y = np.insert(y, int((n / 2)), (- 1))
+    y = (y + ((2 * y) * t))
+    return (x, t, y)
+
+------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+def  ... ( ... ):
+    x = np.linspace
+
+idx = 2:------------------- similar code ------------------ index = 27, score = 12.0 
+@classmethod
+def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
+    '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
+    if (not (0 <= eta <= 1)):
+        raise ValueError(f"'eta' must be in range [0,1], given eta is {float(eta):.3f}")
+    x = np.linspace(0, 1, n_points)
+    y_upper_af1 = airfoil1.y_upper(x)
+    y_lower_af1 = airfoil1.y_lower(x)
+    y_upper_af2 = airfoil2.y_upper(x)
+    y_lower_af2 = airfoil2.y_lower(x)
+    y_upper_new = ((y_upper_af1 * (1 - eta)) + (y_upper_af2 * eta))
+    y_lower_new = ((y_lower_af1 * (1 - eta)) + (y_lower_af2 * eta))
+    upper = np.array([x, y_upper_new])
+    lower = np.array([x, y_lower_new])
+    return cls(upper, lower)
+
+------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+def  ... ():
+    x = np.linspace
+
+idx = 3:------------------- similar code ------------------ index = 18, score = 12.0 
+def plot_env_baseline(ax, env):
+    x = np.linspace(0.0, 2.0, num=100)
+    (mean, std) = BASELINE[env]
+    std_err = (std / np.sqrt(5))
+    mean = np.repeat(mean, 100)
+    std_err = np.repeat(std_err, 100)
+    ax.plot(x, mean, 'k', label='Dataset')
+    ax.fill_between(x, (mean - std_err), (mean + std_err), color='k', alpha=0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+def  ... ():
+    x = np.linspace
+
+idx = 4:------------------- similar code ------------------ index = 9, score = 12.0 
+def _construct_meshgrid(left=(- 15), right=15, npoints=100):
+    x = np.linspace(left, right, npoints)
+    y = x.copy()
+    (X, Y) = np.meshgrid(x, y)
+    return (X, Y)
+
+------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+def  ... ():
+    x = np.linspace
+
+idx = 5:------------------- similar code ------------------ index = 19, score = 11.0 
+def build_ball(ax):
+    xlm = ax.get_xlim3d()
+    ylm = ax.get_ylim3d()
+    zlm = ax.get_zlim3d()
+    ax.set_xlim3d((- 0.82), 0.82)
+    ax.set_ylim3d((- 0.82), 0.82)
+    ax.set_zlim3d((- 0.82), 0.82)
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor('w')
+    ax.yaxis.pane.set_edgecolor('w')
+    ax.zaxis.pane.set_edgecolor('w')
+    ax.grid(False)
+    ax.set_xticks([(- 0.5), 0, 0.5])
+    ax.set_yticks([(- 0.5), 0, 0.5])
+    ax.set_zticks([(- 1), (- 0.5), 0, 0.5, 1])
+    u = np.linspace(0, (2 * np.pi), 15)
+    v = np.linspace(0, np.pi, 20)
+    x = (1 * np.outer(np.cos(u), np.sin(v)))
+    y = (1 * np.outer(np.sin(u), np.sin(v)))
+    z = (1 * np.outer(np.ones(np.size(u)), np.cos(v)))
+    ax.plot_wireframe(x, y, z, colors='dimgray', alpha=0.6, linestyles='-', linewidths=1)
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+def  ... ( ... ):
+     ...  = np.linspace
+    x
+
+idx = 6:------------------- similar code ------------------ index = 30, score = 11.0 
+def plot_environment_result(data, ax, env):
+    ax.set_title(ENV_NAMES[env], fontsize=fontsize)
+    pre_print = ('For env: ' + env)
+    print(pre_print)
+    plot_env_baseline(ax, env)
+    for (alg, col) in zip(algorithms, colors):
+        try:
+            metric = data[alg]
+            (x, mean, std_err, std) = process_test_data(metric)
+            if (alg == 'BC'):
+                x = np.multiply(x, np.linspace(0.0, 100.0, num=100))
+                mean = np.repeat(mean, 100)
+                std_err = np.repeat(std_err, 100)
+                std = np.repeat(std, 100)
+            x_pow = math.floor(math.log(x[(- 1)], 10))
+            x = (x / (10 ** x_pow))
+            ax.plot(x, mean, col, label=alg)
+            ax.fill_between(x, (mean - std_err), (mean + std_err), color=col, alpha=0.3)
+            result = ((((((' ' * len(pre_print)) + alg) + ', Result: ') + '{:.2f}'.format(mean[(- 1)])) + ' +/- ') + '{:.2f}'.format(std[(- 1)]))
+            print(result)
+        except Exception as e:
+            print(((('\t no ' + alg) + ' data for env:') + env))
+    plt.setp(ax.yaxis.get_majorticklabels(), rotation=40)
+    ax.margins(x=0.0, tight=True)
+
+------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+def  ... ():
+    for in:
+        try:
+            if:
+                x = np. ... ( ... ,  ... .linspace)
 

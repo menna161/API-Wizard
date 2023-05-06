@@ -888,7 +888,7 @@ def ast_to_code_with_full_lines(tree, fulltree, lines_count, comments_count):
     token_list = []
     ast_to_code_print_lines(fulltree, line_list, token_list)
     token_list.append("\n")
-    print(token_list)
+    # print(token_list)
     lines_count.append(token_list.count('\n')-1)
     comments_count.append(token_list.count(' your code ...\n'))
     return "".join(token_list)
@@ -1000,7 +1000,7 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
                 ))
         count += 1
 
-    print(rep, lines_count, comments_count)
+    # print(rep, lines_count, comments_count)
     print("representativeness", rep, "\n")
     print("number of lines", lines_count, "\n")
     print("number of comments", comments_count, "\n")
