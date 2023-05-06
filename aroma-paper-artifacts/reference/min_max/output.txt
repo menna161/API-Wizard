@@ -1,40 +1,26 @@
 ------------------------- example 1 ------------------------ 
-@timeit
+
 def get_key2_feature(df, key1, key2, target_col, agg, sub='', scale=False):
     t = df.groupby([key1, key2])[target_col].agg(agg).reset_index()
     cols = []
     for a in agg:
-        cols.append(f'{key1}_{key2}_{target_col}_w{sub}_{a}')
+// your code ...
+
     t.columns = ([key1, key2] + cols)
     if scale:
         scaler = MinMaxScaler()
         for col in t.columns:
             if (key1 == col):
-                continue
+// your code ...
+
             t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
     return t
-
-------------------------- example 2 ------------------------ 
-def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=False):
-    logger.info('df %s, col_key %s, col_target %s, agg %s, sub %s', df.shape, col_key, col_target, agg, sub)
-    for ag in agg:
-        new_col_names = f'{col_key}_{col_target}_w{sub}_{ag}'
-        tmp_df = feature_df.groupby(col_key)[col_target].agg([ag]).reset_index().rename(columns={ag: new_col_names})
-        tmp_df.index = list(tmp_df[col_key])
-        if scale:
-            scaler = MinMaxScaler()
-            tmp_df[new_col_names] = scaler.fit_transform(tmp_df[new_col_names].values.reshape((- 1), 1))
-        tmp_df = tmp_df[new_col_names].to_dict()
-        df[new_col_names] = df[col_key].map(tmp_df).astype('float32')
-        print(new_col_names, ', ', end='')
-    return df
 
 examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        14         ||         0
-example2  ||          2           ||        13         ||         0
+example1  ||          3           ||        14         ||         2        
 
 
-idx = 0:------------------- similar code ------------------ index = 10, score = 8.0 
+idx = 0:------------------- similar code ------------------ index = 8, score = 8.0 
 @timeit
 def get_key2_feature(df, key1, key2, target_col, agg, sub='', scale=False):
     t = df.groupby([key1, key2])[target_col].agg(agg).reset_index()
@@ -55,52 +41,7 @@ def  ... ():
     if  ... :
         scaler = MinMaxScaler()
 
-idx = 1:------------------- similar code ------------------ index = 6, score = 8.0 
-def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=False):
-    logger.info('df %s, col_key %s, col_target %s, agg %s, sub %s', df.shape, col_key, col_target, agg, sub)
-    for ag in agg:
-        new_col_names = f'{col_key}_{col_target}_w{sub}_{ag}'
-        tmp_df = feature_df.groupby(col_key)[col_target].agg([ag]).reset_index().rename(columns={ag: new_col_names})
-        tmp_df.index = list(tmp_df[col_key])
-        if scale:
-            scaler = MinMaxScaler()
-            tmp_df[new_col_names] = scaler.fit_transform(tmp_df[new_col_names].values.reshape((- 1), 1))
-        tmp_df = tmp_df[new_col_names].to_dict()
-        df[new_col_names] = df[col_key].map(tmp_df).astype('float32')
-        print(new_col_names, ', ', end='')
-    return df
-
-------------------- similar code (pruned) ------------------ score = 0.9 
-def  ... ():
-    for  ...  in  ... :
-        if  ... :
-            scaler = MinMaxScaler()
-
-idx = 2:------------------- similar code ------------------ index = 3, score = 8.0 
-@timeit
-def get_key1_feature(df, key1, target, agg, sub='', ret_dict=False, scale=False):
-    t = df.groupby([key1])[target].agg(agg).reset_index()
-    cols = []
-    for a in agg:
-        cols.append(f'{key1}_{target}_w{sub}_{a}')
-    t.columns = ([key1] + cols)
-    logger.info('columns %s', t.columns.values.tolist())
-    if scale:
-        scaler = MinMaxScaler()
-        for col in t.columns:
-            if (key1 == col):
-                continue
-            t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
-    if ret_dict:
-        t = t.set_index(key1).to_dict()
-    return t
-
-------------------- similar code (pruned) ------------------ score = 0.9 
-def  ... ():
-    if  ... :
-        scaler = MinMaxScaler()
-
-idx = 3:------------------- similar code ------------------ index = 0, score = 8.0 
+idx = 1:------------------- similar code ------------------ index = 5, score = 8.0 
 def learn(algorithm_instance: Algorithm, undersampling: bool, oversampling: bool, timestamp: str):
     scaler = MinMaxScaler()
     skf = StratifiedKFold(n_splits=splits, shuffle=True)
@@ -174,4 +115,49 @@ def learn(algorithm_instance: Algorithm, undersampling: bool, oversampling: bool
 ------------------- similar code (pruned) ------------------ score = 0.9 
 def  ... ():
     scaler = MinMaxScaler()
+
+idx = 2:------------------- similar code ------------------ index = 4, score = 8.0 
+@timeit
+def get_key1_feature(df, key1, target, agg, sub='', ret_dict=False, scale=False):
+    t = df.groupby([key1])[target].agg(agg).reset_index()
+    cols = []
+    for a in agg:
+        cols.append(f'{key1}_{target}_w{sub}_{a}')
+    t.columns = ([key1] + cols)
+    logger.info('columns %s', t.columns.values.tolist())
+    if scale:
+        scaler = MinMaxScaler()
+        for col in t.columns:
+            if (key1 == col):
+                continue
+            t[col] = scaler.fit_transform(t[col].values.reshape((- 1), 1))
+    if ret_dict:
+        t = t.set_index(key1).to_dict()
+    return t
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    if  ... :
+        scaler = MinMaxScaler()
+
+idx = 3:------------------- similar code ------------------ index = 3, score = 8.0 
+def get_merge_feature(df, feature_df, col_key, col_target, agg, sub='', scale=False):
+    logger.info('df %s, col_key %s, col_target %s, agg %s, sub %s', df.shape, col_key, col_target, agg, sub)
+    for ag in agg:
+        new_col_names = f'{col_key}_{col_target}_w{sub}_{ag}'
+        tmp_df = feature_df.groupby(col_key)[col_target].agg([ag]).reset_index().rename(columns={ag: new_col_names})
+        tmp_df.index = list(tmp_df[col_key])
+        if scale:
+            scaler = MinMaxScaler()
+            tmp_df[new_col_names] = scaler.fit_transform(tmp_df[new_col_names].values.reshape((- 1), 1))
+        tmp_df = tmp_df[new_col_names].to_dict()
+        df[new_col_names] = df[col_key].map(tmp_df).astype('float32')
+        print(new_col_names, ', ', end='')
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.9 
+def  ... ():
+    for  ...  in  ... :
+        if  ... :
+            scaler = MinMaxScaler()
 

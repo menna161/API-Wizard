@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root np.identity/snippets.json np.identity"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root np.identity/test.json np.identity/test.py"
+time python3 src/main/python/similar.py -c np.identity/snippets.json -d np.identity/tmpout
+time python3 src/main/python/similar.py -d np.identity/tmpout -f np.identity/test.json -o np.identity/output.txt

@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root np.argmax/snippets.json np.argmax"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root np.argmax/test.json np.argmax/test.py"
+time python3 src/main/python/similar.py -c np.argmax/snippets.json -d np.argmax/tmpout
+time python3 src/main/python/similar.py -d np.argmax/tmpout -f np.argmax/test.json -o np.argmax/output.txt

@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root tf.random.normal/snippets.json tf.random.normal"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root tf.random.normal/test.json tf.random.normal/test.py"
+time python3 src/main/python/similar.py -c tf.random.normal/snippets.json -d tf.random.normal/tmpout
+time python3 src/main/python/similar.py -d tf.random.normal/tmpout -f tf.random.normal/test.json -o tf.random.normal/output.txt
