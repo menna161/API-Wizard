@@ -1,4 +1,4 @@
-time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root min_max/snippets.json min_max"
-time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root min_max/test.json min_max/test.py"
-time python3 src/main/python/similar.py -c min_max/snippets.json -d min_max/tmpout
-time python3 src/main/python/similar.py -d min_max/tmpout -f min_max/test.json -o min_max/output.txt
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root linear_regression/snippets.json linear_regression"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root linear_regression/test.json linear_regression/test.py"
+time python3 src/main/python/similar.py -c linear_regression/snippets.json -d linear_regression/tmpout
+time python3 src/main/python/similar.py -d linear_regression/tmpout -f linear_regression/test.json -o linear_regression/output.txt

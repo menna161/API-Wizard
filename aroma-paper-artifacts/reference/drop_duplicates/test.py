@@ -1,1 +1,1 @@
-result = df.drop_duplicates()
+drop_duplicates

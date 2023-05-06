@@ -1,1 +1,1 @@
-lr = LinearRegression()
+model = LinearRegression()
