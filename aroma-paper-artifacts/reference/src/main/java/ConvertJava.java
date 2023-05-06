@@ -466,7 +466,7 @@ public class ConvertJava {
     if (!(args[2].contains(".py"))) {
       ArrayList<String> fileNames = new ArrayList<String>();
       File[] files = new File(
-          "/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/"
+          "/home/melzahar/Documents/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/"
               + args[2] + "/snippets")
           .listFiles();
 

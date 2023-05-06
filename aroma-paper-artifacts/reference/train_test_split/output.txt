@@ -1,0 +1,10 @@
+examples  ||  representativeness  ||  number of lines  || number of comments 
+
+
+idx = 0:------------------- similar code ------------------ index = 4, score = 2.0 
+def train_test_split(X, train_size=0.75, random_state=None):
+    cv = ShuffleSplit(n_iter=1, train_size=train_size, random_state=random_state)
+    return next(cv.split(X))
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def train_test_split():
