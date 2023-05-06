@@ -92,6 +92,7 @@ example3  ||          5           ||        3         ||         0
 example4  ||          3           ||        8         ||         0        
 example5  ||          5           ||        20         ||         4        
 
+avg       ||          3.4           ||        14.0         ||         1.4        
 
 idx = 0:------------------- similar code ------------------ index = 7, score = 6.0 
 def get_data_sample(self, i=0):

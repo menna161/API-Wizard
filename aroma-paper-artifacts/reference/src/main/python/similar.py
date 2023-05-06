@@ -981,6 +981,9 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
     )
     print("")
     count = 1
+    avg_rep = 0
+    avg_lines = 0
+    avg_comments = 0
     for clustered_record in clustered_records:
         print(
             f"------------------------- example {count} ------------------------"
@@ -1007,10 +1010,17 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
 
     f.write(
         "examples  ||  representativeness  ||  number of lines  || number of comments \n")
-    for i in range(len(rep)):
+    no_examples = len(rep)
+    for i in range(no_examples):
         f.write("example"+str(i+1)+"  ||          "+str(rep[i])+"           ||        "+str(
             lines_count[i])+"         ||         "+str(comments_count[i])+"        ")
         f.write("\n")
+        avg_rep += rep[i]
+        avg_lines += lines_count[i]
+        avg_comments += comments_count[i]
+    f.write("\n")
+    f.write("avg       ||          "+str(avg_rep/no_examples)+"           ||        "+str(
+            avg_lines/no_examples)+"         ||         "+str(avg_comments/no_examples)+"        ")
 
     f.write("\n\n")
 
