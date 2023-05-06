@@ -90,7 +90,7 @@ def parse_args():
 class Config:
     def __init__(self):
         self.MIN_MERGED_CODE = 3
-        self.MIN_PRUNED_SCORE = 0.65
+        self.MIN_PRUNED_SCORE = 0.20
         self.N_PARENTS = 3
         self.N_SIBLINGS = 1
         self.N_VAR_SIBLINGS = 2
@@ -202,7 +202,7 @@ def ast_to_code_print_lines(ast, line_list, token_list):
 
 
 def delete_imports(obj):
-    print(obj['path'])
+    # print(obj['path'])
     hash = obj["ast"][0]
     count_hash = hash.count('#')
     hash_index = []

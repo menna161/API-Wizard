@@ -1,18 +1,226 @@
 ------------------------- example 1 ------------------------ 
-def plot_schedules(self):
-    x = np.linspace(0, self.n_epochs, self.n_iter)
-    (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
-    ax[0].set_title('LR Schedule')
-    ax[0].set_ylabel('lr')
+def test_simple_diffusion(self):
+    expected = self._convert_to_list_of_lists('simple_diffusion.ca', dtype=float)
+    space = np.linspace(25, (- 25), 120)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(120)
 // your code ...
 
-    ax[0].plot(x, self.lrs)
-    ax[1].set_title('Momentum Schedule')
-    ax[1].set_ylabel('momentum')
-    ax[1].set_xlabel('epoch')
-    ax[1].plot(x, self.moms)
+
+    def activity_rule(ctx):
+        current = ctx.current_activity
+        left = ctx.neighbourhood_activities[0]
+        right = ctx.neighbourhood_activities[2]
+        return (current + (F * ((right - (2 * current)) + left)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
+// your code ...
+
 
 ------------------------- example 2 ------------------------ 
+def test_wave_equation(self):
+    expected = self._convert_to_list_of_lists('wave_equation.ca', dtype=float)
+// your code ...
+
+    space = np.linspace(20, (- 20), nx)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(nx)
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        right_label = ((ctx.node_label + 1) % nx)
+        un_i_p1 = ctx.activity_of(right_label)
+// your code ...
+
+        return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
+// your code ...
+
+
+------------------------- example 3 ------------------------ 
+def _create_data_for_splitting_tests(n):
+    x = np.linspace((- 1), 1, num=n)
+    np.random.seed(2)
+    t = np.array(np.random.binomial(1, 0.5, n), dtype=bool)
+    y = np.repeat([(- 1), 1], int((n / 2)))
+    y = np.insert(y, int((n / 2)), (- 1))
+    y = (y + ((2 * y) * t))
+// your code ...
+
+
+------------------------- example 4 ------------------------ 
+def porosity(depth_profile):
+    import numpy as np
+    z = np.linspace(0, depth_profile, num=100)
+    ps = 2650.0
+// your code ...
+
+    phi = np.zeros(len(z))
+    phi_0 = 0.95
+    k1 = ((1 - phi_0) / phi_0)
+    c = 3.68e-08
+    for i in range(len(phi)):
+        phi[i] = (np.exp(((((- c) * g) * (ps - pw)) * z[i])) / (np.exp(((((- c) * g) * (ps - pw)) * z[i])) + k1))
+    return (phi, z)
+
+------------------------- example 5 ------------------------ 
+if (__name__ == '__main__'):
+    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + k ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
+    nx = 41
+    nt = 59
+    dt = 0.025
+    dx = (2 / (nx - 1))
+    k = 1
+    network = ntm.topology.cellular_automaton(nx)
+    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        return (un_i - (((k * dt) / dx) * (un_i - un_i_m1)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          4           ||        12         ||         2        
+example2  ||          3           ||        15         ||         3        
+example3  ||          3           ||        8         ||         1        
+example4  ||          3           ||        12         ||         1        
+example5  ||          4           ||        16         ||         0        
+
+
+idx = 0:------------------- similar code ------------------ index = 35, score = 6.0 
+def plot_kinematics(signal, background, nbins=100, mass_range=(50.0, 110.0), pt_range=(200.0, 500.0), mass_pad=10, pt_pad=50, linewidth=1, title=None):
+    import numpy as np
+    from matplotlib import pyplot as plt
+    import h5py
+    (pt_min, pt_max) = pt_range
+    (mass_min, mass_max) = mass_range
+    plt.style.use('seaborn-white')
+    signal_h5file_events = h5py.File(signal, 'r')
+    signal_aux = signal_h5file_events['auxvars']
+    background_h5file_events = h5py.File(background, 'r')
+    background_aux = background_h5file_events['auxvars']
+    signal_selection = ((((signal_aux['mass_trimmed'] > mass_min) & (signal_aux['mass_trimmed'] < mass_max)) & (signal_aux['pt_trimmed'] > pt_min)) & (signal_aux['pt_trimmed'] < pt_max))
+    background_selection = ((((background_aux['mass_trimmed'] > mass_min) & (background_aux['mass_trimmed'] < mass_max)) & (background_aux['pt_trimmed'] > pt_min)) & (background_aux['pt_trimmed'] < pt_max))
+    if ('weights' in signal_aux.dtype.names):
+        signal_weights = signal_aux['weights']
+    else:
+        signal_weights = np.ones(len(signal_aux))
+    if ('weights' in background_aux.dtype.names):
+        background_weights = background_aux['weights']
+    else:
+        background_weights = np.ones(len(background_aux))
+    signal_weights = signal_weights[signal_selection]
+    background_weights = background_weights[background_selection]
+    (fig, ax) = plt.subplots(2, 2, figsize=(10, 10))
+    if (title is not None):
+        fig.suptitle(title, fontsize=16)
+    (vals1, _, _) = ax[(0, 0)].hist(signal_aux['pt_trimmed'][signal_selection], bins=np.linspace((pt_min - pt_pad), (pt_max + pt_pad), nbins), histtype='stepfilled', facecolor='none', edgecolor='blue', normed=1, linewidth=linewidth, label='W jets', weights=signal_weights)
+    (vals2, _, _) = ax[(0, 0)].hist(background_aux['pt_trimmed'][background_selection], bins=np.linspace((pt_min - pt_pad), (pt_max + pt_pad), nbins), histtype='stepfilled', facecolor='none', edgecolor='black', normed=1, linestyle='dotted', linewidth=linewidth, label='QCD jets', weights=background_weights)
+    ax[(0, 0)].set_ylim((0, (1.3 * max(np.max(vals1), np.max(vals2)))))
+    ax[(0, 0)].set_ylabel('Normalized to Unity')
+    ax[(0, 0)].set_xlabel('Trimmed $p_{T}$ [GeV]', fontsize=12)
+    (p1,) = ax[(0, 0)].plot([0, 0], label='W jets', color='blue')
+    (p2,) = ax[(0, 0)].plot([0, 0], label='QCD jets', color='black', linestyle='dotted')
+    ax[(0, 0)].legend([p1, p2], ['W jets', 'QCD jets'], frameon=False, handlelength=3)
+    ax[(0, 0)].set_xlim(((pt_min - pt_pad), (pt_max + pt_pad)))
+    ax[(0, 0)].ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
+    (vals1, _, _) = ax[(0, 1)].hist(signal_aux['mass_trimmed'][signal_selection], bins=np.linspace((mass_min - mass_pad), (mass_max + mass_pad), nbins), histtype='stepfilled', facecolor='none', edgecolor='blue', normed=1, linewidth=linewidth, label='W jets', weights=signal_weights)
+    (vals2, _, _) = ax[(0, 1)].hist(background_aux['mass_trimmed'][background_selection], bins=np.linspace((mass_min - mass_pad), (mass_max + mass_pad), nbins), histtype='stepfilled', facecolor='none', edgecolor='black', normed=1, linestyle='dotted', linewidth=linewidth, label='QCD jets', weights=background_weights)
+    ax[(0, 1)].set_ylim((0, (1.3 * max(np.max(vals1), np.max(vals2)))))
+    ax[(0, 1)].set_ylabel('Normalized to Unity')
+    ax[(0, 1)].set_xlabel('Trimmed Mass [GeV]', fontsize=12)
+    (p1,) = ax[(0, 1)].plot([0, 0], label='W jets', color='blue')
+    (p2,) = ax[(0, 1)].plot([0, 0], label='QCD jets', color='black', linestyle='dotted')
+    ax[(0, 1)].legend([p1, p2], ['W jets', 'QCD jets'], frameon=False, handlelength=3)
+    ax[(0, 1)].set_xlim(((mass_min - mass_pad), (mass_max + mass_pad)))
+    signal_tau21 = np.true_divide(signal_aux['tau_2'], signal_aux['tau_1'])[signal_selection]
+    background_tau21 = np.true_divide(background_aux['tau_2'], background_aux['tau_1'])[background_selection]
+    signal_tau21_nonan = (((~ np.isnan(signal_tau21)) & (~ np.isinf(signal_tau21))) & (signal_tau21 != 0))
+    background_tau21_nonan = (((~ np.isnan(background_tau21)) & (~ np.isinf(background_tau21))) & (background_tau21 != 0))
+    (vals1, _, _) = ax[(1, 0)].hist(signal_tau21[signal_tau21_nonan], bins=np.linspace(0, 1, nbins), histtype='stepfilled', facecolor='none', edgecolor='blue', normed=1, linewidth=linewidth, label='W jets', weights=signal_weights[signal_tau21_nonan])
+    (vals2, _, _) = ax[(1, 0)].hist(background_tau21[background_tau21_nonan], bins=np.linspace(0, 1, nbins), histtype='stepfilled', facecolor='none', edgecolor='black', normed=1, linestyle='dotted', linewidth=linewidth, label='QCD jets', weights=background_weights[background_tau21_nonan])
+    ax[(1, 0)].set_ylim((0, (1.3 * max(np.max(vals1), np.max(vals2)))))
+    ax[(1, 0)].set_ylabel('Normalized to Unity')
+    ax[(1, 0)].set_xlabel('$\\tau_{21}$', fontsize=12)
+    (p1,) = ax[(1, 0)].plot([0, 0], label='W jets', color='blue')
+    (p2,) = ax[(1, 0)].plot([0, 0], label='QCD jets', color='black', linestyle='dotted')
+    ax[(1, 0)].legend([p1, p2], ['W jets', 'QCD jets'], frameon=False, handlelength=3)
+    ax[(1, 0)].set_xlim((0, 1))
+    (vals1, _, _) = ax[(1, 1)].hist(signal_aux['subjet_dr'][signal_selection], bins=np.linspace(0, 1.2, nbins), histtype='stepfilled', facecolor='none', edgecolor='blue', normed=1, linewidth=linewidth, label='W jets', weights=signal_weights)
+    (vals2, _, _) = ax[(1, 1)].hist(background_aux['subjet_dr'][background_selection], bins=np.linspace(0, 1.2, nbins), histtype='stepfilled', facecolor='none', edgecolor='black', normed=1, linestyle='dotted', linewidth=linewidth, label='QCD jets', weights=background_weights)
+    ax[(1, 1)].set_ylim((0, (1.3 * max(np.max(vals1), np.max(vals2)))))
+    ax[(1, 1)].set_ylabel('Normalized to Unity')
+    ax[(1, 1)].set_xlabel('Subjets $\\Delta R$', fontsize=12)
+    (p1,) = ax[(1, 1)].plot([0, 0], label='W jets', color='blue')
+    (p2,) = ax[(1, 1)].plot([0, 0], label='QCD jets', color='black', linestyle='dotted')
+    ax[(1, 1)].legend([p1, p2], ['W jets', 'QCD jets'], frameon=False, handlelength=3)
+    ax[(1, 1)].set_xlim((0, 1.2))
+    fig.tight_layout()
+    if (title is not None):
+        plt.subplots_adjust(top=0.93)
+    return fig
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... (,  ... =np.linspace,,,,,,,)
+
+idx = 1:------------------- similar code ------------------ index = 4, score = 6.0 
+def test_simple_diffusion(self):
+    expected = self._convert_to_list_of_lists('simple_diffusion.ca', dtype=float)
+    space = np.linspace(25, (- 25), 120)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(120)
+    a = 0.25
+    dt = 0.5
+    dx = 0.5
+    F = ((a * dt) / (dx ** 2))
+
+    def activity_rule(ctx):
+        current = ctx.current_activity
+        left = ctx.neighbourhood_activities[0]
+        right = ctx.neighbourhood_activities[2]
+        return (current + (F * ((right - (2 * current)) + left)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    np.testing.assert_equal(expected, activities)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 2:------------------- similar code ------------------ index = 26, score = 6.0 
+def test_wave_equation(self):
+    expected = self._convert_to_list_of_lists('wave_equation.ca', dtype=float)
+    nx = 401
+    nt = 255
+    dx = 0.1
+    dt = 0.05
+    space = np.linspace(20, (- 20), nx)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(nx)
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        right_label = ((ctx.node_label + 1) % nx)
+        un_i_p1 = ctx.activity_of(right_label)
+        un_m1_i = ctx.past_activity_of(ctx.node_label)
+        return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    np.testing.assert_equal(expected, activities)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 3:------------------- similar code ------------------ index = 34, score = 6.0 
 def _create_data_for_splitting_tests(n):
     x = np.linspace((- 1), 1, num=n)
     np.random.seed(2)
@@ -22,36 +230,104 @@ def _create_data_for_splitting_tests(n):
     y = (y + ((2 * y) * t))
     return (x, t, y)
 
-------------------------- example 3 ------------------------ 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
 
-def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
-    '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
-// your code ...
+idx = 4:------------------- similar code ------------------ index = 16, score = 6.0 
+def porosity(depth_profile):
+    import numpy as np
+    z = np.linspace(0, depth_profile, num=100)
+    ps = 2650.0
+    pw = 1000.0
+    g = 9.8
+    phi = np.zeros(len(z))
+    phi_0 = 0.95
+    k1 = ((1 - phi_0) / phi_0)
+    c = 3.68e-08
+    for i in range(len(phi)):
+        phi[i] = (np.exp(((((- c) * g) * (ps - pw)) * z[i])) / (np.exp(((((- c) * g) * (ps - pw)) * z[i])) + k1))
+    return (phi, z)
 
-    x = np.linspace(0, 1, n_points)
-    y_upper_af1 = airfoil1.y_upper(x)
-    y_lower_af1 = airfoil1.y_lower(x)
-    y_upper_af2 = airfoil2.y_upper(x)
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
 
-    lower = np.array([x, y_lower_new])
-    return cls(upper, lower)
+idx = 5:------------------- similar code ------------------ index = 5, score = 5.0 
+def visualize_dataset_in_2d_embedding(writer, encoding_list, dataset_name, save_path, task=1):
+    '\n    Visualization of 2-D latent embedding. Is saved to both hard-disc as well as TensorBoard.\n\n    Parameters:\n        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.\n        encoding_list (list): List of Tensors containing encoding values\n        dataset_name (str): Dataset name.\n        save_path (str): Path used for saving.\n        task (int): task counter. Used for naming.\n    '
+    num_classes = len(encoding_list)
+    encoded_classes = []
+    for i in range(len(encoding_list)):
+        if isinstance(encoding_list[i], torch.Tensor):
+            encoded_classes.append(([i] * encoding_list[i].size(0)))
+        else:
+            device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+            encoding_list[i] = torch.Tensor(encoding_list[i]).to(device)
+            encoded_classes.append(([i] * 0))
+    encoded_classes = np.concatenate(np.asarray(encoded_classes), axis=0)
+    encoding = torch.cat(encoding_list, dim=0)
+    if (encoding.size(1) != 2):
+        print('Skipping visualization of latent space because it is not 2-D')
+        return
+    encoded_dim1 = np.squeeze(encoding.narrow(1, 0, 1).cpu().numpy())
+    encoded_dim2 = np.squeeze(encoding.narrow(1, 1, 1).cpu().numpy())
+    xlabel = 'z dimension 1'
+    ylabel = 'z dimension 2'
+    my_cmap = ListedColormap(sns.color_palette('Paired', num_classes).as_hex())
+    fig = plt.figure(figsize=(20, 20))
+    plt.scatter(encoded_dim1, encoded_dim2, c=encoded_classes, cmap=my_cmap)
+    plt.xlabel(xlabel, fontsize=axes_font_size)
+    plt.ylabel(ylabel, fontsize=axes_font_size)
+    plt.xticks(fontsize=ticks_font_size)
+    plt.yticks(fontsize=ticks_font_size)
+    cbar = plt.colorbar(ticks=np.linspace(0, (num_classes - 1), num_classes))
+    cbar.ax.set_yticklabels([str(i) for i in range(num_classes)])
+    cbar.ax.tick_params(labelsize=legend_font_size)
+    plt.tight_layout()
+    writer.add_figure('latent_embedding', fig, global_step=task)
+    plt.savefig(os.path.join(save_path, (((dataset_name + '_latent_2d_embedding_task_') + str(task)) + '.png')), bbox_inches='tight')
 
-------------------------- example 4 ------------------------ 
-def _construct_meshgrid(left=(- 15), right=15, npoints=100):
-    x = np.linspace(left, right, npoints)
-    y = x.copy()
-    (X, Y) = np.meshgrid(x, y)
-    return (X, Y)
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... ( ... =np.linspace)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        11         ||         1        
-example2  ||          2           ||        8         ||         0        
-example3  ||          3           ||        11         ||         2        
-example4  ||          2           ||        5         ||         0        
+idx = 6:------------------- similar code ------------------ index = 6, score = 5.0 
+if (__name__ == '__main__'):
+    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + k ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
+    nx = 41
+    nt = 59
+    dt = 0.025
+    dx = (2 / (nx - 1))
+    k = 1
+    network = ntm.topology.cellular_automaton(nx)
+    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
 
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        return (un_i - (((k * dt) / dx) * (un_i - un_i_m1)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
 
-idx = 0:------------------- similar code ------------------ index = 3, score = 12.0 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ... . ... (np.linspace,  ... )
+
+idx = 7:------------------- similar code ------------------ index = 7, score = 5.0 
+def append_multiple_new_old_arrays(self):
+    df1 = self.df.append({'a': 10, 'b': np.arange(10, 15), 'h': np.arange(5), 'i': np.linspace(2.4, 20.9, 5)}, axis='columns')
+    data2 = {'a': array([10, 10, 10, 10, 10]), 'b': array([10, 11, 12, 13, 14]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([2.4, 7.025, 11.65, 16.275, 20.9]), 'h': array([0, 1, 2, 3, 4]), 'i': array([2.4, 7.025, 11.65, 16.275, 20.9])}
+    df2 = dx.DataFrame(data2)
+    assert_frame_equal(df1, df2)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... . ... ({ ... :  ... ,  ... :,  ... :,  ... : np.linspace},)
+
+idx = 8:------------------- similar code ------------------ index = 3, score = 5.0 
 def plot_schedules(self):
     x = np.linspace(0, self.n_epochs, self.n_iter)
     (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
@@ -64,25 +340,421 @@ def plot_schedules(self):
     ax[1].set_xlabel('epoch')
     ax[1].plot(x, self.moms)
 
-------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
-    x = np.linspace
+     ...  = np.linspace
 
-idx = 1:------------------- similar code ------------------ index = 34, score = 12.0 
-def _create_data_for_splitting_tests(n):
-    x = np.linspace((- 1), 1, num=n)
-    np.random.seed(2)
-    t = np.array(np.random.binomial(1, 0.5, n), dtype=bool)
-    y = np.repeat([(- 1), 1], int((n / 2)))
-    y = np.insert(y, int((n / 2)), (- 1))
-    y = (y + ((2 * y) * t))
-    return (x, t, y)
+idx = 9:------------------- similar code ------------------ index = 1, score = 5.0 
+def gaussian_kernel(kernel_size=5, sigma=1.0):
+    'Returns a Gaussian filter kernel.'
+    kernel_range = ((kernel_size - 1) / 2.0)
+    distance = np.linspace((- kernel_range), kernel_range, kernel_size)
+    (distance_x, distance_y) = np.meshgrid(distance, distance)
+    squared_distance = ((distance_x ** 2) + (distance_y ** 2))
+    gauss_kernel = np.exp((((- 0.5) * squared_distance) / np.square(sigma)))
+    gauss_kernel = (gauss_kernel / np.sum(gauss_kernel))
+    return torch.tensor(gauss_kernel).float().unsqueeze(0).unsqueeze(0).cuda()
 
-------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 10:------------------- similar code ------------------ index = 10, score = 5.0 
+def generate_trajectory(self):
+    'Generate a variable speed target trajectory for the episode.'
+    direction = self._rand_obj_.choice([(- 1), 1])
+    if (direction == 1):
+        start_pos = self._rand_obj_.uniform(low=self.angle_low, high=self.reset_pos_center)
+        self.trajectory = np.linspace(start_pos, self.angle_high, self.comm_episode_length_step)
+    else:
+        start_pos = self._rand_obj_.uniform(low=self.reset_pos_center, high=self.angle_high)
+        self.trajectory = np.linspace(start_pos, self.angle_low, self.comm_episode_length_step)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
-    x = np.linspace
+    if:
+ = np.linspace
 
-idx = 2:------------------- similar code ------------------ index = 27, score = 12.0 
+idx = 11:------------------- similar code ------------------ index = 11, score = 5.0 
+def get_flat_weights(pt, pt_min, pt_max, pt_bins):
+    (pt_hist, edges) = np.histogram(pt, bins=np.linspace(pt_min, pt_max, (pt_bins + 1)))
+    pt_hist = np.true_divide(pt_hist, pt_hist.sum())
+    image_weights = np.true_divide(1.0, np.take(pt_hist, (np.searchsorted(edges, pt) - 1)))
+    image_weights = np.true_divide(image_weights, image_weights.mean())
+    return image_weights
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... ( ... ,  ... =np.linspace)
+
+idx = 12:------------------- similar code ------------------ index = 12, score = 5.0 
+if (__name__ == '__main__'):
+    "\n    Simulates the 1D Diffusion Equation (also known as the heat equation):\n\n    ∂u/∂t = α ∂²u/∂x²\n\n    Each of the 120 nodes represents a body that can contain some amount of heat. Reproduces the plot at the top of \n    Wolfram's NKS, page 163. \n\n    See: https://www.wolframscience.com/nks/p163--partial-differential-equations/\n    See: http://hplgit.github.io/num-methods-for-PDEs/doc/pub/diffu/sphinx/._main_diffu001.html\n    "
+    space = np.linspace(25, (- 25), 120)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(120)
+    a = 0.25
+    dt = 0.5
+    dx = 0.5
+    F = ((a * dt) / (dx ** 2))
+
+    def activity_rule(ctx):
+        current = ctx.current_activity
+        left = ctx.neighbourhood_activities[0]
+        right = ctx.neighbourhood_activities[2]
+        return (current + (F * ((right - (2 * current)) + left)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
+    ntm.plot_activities(trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = np.linspace
+
+idx = 13:------------------- similar code ------------------ index = 13, score = 5.0 
+def get_flat_images(generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bins=10, n_jobs=(- 1), **kwargs):
+    '\n    Construct a sample of images over a pT range by combining samples\n    constructed in pT intervals in this range.\n    '
+    random_state = kwargs.get('random_state', None)
+    pt_bin_edges = np.linspace(pt_min, pt_max, (pt_bins + 1))
+    out = Parallel(n_jobs=n_jobs)((delayed(get_images)(generator_params, nevents_per_pt_bin, pt_lo, pt_hi, **kwargs) for (pt_lo, pt_hi) in zip(pt_bin_edges[:(- 1)], pt_bin_edges[1:])))
+    images = np.concatenate([x[0] for x in out])
+    auxvars = np.concatenate([x[1] for x in out])
+    pt = auxvars['pt_trimmed']
+    image_weights = get_flat_weights(pt, pt_min, pt_max, (pt_bins * 4))
+    auxvars = append_fields(auxvars, 'weights', data=image_weights)
+    random_state = np.random.RandomState(generator_params.get('random_state', 0))
+    permute_idx = random_state.permutation(images.shape[0])
+    images = images[permute_idx]
+    auxvars = auxvars[permute_idx]
+    return (images, auxvars)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 14:------------------- similar code ------------------ index = 14, score = 5.0 
+def gen_NACA4_airfoil(p, m, xx, n_points):
+    '\n    Generate upper and lower points for a NACA 4 airfoil\n\n    Args:\n        :p:\n        :m:\n        :xx:\n        :n_points:\n\n    Returns:\n        :upper: 2 x N array with x- and y-coordinates of the upper side\n        :lower: 2 x N array with x- and y-coordinates of the lower side\n    '
+
+    def yt(xx, xsi):
+        a0 = 1.4845
+        a1 = 0.63
+        a2 = 1.758
+        a3 = 1.4215
+        a4 = 0.5075
+        return (xx * (((((a0 * np.sqrt(xsi)) - (a1 * xsi)) - (a2 * (xsi ** 2))) + (a3 * (xsi ** 3))) - (a4 * (xsi ** 4))))
+
+    def yc(p, m, xsi):
+
+        def yc_xsi_lt_p(xsi):
+            return ((m / (p ** 2)) * (((2 * p) * xsi) - (xsi ** 2)))
+
+        def dyc_xsi_lt_p(xsi):
+            return (((2 * m) / (p ** 2)) * (p - xsi))
+
+        def yc_xsi_ge_p(xsi):
+            return ((m / ((1 - p) ** 2)) * (((1 - (2 * p)) + ((2 * p) * xsi)) - (xsi ** 2)))
+
+        def dyc_xsi_ge_p(xsi):
+            return (((2 * m) / ((1 - p) ** 2)) * (p - xsi))
+        yc = np.array([(yc_xsi_lt_p(x) if (x < p) else yc_xsi_ge_p(x)) for x in xsi])
+        dyc = np.array([(dyc_xsi_lt_p(x) if (x < p) else dyc_xsi_ge_p(x)) for x in xsi])
+        return (yc, dyc)
+    xsi = np.linspace(0, 1, n_points)
+    yt = yt(xx, xsi)
+    (yc, dyc) = yc(p, m, xsi)
+    theta = np.arctan(dyc)
+    x_upper = (xsi - (yt * np.sin(theta)))
+    y_upper = (yc + (yt * np.cos(theta)))
+    x_lower = (xsi + (yt * np.sin(theta)))
+    y_lower = (yc - (yt * np.cos(theta)))
+    upper = np.array([x_upper, y_upper])
+    lower = np.array([x_lower, y_lower])
+    return (upper, lower)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 15:------------------- similar code ------------------ index = 15, score = 5.0 
+def test_camber_line(airfoil):
+    "\n    Test 'camber_line' method\n    "
+    for xsi in np.linspace(0, 1, num=50):
+        assert (airfoil.camber_line(xsi) == 0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in np.linspace:
+idx = 16:------------------- similar code ------------------ index = 9, score = 5.0 
+def _construct_meshgrid(left=(- 15), right=15, npoints=100):
+    x = np.linspace(left, right, npoints)
+    y = x.copy()
+    (X, Y) = np.meshgrid(x, y)
+    return (X, Y)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 17:------------------- similar code ------------------ index = 17, score = 5.0 
+def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font_size=20):
+
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
+        return new_cmap
+    fig = plt.figure(figsize=(16, 9))
+    fig.suptitle(returns.name, fontsize=16)
+    gs = gridspec.GridSpec(2, 2, wspace=0.2, hspace=0.3)
+    ax_heatmap = plt.subplot(gs[(0, 0)])
+    ax_monthly = plt.subplot(gs[(0, 1)])
+    ax_box_plot = plt.subplot(gs[(1, 0)])
+    ax_yearly = plt.subplot(gs[(1, 1)])
+    monthly_ret_table = pf.timeseries.aggregate_returns(returns, 'monthly')
+    monthly_ret_table = monthly_ret_table.unstack().round(3)
+    ax = plt.gca()
+    cmap = cm.viridis
+    new_cmap = truncate_colormap(cmap, 0.2, 0.8)
+    sns.heatmap((monthly_ret_table.fillna(0) * 100.0), annot=True, annot_kws={'size': font_size}, alpha=1.0, center=0.0, cbar=False, mask=monthly_ret_table.isna(), cmap=new_cmap, ax=ax_heatmap)
+    ax_heatmap.set_xticklabels(np.arange(0.5, 12.5, step=1))
+    ax_heatmap.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], rotation=45)
+    ylabels = ax_heatmap.get_yticklabels()
+    ax_heatmap.set_yticklabels(ylabels, rotation=45)
+    ax_heatmap.set_xlabel('')
+    ax_heatmap.set_ylabel('')
+    pf.plotting.plot_monthly_returns_dist(returns, ax=ax_monthly)
+    ax_monthly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    ax_monthly.set_xlabel('')
+    leg1 = ax_monthly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    for text in leg1.get_texts():
+        text.set_label('mean')
+    df_weekly = pf.timeseries.aggregate_returns(returns, convert_to='weekly')
+    df_monthly = pf.timeseries.aggregate_returns(returns, convert_to='monthly')
+    pf.plotting.plot_return_quantiles(returns, df_weekly, df_monthly, ax=ax_box_plot)
+    pf.plotting.plot_annual_returns(returns, ax=ax_yearly)
+    _ = ax_yearly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    ax_yearly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    plt.xticks(rotation=45)
+    ax_yearly.set_xlabel('')
+    ax_yearly.set_ylabel('')
+    for ax in [ax_box_plot, ax_heatmap, ax_monthly, ax_yearly]:
+        for item in (([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels()) + ax.get_yticklabels()):
+            item.set_fontsize(font_size)
+    for items in (ax_yearly.get_yticklabels() + ax_heatmap.get_yticklabels()):
+        items.set_fontsize((font_size - 5))
+    if (fig_path is not None):
+        if Path.is_dir(fig_path):
+            plt.savefig((fig_path / fig_name), dpi=600, bbox_inches='tight', transparent=True)
+        return fig
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+         ...  =  ... . ... (,  ... (np.linspace))
+
+idx = 18:------------------- similar code ------------------ index = 18, score = 5.0 
+def plot_env_baseline(ax, env):
+    x = np.linspace(0.0, 2.0, num=100)
+    (mean, std) = BASELINE[env]
+    std_err = (std / np.sqrt(5))
+    mean = np.repeat(mean, 100)
+    std_err = np.repeat(std_err, 100)
+    ax.plot(x, mean, 'k', label='Dataset')
+    ax.fill_between(x, (mean - std_err), (mean + std_err), color='k', alpha=0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 19:------------------- similar code ------------------ index = 33, score = 5.0 
+def get_weights(pt, pt_min, pt_max, pt_bins):
+    (pt_hist, edges) = np.histogram(pt, bins=np.linspace(pt_min, pt_max, (pt_bins + 1)))
+    pt_hist = np.true_divide(pt_hist, pt_hist.sum())
+    image_weights = np.true_divide(1.0, np.take(pt_hist, (np.searchsorted(edges, pt) - 1)))
+    image_weights = np.true_divide(image_weights, image_weights.mean())
+    return image_weights
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... ( ... ,  ... =np.linspace)
+
+idx = 20:------------------- similar code ------------------ index = 20, score = 5.0 
+if (__name__ == '__main__'):
+    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + u ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
+    nx = 41
+    nt = 99
+    dt = 0.025
+    dx = (2 / (nx - 1))
+    network = ntm.topology.cellular_automaton(nx)
+    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        return (un_i - (((un_i * dt) / dx) * (un_i - un_i_m1)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ... . ... (np.linspace,  ... )
+
+idx = 21:------------------- similar code ------------------ index = 21, score = 5.0 
+def test_camber_line_angle(airfoil):
+    "\n    Test 'camber_line_angle' method\n    "
+    for xsi in np.linspace(0, 1, num=50):
+        assert (airfoil.camber_line_angle(xsi) == 0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in np.linspace:
+idx = 22:------------------- similar code ------------------ index = 22, score = 5.0 
+if (__name__ == '__main__'):
+    "\n    Simulates the Wave Equation:\n\n    ∂²u/∂t² = ∂²u/∂x²\n\n    Reproduces the middle plot of Wolfram's NKS, page 163. \n\n    See: https://www.wolframscience.com/nks/p163--partial-differential-equations/\n    "
+    nx = 401
+    nt = 255
+    dx = 0.1
+    dt = 0.05
+    space = np.linspace(20, (- 20), nx)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(nx)
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        right_label = ((ctx.node_label + 1) % nx)
+        un_i_p1 = ctx.activity_of(right_label)
+        un_m1_i = ctx.past_activity_of(ctx.node_label)
+        return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = np.linspace
+
+idx = 23:------------------- similar code ------------------ index = 23, score = 5.0 
+if (__name__ == '__main__'):
+    '\n    A model of the 1D Diffusion equation: ∂u/∂t = ν ∂²u/∂x²\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/04_Step_3.ipynb\n    '
+    nx = 41
+    nt = 99
+    dx = (2 / (nx - 1))
+    nu = 0.3
+    sigma = 0.2
+    dt = ((sigma * (dx ** 2)) / nu)
+    network = ntm.topology.cellular_automaton(nx)
+    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        right_label = ((ctx.node_label + 1) % nx)
+        un_i_p1 = ctx.activity_of(right_label)
+        return (un_i + (((nu * dt) / (dx ** 2)) * ((un_i_p1 - (2 * un_i)) + un_i_m1)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ... . ... (np.linspace,  ... )
+
+idx = 24:------------------- similar code ------------------ index = 24, score = 5.0 
+def _compute_components(masker, imgs, step_size=1, confounds=None, dict_init=None, alpha=1, positive=False, reduction=1, learning_rate=1, n_components=20, batch_size=20, n_epochs=1, method='masked', verbose=0, random_state=None, callback=None, n_jobs=1):
+    methods = {'masked': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'dictionary only': {'G_agg': 'full', 'Dx_agg': 'full'}, 'gram': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'average': {'G_agg': 'average', 'Dx_agg': 'average'}, 'reducing ratio': {'G_agg': 'masked', 'Dx_agg': 'masked'}}
+    masker._check_fitted()
+    dict_init = _check_dict_init(dict_init, mask_img=masker.mask_img_, n_components=n_components)
+    if (dict_init is not None):
+        n_components = dict_init.shape[0]
+    random_state = check_random_state(random_state)
+    if (method == 'sgd'):
+        optimizer = 'sgd'
+        G_agg = 'full'
+        Dx_agg = 'full'
+        reduction = 1
+    else:
+        method = methods[method]
+        G_agg = method['G_agg']
+        Dx_agg = method['Dx_agg']
+        optimizer = 'variational'
+    if verbose:
+        print('Scanning data')
+    n_records = len(imgs)
+    if (confounds is None):
+        confounds = itertools.repeat(None)
+    data_list = list(zip(imgs, confounds))
+    (n_samples_list, dtype) = _lazy_scan(imgs)
+    indices_list = np.zeros((len(imgs) + 1), dtype='int')
+    indices_list[1:] = np.cumsum(n_samples_list)
+    n_samples = (indices_list[(- 1)] + 1)
+    n_voxels = np.sum((check_niimg(masker.mask_img_).get_data() != 0))
+    if verbose:
+        print('Learning...')
+    dict_fact = DictFact(n_components=n_components, code_alpha=alpha, code_l1_ratio=0, comp_l1_ratio=1, comp_pos=positive, reduction=reduction, Dx_agg=Dx_agg, optimizer=optimizer, step_size=step_size, G_agg=G_agg, learning_rate=learning_rate, batch_size=batch_size, random_state=random_state, n_threads=n_jobs, verbose=0)
+    dict_fact.prepare(n_samples=n_samples, n_features=n_voxels, X=dict_init, dtype=dtype)
+    cpu_time = 0
+    io_time = 0
+    if (n_records > 0):
+        if verbose:
+            verbose_iter_ = np.linspace(0, (n_records * n_epochs), verbose)
+            verbose_iter_ = verbose_iter_.tolist()
+        current_n_records = 0
+        for i in range(n_epochs):
+            if verbose:
+                print(('Epoch %i' % (i + 1)))
+            if ((method == 'gram') and (i == 5)):
+                dict_fact.set_params(G_agg='full', Dx_agg='average')
+            if (method == 'reducing ratio'):
+                reduction = (1 + ((reduction - 1) / sqrt((i + 1))))
+                dict_fact.set_params(reduction=reduction)
+            record_list = random_state.permutation(n_records)
+            for record in record_list:
+                if (verbose and verbose_iter_ and (current_n_records >= verbose_iter_[0])):
+                    print(('Record %i' % current_n_records))
+                    if (callback is not None):
+                        callback(masker, dict_fact, cpu_time, io_time)
+                    verbose_iter_ = verbose_iter_[1:]
+                t0 = time.perf_counter()
+                (img, these_confounds) = data_list[record]
+                masked_data = masker.transform(img, confounds=these_confounds)
+                masked_data = masked_data.astype(dtype)
+                io_time += (time.perf_counter() - t0)
+                t0 = time.perf_counter()
+                permutation = random_state.permutation(masked_data.shape[0])
+                if (method in ['average', 'gram']):
+                    sample_indices = np.arange(indices_list[record], indices_list[(record + 1)])
+                    sample_indices = sample_indices[permutation]
+                else:
+                    sample_indices = None
+                masked_data = masked_data[permutation]
+                dict_fact.partial_fit(masked_data, sample_indices=sample_indices)
+                current_n_records += 1
+                cpu_time += (time.perf_counter() - t0)
+    components = _flip(dict_fact.components_)
+    return components
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+        if  ... :
+             ...  = np.linspace
+
+idx = 25:------------------- similar code ------------------ index = 25, score = 5.0 
+def test_append_multiple_arrays(self):
+    df1 = self.df.append({'h': np.arange(5), 'i': np.linspace(2.4, 20.9, 5)}, axis='columns')
+    data2 = {'a': array([9, 10, 9, 9, 10]), 'b': array([0.0, nan, nan, 0.0, 1.0]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([nan, nan, nan, nan, nan]), 'h': array([0, 1, 2, 3, 4]), 'i': array([2.4, 7.025, 11.65, 16.275, 20.9])}
+    df2 = dx.DataFrame(data2)
+    assert_frame_equal(df1, df2)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... . ... ({ ... :,  ... : np.linspace},)
+
+idx = 26:------------------- similar code ------------------ index = 27, score = 5.0 
 @classmethod
 def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
     '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
@@ -99,36 +771,11 @@ def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
     lower = np.array([x, y_lower_new])
     return cls(upper, lower)
 
-------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-    x = np.linspace
+     ...  = np.linspace
 
-idx = 3:------------------- similar code ------------------ index = 18, score = 12.0 
-def plot_env_baseline(ax, env):
-    x = np.linspace(0.0, 2.0, num=100)
-    (mean, std) = BASELINE[env]
-    std_err = (std / np.sqrt(5))
-    mean = np.repeat(mean, 100)
-    std_err = np.repeat(std_err, 100)
-    ax.plot(x, mean, 'k', label='Dataset')
-    ax.fill_between(x, (mean - std_err), (mean + std_err), color='k', alpha=0.1)
-
-------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
-def  ... ():
-    x = np.linspace
-
-idx = 4:------------------- similar code ------------------ index = 9, score = 12.0 
-def _construct_meshgrid(left=(- 15), right=15, npoints=100):
-    x = np.linspace(left, right, npoints)
-    y = x.copy()
-    (X, Y) = np.meshgrid(x, y)
-    return (X, Y)
-
-------------------- similar code (pruned) ------------------ score = 0.8235294117647058 
-def  ... ():
-    x = np.linspace
-
-idx = 5:------------------- similar code ------------------ index = 19, score = 11.0 
+idx = 27:------------------- similar code ------------------ index = 19, score = 5.0 
 def build_ball(ax):
     xlm = ax.get_xlim3d()
     ylm = ax.get_ylim3d()
@@ -153,12 +800,36 @@ def build_ball(ax):
     z = (1 * np.outer(np.ones(np.size(u)), np.cos(v)))
     ax.plot_wireframe(x, y, z, colors='dimgray', alpha=0.6, linestyles='-', linewidths=1)
 
-------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.linspace
-    x
 
-idx = 6:------------------- similar code ------------------ index = 30, score = 11.0 
+idx = 28:------------------- similar code ------------------ index = 28, score = 5.0 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... (,  ... (np.linspace))
+
+idx = 29:------------------- similar code ------------------ index = 29, score = 5.0 
+def get_flat_events(h5file, generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bins=10, **kwargs):
+    '\n    Construct a sample of events over a pT range by combining samples\n    constructed in pT intervals in this range.\n    '
+    pt_bin_edges = np.linspace(pt_min, pt_max, (pt_bins + 1))
+    offset = 0
+    for (pt_lo, pt_hi) in zip(pt_bin_edges[:(- 1)], pt_bin_edges[1:]):
+        get_events(h5file, generator_params, nevents_per_pt_bin, pt_lo, pt_hi, offset=offset, **kwargs)
+        offset += nevents_per_pt_bin
+    pt = h5file['trimmed_jet']['pT']
+    event_weights = get_flat_weights(pt, pt_min, pt_max, (pt_bins * 4))
+    h5file.create_dataset('weights', data=event_weights)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 30:------------------- similar code ------------------ index = 30, score = 5.0 
 def plot_environment_result(data, ax, env):
     ax.set_title(ENV_NAMES[env], fontsize=fontsize)
     pre_print = ('For env: ' + env)
@@ -184,10 +855,171 @@ def plot_environment_result(data, ax, env):
     plt.setp(ax.yaxis.get_majorticklabels(), rotation=40)
     ax.margins(x=0.0, tight=True)
 
-------------------- similar code (pruned) ------------------ score = 0.7222222222222222 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for in:
         try:
             if:
-                x = np. ... ( ... ,  ... .linspace)
+                 ...  =  ... . ... ( ... , np.linspace)
+
+idx = 31:------------------- similar code ------------------ index = 31, score = 5.0 
+def mission_kml(mission, kml, kml_doc):
+    '\n    Appends kml nodes describing the mission.\n\n    Args:\n        mission: The mission to add to the KML.\n        kml: A simpleKML Container to which the mission data will be added\n        kml_doc: The simpleKML Document to which schemas will be added\n\n    Returns:\n        The KML folder for the mission data.\n    '
+    mission_name = 'Mission {}'.format(mission.pk)
+    kml_folder = kml.newfolder(name=mission_name)
+    wgs_to_utm = pyproj.transformer.Transformer.from_proj(distance.proj_wgs84, distance.proj_utm(mission.home_pos.latitude, mission.home_pos.longitude))
+    wgs_to_web_mercator = pyproj.transformer.Transformer.from_proj(distance.proj_wgs84, distance.proj_web_mercator)
+    fly_zone_folder = kml_folder.newfolder(name='Fly Zones')
+    for flyzone in mission.fly_zones.all():
+        fly_zone_kml(flyzone, fly_zone_folder)
+    locations = [('Home', mission.home_pos, KML_HOME_ICON), ('Emergent LKP', mission.emergent_last_known_pos, KML_ODLC_ICON), ('Off Axis', mission.off_axis_odlc_pos, KML_ODLC_ICON), ('Air Drop', mission.air_drop_pos, KML_DROP_ICON), ('Map Center', mission.map_center_pos, KML_MAP_CENTER_ICON)]
+    for (key, point, icon) in locations:
+        gps = (point.longitude, point.latitude)
+        p = kml_folder.newpoint(name=key, coords=[gps])
+        p.iconstyle.icon.href = icon
+        p.description = str(point)
+    oldc_folder = kml_folder.newfolder(name='ODLCs')
+    for odlc in mission.odlcs.select_related().all():
+        name = ('ODLC %d' % odlc.pk)
+        gps = (odlc.location.longitude, odlc.location.latitude)
+        p = oldc_folder.newpoint(name=name, coords=[gps])
+        p.iconstyle.icon.href = KML_ODLC_ICON
+        p.description = name
+    waypoints_folder = kml_folder.newfolder(name='Waypoints')
+    linestring = waypoints_folder.newlinestring(name='Waypoints')
+    waypoints = []
+    for (i, waypoint) in enumerate(mission.mission_waypoints.order_by('order')):
+        coord = (waypoint.longitude, waypoint.latitude, units.feet_to_meters(waypoint.altitude_msl))
+        waypoints.append(coord)
+        p = waypoints_folder.newpoint(name=('Waypoint %d' % (i + 1)), coords=[coord])
+        p.iconstyle.icon.href = KML_WAYPOINT_ICON
+        p.description = str(waypoint)
+        p.altitudemode = AltitudeMode.absolute
+        p.extrude = 1
+    linestring.coords = waypoints
+    linestring.altitudemode = AltitudeMode.absolute
+    linestring.extrude = 1
+    linestring.style.linestyle.color = Color.green
+    linestring.style.polystyle.color = Color.changealphaint(100, Color.green)
+    search_area = []
+    for point in mission.search_grid_points.order_by('order'):
+        coord = (point.longitude, point.latitude, units.feet_to_meters(point.altitude_msl))
+        search_area.append(coord)
+    if search_area:
+        search_area.append(search_area[0])
+        pol = kml_folder.newpolygon(name='Search Area')
+        pol.outerboundaryis = search_area
+        pol.style.linestyle.color = Color.blue
+        pol.style.linestyle.width = 2
+        pol.style.polystyle.color = Color.changealphaint(50, Color.blue)
+    (map_x, map_y) = wgs_to_web_mercator.transform(mission.map_center_pos.longitude, mission.map_center_pos.latitude)
+    map_height = units.feet_to_meters(mission.map_height_ft)
+    map_width = ((map_height * 16) / 9)
+    map_points = [((map_x - (map_width / 2)), (map_y - (map_height / 2))), ((map_x + (map_width / 2)), (map_y - (map_height / 2))), ((map_x + (map_width / 2)), (map_y + (map_height / 2))), ((map_x - (map_width / 2)), (map_y + (map_height / 2))), ((map_x - (map_width / 2)), (map_y - (map_height / 2)))]
+    map_points = [wgs_to_web_mercator.transform(px, py, direction=pyproj.enums.TransformDirection.INVERSE) for (px, py) in map_points]
+    map_points = [(x, y, 0) for (x, y) in map_points]
+    map_pol = kml_folder.newpolygon(name='Map')
+    map_pol.outerboundaryis = map_points
+    map_pol.style.linestyle.color = Color.green
+    map_pol.style.linestyle.width = 2
+    map_pol.style.polystyle.color = Color.changealphaint(50, Color.green)
+    stationary_obstacles_folder = kml_folder.newfolder(name='Stationary Obstacles')
+    for obst in mission.stationary_obstacles.all():
+        (cx, cy) = wgs_to_utm.transform(obst.longitude, obst.latitude)
+        rm = units.feet_to_meters(obst.cylinder_radius)
+        hm = units.feet_to_meters(obst.cylinder_height)
+        obst_points = []
+        for angle in np.linspace(0, (2 * math.pi), num=KML_OBST_NUM_POINTS):
+            px = (cx + (rm * math.cos(angle)))
+            py = (cy + (rm * math.sin(angle)))
+            (lon, lat) = wgs_to_utm.transform(px, py, direction=pyproj.enums.TransformDirection.INVERSE)
+            obst_points.append((lon, lat, hm))
+        pol = stationary_obstacles_folder.newpolygon(name=('Obstacle %d' % obst.pk))
+        pol.outerboundaryis = obst_points
+        pol.altitudemode = AltitudeMode.absolute
+        pol.extrude = 1
+        pol.style.linestyle.color = Color.yellow
+        pol.style.linestyle.width = 2
+        pol.style.polystyle.color = Color.changealphaint(50, Color.yellow)
+    return kml_folder
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        for  ...  in np.linspace:
+idx = 32:------------------- similar code ------------------ index = 32, score = 5.0 
+if (__name__ == '__main__'):
+    "\n    A model of Burger's Equation: ∂u/∂t + u ∂u/∂x = ν ∂²u/∂x²\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/05_Step_4.ipynb\n    "
+    nx = 101
+    nt = 500
+    dx = ((2 * np.pi) / (nx - 1))
+    nu = 0.07
+    dt = (dx * nu)
+    network = ntm.topology.cellular_automaton(nx)
+    initial_conditions = [4.0, 4.06283185, 4.12566371, 4.18849556, 4.25132741, 4.31415927, 4.37699112, 4.43982297, 4.50265482, 4.56548668, 4.62831853, 4.69115038, 4.75398224, 4.81681409, 4.87964594, 4.9424778, 5.00530965, 5.0681415, 5.13097336, 5.19380521, 5.25663706, 5.31946891, 5.38230077, 5.44513262, 5.50796447, 5.57079633, 5.63362818, 5.69646003, 5.75929189, 5.82212374, 5.88495559, 5.94778745, 6.0106193, 6.07345115, 6.136283, 6.19911486, 6.26194671, 6.32477856, 6.38761042, 6.45044227, 6.51327412, 6.57610598, 6.63893783, 6.70176967, 6.76460125, 6.82742866, 6.89018589, 6.95176632, 6.99367964, 6.72527549, 4.0, 1.27472451, 1.00632036, 1.04823368, 1.10981411, 1.17257134, 1.23539875, 1.29823033, 1.36106217, 1.42389402, 1.48672588, 1.54955773, 1.61238958, 1.67522144, 1.73805329, 1.80088514, 1.863717, 1.92654885, 1.9893807, 2.05221255, 2.11504441, 2.17787626, 2.24070811, 2.30353997, 2.36637182, 2.42920367, 2.49203553, 2.55486738, 2.61769923, 2.68053109, 2.74336294, 2.80619479, 2.86902664, 2.9318585, 2.99469035, 3.0575222, 3.12035406, 3.18318591, 3.24601776, 3.30884962, 3.37168147, 3.43451332, 3.49734518, 3.56017703, 3.62300888, 3.68584073, 3.74867259, 3.81150444, 3.87433629, 3.93716815, 4.0]
+
+    def activity_rule(ctx):
+        un_i = ctx.current_activity
+        left_label = ((ctx.node_label - 1) % nx)
+        un_i_m1 = ctx.activity_of(left_label)
+        right_label = ((ctx.node_label + 1) % nx)
+        un_i_p1 = ctx.activity_of(right_label)
+        return ((un_i - (((un_i * dt) / dx) * (un_i - un_i_m1))) + (((nu * dt) / (dx ** 2)) * ((un_i_p1 - (2 * un_i)) + un_i_m1)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
+    ntm.plot_activities(trajectory)
+    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ... . ... (np.linspace,  ... )
+
+idx = 33:------------------- similar code ------------------ index = 8, score = 4.0 
+def get_blocks(params):
+    '\n    Create blocks using the image dimensions, block size and overlap.\n    :param params: input parameters from params.py\n    :return: List of start row/col indices of the blocks\n    '
+    blocks = []
+    (yEnd, xEnd) = np.subtract(params.IMG_SZ, params.BLOCK_SZ)
+    x = np.linspace(0, xEnd, (np.ceil((xEnd / np.float((params.BLOCK_SZ[1] - params.BLOCK_MIN_OVERLAP)))) + 1), endpoint=True).astype('int')
+    y = np.linspace(0, yEnd, (np.ceil((yEnd / np.float((params.BLOCK_SZ[0] - params.BLOCK_MIN_OVERLAP)))) + 1), endpoint=True).astype('int')
+    for currx in x:
+        for curry in y:
+            blocks.append((currx, curry))
+    return blocks
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ( ... ):
+ = np
+     ...  =  ... .linspace
+
+idx = 34:------------------- similar code ------------------ index = 2, score = 4.0 
+def filter_classes(opt, fnames, labels, classes, class_embedding):
+    '\n    Select a subset of classes. Mostly for faster debugging.\n    '
+    sel = (np.ones(len(classes)) == 1)
+    if (opt.class_total > 0):
+        sel = np.linspace(0, (len(classes) - 1), opt.class_total).astype(int)
+    classes = np.array(classes)[sel].tolist()
+    class_embedding = class_embedding[sel]
+    fnames = [f for (i, f) in enumerate(fnames) if (labels[i] in classes)]
+    labels = [l for l in labels if (l in classes)]
+    return (np.array(fnames), np.array(labels), np.array(classes), class_embedding)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+     ...  = (np ==  ... )
+    if:
+         ...  =  ... .linspace
+
+idx = 35:------------------- similar code ------------------ index = 0, score = 4.0 
+def filter_samples(opt, fnames, labels, classes):
+    '\n    Select a subset of classes. Mostly for faster debugging.\n    '
+    (fnames, labels) = (np.array(fnames), np.array(labels))
+    if (opt.train_samples != (- 1)):
+        sel = np.linspace(0, (len(fnames) - 1), min(opt.train_samples, len(fnames))).astype(int)
+        (fnames, labels) = (fnames[sel], labels[sel])
+    return (np.array(fnames), np.array(labels), np.array(classes))
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+ = (np,)
+    if:
+         ...  =  ... .linspace
 

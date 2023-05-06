@@ -19,6 +19,8 @@ import org.antlr.v4.runtime.tree.Tree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.file.Paths;
+
 public class ConvertJava {
   private static final int MAX_DEPTH = 1000;
   Vocabulary vocab;
@@ -132,7 +134,7 @@ public class ConvertJava {
               + totalMethods
               + ", "
               + thisFileName);
-      // System.out.println(tree.toString(4));
+
     } catch (Exception e) {
 
       System.out.println(
@@ -144,6 +146,7 @@ public class ConvertJava {
               + totalMethods
               + ", "
               + thisFileName);
+
       System.err.println("Parser Exception: " + e);
       e.printStackTrace(); // so we can get the stack trace
     }
@@ -465,10 +468,13 @@ public class ConvertJava {
 
     if (!(args[2].contains(".py"))) {
       ArrayList<String> fileNames = new ArrayList<String>();
+      String cwd = Paths.get("")
+          .toAbsolutePath()
+          .toString();
+      // System.out.println(cwd);
+
       File[] files = new File(
-          "/Users/nehalfooda/Downloads/Thesis/Mining-API-Usage-Patterns/aroma-paper-artifacts/reference/"
-              + args[2] + "/snippets")
-          .listFiles();
+          cwd + File.separator + args[2] + "/snippets").listFiles();
 
       for (File file : files) {
         if (file.isFile()) {

@@ -1,3 +1,372 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+------------------------- example 1 ------------------------ 
+def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True, bias_init=tf.constant_initializer(0.0), sn=False, scope='conv_0'):
+    with tf.variable_scope(scope):
+        if (pad > 0):
+            h = x.get_shape().as_list()[1]
+            if ((h % stride) == 0):
+                pad = (pad * 2)
+            else:
+                pad = max((kernel - (h % stride)), 0)
+            pad_top = (pad // your code ...
+ 2)
+// your code ...
 
+            if (pad_type == 'zero'):
+                x = tf.pad(x, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
+            if (pad_type == 'reflect'):
+                x = tf.pad(x, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
+        if sn:
+            w = tf.get_variable('kernel', shape=[kernel, kernel, x.get_shape()[(- 1)], channels], initializer=weight_init, regularizer=weight_regularizer)
+            x = tf.nn.conv2d(input=x, filter=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
+            if use_bias:
+                bias = tf.get_variable('bias', [channels], initializer=bias_init)
+                x = tf.nn.bias_add(x, bias)
+        else:
+            x = tf.layers.conv2d(inputs=x, filters=channels, kernel_size=kernel, kernel_initializer=weight_init, kernel_regularizer=weight_regularizer, strides=stride, use_bias=use_bias, bias_initializer=bias_init)
+        return x
+
+------------------------- example 2 ------------------------ 
+def discrim_conv(batch_input, out_channels, stride):
+    padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
+    return tf.layers.conv2d(padded_input, out_channels, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.random_normal_initializer(0, 0.02))
+
+------------------------- example 3 ------------------------ 
+@staticmethod
+def _prepare_target(target, hparams):
+
+    def convert(target: PreprocessedMelData):
+        r = hparams.outputs_per_step
+        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+        target_length = (target.target_length + (2 * r))
+        padded_target_length = (((target_length // your code ...
+ r) + 1) * r)
+
+        def padding_function(t):
+            tail_padding = (padded_target_length - target_length)
+            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+        mel.set_shape((None, hparams.num_mels))
+        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+        done = tf.concat([tf.zeros(((padded_target_length // your code ...
+ r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+        binary_loss_mask = tf.ones(shape=(padded_target_length // your code ...
+ r), dtype=tf.float32)
+        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
+
+------------------------- example 4 ------------------------ 
+def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, scope=None):
+    "Strided 2-D convolution with 'SAME' padding.\n\n  When stride > 1, then we do explicit zero-padding, followed by conv2d with\n  'VALID' padding.\n\n  Note that\n\n     net = conv2d_same(inputs, num_outputs, 3, stride=stride)\n\n  is equivalent to\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')\n     net = subsample(net, factor=stride)\n\n  whereas\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')\n\n  is different when the input's height or width is even, which is why we add the\n  current function. For more details, see ResnetUtilsTest.testConv2DSameEven().\n\n  Args:\n    inputs: A 4-D tensor of size [batch, height_in, width_in, channels].\n    num_outputs: An integer, the number of output filters.\n    kernel_size: An int with the kernel_size of the filters.\n    stride: An integer, the output stride.\n    rate: An integer, rate for atrous convolution.\n    scope: Scope.\n\n  Returns:\n    output: A 4-D tensor of size [batch, height_out, width_out, channels] with\n      the convolution output.\n  "
+    if (stride == 1):
+        return slim.conv2d(inputs, num_outputs, kernel_size, stride=1, rate=rate, padding='SAME', scope=scope)
+    else:
+        kernel_size_effective = (kernel_size + ((kernel_size - 1) * (rate - 1)))
+        pad_total = (kernel_size_effective - 1)
+        pad_beg = (pad_total // your code ...
+ 2)
+        pad_end = (pad_total - pad_beg)
+        inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+        return slim.conv2d(inputs, num_outputs, kernel_size, stride=stride, rate=rate, padding='VALID', scope=scope)
+
+------------------------- example 5 ------------------------ 
+def padding_function(t):
+    tail_padding = (padded_target_length - target_length)
+    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          5           ||        23         ||         2        
+example2  ||          7           ||        3         ||         0        
+example3  ||          2           ||        19         ||         3        
+example4  ||          3           ||        11         ||         1        
+example5  ||          2           ||        4         ||         0        
+
+
+idx = 0:------------------- similar code ------------------ index = 12, score = 6.0 
+def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True, bias_init=tf.constant_initializer(0.0), sn=False, scope='conv_0'):
+    with tf.variable_scope(scope):
+        if (pad > 0):
+            h = x.get_shape().as_list()[1]
+            if ((h % stride) == 0):
+                pad = (pad * 2)
+            else:
+                pad = max((kernel - (h % stride)), 0)
+            pad_top = (pad // 2)
+            pad_bottom = (pad - pad_top)
+            pad_left = (pad // 2)
+            pad_right = (pad - pad_left)
+            if (pad_type == 'zero'):
+                x = tf.pad(x, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
+            if (pad_type == 'reflect'):
+                x = tf.pad(x, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
+        if sn:
+            w = tf.get_variable('kernel', shape=[kernel, kernel, x.get_shape()[(- 1)], channels], initializer=weight_init, regularizer=weight_regularizer)
+            x = tf.nn.conv2d(input=x, filter=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
+            if use_bias:
+                bias = tf.get_variable('bias', [channels], initializer=bias_init)
+                x = tf.nn.bias_add(x, bias)
+        else:
+            x = tf.layers.conv2d(inputs=x, filters=channels, kernel_size=kernel, kernel_initializer=weight_init, kernel_regularizer=weight_regularizer, strides=stride, use_bias=use_bias, bias_initializer=bias_init)
+        return x
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        if:
+            if:
+                 ...  = tf.pad
+
+idx = 1:------------------- similar code ------------------ index = 11, score = 6.0 
+def discrim_conv(batch_input, out_channels, stride):
+    padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
+    return tf.layers.conv2d(padded_input, out_channels, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.random_normal_initializer(0, 0.02))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 2:------------------- similar code ------------------ index = 4, score = 6.0 
+def discrim_conv_mask(batch_input, stride):
+    padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
+    return tf.layers.conv2d(padded_input, 1, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.constant_initializer((1.0 / 16)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 3:------------------- similar code ------------------ index = 13, score = 5.0 
+@staticmethod
+def _prepare_target(target, hparams):
+
+    def convert(target: PreprocessedMelData):
+        r = hparams.outputs_per_step
+        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+        target_length = (target.target_length + (2 * r))
+        padded_target_length = (((target_length // r) + 1) * r)
+
+        def padding_function(t):
+            tail_padding = (padded_target_length - target_length)
+            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+        mel.set_shape((None, hparams.num_mels))
+        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+        done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+        binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+         ...  = tf.pad
+
+idx = 4:------------------- similar code ------------------ index = 10, score = 5.0 
+def _call(self, inp, output_size, is_training):
+    mod = (int(inp.shape[1]) % self.pixels_per_cell[0])
+    bottom_padding = ((self.pixels_per_cell[0] - mod) if (mod > 0) else 0)
+    padding_h = int(np.ceil((self.max_object_shape[0] / 2)))
+    mod = (int(inp.shape[2]) % self.pixels_per_cell[1])
+    right_padding = ((self.pixels_per_cell[1] - mod) if (mod > 0) else 0)
+    padding_w = int(np.ceil((self.max_object_shape[1] / 2)))
+    padding = [[0, 0], [padding_h, (bottom_padding + padding_h)], [padding_w, (right_padding + padding_w)], [0, 0]]
+    inp = tf.pad(inp, padding)
+    return super(NewBackbone, self)._call(inp, output_size, is_training)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 5:------------------- similar code ------------------ index = 9, score = 5.0 
+def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, scope=None):
+    "Strided 2-D convolution with 'SAME' padding.\n\n  When stride > 1, then we do explicit zero-padding, followed by conv2d with\n  'VALID' padding.\n\n  Note that\n\n     net = conv2d_same(inputs, num_outputs, 3, stride=stride)\n\n  is equivalent to\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')\n     net = subsample(net, factor=stride)\n\n  whereas\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')\n\n  is different when the input's height or width is even, which is why we add the\n  current function. For more details, see ResnetUtilsTest.testConv2DSameEven().\n\n  Args:\n    inputs: A 4-D tensor of size [batch, height_in, width_in, channels].\n    num_outputs: An integer, the number of output filters.\n    kernel_size: An int with the kernel_size of the filters.\n    stride: An integer, the output stride.\n    rate: An integer, rate for atrous convolution.\n    scope: Scope.\n\n  Returns:\n    output: A 4-D tensor of size [batch, height_out, width_out, channels] with\n      the convolution output.\n  "
+    if (stride == 1):
+        return slim.conv2d(inputs, num_outputs, kernel_size, stride=1, rate=rate, padding='SAME', scope=scope)
+    else:
+        kernel_size_effective = (kernel_size + ((kernel_size - 1) * (rate - 1)))
+        pad_total = (kernel_size_effective - 1)
+        pad_beg = (pad_total // 2)
+        pad_end = (pad_total - pad_beg)
+        inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+        return slim.conv2d(inputs, num_outputs, kernel_size, stride=stride, rate=rate, padding='VALID', scope=scope)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = tf.pad
+
+idx = 6:------------------- similar code ------------------ index = 8, score = 5.0 
+def process_tensor_array(tensor_array, name, shape=None):
+    tensor = tf.transpose(tensor_array.stack(), (1, 0, 2))
+    time_pad = (self.max_time_steps - tf.shape(tensor)[1])
+    padding = [[0, 0], [0, time_pad]]
+    padding += ([[0, 0]] * (len(tensor.shape) - 2))
+    tensor = tf.pad(tensor, padding, name=name)
+    if (shape is not None):
+        tensor = tf.reshape(tensor, shape)
+    return tensor
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 7:------------------- similar code ------------------ index = 7, score = 5.0 
+def build_math(self):
+    if (self.math_input_network is None):
+        self.math_input_network = cfg.build_math_input(scope='math_input_network')
+        if ('math' in self.fixed_weights):
+            self.math_input_network.fix_variables()
+    if (self.math_network is None):
+        self.math_network = cfg.build_math_network(scope='math_network')
+        if ('math' in self.fixed_weights):
+            self.math_network.fix_variables()
+    (math_rep, mask) = self.build_math_representation()
+    if (self.max_possible_objects is not None):
+        (math_rep, _, mask) = apply_mask_and_group_at_front(math_rep, mask)
+        n_pad = (self.max_possible_objects - tf.shape(math_rep)[1])
+        mask = tf.cast(mask, tf.float32)
+        batch_size = tf.shape(math_rep)[0]
+        A = math_rep.shape[2]
+        math_rep = tf.pad(math_rep, [(0, 0), (0, n_pad), (0, 0)])
+        math_rep = tf.reshape(math_rep, (batch_size, self.max_possible_objects, A))
+        mask = tf.pad(mask, [(0, 0), (0, n_pad)])
+        mask = tf.reshape(mask, (batch_size, self.max_possible_objects, 1))
+    mask_shape = tf.concat([tf.shape(math_rep)[:(- 1)], [1]], axis=0)
+    mask = tf.reshape(mask, mask_shape)
+    math_rep = tf.concat([mask, math_rep], axis=(- 1))
+    logits = self.math_network(math_rep, cfg.n_classes, self.is_training)
+    self._tensors['prediction'] = tf.nn.softmax(logits)
+    recorded_tensors = self.recorded_tensors
+    if (self.math_weight is not None):
+        self.record_tensors(raw_loss_math=tf.nn.softmax_cross_entropy_with_logits_v2(labels=self._tensors['targets'], logits=logits))
+        self.losses['math'] = (self.math_weight * recorded_tensors['raw_loss_math'])
+    self.record_tensors(math_accuracy=tf.equal(tf.argmax(logits, axis=1), tf.argmax(self._tensors['targets'], axis=1)), math_1norm=tf.abs((tf.argmax(logits, axis=1) - tf.argmax(self._tensors['targets'], axis=1))), math_correct_prob=tf.reduce_sum((tf.nn.softmax(logits) * self._tensors['targets']), axis=1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:
+         ...  = tf.pad
+
+idx = 8:------------------- similar code ------------------ index = 6, score = 5.0 
+def _fixed_padding(inputs, kernel_size, rate=1):
+    "Pads the input along the spatial dimensions independently of input size.\n\n  Pads the input such that if it was used in a convolution with 'VALID' padding,\n  the output would have the same dimensions as if the unpadded input was used\n  in a convolution with 'SAME' padding.\n\n  Args:\n    inputs: A tensor of size [batch, height_in, width_in, channels].\n    kernel_size: The kernel to be used in the conv2d or max_pool2d operation.\n    rate: An integer, rate for atrous convolution.\n\n  Returns:\n    output: A tensor of size [batch, height_out, width_out, channels] with the\n      input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).\n  "
+    kernel_size_effective = [(kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1))), (kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1)))]
+    pad_total = [(kernel_size_effective[0] - 1), (kernel_size_effective[1] - 1)]
+    pad_beg = [(pad_total[0] // 2), (pad_total[1] // 2)]
+    pad_end = [(pad_total[0] - pad_beg[0]), (pad_total[1] - pad_beg[1])]
+    padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg[0], pad_end[0]], [pad_beg[1], pad_end[1]], [0, 0]])
+    return padded_inputs
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 9:------------------- similar code ------------------ index = 5, score = 5.0 
+def padding_function(t):
+    tail_padding = (padded_target_length - target_length)
+    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    return (lambda : tf.pad)
+
+idx = 10:------------------- similar code ------------------ index = 3, score = 5.0 
+def convert(target: PreprocessedMelData):
+    r = hparams.outputs_per_step
+    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+    target_length = (target.target_length + (2 * r))
+    padded_target_length = (((target_length // r) + 1) * r)
+
+    def padding_function(t):
+        tail_padding = (padded_target_length - target_length)
+        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+    mel.set_shape((None, hparams.num_mels))
+    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 11:------------------- similar code ------------------ index = 2, score = 5.0 
+def convert(target: PreprocessedMelData):
+    r = hparams.outputs_per_step
+    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+    target_length = (target.target_length + (2 * r))
+    padded_target_length = (((target_length // r) + 1) * r)
+
+    def padding_function(t):
+        tail_padding = (padded_target_length - target_length)
+        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+    mel.set_shape((None, hparams.num_mels))
+    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 12:------------------- similar code ------------------ index = 1, score = 5.0 
+@staticmethod
+def _prepare_target(target, hparams):
+
+    def convert(target: PreprocessedMelData):
+        r = hparams.outputs_per_step
+        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+        target_length = (target.target_length + (2 * r))
+        padded_target_length = (((target_length // r) + 1) * r)
+
+        def padding_function(t):
+            tail_padding = (padded_target_length - target_length)
+            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+        mel.set_shape((None, hparams.num_mels))
+        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+        done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+        binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+         ...  = tf.pad
+
+idx = 13:------------------- similar code ------------------ index = 0, score = 5.0 
+def padding_function(t):
+    tail_padding = (padded_target_length - target_length)
+    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    return (lambda : tf.pad)
 

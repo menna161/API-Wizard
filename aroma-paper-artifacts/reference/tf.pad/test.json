@@ -1,1 +1,1 @@
-{"path":"tf.pad/test.py","endline":2,"ast":["#",{"trailing":"\n","leading":"","line":1,"leaf":true,"token":"pad"},{"trailing":"","leading":"\n","line":2,"token":""}],"beginline":1}
+{"path":"tf.pad/test.py","endline":2,"ast":["#",["##",{"trailing":"","leading":"","line":1,"leaf":true,"token":"tf"},[".#",{"trailing":"","leading":"","line":1,"token":"."},{"trailing":"\n","leading":"","line":1,"leaf":true,"token":"pad"}]],{"trailing":"","leading":"\n","line":2,"token":""}],"beginline":1}
