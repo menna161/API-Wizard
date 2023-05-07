@@ -1014,6 +1014,7 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         "examples  ||  representativeness  ||  number of lines  || number of comments \n")
     no_examples = len(rep)
     for i in range(no_examples):
+        lines_count[i] = lines_count[i]-comments_count[i]
         f.write("example"+str(i+1)+"  ||          "+str(rep[i])+"           ||        "+str(
             lines_count[i])+"         ||         "+str(comments_count[i])+"        ")
         f.write("\n")
@@ -1022,8 +1023,12 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         avg_comments += comments_count[i]
 
     f.write("\n")
+
+    total_no_snippets = len(os.listdir(snippets_dir))
+
     if no_examples > 0:
         avg_rep = avg_rep/no_examples
+        avg_rep = avg_rep/total_no_snippets*100
         avg_lines = avg_lines/no_examples
         avg_comments = avg_comments/no_examples
     else:
@@ -1206,6 +1211,8 @@ setup(options.corpus)
     os.path.join(cwd+options.working_dir, config.FEATURES_FILE),
 )
 api = options.output_file.split("/")[0]
+
+snippets_dir = cwd+api+"/snippets"
 
 output_file = cwd+options.output_file
 

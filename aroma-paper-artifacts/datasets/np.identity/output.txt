@@ -39,13 +39,13 @@ def update_weights(robustifier, x_true, x_pred, weights):
     return np.array([(I * w) for w in robustifier.weights(E)])
 
 examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        9         ||         2        
+example1  ||          3           ||        7         ||         2        
 example2  ||          5           ||        5         ||         0        
 example3  ||          2           ||        3         ||         0        
-example4  ||          2           ||        6         ||         1        
+example4  ||          2           ||        5         ||         1        
 example5  ||          2           ||        4         ||         0        
 
-avg       ||          2.8           ||        5.4         ||         0.6        
+avg       ||          5.833333333333333           ||        4.8         ||         0.6        
 
 idx = 0:------------------- similar code ------------------ index = 0, score = 6.0 
 def test_left_jacobians():
