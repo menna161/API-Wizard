@@ -1,5 +1,84 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+------------------------- example 1 ------------------------ 
+def extract_data(flatten):
+    (data, labels) = get_data(_DATA_PATH, class_labels=_CLASS_LABELS, flatten=flatten)
+    (x_train, x_test, y_train, y_test) = train_test_split(data, labels, test_size=0.2, random_state=42)
+    return (np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test), len(_CLASS_LABELS))
 
+------------------------- example 2 ------------------------ 
+def run():
+    text_data = datasets.TatoebaDataset('data/ben-eng/ben.txt', cfg.NUM_DATA_TO_LOAD)
+// your code ...
+
+    (input_train, input_val, target_train, target_val) = train_test_split(input_tensor, target_tensor, test_size=0.2)
+    buffer_size = len(input_train)
+    steps_per_epoch = (len(input_train) // your code ...
+ cfg.BATCH_SIZE)
+    vocab_inp_size = (len(inp_lang_tokenizer.word_index) + 1)
+    vocab_tar_size = (len(targ_lang_tokenizer.word_index) + 1)
+    dataset = tf.data.Dataset.from_tensor_slices((input_train, target_train))
+    dataset = dataset.shuffle(buffer_size)
+    dataset = dataset.batch(cfg.BATCH_SIZE, drop_remainder=True)
+    optimizer = tf.keras.optimizers.Adam()
+// your code ...
+
+    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
+    checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
+// your code ...
+
+    for epoch in range(cfg.EPOCHS):
+        print('Epoch {} / {}'.format(epoch, cfg.EPOCHS))
+        pbar = tqdm(dataset.take(steps_per_epoch), ascii=True)
+        total_loss = 0
+        enc_hidden = encoder.initialize_hidden_state()
+        for (step, data) in enumerate(pbar):
+            (inp, targ) = data
+// your code ...
+
+            pbar.set_description('Step - {} / {} - batch loss - {:.4f} - '.format(steps_per_epoch, (step + 1), batch_loss.numpy()))
+        if (((epoch + 1) % 2) == 0):
+// your code ...
+
+
+------------------------- example 3 ------------------------ 
+def test_dict_completion_missing():
+    rng = np.random.RandomState(0)
+    U = rng.rand(100, 4)
+// your code ...
+
+    (X_tr, X_te) = train_test_split(X, train_size=0.95)
+    X_tr = sp.csr_matrix(X_tr)
+// your code ...
+
+    mf = RecsysDictFact(n_components=4, n_epochs=1, alpha=1, random_state=0, detrend=True, verbose=0)
+    mf.fit(X_tr)
+// your code ...
+
+    rmse = sqrt((np.sum(((X_te.data - X_pred.data) ** 2)) / X_te.data.shape[0]))
+    X_te_centered = check_array(X_te, accept_sparse='csr', copy=True)
+// your code ...
+
+    rmse_c = sqrt((np.sum(((X_te.data - X_te_centered.data) ** 2)) / X_te.data.shape[0]))
+    assert (rmse < rmse_c)
+
+------------------------- example 4 ------------------------ 
+def load_recsys(dataset, random_state):
+    if (dataset in ['100k', '1m', '10m']):
+        X = load_movielens(dataset)
+        (X_tr, X_te) = train_test_split(X, train_size=0.75, random_state=random_state)
+        X_tr = X_tr.tocsr()
+// your code ...
+
+    if (dataset is 'netflix'):
+// your code ...
+
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          4           ||        4         ||         0        
+example2  ||          2           ||        27         ||         6        
+example3  ||          3           ||        15         ||         4        
+example4  ||          2           ||        8         ||         2        
+
+avg       ||          2.75           ||        13.5         ||         3.0        
 
 idx = 0:------------------- similar code ------------------ index = 4, score = 2.0 
 def train_test_split(X, train_size=0.75, random_state=None):
@@ -8,3 +87,255 @@ def train_test_split(X, train_size=0.75, random_state=None):
 
 ------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
 def train_test_split():
+idx = 1:------------------- similar code ------------------ index = 7, score = 1.0 
+def extract_data(flatten):
+    (data, labels) = get_data(_DATA_PATH, class_labels=_CLASS_LABELS, flatten=flatten)
+    (x_train, x_test, y_train, y_test) = train_test_split(data, labels, test_size=0.2, random_state=42)
+    return (np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test), len(_CLASS_LABELS))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+ = train_test_split
+
+idx = 2:------------------- similar code ------------------ index = 6, score = 1.0 
+def run():
+    text_data = datasets.TatoebaDataset('data/ben-eng/ben.txt', cfg.NUM_DATA_TO_LOAD)
+    (tensors, tokenizer) = text_data.load_data()
+    (input_tensor, target_tensor) = tensors
+    (inp_lang_tokenizer, targ_lang_tokenizer) = tokenizer
+    utils.save_tokenizer(tokenizer=inp_lang_tokenizer, save_at='models', file_name='input_language_tokenizer.json')
+    utils.save_tokenizer(tokenizer=targ_lang_tokenizer, save_at='models', file_name='target_language_tokenizer.json')
+    (input_train, input_val, target_train, target_val) = train_test_split(input_tensor, target_tensor, test_size=0.2)
+    buffer_size = len(input_train)
+    steps_per_epoch = (len(input_train) // cfg.BATCH_SIZE)
+    vocab_inp_size = (len(inp_lang_tokenizer.word_index) + 1)
+    vocab_tar_size = (len(targ_lang_tokenizer.word_index) + 1)
+    dataset = tf.data.Dataset.from_tensor_slices((input_train, target_train))
+    dataset = dataset.shuffle(buffer_size)
+    dataset = dataset.batch(cfg.BATCH_SIZE, drop_remainder=True)
+    optimizer = tf.keras.optimizers.Adam()
+    encoder = models.Encoder(vocab_inp_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
+    decoder = models.Decoder(vocab_tar_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
+    checkpoint_dir = 'models/training_checkpoints'
+    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
+    checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
+    if cfg.RESTORE_SAVED_CHECKPOINT:
+        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+    for epoch in range(cfg.EPOCHS):
+        print('Epoch {} / {}'.format(epoch, cfg.EPOCHS))
+        pbar = tqdm(dataset.take(steps_per_epoch), ascii=True)
+        total_loss = 0
+        enc_hidden = encoder.initialize_hidden_state()
+        for (step, data) in enumerate(pbar):
+            (inp, targ) = data
+            batch_loss = train_step(inp, targ, targ_lang_tokenizer, enc_hidden, encoder, decoder, optimizer)
+            total_loss += batch_loss
+            pbar.set_description('Step - {} / {} - batch loss - {:.4f} - '.format(steps_per_epoch, (step + 1), batch_loss.numpy()))
+        if (((epoch + 1) % 2) == 0):
+            checkpoint.save(file_prefix=checkpoint_prefix)
+        print('Epoch loss - {:.4f}'.format((total_loss / steps_per_epoch)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 3:------------------- similar code ------------------ index = 5, score = 1.0 
+def compute_components(n_components, batch_size, learning_rate, positive, reduction, alpha, method, n_epochs, verbose, smoothing_fwhm, n_jobs, raw_dir, output_dir):
+    if (not os.path.exists(output_dir)):
+        os.makedirs(output_dir)
+    info = {}
+    (masker, data) = get_raw_rest_data(raw_dir)
+    (train_imgs, test_imgs) = train_test_split(data, train_size=None, test_size=1, random_state=0)
+    train_imgs = train_imgs['filename'].values
+    test_imgs = test_imgs['filename'].values
+    cb = rfMRIDictionaryScorer(test_imgs, info=info, artifact_dir=output_dir)
+    dict_fact = fMRIDictFact(method=method, mask=masker, smoothing_fwhm=smoothing_fwhm, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, positive=positive, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, alpha=alpha, callback=cb)
+    dict_fact.fit(train_imgs)
+    dict_fact.components_img_.to_filename(join(output_dir, 'components.nii.gz'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 4:------------------- similar code ------------------ index = 3, score = 1.0 
+def test_dict_completion_missing():
+    rng = np.random.RandomState(0)
+    U = rng.rand(100, 4)
+    V = rng.rand(4, 20)
+    X = np.dot(U, V)
+    X = sp.csr_matrix(X)
+    (X_tr, X_te) = train_test_split(X, train_size=0.95)
+    X_tr = sp.csr_matrix(X_tr)
+    X_te = sp.csr_matrix(X_te)
+    mf = RecsysDictFact(n_components=4, n_epochs=1, alpha=1, random_state=0, detrend=True, verbose=0)
+    mf.fit(X_tr)
+    X_pred = mf.predict(X_te)
+    rmse = sqrt((np.sum(((X_te.data - X_pred.data) ** 2)) / X_te.data.shape[0]))
+    X_te_centered = check_array(X_te, accept_sparse='csr', copy=True)
+    compute_biases(X_te_centered, inplace=True)
+    rmse_c = sqrt((np.sum(((X_te.data - X_te_centered.data) ** 2)) / X_te.data.shape[0]))
+    assert (rmse < rmse_c)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 5:------------------- similar code ------------------ index = 2, score = 1.0 
+def load_recsys(dataset, random_state):
+    if (dataset in ['100k', '1m', '10m']):
+        X = load_movielens(dataset)
+        (X_tr, X_te) = train_test_split(X, train_size=0.75, random_state=random_state)
+        X_tr = X_tr.tocsr()
+        X_te = X_te.tocsr()
+        return (X_tr, X_te)
+    if (dataset is 'netflix'):
+        return load_netflix()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+ = train_test_split
+
+idx = 6:------------------- similar code ------------------ index = 1, score = 1.0 
+@exp.automain
+def compute_components(n_components, batch_size, learning_rate, method, reduction, alpha, step_size, n_jobs, n_epochs, verbose, source, _run):
+    basedir = join(_run.observers[0].basedir, str(_run._id))
+    artifact_dir = join(basedir, 'artifacts')
+    if (not os.path.exists(artifact_dir)):
+        os.makedirs(artifact_dir)
+    if (source == 'hcp'):
+        train_size = None
+        smoothing_fwhm = 3
+        test_size = 2
+        data_dir = get_data_dirs()[0]
+        mask = fetch_hcp_mask()
+        masker = MultiRawMasker(mask_img=mask, smoothing_fwhm=smoothing_fwhm, detrend=True, standardize=True)
+        mapping = json.load(open(join(data_dir, 'HCP_unmasked/mapping.json'), 'r'))
+        data = sorted(list(mapping.values()))
+        data = list(map((lambda x: join(data_dir, x)), data))
+        data = pd.DataFrame(data, columns=['filename'])
+    else:
+        smoothing_fwhm = 6
+        train_size = 4
+        test_size = 4
+        raw_res_dir = join(get_output_dir(), 'unmasked', source)
+        try:
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+        except ValueError:
+            raw_res_dir = join(get_output_dir(), 'unmask', source)
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+    (train_imgs, test_imgs) = train_test_split(data, test_size=test_size, random_state=0, train_size=train_size)
+    train_imgs = train_imgs['filename'].values
+    test_imgs = test_imgs['filename'].values
+    cb = rfMRIDictionaryScorer(test_imgs, info=_run.info)
+    dict_fact = fMRIDictFact(method=method, mask=masker, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, smoothing_fwhm=smoothing_fwhm, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, step_size=step_size, alpha=alpha, callback=cb)
+    dict_fact.fit(train_imgs)
+    dict_fact.components_img_.to_filename(join(artifact_dir, 'components.nii.gz'))
+    fig = plt.figure()
+    display_maps(fig, dict_fact.components_img_)
+    plt.savefig(join(artifact_dir, 'components.png'))
+    (fig, ax) = plt.subplots(1, 1)
+    ax.plot(cb.cpu_time, cb.score, marker='o')
+    _run.info['time'] = cb.cpu_time
+    _run.info['score'] = cb.score
+    _run.info['iter'] = cb.iter
+    plt.savefig(join(artifact_dir, 'score.png'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 7:------------------- similar code ------------------ index = 0, score = 1.0 
+def main():
+    ' Create image datasets. Processes images and saves them in train,\n    val, test splits. For each split, this creates a numpy array w/\n    dimensions n_images, height, width, depth.\n    '
+    parser = argparse.ArgumentParser(description='Process input arguments')
+    parser.add_argument('--raw_data', default='./data/UCSD_Anomaly_Dataset.v1p2/', type=str, dest='raw_data', help='data folder mounting point')
+    parser.add_argument('--preprocessed_data', default='./data/preprocessed/', type=str, dest='preprocessed_data', help='data folder mounting point')
+    parser.add_argument('--n_frames', default=200, type=int, dest='n_frames', help='length of video sequences in input data')
+    parser.add_argument('--dataset', dest='dataset', default='UCSDped1', help='the dataset that we are using', type=str, required=False)
+    test_size = 0.5
+    args = parser.parse_args()
+    raw_data = os.path.join(args.raw_data, args.dataset)
+    preprocessed_data_path = os.path.join(args.preprocessed_data, args.dataset)
+    assert (args.dataset in ['UCSDped1', 'UCSDped2']), ('Dataset (%s) not valid.' % args.dataset)
+    if (not (preprocessed_data_path is None)):
+        os.makedirs(preprocessed_data_path, exist_ok=True)
+        print(('%s created' % preprocessed_data_path))
+    desired_im_sz = (152, 232)
+    skip_frames = 0
+    print('Input data:', raw_data)
+    recordings = glob.glob(os.path.join(raw_data, 'Train', 'Train*[0-9]'))
+    recordings = sorted(recordings)
+    n_recordings = len(recordings)
+    print(('Found %s recordings for training' % n_recordings))
+    (print('Folders: '),)
+    print(os.listdir(os.path.join(raw_data, 'Train')))
+    train_recordings = list(zip(([raw_data] * n_recordings), recordings))
+    recordings = glob.glob(os.path.join(raw_data, 'Test', 'Test*[0-9]'))
+    recordings = sorted(recordings)
+    n_recordings = len(recordings)
+    print(('Found %s recordings for validation and testing' % n_recordings))
+    print(('Using %d percent for testing' % (test_size * 100)))
+    (print('Folders: '),)
+    print(os.listdir(os.path.join(raw_data, 'Test')))
+    recordings = list(zip(([raw_data] * n_recordings), recordings))
+    (val_recordings, test_recordings) = train_test_split(recordings, test_size=test_size, random_state=123)
+    splits = {s: [] for s in ['train', 'test', 'val']}
+    splits['train'] = train_recordings
+    splits['val'] = val_recordings
+    splits['test'] = test_recordings
+    for split in splits:
+        im_list = []
+        source_list = []
+        i = 0
+        for (_, folder) in splits[split]:
+            files = glob.glob(os.path.join(folder, '*.tif'), recursive=False)
+            files = sorted(files)
+            for skip in range(0, (skip_frames + 1)):
+                for (c, f) in enumerate(files):
+                    if ((c % (skip_frames + 1)) == skip):
+                        im_list.append(f)
+                        source_list.append(os.path.dirname(f))
+                        i += 1
+        print((((('Creating ' + split) + ' data set with ') + str(len(im_list))) + ' images'))
+        X = np.zeros((((len(im_list),) + desired_im_sz) + (3,)), np.uint8)
+        for (i, im_file) in enumerate(im_list):
+            try:
+                im = Image.open(im_file).convert(mode='RGB')
+            except Exception as e:
+                print(e)
+                print(im_file)
+                print("something with this file. You can open and investigate manually. It's probably OK to ignore, unless you geta ton of these warnings.")
+            try:
+                X[i] = np.asarray(process_im(im, desired_im_sz))
+            except Exception as e:
+                print(e)
+                print(im_file)
+                raise
+        if (split in ['val', 'test']):
+            print(('Creating anomaly dataset for %s split' % split))
+            anom_anot_filename = os.path.join(raw_data, 'Test', ('%s.m' % args.dataset))
+            with open(anom_anot_filename, 'r') as f:
+                lines = f.readlines()
+            del lines[0]
+            anom_indices = []
+            for (l, line) in enumerate(lines):
+                line = line.replace(':', ',')
+                anom_index = line.split('[')[1].split(']')[0].split(',')
+                anom_indices.append(anom_index)
+            anoms = np.zeros(X.shape[0])
+            for (f, folder) in enumerate(splits[split]):
+                row = int(os.path.basename(folder[1])[(- 3):])
+                anom = anom_indices[(row - 1)]
+                while (len(anom) > 0):
+                    first_frame = (int(anom.pop(0)) + (row * args.n_frames))
+                    last_frame = (int(anom.pop(0)) + (row * args.n_frames))
+                    anoms[first_frame:last_frame] = 1
+                    hkl.dump(anoms, os.path.join(preprocessed_data_path, (('y_' + split) + '.hkl')))
+        hkl.dump(X, os.path.join(preprocessed_data_path, (('X_' + split) + '.hkl')))
+        hkl.dump(source_list, os.path.join(preprocessed_data_path, (('sources_' + split) + '.hkl')))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+

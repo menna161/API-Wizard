@@ -1,0 +1,91 @@
+examples  ||  representativeness  ||  number of lines  || number of comments 
+
+
+idx = 0:------------------- similar code ------------------ index = 2, score = 6.0 
+def convert_names_to_ids(names, person_id_map, threshold=85):
+    "\n    Convert string of names with separated comma to list of IDs using fuzzy string match\n\n    Parameters\n    ==========\n    names: str, string in the following format 'FirstName1 LastName1, ...'\n    person_id_map: dict, dictionary mapping id to name\n\n    Example\n    =======\n    >> convert_names_to_ids('Jone Doe, Sarah Doe', \n                            {1: 'Jone Doe', 2: 'Sarah Deo'}, threshold=85) # output [1, 2]\n    "
+    from fuzzywuzzy import fuzz
+    matched_ids = []
+    names = [name.strip() for name in names.split(',')]
+    for name in names:
+        matched_ids.extend([idx for (idx, n) in person_id_map.items() if (fuzz.ratio(n, name) >= threshold)])
+    return pd.unique(matched_ids)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return pd.unique
+
+idx = 1:------------------- similar code ------------------ index = 1, score = 5.0 
+def create_coi_dataframe(df, people_maps, threshold=85, coreferred=True):
+    '\n    For a given dataframe of for mind-match people with \n    ``full_name``, ``mindMatchExcludeList`` column, and \n    a dictionary that map ``full_name`` to person_id, \n    create conflict of interest dataframe\n\n    Parameters\n    ==========\n    df: dataframe, original mind matching dataset\n    people_maps: list, list dictionary that map person id to their person_id, full_name, and affiliation\n    threshold: int, fuzzy string match ratio for matching name in ``mindMatchExcludeList`` and ``full_name``\n    coreferred: bool, if True, add extra conflict of interest for people who mentioned the same person\n\n    Output\n    ======\n    coi_df: dataframe, conflict of interest\n    '
+    coi_list = []
+    for (i, r) in df.iterrows():
+        if (len(r['mindMatchExcludeList']) > 0):
+            exclude_list = []
+            for exclude in r['mindMatchExcludeList']:
+                exclude_list.extend([p['person_id'] for p in people_maps if ((exclude in p['full_name']) or (fuzz.ratio(p['full_name'], exclude) >= threshold) or (fuzz.ratio(p['affiliation'], exclude) >= threshold))])
+            exclude_list = sorted(pd.unique(exclude_list))
+            if (len(exclude_list) > 0):
+                for e in exclude_list:
+                    coi_list.append([i, e])
+    coi_df = pd.DataFrame(coi_list, columns=['person_id', 'person_id_exclude'])
+    if coreferred:
+        coi_coreferred = [[g, list(g_df.person_id)] for (g, g_df) in coi_df.groupby(['person_id_exclude']) if (len(list(g_df.person_id)) >= 2)]
+        coi_coreferred_list = []
+        for (_, exclude_list) in coi_coreferred:
+            coi_coreferred_list.extend(list(itertools.combinations(exclude_list, 2)))
+        coi_coreferred_df = pd.DataFrame(coi_coreferred_list, columns=['person_id', 'person_id_exclude'])
+        coi_df = pd.concat((coi_df, coi_coreferred_df))
+        return coi_df
+    else:
+        return coi_df
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+        if:
+             ...  =  ... (pd.unique)
+
+idx = 2:------------------- similar code ------------------ index = 0, score = 5.0 
+def schedule_to_timeslot(schedule, n_timeslot=15):
+    '\n    Create personal schedule from list of schedule\n    '
+    schedule_df = pd.DataFrame(schedule, columns=['person', 'person_to_meet'])
+    person_to_meet_df = pd.DataFrame(schedule_df.person_to_meet.values.tolist(), columns=range(1, n_timeslot))
+    schedule_df = pd.concat((schedule_df[['person']], person_to_meet_df), axis=1)
+    person_list = pd.unique(list(schedule_df['person']))
+    P_map = {v: k for (k, v) in enumerate(person_list)}
+    timeslot_list = []
+    for i in range(1, n_timeslot):
+        timeslot_df = schedule_df[['person', i]].dropna().astype(int).reset_index(drop=True)
+        P = np.zeros((len(person_list), len(person_list)), dtype=int)
+        count = 1
+        for (_, r) in schedule_df.iterrows():
+            if ((not pd.isnull(r['person'])) and (not pd.isnull(r[i])) and (P[(P_map[r['person']], P_map[r[i]])] == 0) and (P[(P_map[r[i]], P_map[r['person']])] == 0)):
+                P[(P_map[r['person']], P_map[r[i]])] = count
+                P[(P_map[r[i]], P_map[r['person']])] = count
+                count += 1
+        left_person = list((set(person_list) - set(pd.unique((list(timeslot_df.person) + list(timeslot_df[i].dropna().astype(int)))))))
+        random.shuffle(left_person)
+        random_pair = list(zip(left_person[0:int((len(left_person) / 2))], left_person[int((len(left_person) / 2)):]))
+        for (p1, p2) in random_pair:
+            count += 1
+            P[(P_map[p1], P_map[p2])] = count
+            P[(P_map[p2], P_map[p1])] = count
+        additional_pair = ([[p1, p2, int(P[(P_map[p1], P_map[p2])])] for (p1, p2) in random_pair] + [[p2, p1, int(P[(P_map[p1], P_map[p2])])] for (p1, p2) in random_pair])
+        left_person_df = pd.DataFrame(additional_pair, columns=['person', i, 'table_number'])
+        table_number = [int(P[(P_map[r['person']], P_map[r[i]])]) for (_, r) in timeslot_df.iterrows()]
+        timeslot_df['table_number'] = table_number
+        timeslot_df = pd.concat((timeslot_df, left_person_df))
+        timeslot_list.append(timeslot_df)
+    person_schedule_all = []
+    for p in person_list:
+        person_schedule = []
+        for t_df in timeslot_list:
+            person_schedule.append(t_df[(t_df.person == p)])
+        person_schedule_all.append(pd.concat(person_schedule))
+    return person_schedule_all
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = pd.unique
+

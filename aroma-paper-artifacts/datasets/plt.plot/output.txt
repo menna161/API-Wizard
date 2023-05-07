@@ -1,0 +1,949 @@
+------------------------- example 1 ------------------------ 
+def _plot_single_violin(violin_position, violin_data, violin_width, violin_kwargs, bin_edges, density, vert, scale, upper_trim_fraction, lower_trim_fraction, draw_summary_stat, draw_summary_stat_fxn, draw_summary_stat_kwargs):
+    '\n    Plot a single violin.\n\n    Illustrate the relative frequency of members of a population using a\n    normalized, symmetrical histogram ("violin") centered at a corresponding\n    position. Wider regions of the violin indicate regions that occur with\n    greater frequency.\n\n    Parameters\n    ----------\n    violin_position : scalar\n        Position at which to center violin.\n    violin_data : 1D array\n        A population for which to plot a violin.\n    violin_width : scalar\n        Width of violin. If `scale` is ``log``, the units are decades.\n    violin_kwargs : dict\n        Keyword arguments passed to the ``plt.fill_between()`` command that\n        illustrates the violin.\n    bin_edges : array\n        Bin edges used to bin population members.\n    density : bool\n        `density` parameter passed to the ``np.histogram()`` command that bins\n        population members. If True, violin width represents relative\n        frequency *density* instead of relative frequency (i.e., bins are\n        normalized by their width).\n    vert : bool\n        Flag specifying to illustrate a vertical violin. If False, a\n        horizontal violin is illustrated.\n    scale : {\'linear\', \'log\'}\n        Scale of the position axis (x-axis if `vert` is True, y-axis if `vert`\n        is False).\n    upper_trim_fraction : float\n        Fraction of members to trim (discard) from the top of the violin\n        (e.g., for aesthetic purposes).\n    lower_trim_fraction : float\n        Fraction of members to trim (discard) from the bottom of the violin\n        (e.g., for aesthetic purposes).\n    draw_summary_stat : bool\n        Flag specifying to illustrate a summary statistic.\n    draw_summary_stat_fxn : function\n        Function used to calculate the summary statistic. The summary\n        statistic is calculated prior to aesthetic trimming.\n    draw_summary_stat_kwargs : dict\n        Keyword arguments passed to the ``plt.plot()`` command that\n        illustrates the summary statistic.\n\n    '
+// your code ...
+
+    if (len(violin_data) > 0):
+        if draw_summary_stat:
+// your code ...
+
+        if (len(height) == 1):
+// your code ...
+
+        else:
+            start = idx
+            while (idx < (len(height) - 1)):
+                if ((positive_edge[idx] == negative_edge[idx]) and (positive_edge[(idx + 1)] != negative_edge[(idx + 1)])):
+// your code ...
+
+            if (start is not None):
+// your code ...
+
+    if vert:
+        for vr in violin_regions:
+            plt.fill_betweenx(x1=vr.negative_edge, x2=vr.positive_edge, y=vr.height, **violin_kwargs)
+    else:
+        for vr in violin_regions:
+            plt.fill_between(y1=vr.positive_edge, y2=vr.negative_edge, x=vr.height, **violin_kwargs)
+    if (draw_summary_stat and (summary_stat is not None)):
+        if (scale == 'log'):
+// your code ...
+
+        if vert:
+            plt.plot([negative_edge, positive_edge], [summary_stat, summary_stat], **draw_summary_stat_kwargs)
+        else:
+            plt.plot([summary_stat, summary_stat], [negative_edge, positive_edge], **draw_summary_stat_kwargs)
+
+------------------------- example 2 ------------------------ 
+def update(t):
+    plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
+    if ((t == (len(self.trajectory) - 1)) and repeat):
+        ax.clear()
+        ax.xaxis.set_ticklabels([])
+        ax.yaxis.set_ticklabels([])
+        ax.set_xticks([])
+        ax.set_yticks([])
+        plt.xlim(min_x, max_x)
+        plt.ylim(min_y, max_y)
+
+------------------------- example 3 ------------------------ 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------------- example 4 ------------------------ 
+def visualize_entropy_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    entropy thresholds.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Predictive entropy', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=thresholds[(- 1)])
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_entropy_outlier_classification') + '.pdf')), bbox_inches='tight')
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          3           ||        28         ||         6        
+example2  ||          2           ||        10         ||         0        
+example3  ||          3           ||        15         ||         0        
+example4  ||          2           ||        15         ||         0        
+
+avg       ||          2.5           ||        17.0         ||         1.5        
+
+idx = 0:------------------- similar code ------------------ index = 6, score = 8.0 
+if (__name__ == '__main__'):
+    instruments_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Instruments', index_col='ID')
+    beads_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Beads', index_col='ID')
+    samples_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Samples', index_col='ID')
+    (beads_samples, mef_transform_fxns) = FlowCal.excel_ui.process_beads_table(beads_table=beads_table, instruments_table=instruments_table, verbose=True, plot=True, plot_dir='plot_beads')
+    samples = FlowCal.excel_ui.process_samples_table(samples_table=samples_table, instruments_table=instruments_table, mef_transform_fxns=mef_transform_fxns, verbose=True, plot=True, plot_dir='plot_samples')
+    sample_ids = ['S00{:02}'.format(n) for n in range(1, (10 + 1))]
+    dapg = samples_table.loc[(sample_ids, 'DAPG (uM)')]
+    cmap = mpl.cm.get_cmap('gray_r')
+    norm = mpl.colors.LogNorm(vmin=1.0, vmax=3500.0)
+    colors = [cmap(norm((dapg_i + 4.0))) for dapg_i in dapg]
+    plt.figure(figsize=(6, 3.5))
+    FlowCal.plot.hist1d([samples[s_id] for s_id in sample_ids], channel='FL1', histtype='step', bins=128, edgecolor=colors)
+    plt.ylim((0, 2500))
+    plt.xlim((0, 50000.0))
+    plt.xlabel('FL1  (Molecules of Equivalent Fluorescein, MEFL)')
+    plt.legend(['{:.1f} $\\mu M$ DAPG'.format(i) for i in dapg], loc='upper left', fontsize='small')
+    plt.tight_layout()
+    plt.savefig('histograms.png', dpi=200)
+    plt.close()
+    samples_fluorescence = [FlowCal.stats.mean(samples[s_id], channels='FL1') for s_id in sample_ids]
+    min_fluorescence = FlowCal.stats.mean(samples['min'], channels='FL1')
+    max_fluorescence = FlowCal.stats.mean(samples['max'], channels='FL1')
+    dapg_color = '#ffc400'
+    plt.figure(figsize=(3, 3))
+    plt.plot(dapg, samples_fluorescence, marker='o', color=dapg_color)
+    plt.axhline(min_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Min', x=200.0, y=160.0, ha='left', va='bottom', color='gray')
+    plt.axhline(max_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Max', x=(- 0.7), y=5200.0, ha='left', va='top', color='gray')
+    plt.yscale('log')
+    plt.ylim((50.0, 10000.0))
+    plt.xscale('symlog')
+    plt.xlim(((- 1.0), 1000.0))
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response.png', dpi=200)
+    plt.close()
+
+    def dapg_sensor_output(dapg_concentration):
+        mn = 86.0
+        mx = 3147.0
+        K = 20.0
+        n = 3.57
+        if (dapg_concentration <= 0):
+            return mn
+        else:
+            return (mn + ((mx - mn) / (1 + ((K / dapg_concentration) ** n))))
+    autofluorescence = FlowCal.stats.mean(samples['min'], channels='FL1')
+
+    def dapg_sensor_cellular_fluorescence(dapg_concentration):
+        return (dapg_sensor_output(dapg_concentration) + autofluorescence)
+    plt.figure(figsize=(4, 3.5))
+    FlowCal.plot.violin_dose_response(data=[samples[s_id] for s_id in sample_ids], channel='FL1', positions=dapg, min_data=samples['min'], max_data=samples['max'], model_fxn=dapg_sensor_cellular_fluorescence, violin_kwargs={'facecolor': dapg_color, 'edgecolor': 'black'}, violin_width_to_span_fraction=0.075, xscale='log', yscale='log', ylim=(10.0, 30000.0), draw_model_kwargs={'color': 'gray', 'linewidth': 3, 'zorder': (- 1), 'solid_capstyle': 'butt'})
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response_violin.png', dpi=200)
+    plt.close()
+    print('\nDone.')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.plot
+
+idx = 1:------------------- similar code ------------------ index = 14, score = 8.0 
+if (__name__ == '__main__'):
+    if (not os.path.exists(beads_plot_dir)):
+        os.makedirs(beads_plot_dir)
+    if (not os.path.exists(samples_plot_dir)):
+        os.makedirs(samples_plot_dir)
+    print('\nProcessing calibration beads...')
+    print('Loading file "{}"...'.format(beads_filename))
+    beads_sample = FlowCal.io.FCSData(beads_filename)
+    min_beads_sample = FlowCal.io.FCSData(min_beads_filename)
+    max_beads_sample = FlowCal.io.FCSData(max_beads_filename)
+    print('Performing data transformation...')
+    beads_sample = FlowCal.transform.to_rfi(beads_sample)
+    min_beads_sample = FlowCal.transform.to_rfi(min_beads_sample)
+    max_beads_sample = FlowCal.transform.to_rfi(max_beads_sample)
+    print('Performing gating...')
+    beads_sample_gated = FlowCal.gate.start_end(beads_sample, num_start=250, num_end=100)
+    min_beads_sample_gated = FlowCal.gate.start_end(min_beads_sample, num_start=250, num_end=100)
+    max_beads_sample_gated = FlowCal.gate.start_end(max_beads_sample, num_start=250, num_end=100)
+    beads_sample_gated = FlowCal.gate.high_low(beads_sample_gated, channels=['FSC', 'SSC'])
+    min_beads_sample_gated = FlowCal.gate.high_low(min_beads_sample_gated, channels=['FSC', 'SSC'])
+    max_beads_sample_gated = FlowCal.gate.high_low(max_beads_sample_gated, channels=['FSC', 'SSC'])
+    density_gate_output = FlowCal.gate.density2d(data=beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    beads_sample_gated = density_gate_output.gated_data
+    gate_contour = density_gate_output.contour
+    min_density_gate_output = FlowCal.gate.density2d(data=min_beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    min_beads_sample_gated = min_density_gate_output.gated_data
+    min_gate_contour = min_density_gate_output.contour
+    max_density_gate_output = FlowCal.gate.density2d(data=max_beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    max_beads_sample_gated = max_density_gate_output.gated_data
+    max_gate_contour = max_density_gate_output.contour
+    print('Plotting density plot and histogram...')
+    density_params = {}
+    density_params['mode'] = 'scatter'
+    density_params['xlim'] = [90, 1023]
+    density_params['ylim'] = [90, 1023]
+    density_params['sigma'] = 5.0
+    plot_filename = '{}/density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    min_plot_filename = '{}/min_density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    max_plot_filename = '{}/max_density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    FlowCal.plot.density_and_hist(beads_sample, beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=gate_contour, density_params=density_params, savefig=plot_filename)
+    FlowCal.plot.density_and_hist(min_beads_sample, min_beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=min_gate_contour, density_params=density_params, savefig=min_plot_filename)
+    FlowCal.plot.density_and_hist(max_beads_sample, max_beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=max_gate_contour, density_params=density_params, savefig=max_plot_filename)
+    print('\nCalculating standard curve for channel FL1...')
+    mef_transform_fxn = FlowCal.mef.get_transform_fxn(beads_sample_gated, mef_channels='FL1', mef_values=mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='beads')
+    min_mef_transform_fxn = FlowCal.mef.get_transform_fxn(min_beads_sample_gated, mef_channels='FL1', mef_values=min_mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='min_beads')
+    max_mef_transform_fxn = FlowCal.mef.get_transform_fxn(max_beads_sample_gated, mef_channels='FL1', mef_values=max_mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='max_beads')
+    print('\nProcessing cell samples...')
+    samples = []
+    for (sample_id, sample_filename) in enumerate(samples_filenames):
+        print('\nLoading file "{}"...'.format(sample_filename))
+        sample = FlowCal.io.FCSData(sample_filename)
+        print('Performing data transformation...')
+        sample = FlowCal.transform.to_rfi(sample)
+        sample = mef_transform_fxn(sample, channels=['FL1'])
+        print('Performing gating...')
+        sample_gated = FlowCal.gate.start_end(sample, num_start=250, num_end=100)
+        sample_gated = FlowCal.gate.high_low(sample_gated, channels=['FSC', 'SSC', 'FL1'])
+        density_gate_output = FlowCal.gate.density2d(data=sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+        sample_gated = density_gate_output.gated_data
+        gate_contour = density_gate_output.contour
+        print('Plotting density plot and histogram...')
+        density_params = {}
+        density_params['mode'] = 'scatter'
+        hist_params = {}
+        hist_params['xlabel'] = ('FL1 ' + '(Molecules of Equivalent Fluorescein, MEFL)')
+        plot_filename = '{}/density_hist_{}.png'.format(samples_plot_dir, 'S{:03}'.format((sample_id + 1)))
+        FlowCal.plot.density_and_hist(sample, sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=gate_contour, density_params=density_params, hist_params=hist_params, savefig=plot_filename)
+        samples.append(sample_gated)
+    print('\nProcessing control samples...')
+    min_sample = FlowCal.io.FCSData(min_sample_filename)
+    max_sample = FlowCal.io.FCSData(max_sample_filename)
+    min_sample = FlowCal.transform.to_rfi(min_sample)
+    max_sample = FlowCal.transform.to_rfi(max_sample)
+    min_sample = min_mef_transform_fxn(min_sample, channels=['FL1'])
+    max_sample = max_mef_transform_fxn(max_sample, channels=['FL1'])
+    min_sample_gated = FlowCal.gate.start_end(min_sample, num_start=250, num_end=100)
+    max_sample_gated = FlowCal.gate.start_end(max_sample, num_start=250, num_end=100)
+    min_sample_gated = FlowCal.gate.high_low(min_sample_gated, channels=['FSC', 'SSC', 'FL1'])
+    max_sample_gated = FlowCal.gate.high_low(max_sample_gated, channels=['FSC', 'SSC', 'FL1'])
+    min_density_gate_output = FlowCal.gate.density2d(data=min_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+    min_sample_gated = min_density_gate_output.gated_data
+    min_gate_contour = min_density_gate_output.contour
+    max_density_gate_output = FlowCal.gate.density2d(data=max_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+    max_sample_gated = max_density_gate_output.gated_data
+    max_gate_contour = max_density_gate_output.contour
+    min_plot_filename = '{}/density_hist_min.png'.format(samples_plot_dir)
+    max_plot_filename = '{}/density_hist_max.png'.format(samples_plot_dir)
+    FlowCal.plot.density_and_hist(min_sample, min_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=min_gate_contour, density_params=density_params, hist_params=hist_params, savefig=min_plot_filename)
+    FlowCal.plot.density_and_hist(max_sample, max_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=max_gate_contour, density_params=density_params, hist_params=hist_params, savefig=max_plot_filename)
+    cmap = mpl.cm.get_cmap('gray_r')
+    norm = mpl.colors.LogNorm(vmin=1.0, vmax=3500.0)
+    colors = [cmap(norm((dapg_i + 4.0))) for dapg_i in dapg]
+    plt.figure(figsize=(6, 3.5))
+    FlowCal.plot.hist1d(samples, channel='FL1', histtype='step', bins=128, edgecolor=colors)
+    plt.ylim((0, 2500))
+    plt.xlim((0, 50000.0))
+    plt.xlabel('FL1  (Molecules of Equivalent Fluorescein, MEFL)')
+    plt.legend(['{} $\\mu M$ DAPG'.format(i) for i in dapg], loc='upper left', fontsize='small')
+    plt.tight_layout()
+    plt.savefig('histograms.png', dpi=200)
+    plt.close()
+    samples_fluorescence = [FlowCal.stats.mean(s, channels='FL1') for s in samples]
+    min_fluorescence = FlowCal.stats.mean(min_sample_gated, channels='FL1')
+    max_fluorescence = FlowCal.stats.mean(max_sample_gated, channels='FL1')
+    dapg_color = '#ffc400'
+    plt.figure(figsize=(3, 3))
+    plt.plot(dapg, samples_fluorescence, marker='o', color=dapg_color)
+    plt.axhline(min_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Min', x=200.0, y=160.0, ha='left', va='bottom', color='gray')
+    plt.axhline(max_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Max', x=(- 0.7), y=5200.0, ha='left', va='top', color='gray')
+    plt.yscale('log')
+    plt.ylim((50.0, 10000.0))
+    plt.xscale('symlog')
+    plt.xlim(((- 1.0), 1000.0))
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response.png', dpi=200)
+    plt.close()
+
+    def dapg_sensor_output(dapg_concentration):
+        mn = 86.0
+        mx = 3147.0
+        K = 20.0
+        n = 3.57
+        if (dapg_concentration <= 0):
+            return mn
+        else:
+            return (mn + ((mx - mn) / (1 + ((K / dapg_concentration) ** n))))
+    autofluorescence = FlowCal.stats.mean(min_sample_gated, channels='FL1')
+
+    def dapg_sensor_cellular_fluorescence(dapg_concentration):
+        return (dapg_sensor_output(dapg_concentration) + autofluorescence)
+    plt.figure(figsize=(4, 3.5))
+    FlowCal.plot.violin_dose_response(data=samples, channel='FL1', positions=dapg, min_data=min_sample_gated, max_data=max_sample_gated, model_fxn=dapg_sensor_cellular_fluorescence, violin_kwargs={'facecolor': dapg_color, 'edgecolor': 'black'}, violin_width_to_span_fraction=0.075, xscale='log', yscale='log', ylim=(10.0, 30000.0), draw_model_kwargs={'color': 'gray', 'linewidth': 3, 'zorder': (- 1), 'solid_capstyle': 'butt'})
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response_violin.png', dpi=200)
+    plt.close()
+    print('\nDone.')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.plot
+
+idx = 2:------------------- similar code ------------------ index = 26, score = 7.0 
+def _plot_single_violin(violin_position, violin_data, violin_width, violin_kwargs, bin_edges, density, vert, scale, upper_trim_fraction, lower_trim_fraction, draw_summary_stat, draw_summary_stat_fxn, draw_summary_stat_kwargs):
+    '\n    Plot a single violin.\n\n    Illustrate the relative frequency of members of a population using a\n    normalized, symmetrical histogram ("violin") centered at a corresponding\n    position. Wider regions of the violin indicate regions that occur with\n    greater frequency.\n\n    Parameters\n    ----------\n    violin_position : scalar\n        Position at which to center violin.\n    violin_data : 1D array\n        A population for which to plot a violin.\n    violin_width : scalar\n        Width of violin. If `scale` is ``log``, the units are decades.\n    violin_kwargs : dict\n        Keyword arguments passed to the ``plt.fill_between()`` command that\n        illustrates the violin.\n    bin_edges : array\n        Bin edges used to bin population members.\n    density : bool\n        `density` parameter passed to the ``np.histogram()`` command that bins\n        population members. If True, violin width represents relative\n        frequency *density* instead of relative frequency (i.e., bins are\n        normalized by their width).\n    vert : bool\n        Flag specifying to illustrate a vertical violin. If False, a\n        horizontal violin is illustrated.\n    scale : {\'linear\', \'log\'}\n        Scale of the position axis (x-axis if `vert` is True, y-axis if `vert`\n        is False).\n    upper_trim_fraction : float\n        Fraction of members to trim (discard) from the top of the violin\n        (e.g., for aesthetic purposes).\n    lower_trim_fraction : float\n        Fraction of members to trim (discard) from the bottom of the violin\n        (e.g., for aesthetic purposes).\n    draw_summary_stat : bool\n        Flag specifying to illustrate a summary statistic.\n    draw_summary_stat_fxn : function\n        Function used to calculate the summary statistic. The summary\n        statistic is calculated prior to aesthetic trimming.\n    draw_summary_stat_kwargs : dict\n        Keyword arguments passed to the ``plt.plot()`` command that\n        illustrates the summary statistic.\n\n    '
+    summary_stat = None
+    violin_regions = []
+    if (len(violin_data) > 0):
+        if draw_summary_stat:
+            summary_stat = draw_summary_stat_fxn(violin_data)
+        num_discard_low = int(np.floor((len(violin_data) * float(lower_trim_fraction))))
+        num_discard_high = int(np.floor((len(violin_data) * float(upper_trim_fraction))))
+        violin_data = np.sort(violin_data)
+        violin_data = violin_data[num_discard_low:]
+        violin_data = violin_data[::(- 1)]
+        violin_data = violin_data[num_discard_high:]
+        violin_data = violin_data[::(- 1)]
+        (H, H_edges) = np.histogram(violin_data, bins=bin_edges, density=density)
+        H = np.array(H, dtype=float)
+        positive_edge = np.repeat(H, 2)
+        positive_edge = np.insert(positive_edge, 0, 0.0)
+        positive_edge = np.append(positive_edge, 0.0)
+        positive_edge /= np.max(positive_edge)
+        positive_edge *= (violin_width / 2.0)
+        if (scale == 'log'):
+            negative_edge = (np.log10(violin_position) - positive_edge)
+            positive_edge = (np.log10(violin_position) + positive_edge)
+            positive_edge = (10 ** positive_edge)
+            negative_edge = (10 ** negative_edge)
+        else:
+            negative_edge = (violin_position - positive_edge)
+            positive_edge = (violin_position + positive_edge)
+        height = np.repeat(H_edges, 2)
+        idx = 0
+        if (len(height) == 1):
+            if (positive_edge[idx] == negative_edge[idx]):
+                pass
+            else:
+                violin_regions.append(_ViolinRegion(positive_edge=positive_edge, negative_edge=negative_edge, height=height))
+        else:
+            start = idx
+            while (idx < (len(height) - 1)):
+                if ((positive_edge[idx] == negative_edge[idx]) and (positive_edge[(idx + 1)] != negative_edge[(idx + 1)])):
+                    start = idx
+                elif ((positive_edge[idx] != negative_edge[idx]) and (positive_edge[(idx + 1)] != negative_edge[(idx + 1)])):
+                    pass
+                elif ((positive_edge[idx] != negative_edge[idx]) and (positive_edge[(idx + 1)] == negative_edge[(idx + 1)])):
+                    end = (idx + 1)
+                    violin_regions.append(_ViolinRegion(positive_edge=positive_edge[start:(end + 1)], negative_edge=negative_edge[start:(end + 1)], height=height[start:(end + 1)]))
+                    start = None
+                elif ((positive_edge[idx] == negative_edge[idx]) and (positive_edge[(idx + 1)] == negative_edge[(idx + 1)])):
+                    start = None
+                idx += 1
+            if (start is not None):
+                end = idx
+                violin_regions.append(_ViolinRegion(positive_edge=positive_edge[start:(end + 1)], negative_edge=negative_edge[start:(end + 1)], height=height[start:(end + 1)]))
+    if vert:
+        for vr in violin_regions:
+            plt.fill_betweenx(x1=vr.negative_edge, x2=vr.positive_edge, y=vr.height, **violin_kwargs)
+    else:
+        for vr in violin_regions:
+            plt.fill_between(y1=vr.positive_edge, y2=vr.negative_edge, x=vr.height, **violin_kwargs)
+    if (draw_summary_stat and (summary_stat is not None)):
+        if (scale == 'log'):
+            positive_edge = (np.log10(violin_position) + (violin_width / 2.0))
+            negative_edge = (np.log10(violin_position) - (violin_width / 2.0))
+            positive_edge = (10 ** positive_edge)
+            negative_edge = (10 ** negative_edge)
+        else:
+            positive_edge = (violin_position + (violin_width / 2.0))
+            negative_edge = (violin_position - (violin_width / 2.0))
+        if vert:
+            plt.plot([negative_edge, positive_edge], [summary_stat, summary_stat], **draw_summary_stat_kwargs)
+        else:
+            plt.plot([summary_stat, summary_stat], [negative_edge, positive_edge], **draw_summary_stat_kwargs)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if:
+        if  ... :
+            plt.plot
+
+idx = 3:------------------- similar code ------------------ index = 12, score = 7.0 
+def plot_standard_curve(fl_rfi, fl_mef, beads_model, std_crv, xscale='linear', yscale='linear', xlim=None, ylim=(1.0, 100000000.0)):
+    "\n    Plot a standard curve with fluorescence of calibration beads.\n\n    Parameters\n    ----------\n    fl_rfi : array_like\n        Fluorescence of the calibration beads' subpopulations, in RFI\n        units.\n    fl_mef : array_like\n        Fluorescence of the calibration beads' subpopulations, in MEF\n        units.\n    beads_model : function\n        Fluorescence model of the calibration beads.\n    std_crv : function\n        The standard curve, mapping relative fluorescence (RFI) units to\n        MEF units.\n\n    Other Parameters\n    ----------------\n    xscale : str, optional\n        Scale of the x axis, either ``linear`` or ``log``.\n    yscale : str, optional\n        Scale of the y axis, either ``linear`` or ``log``.\n    xlim : tuple, optional\n        Limits for the x axis.\n    ylim : tuple, optional\n        Limits for the y axis.\n\n    "
+    plt.plot(fl_rfi, fl_mef, 'o', label='Beads', color=standard_curve_colors[0])
+    if (xlim is None):
+        xlim = plt.xlim()
+    if (xscale == 'linear'):
+        xdata = np.linspace(xlim[0], xlim[1], 200)
+    elif (xscale == 'log'):
+        xdata = np.logspace(np.log10(xlim[0]), np.log10(xlim[1]), 200)
+    plt.plot(xdata, beads_model(xdata), label='Beads model', color=standard_curve_colors[1])
+    plt.plot(xdata, std_crv(xdata), label='Standard curve', color=standard_curve_colors[2])
+    plt.xscale(xscale)
+    plt.yscale(yscale)
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.grid(True)
+    plt.legend(loc='best')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 4:------------------- similar code ------------------ index = 1, score = 7.0 
+def plot_loss_change(self, sma=1, n_skip_beginning=10, n_skip_end=5, y_lim=((- 0.01), 0.01)):
+    '\n        Plots rate of change of the loss function.\n        Parameters:\n            sma - number of batches for simple moving average to smooth out the curve.\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n            y_lim - limits for the y axis.\n        '
+    derivatives = self.get_derivatives(sma)[n_skip_beginning:(- n_skip_end)]
+    lrs = self.lrs[n_skip_beginning:(- n_skip_end)]
+    plt.ylabel('rate of loss change')
+    plt.xlabel('learning rate (log scale)')
+    plt.plot(lrs, derivatives)
+    plt.xscale('log')
+    plt.ylim(y_lim)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 5:------------------- similar code ------------------ index = 2, score = 7.0 
+def plot(self):
+    plt.figure(figsize=(6, 6))
+    plt.plot(self.results['precision'], self.results['recall'], '.')
+    plt.xlabel('precision')
+    plt.ylabel('recall')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.plot
+
+idx = 6:------------------- similar code ------------------ index = 3, score = 7.0 
+def update(t):
+    plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
+    if ((t == (len(self.trajectory) - 1)) and repeat):
+        ax.clear()
+        ax.xaxis.set_ticklabels([])
+        ax.yaxis.set_ticklabels([])
+        ax.set_xticks([])
+        ax.set_yticks([])
+        plt.xlim(min_x, max_x)
+        plt.ylim(min_y, max_y)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.plot
+
+idx = 7:------------------- similar code ------------------ index = 5, score = 7.0 
+def animate(self, save=False, interval=50, dpi=80, marker='', repeat=False, fps=50):
+    (fig, ax) = plt.subplots()
+    ax.set_aspect('equal')
+    x_vals = [s[0] for s in self.trajectory]
+    max_x = np.max(x_vals)
+    min_x = np.min(x_vals)
+    max_x += (0.05 * (max_x - min_x))
+    min_x -= (0.05 * (max_x - min_x))
+    y_vals = [s[1] for s in self.trajectory]
+    max_y = np.max(y_vals)
+    min_y = np.min(y_vals)
+    max_y += (0.05 * (max_y - min_y))
+    min_y -= (0.05 * (max_y - min_y))
+
+    def update(t):
+        plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
+        if ((t == (len(self.trajectory) - 1)) and repeat):
+            ax.clear()
+            ax.xaxis.set_ticklabels([])
+            ax.yaxis.set_ticklabels([])
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.xlim(min_x, max_x)
+            plt.ylim(min_y, max_y)
+    ani = animation.FuncAnimation(fig, update, frames=len(self.trajectory), interval=interval, save_count=len(self.trajectory), repeat=repeat)
+    plt.xlim(min_x, max_x)
+    plt.ylim(min_y, max_y)
+    plt.gca().axes.xaxis.set_ticklabels([])
+    plt.gca().axes.yaxis.set_ticklabels([])
+    plt.xticks([])
+    plt.yticks([])
+    if save:
+        ani.save('turtle.gif', dpi=dpi, writer='imagemagick', fps=fps)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    def  ... ( ... ):
+        plt.plot
+
+idx = 8:------------------- similar code ------------------ index = 7, score = 7.0 
+def plot_loss(self, n_skip_beginning=10, n_skip_end=5, x_scale='log'):
+    '\n        Plots the loss.\n        Parameters:\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n        '
+    plt.ylabel('loss')
+    plt.xlabel('learning rate (log scale)')
+    plt.plot(self.lrs[n_skip_beginning:(- n_skip_end)], self.losses[n_skip_beginning:(- n_skip_end)])
+    plt.xscale(x_scale)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 9:------------------- similar code ------------------ index = 8, score = 7.0 
+def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
+    '\n    Visualize the scores of correlation metrics with respect to k-worst bpes you tried\n    :param spearman_scores: The spearman correlation scores of Q1 and k-worst bpes each time\n    :param kendall_scores: The Kendall correlation scores of Q1 and k-worst bpes each time\n    :param pearson_scores: The Pearson correlation scores of Q1 and k-worst bpes each time\n    :param model_name: Name of Language Model you used (BERT or GPT2). It is used on the output file name\n    :param year: The corresponding year of the data\n    '
+    x_ticks = [i for i in range(1, (MAX_BPES_TO_SEARCH + 1))]
+    plt.figure(figsize=(26, 8))
+    y_max = max(spearman_scores)
+    x_pos = spearman_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 1)
+    plt.plot(x_ticks, spearman_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Spearman')
+    plt.xlabel('# of worst words')
+    y_max = max(kendall_scores)
+    x_pos = kendall_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 2)
+    plt.plot(x_ticks, kendall_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Kendall')
+    plt.xlabel('# of worst words')
+    y_max = max(pearson_scores)
+    x_pos = pearson_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 3)
+    plt.plot(x_ticks, pearson_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, x_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Pearson')
+    plt.xlabel('# of worst words')
+    path_to_save = os.path.join(OUTPUT_DIR, 'Q1 - {0:s}  {1:s}.png'.format(model_name, year))
+    plt.savefig(path_to_save)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 10:------------------- similar code ------------------ index = 9, score = 7.0 
+def draw_roc(frr_list, far_list, roc_auc):
+    plt.switch_backend('agg')
+    plt.rcParams['figure.figsize'] = (6.0, 6.0)
+    plt.title('ROC')
+    plt.plot(far_list, frr_list, 'b', label=('AUC = %0.4f' % roc_auc))
+    plt.legend(loc='upper right')
+    plt.plot([0, 1], [1, 0], 'r--')
+    plt.grid(ls='--')
+    plt.ylabel('False Negative Rate')
+    plt.xlabel('False Positive Rate')
+    save_dir = './work_dir/ROC/'
+    if (not os.path.exists(save_dir)):
+        os.makedirs(save_dir)
+    plt.savefig('./work_dir/ROC/ROC.png')
+    file = open('./work_dir/ROC/FAR_FRR.txt', 'w')
+    save_json = []
+    dict = {}
+    dict['FAR'] = far_list
+    dict['FRR'] = frr_list
+    save_json.append(dict)
+    json.dump(save_json, file, indent=4)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 11:------------------- similar code ------------------ index = 10, score = 7.0 
+def read_time(driver, port, idn):
+    " Read the entire control table of the DXL MX-64AT device 'N' times and plot the mean & percentile time taken. "
+    times = []
+    for i in range(1000):
+        t1 = time.time()
+        dxl.read_vals(driver, port, idn)
+        times.append((time.time() - t1))
+    print(np.mean(times))
+    print(np.percentile(times, 99))
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 12:------------------- similar code ------------------ index = 11, score = 7.0 
+def klBacktest(self):
+    wLimit = self.getInputParamByName('wLimit')
+    cLimit = self.getInputParamByName('cLimit')
+    size = self.getInputParamByName('size')
+    sLippage = self.getInputParamByName('sLippage')
+    tickers = pd.DataFrame()
+    tickers['bidPrice1'] = (self.pdBars['open'] - sLippage)
+    tickers['askPrice1'] = (self.pdBars['open'] + sLippage)
+    markets = tickers.values
+    signals = np.array(self.signalsOpen)
+    (caps, poss) = plotSigCaps(signals, markets, cLimit, wLimit, size=size)
+    plt.plot(range(len(caps)), caps)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.plot
+
+idx = 13:------------------- similar code ------------------ index = 13, score = 7.0 
+def random_torque(driver, port, idn):
+    " Read the entire control table and randomly sampled torque commands to the DXL.\n\n    This is done 'N' times and timed. Relevant data is plotted.\n    "
+    dxl.write_torque_mode_enable(driver, port, idn, 1)
+    times = []
+    vals_dict = {'present_pos': ((2 * pi) / 3.0), 'current': 0}
+    actions = []
+    currents = []
+    for i in range(1000):
+        t1 = time.time()
+        if (vals_dict['present_pos'] < (pi / 3.0)):
+            action = 1000
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
+        elif (vals_dict['present_pos'] > pi):
+            action = (- 1000)
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
+        else:
+            action = int((np.random.uniform((- 1), 1) * 1000))
+        dxl.write_torque(driver, port, idn, action)
+        vals_dict = dxl.read_vals(driver, port, idn)
+        actions.append(action)
+        currents.append(vals_dict['current'])
+        times.append((time.time() - t1))
+    dxl.write_torque(driver, port, idn, 0)
+    print(np.mean(times))
+    print(currents[:10])
+    plt.xcorr(currents, actions)
+    plt.figure()
+    plt.plot(np.cumsum(times), actions, label='actions')
+    plt.plot(np.cumsum(times), currents, label='currents')
+    plt.legend()
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 14:------------------- similar code ------------------ index = 25, score = 7.0 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 15:------------------- similar code ------------------ index = 15, score = 7.0 
+if (__name__ == '__main__'):
+    network = ntm.topology.cellular_automaton(n=100)
+    previous_state = [1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1]
+    initial_conditions = [1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1]
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=ntm.ReversibleRule(ntm.rules.nks_ca_rule(122)), past_conditions=[previous_state], timesteps=1002)
+    timestep = []
+    average_node_entropies = []
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    for (i, c) in enumerate(activities):
+        timestep.append(i)
+        bit_string = ''.join([str(x) for x in c])
+        average_node_entropies.append(ntm.average_node_entropy(activities[:(i + 1)]))
+        print(('%s, %s' % (i, average_node_entropies[(- 1)])))
+    plt.subplot(3, 1, (1, 2))
+    plt.title('Avg. Node (Shannon) Entropy')
+    plt.gca().set_xlim(0, 1002)
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.plot(timestep, average_node_entropies)
+    plt.subplot(3, 1, 3)
+    plt.gca().axes.yaxis.set_ticks([])
+    ntm.plot_grid(np.array(activities).T.tolist())
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.plot
+
+idx = 16:------------------- similar code ------------------ index = 16, score = 7.0 
+def make_plot(df, fit_params):
+    v_min = (df.volume.min() * 0.99)
+    v_max = (df.volume.max() * 1.01)
+    v_fitting = np.linspace(v_min, v_max, num=50)
+    e_fitting = murnaghan(v_fitting, *fit_params)
+    plt.figure(figsize=(8.0, 6.0))
+    loc = df.converged
+    plt.plot(df[loc].volume, df[loc].energy, 'o')
+    loc = [(not b) for b in df.converged]
+    plt.plot(df[loc].volume, df[loc].energy, 'o', c='grey')
+    plt.plot(v_fitting, e_fitting, '--')
+    plt.xlabel('volume [$\\mathrm{\\AA}^3$]')
+    plt.ylabel('energy [eV]')
+    plt.tight_layout()
+    plt.savefig('murn.pdf')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 17:------------------- similar code ------------------ index = 17, score = 7.0 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 18:------------------- similar code ------------------ index = 18, score = 7.0 
+def visualize_entropy_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    entropy thresholds.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Predictive entropy', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=thresholds[(- 1)])
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_entropy_outlier_classification') + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 19:------------------- similar code ------------------ index = 19, score = 7.0 
+def plot_degree_distribution(network, xlabel='Node degree', ylabel_freq='Frequency', ylabel_prob='Probability', in_degree=False, out_degree=False, equation=None, equation_x=0.51, equation_y=0.76, equation_text='', equation_color='r', color='r', title=None):
+    "\n    Create a node degree distribution plot for the given network.\n\n    :param network: A Netomaton Network instance.\n\n    :param xlabel: The x-axis label.\n\n    :param ylabel_freq: The frequency y-axis label.\n\n    :param ylabel_prob: The probability y-axis label.\n\n    :param in_degree: If True, the in-degree will be used. (default is False)\n\n    :param out_degree: If True, the out-degree will be used. (default is False)\n\n    :param equation: A callable that computes the degree distribution, given a node degree.\n\n    :param equation_x: The equation's x coordinate.\n\n    :param equation_y: The equation's y coordinate.\n\n    :param equation_text: The equation to display.\n\n    :param equation_color: The equation text's color. It must be a valid Matplotlib color.\n\n    :param color: The color to use for the plot. It must be a valid Matplotlib color.\n\n    :param title: The plot's title.\n    "
+    degree_counts = {}
+    for node in network.nodes:
+        if in_degree:
+            degree = network.in_degree(node)
+        elif out_degree:
+            degree = network.out_degree(node)
+        else:
+            degree = network.degree(node)
+        if (degree not in degree_counts):
+            degree_counts[degree] = 0
+        degree_counts[degree] += 1
+    x = [i for i in range(1, (max(degree_counts) + 1))]
+    height = [(degree_counts[i] if (i in degree_counts) else 0) for i in x]
+    plt.bar(x, height)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel_freq)
+    if equation:
+        y = [equation(k) for k in x]
+        plt.twinx()
+        plt.plot(x, y, color=color)
+        plt.ylabel(ylabel_prob)
+        plt.text(equation_x, equation_y, equation_text, transform=plt.gca().transAxes, color=equation_color)
+    if title:
+        plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.plot
+
+idx = 20:------------------- similar code ------------------ index = 20, score = 7.0 
+if (__name__ == '__main__'):
+    network = ntm.topology.cellular_automaton(n=100)
+    initial_conditions = ((([0] * 40) + ([1] * 20)) + ([0] * 40))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=ntm.ReversibleRule(ntm.rules.nks_ca_rule(122)), past_conditions=[initial_conditions], timesteps=1000)
+    timestep = []
+    average_node_entropies = []
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    for (i, c) in enumerate(activities):
+        timestep.append(i)
+        bit_string = ''.join([str(x) for x in c])
+        average_node_entropies.append(ntm.average_node_entropy(activities[:(i + 1)]))
+        print(('%s, %s' % (i, average_node_entropies[(- 1)])))
+    plt.subplot(3, 1, (1, 2))
+    plt.title('Avg. Node (Shannon) Entropy')
+    plt.gca().set_xlim(0, 1000)
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.plot(timestep, average_node_entropies)
+    plt.subplot(3, 1, 3)
+    plt.gca().axes.yaxis.set_ticks([])
+    ntm.plot_grid(np.array(activities).T.tolist())
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.plot
+
+idx = 21:------------------- similar code ------------------ index = 21, score = 7.0 
+if (__name__ == '__main__'):
+    unittest.main()
+    cs = CS.ConfigurationSpace()
+    cs.add_hyperparameter(CS.UniformFloatHyperparameter('w', lower=(- 5), upper=5))
+    X = np.random.uniform((- 5), 5, 100)
+    y = np.random.normal(X, 1)
+    opt_func = (lambda x, y, w, budget: np.mean(((y[:int(budget)] - (w * x[:int(budget)])) ** 2)))
+    for w in cs.sample_configuration(size=3):
+        print('W: {} --> {}'.format(w['w'], opt_func(X, y, **w, budget=3)))
+    (inc_value, inc_cfg, result) = fmin(opt_func, cs, func_args=(X, y), min_budget=3, max_budget=len(X), num_iterations=3, num_workers=1)
+    id2config = result.get_id2config_mapping()
+    incumbent = result.get_incumbent_id()
+    traj = result.get_incumbent_trajectory()
+    budgets = [b for b in traj['budgets']]
+    values = [id2config[id]['config'] for id in traj['config_ids']]
+    import matplotlib.pyplot as plt
+    plt.scatter(X, y)
+    plt.xlim((- 5), 5)
+    plt.ylim((- 5), 5)
+    for i in range(len(values)):
+        plt.plot(X, (values[i]['w'] * X), label='{}. W: {:.2f}'.format((i + 1), values[i]['w']))
+    plt.legend(loc=1)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    for  ...  in:
+        plt.plot
+
+idx = 22:------------------- similar code ------------------ index = 22, score = 7.0 
+def plot(self, marker=''):
+    (fig, ax) = plt.subplots()
+    ax.set_aspect('equal')
+    for state in self.trajectory:
+        plt.plot(state[0], state[1], marker=marker, color='black')
+    plt.gca().axes.xaxis.set_ticklabels([])
+    plt.gca().axes.yaxis.set_ticklabels([])
+    plt.xticks([])
+    plt.yticks([])
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for  ...  in:
+        plt.plot
+
+idx = 23:------------------- similar code ------------------ index = 23, score = 7.0 
+def plotting(exp_dir):
+    train_dict = pickle.load(open(os.path.join(exp_dir, 'log.pkl'), 'rb'))
+    plt.plot(np.asarray(train_dict['train_loss']), label='train_loss')
+    plt.plot(np.asarray(train_dict['test_loss']), label='test_loss')
+    plt.xlabel('evaluation step')
+    plt.ylabel('metrics')
+    plt.tight_layout()
+    plt.legend(loc='upper right')
+    plt.savefig(os.path.join(exp_dir, 'loss.png'))
+    plt.clf()
+    plt.plot(np.asarray(train_dict['train_acc']), label='train_acc')
+    plt.plot(np.asarray(train_dict['test_acc']), label='test_acc')
+    plt.xlabel('evaluation step')
+    plt.ylabel('metrics')
+    plt.tight_layout()
+    plt.legend(loc='upper right')
+    plt.savefig(os.path.join(exp_dir, 'acc.png'))
+    plt.clf()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.plot
+
+idx = 24:------------------- similar code ------------------ index = 24, score = 7.0 
+def plot(array):
+    fig = plt.figure(figsize=(30, 5))
+    ax = fig.add_subplot(111)
+    ax.xaxis.label.set_color('grey')
+    ax.yaxis.label.set_color('grey')
+    ax.xaxis.label.set_fontsize(23)
+    ax.yaxis.label.set_fontsize(23)
+    ax.tick_params(axis='x', colors='grey', labelsize=23)
+    ax.tick_params(axis='y', colors='grey', labelsize=23)
+    plt.plot(array)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.plot
+
+idx = 25:------------------- similar code ------------------ index = 0, score = 7.0 
+def visualize_reconstruction_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, autoregression=False):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    entropy thresholds.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    if autoregression:
+        plt.xlabel('Dataset reconstruction loss (bits per dim)', fontsize=axes_font_size)
+    else:
+        plt.xlabel('Dataset reconstruction loss (nats)', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=thresholds[(- 1)])
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_reconstruction_loss_outlier_classification') + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.plot
+
+idx = 26:------------------- similar code ------------------ index = 4, score = 6.0 
+def animate_plot1D(x, y, save=False, interval=50, dpi=80):
+    if isinstance(y[0], State):
+        y = get_activities_over_time_as_list(y)
+    fig1 = plt.figure()
+    (line,) = plt.plot(x, y[0])
+
+    def update_line(activity):
+        line.set_data(x, activity)
+        return (line,)
+    ani = animation.FuncAnimation(fig1, update_line, frames=y, blit=True, interval=interval)
+    if save:
+        ani.save('plot.gif', dpi=dpi, writer='imagemagick')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = plt.plot
+
+

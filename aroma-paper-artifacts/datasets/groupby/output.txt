@@ -1,0 +1,933 @@
+------------------------- example 1 ------------------------ 
+def convert_mind_match_to_minimized_format(mind_matching_df, table_map=None, file_name='ccn_mindmatch_2019_minimized.csv'):
+    '\n    Convert full schedule for mind matching into CSV file with 2 columns\n    ``RegistrantID`` and ``ScheduleTables`` e.g. 1013, 1a|32a|1a|1a|1a|1a\n    '
+// your code ...
+
+    for (person_id, mind_matching_schedule_df) in mind_matching_df.groupby('person_id'):
+        if (table_map is not None):
+            minimized_mind_matching.append({'RegistrantID': registration_id_map[person_id], 'ScheduleTables': '|'.join([table_map[e] for e in list(mind_matching_schedule_df.sort_values('timeslot').table_number.values)])})
+        else:
+            minimized_mind_matching.append({'RegistrantID': registration_id_map[person_id], 'ScheduleTables': '|'.join([e for e in list(mind_matching_schedule_df.sort_values('timeslot').table_number.values)])})
+    minimized_mind_matching_df = pd.DataFrame(minimized_mind_matching)
+    minimized_mind_matching_df.to_csv(file_name, index=False)
+
+------------------------- example 2 ------------------------ 
+@validate_arguments
+def get_project_stats_with_http_info(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], name: Annotated[(StrictStr, Field(..., description='Entity managing the resource'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs):
+    'Get project stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_project_stats_with_http_info(owner, name, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param name: Entity managing the resource (required)\n        :type name: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _return_http_data_only: response data without head status code\n                                       and headers\n        :type _return_http_data_only: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :param _request_auth: set to override the auth_settings for an a single\n                              request; this effectively ignores the authentication\n                              in the spec for a single request.\n        :type _request_auth: dict, optional\n        :type _content_type: string, optional: force content-type for the request\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: tuple(object, status_code(int), headers(HTTPHeaderDict))\n        '
+// your code ...
+
+    return self.api_client.call_api('/api/v1/{owner}/{name}/stats', 'GET', _path_params, _query_params, _header_params, body=_body_params, post_params=_form_params, files=_files, response_types_map=_response_types_map, auth_settings=_auth_settings, async_req=_params.get('async_req'), _return_http_data_only=_params.get('_return_http_data_only'), _preload_content=_params.get('_preload_content', True), _request_timeout=_params.get('_request_timeout'), collection_formats=_collection_formats, _request_auth=_params.get('_request_auth'))
+
+------------------------- example 3 ------------------------ 
+def load_radon_data(state_code):
+    'Load the radon dataset.\n\n  Code from http://mc-stan.org/users/documentation/case-studies/radon.html.\n  (Apache2 licensed)\n  '
+    with open_data_file('srrs2.dat') as f:
+        srrs2 = pd.read_csv(f)
+    srrs2.columns = srrs2.columns.map(str.strip)
+// your code ...
+
+    cty_mn = cty[(cty.st == state_code)].copy()
+    cty_mn['fips'] = ((1000 * cty_mn.stfips) + cty_mn.ctfips)
+// your code ...
+
+    n_county = srrs_mn_new.groupby('county')['idnum'].count()
+    uranium = np.zeros(len(n_county), dtype=np.float32)
+    for (k, _) in county_lookup.items():
+// your code ...
+
+    x = np.float32(floor_measure)
+    data = np.float32(log_radon).reshape((- 1), 1)
+    return (c, u, x, data)
+
+------------------------- example 4 ------------------------ 
+def _transform_df(self, df):
+    df.cell_reference = (df.cell_reference != '').astype(str)
+// your code ...
+
+    if (self.evidence_limit is not None):
+        df = df.groupby(by=['ext_id', 'this_paper']).head(self.evidence_limit)
+    if (self.context_tokens is not None):
+// your code ...
+
+    df['label'] = pd.Categorical(df['label'])
+    return df
+
+------------------------- example 5 ------------------------ 
+def preds_for_cell_content_max(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].max().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        10         ||         1        
+example2  ||          2           ||        5         ||         1        
+example3  ||          2           ||        16         ||         3        
+example4  ||          3           ||        9         ||         2        
+example5  ||          2           ||        8         ||         0        
+
+avg       ||          2.2           ||        9.6         ||         1.4        
+
+idx = 0:------------------- similar code ------------------ index = 33, score = 1.0 
+def delete_sandbox(self, si, logger, vcenter_data_model, delete_sandbox_actions, cancellation_context):
+    "\n        Deletes a saved sandbox's artifacts\n\n        :param vcenter_data_model: VMwarevCenterResourceModel\n        :param vim.ServiceInstance si: py_vmomi service instance\n        :type si: vim.ServiceInstance\n        :param logger: Logger\n        :type logger: cloudshell.core.logger.qs_logger.get_qs_logger\n        :param list[SaveApp] delete_sandbox_actions:\n        :param cancellation_context:\n        "
+    results = []
+    logger.info(('Deleting saved sandbox command starting on ' + vcenter_data_model.default_datacenter))
+    if (not delete_sandbox_actions):
+        raise Exception('Failed to delete saved sandbox, missing data in request.')
+    actions_grouped_by_save_types = groupby(delete_sandbox_actions, (lambda x: x.actionParams.saveDeploymentModel))
+    artifactHandlersToActions = {ArtifactHandler.factory(k, self.pyvmomi_service, vcenter_data_model, si, logger, self.deployer, None, self.resource_model_parser, self.snapshot_saver, self.task_waiter, self.folder_manager, self.pg, self.cs): list(g) for (k, g) in actions_grouped_by_save_types}
+    self._validate_save_deployment_models(artifactHandlersToActions, delete_sandbox_actions, results)
+    error_results = [r for r in results if (not r.success)]
+    if (not error_results):
+        results = self._execute_delete_saved_sandbox(artifactHandlersToActions, cancellation_context, logger, results)
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = groupby
+
+idx = 1:------------------- similar code ------------------ index = 8, score = 1.0 
+def convert_mind_match_to_minimized_format(mind_matching_df, table_map=None, file_name='ccn_mindmatch_2019_minimized.csv'):
+    '\n    Convert full schedule for mind matching into CSV file with 2 columns\n    ``RegistrantID`` and ``ScheduleTables`` e.g. 1013, 1a|32a|1a|1a|1a|1a\n    '
+    minimized_mind_matching = []
+    for (person_id, mind_matching_schedule_df) in mind_matching_df.groupby('person_id'):
+        if (table_map is not None):
+            minimized_mind_matching.append({'RegistrantID': registration_id_map[person_id], 'ScheduleTables': '|'.join([table_map[e] for e in list(mind_matching_schedule_df.sort_values('timeslot').table_number.values)])})
+        else:
+            minimized_mind_matching.append({'RegistrantID': registration_id_map[person_id], 'ScheduleTables': '|'.join([e for e in list(mind_matching_schedule_df.sort_values('timeslot').table_number.values)])})
+    minimized_mind_matching_df = pd.DataFrame(minimized_mind_matching)
+    minimized_mind_matching_df.to_csv(file_name, index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in  ... .groupby:
+idx = 2:------------------- similar code ------------------ index = 14, score = 1.0 
+@validate_arguments
+def get_project_stats_with_http_info(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], name: Annotated[(StrictStr, Field(..., description='Entity managing the resource'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs):
+    'Get project stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_project_stats_with_http_info(owner, name, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param name: Entity managing the resource (required)\n        :type name: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _return_http_data_only: response data without head status code\n                                       and headers\n        :type _return_http_data_only: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :param _request_auth: set to override the auth_settings for an a single\n                              request; this effectively ignores the authentication\n                              in the spec for a single request.\n        :type _request_auth: dict, optional\n        :type _content_type: string, optional: force content-type for the request\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: tuple(object, status_code(int), headers(HTTPHeaderDict))\n        '
+    _params = locals()
+    _all_params = ['owner', 'name', 'offset', 'limit', 'sort', 'query', 'bookmarks', 'kind', 'aggregate', 'groupby', 'trunc']
+    _all_params.extend(['async_req', '_return_http_data_only', '_preload_content', '_request_timeout', '_request_auth', '_content_type', '_headers'])
+    for (_key, _val) in _params['kwargs'].items():
+        if (_key not in _all_params):
+            raise ApiTypeError(("Got an unexpected keyword argument '%s' to method get_project_stats" % _key))
+        _params[_key] = _val
+    del _params['kwargs']
+    _collection_formats = {}
+    _path_params = {}
+    if _params['owner']:
+        _path_params['owner'] = _params['owner']
+    if _params['name']:
+        _path_params['name'] = _params['name']
+    _query_params = []
+    if (_params.get('offset') is not None):
+        _query_params.append(('offset', _params['offset']))
+    if (_params.get('limit') is not None):
+        _query_params.append(('limit', _params['limit']))
+    if (_params.get('sort') is not None):
+        _query_params.append(('sort', _params['sort']))
+    if (_params.get('query') is not None):
+        _query_params.append(('query', _params['query']))
+    if (_params.get('bookmarks') is not None):
+        _query_params.append(('bookmarks', _params['bookmarks']))
+    if (_params.get('kind') is not None):
+        _query_params.append(('kind', _params['kind']))
+    if (_params.get('aggregate') is not None):
+        _query_params.append(('aggregate', _params['aggregate']))
+    if (_params.get('groupby') is not None):
+        _query_params.append(('groupby', _params['groupby']))
+    if (_params.get('trunc') is not None):
+        _query_params.append(('trunc', _params['trunc']))
+    _header_params = dict(_params.get('_headers', {}))
+    _form_params = []
+    _files = {}
+    _body_params = None
+    _header_params['Accept'] = self.api_client.select_header_accept(['application/json'])
+    _auth_settings = ['ApiKey']
+    _response_types_map = {'200': 'object', '204': 'object', '403': 'object', '404': 'object'}
+    return self.api_client.call_api('/api/v1/{owner}/{name}/stats', 'GET', _path_params, _query_params, _header_params, body=_body_params, post_params=_form_params, files=_files, response_types_map=_response_types_map, auth_settings=_auth_settings, async_req=_params.get('async_req'), _return_http_data_only=_params.get('_return_http_data_only'), _preload_content=_params.get('_preload_content', True), _request_timeout=_params.get('_request_timeout'), collection_formats=_collection_formats, _request_auth=_params.get('_request_auth'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,,, groupby:=None,,):
+idx = 3:------------------- similar code ------------------ index = 13, score = 1.0 
+def load_radon_data(state_code):
+    'Load the radon dataset.\n\n  Code from http://mc-stan.org/users/documentation/case-studies/radon.html.\n  (Apache2 licensed)\n  '
+    with open_data_file('srrs2.dat') as f:
+        srrs2 = pd.read_csv(f)
+    srrs2.columns = srrs2.columns.map(str.strip)
+    srrs_mn = srrs2.assign(fips=((srrs2.stfips * 1000) + srrs2.cntyfips))[(srrs2.state == state_code)]
+    with open_data_file('cty.dat') as f:
+        cty = pd.read_csv(f)
+    cty_mn = cty[(cty.st == state_code)].copy()
+    cty_mn['fips'] = ((1000 * cty_mn.stfips) + cty_mn.ctfips)
+    srrs_mn.county = srrs_mn.county.str.strip()
+    counties = srrs_mn[['county', 'fips']].drop_duplicates()
+    county_map_uranium = {a: b for (a, b) in zip(counties['county'], range(len(counties['county'])))}
+    uranium_levels = cty_mn.merge(counties, on='fips')['Uppm']
+    srrs_mn_new = srrs_mn.merge(cty_mn[['fips', 'Uppm']], on='fips')
+    srrs_mn_new = srrs_mn_new.drop_duplicates(subset='idnum')
+    srrs_mn_new.county = srrs_mn_new.county.str.strip()
+    mn_counties = srrs_mn_new.county.unique()
+    county_lookup = dict(zip(mn_counties, range(len(mn_counties))))
+    county = srrs_mn_new['county_code'] = srrs_mn_new.county.replace(county_lookup).values
+    radon = srrs_mn_new.activity
+    srrs_mn_new['log_radon'] = log_radon = np.log((radon + 0.1)).values
+    floor_measure = srrs_mn_new.floor.values
+    n_county = srrs_mn_new.groupby('county')['idnum'].count()
+    uranium = np.zeros(len(n_county), dtype=np.float32)
+    for (k, _) in county_lookup.items():
+        uranium[county_lookup[k]] = uranium_levels[county_map_uranium[k]]
+    uranium = [(np.log(ur) if (ur > 0.0) else 0.0) for ur in uranium]
+    c = county
+    u = np.float32(uranium)
+    x = np.float32(floor_measure)
+    data = np.float32(log_radon).reshape((- 1), 1)
+    return (c, u, x, data)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .groupby
+
+idx = 4:------------------- similar code ------------------ index = 12, score = 1.0 
+def label_tables(self, paper, tables, raw_evidences, in_place=False, use_crf=True):
+    pipeline_logger(f'{TableStructurePredictor.step}::label_tables', paper=paper, tables=tables, raw_evidences=raw_evidences)
+    if len(raw_evidences):
+        tags = self.predict_tags(raw_evidences, use_crf)
+        annotations = dict(list(tags.groupby(by=['paper', 'table'])))
+    else:
+        annotations = {}
+    pipeline_logger(f'{TableStructurePredictor.step}::annotations', paper=paper, tables=tables, annotations=annotations)
+    labeled = [self.label_table(paper, table, annotations, in_place) for table in tables]
+    pipeline_logger(f'{TableStructurePredictor.step}::tables_labeled', paper=paper, labeled_tables=labeled)
+    return labeled
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... ( ... ( ... .groupby))
+
+idx = 5:------------------- similar code ------------------ index = 11, score = 1.0 
+def _transform_df(self, df):
+    df.cell_reference = (df.cell_reference != '').astype(str)
+    df.cell_styles = df.cell_styles.astype(str)
+    if (self.merge_type not in ['concat', 'vote_maj', 'vote_avg', 'vote_max']):
+        raise Exception(f'merge_type must be one of concat, vote_maj, vote_avg, vote_max, but {self.merge_type} was given')
+    if (self.mark_this_paper and ((self.merge_type != 'concat') or self.this_paper)):
+        raise Exception("merge_type must be 'concat' and this_paper must be false")
+    if (self.evidence_limit is not None):
+        df = df.groupby(by=['ext_id', 'this_paper']).head(self.evidence_limit)
+    if (self.context_tokens is not None):
+        df.loc['text_highlited'] = df['text_highlited'].apply(self._limit_context)
+        df.loc['text'] = df['text_highlited'].str.replace('<b>', ' ').replace('</b>', ' ')
+    if (self.evidence_source != 'text'):
+        df = df.copy(True)
+        if self.mask:
+            df['text'] = df[self.evidence_source].replace(re.compile('<b>.*?</b>'), ' xxmask ')
+        else:
+            df['text'] = df[self.evidence_source]
+    elif self.mask:
+        raise Exception("Masking with evidence_source='text' makes no sense")
+    duplicates_columns = ['text', 'cell_content', 'cell_type', 'row_context', 'col_context', 'cell_reference', 'cell_layout', 'cell_styles']
+    columns_to_keep = ['ext_id', 'cell_content', 'cell_type', 'row_context', 'col_context', 'cell_reference', 'cell_layout', 'cell_styles']
+    if self.mark_this_paper:
+        df = df.groupby(by=(columns_to_keep + ['this_paper'])).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        this_paper_map = {True: 'this paper', False: 'other paper'}
+        df.text = ((('xxfld 3 ' + df.this_paper.apply(this_paper_map.get)) + ' ') + df.text)
+        df = df.groupby(by=columns_to_keep).text.apply((lambda x: ' '.join(x.values))).reset_index()
+    elif (not self.fixed_this_paper):
+        if (self.merge_fragments and (self.merge_type == 'concat')):
+            df = df.groupby(by=(columns_to_keep + ['this_paper'])).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        if self.drop_duplicates:
+            df = df.drop_duplicates(duplicates_columns).fillna('')
+        if self.this_paper:
+            df = df[df.this_paper]
+    else:
+        if self.this_paper:
+            df = df[df.this_paper]
+        if (self.merge_fragments and (self.merge_type == 'concat')):
+            df = df.groupby(by=columns_to_keep).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        if self.drop_duplicates:
+            df = df.drop_duplicates(duplicates_columns).fillna('')
+    if self.split_btags:
+        df['text'] = df['text'].replace(re.compile('(\\</?b\\>)'), ' \\1 ')
+    df = df.replace(re.compile('(xxref|xxanchor)-[\\w\\d-]*'), '\\1 ')
+    if self.remove_num:
+        df = df.replace(re.compile('(^|[ ])\\d+\\.\\d+(\\b|%)'), ' xxnum ')
+        df = df.replace(re.compile('(^|[ ])\\d+(\\b|%)'), ' xxnum ')
+    df = df.replace(re.compile('\\bdata set\\b'), ' dataset ')
+    df['label'] = df['cell_type'].apply((lambda x: label_map.get(x, 0)))
+    if (not self.distinguish_model_source):
+        df['label'] = df['label'].apply((lambda x: (x if (x != Labels.COMPETING_MODEL.value) else Labels.PAPER_MODEL.value)))
+    df['label'] = pd.Categorical(df['label'])
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .groupby
+
+idx = 6:------------------- similar code ------------------ index = 10, score = 1.0 
+def preds_for_cell_content_max(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].max().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .groupby,)
+
+idx = 7:------------------- similar code ------------------ index = 9, score = 1.0 
+if (__name__ == '__main__'):
+    arguments = docopt(__doc__, version='MindMatch 0.1.dev')
+    file_name = arguments['PATH']
+    df = pd.read_csv(file_name).fillna('')
+    assert ('user_id' in df.columns), 'CSV file must have ``user_id`` in the columns'
+    assert ('fullname' in df.columns), 'CSV file must have ``fullname`` in the columns'
+    assert ('abstracts' in df.columns), 'CSV file must have ``abstracts`` in the columns'
+    assert ('conflicts' in df.columns), 'CSV file must have ``conflicts`` in the columns'
+    print('Number of people in the file = {}'.format(len(df)))
+    n_match = arguments.get('--n_match')
+    if (n_match is None):
+        n_match = 6
+        print('<n_match> is set to default for 6 match per user')
+    else:
+        n_match = int(n_match)
+        print('Number of match is set to {}'.format(n_match))
+    assert (n_match >= 2), 'You should set <n_match> to be more than 2'
+    n_trim = arguments.get('--n_trim')
+    if (n_trim is None):
+        n_trim = 0
+        print('<n_trim> is set to default, this will take very long to converge for a large problem')
+    else:
+        n_trim = int(n_trim)
+        print('Trimming parameter is set to {}'.format(n_trim))
+    n_clusters = arguments.get('--n_clusters')
+    if (n_clusters is None):
+        n_cluters = 4
+        print('Setting number of clusters <n_cluters> to 4')
+    else:
+        n_clusters = int(n_clusters)
+        print('Setting number of clusters to 4')
+    output_filename = arguments.get('output')
+    if (output_filename is None):
+        output_filename = 'output_match.csv'
+    X_topic = compute_topics(list(map(preprocess, list(df['abstracts']))))
+    spectral_clustering = SpectralClustering(n_clusters=n_clusters, random_state=42)
+    labels = spectral_clustering.fit_predict(X_topic)
+    labels[0] = 3
+    df['group'] = labels
+    df['topics'] = [x for x in X_topic]
+    output = []
+    for (_, df_group) in df.groupby('group'):
+        X = np.vstack(df_group.topics.values)
+        A = calculate_affinity_distance(X, X)
+        cois = compute_conflicts(df_group.reset_index(drop=True))
+        b = perform_mindmatch(A, n_trim=10, n_match=6, cois=cois)
+        user_ids_map = {ri: r['user_id'] for (ri, r) in df_group.reset_index(drop=True).iterrows()}
+        for i in range(len(b)):
+            match_ids = [str(user_ids_map[b_]) for b_ in np.nonzero(b[i])[0]]
+            output.append({'user_id': user_ids_map[i], 'match_ids': ';'.join(match_ids)})
+    output_df = pd.DataFrame(output)
+    output_df.to_csv(output_filename, index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+    for in  ... .groupby:
+idx = 8:------------------- similar code ------------------ index = 7, score = 1.0 
+def preds_for_cell_content_multi(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].sum().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .groupby,)
+
+idx = 9:------------------- similar code ------------------ index = 32, score = 1.0 
+def binary_confusion_matrix(self, *col_names, best_only=True):
+    relevant_gold = self.df['model_type_gold'].str.contains('model-best')
+    if best_only:
+        relevant_pred = self.df['model_type_pred'].str.contains('model-best')
+    else:
+        relevant_pred = relevant_gold
+    pred_positive = relevant_pred
+    gold_positive = relevant_gold
+    equal = self.matching(*col_names)
+    if self.topk_metrics:
+        equal = pd.Series(equal, index=pred_positive.index).groupby('cell_ext_id').max()
+        pred_positive = pred_positive.groupby('cell_ext_id').head(1)
+        gold_positive = gold_positive.groupby('cell_ext_id').head(1)
+    tp = ((equal & pred_positive) & gold_positive).sum()
+    tn = ((equal & (~ pred_positive)) & (~ gold_positive)).sum()
+    fp = (pred_positive & ((~ equal) | (~ gold_positive))).sum()
+    fn = (gold_positive & ((~ equal) | (~ pred_positive))).sum()
+    return CM(tp=tp, tn=tn, fp=fp, fn=fn)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .groupby
+
+idx = 10:------------------- similar code ------------------ index = 6, score = 1.0 
+def rollup_option_underlying(options):
+    grouped = options.groupby('underlyingSymbol')
+    return pd.DataFrame({'mtmYTD': grouped.mtmYTD.sum(), 'realSTYTD': grouped.realSTYTD.sum(), 'realLTYTD': grouped.realLTYTD.sum()})
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .groupby
+
+idx = 11:------------------- similar code ------------------ index = 5, score = 1.0 
+@property
+def daily_return(self):
+    daily_ret = self.bars['close'].groupby(self.bars.index.date).last().pct_change()
+    return daily_ret
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .groupby
+
+idx = 12:------------------- similar code ------------------ index = 4, score = 1.0 
+def convert_mind_match_to_document(mind_matching_df, table_map=None, file_name='ccn_mindmatch_2019.docx'):
+    '\n    Create full schedule for mind matching into word document format,\n    printing person name, affiliation, registration id, and list of person to meet\n    '
+    pages = []
+    for (person_id, mind_matching_schedule_df) in mind_matching_df.groupby('person_id'):
+        page = []
+        page.extend([person_id_map[person_id], person_affil_map[person_id], 'RegID: {}'.format(registration_id_map[person_id])])
+        page.extend(['----------------------', 'Mind Matching Schedule', '----------------------'])
+        for (_, r) in mind_matching_schedule_df.iterrows():
+            if (table_map is not None):
+                table_number = table_map[r['table_number']]
+            else:
+                table_number = r['table_number']
+            page.extend(['timeslot: {}, table number: {}, mind-match: {} ({})'.format(r['timeslot'], table_number, person_id_map[r['person_to_meet_id']], person_affil_map[r['person_to_meet_id']])])
+        pages.append('\n'.join(page))
+    document = Document()
+    for page in pages:
+        document.add_paragraph(page)
+        document.add_page_break()
+    document.save(file_name)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in  ... .groupby:
+idx = 13:------------------- similar code ------------------ index = 3, score = 1.0 
+@validate_arguments
+def get_organization_stats_with_http_info(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs):
+    'Get organization stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_organization_stats_with_http_info(owner, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _return_http_data_only: response data without head status code\n                                       and headers\n        :type _return_http_data_only: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :param _request_auth: set to override the auth_settings for an a single\n                              request; this effectively ignores the authentication\n                              in the spec for a single request.\n        :type _request_auth: dict, optional\n        :type _content_type: string, optional: force content-type for the request\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: tuple(object, status_code(int), headers(HTTPHeaderDict))\n        '
+    _params = locals()
+    _all_params = ['owner', 'offset', 'limit', 'sort', 'query', 'bookmarks', 'kind', 'aggregate', 'groupby', 'trunc']
+    _all_params.extend(['async_req', '_return_http_data_only', '_preload_content', '_request_timeout', '_request_auth', '_content_type', '_headers'])
+    for (_key, _val) in _params['kwargs'].items():
+        if (_key not in _all_params):
+            raise ApiTypeError(("Got an unexpected keyword argument '%s' to method get_organization_stats" % _key))
+        _params[_key] = _val
+    del _params['kwargs']
+    _collection_formats = {}
+    _path_params = {}
+    if _params['owner']:
+        _path_params['owner'] = _params['owner']
+    _query_params = []
+    if (_params.get('offset') is not None):
+        _query_params.append(('offset', _params['offset']))
+    if (_params.get('limit') is not None):
+        _query_params.append(('limit', _params['limit']))
+    if (_params.get('sort') is not None):
+        _query_params.append(('sort', _params['sort']))
+    if (_params.get('query') is not None):
+        _query_params.append(('query', _params['query']))
+    if (_params.get('bookmarks') is not None):
+        _query_params.append(('bookmarks', _params['bookmarks']))
+    if (_params.get('kind') is not None):
+        _query_params.append(('kind', _params['kind']))
+    if (_params.get('aggregate') is not None):
+        _query_params.append(('aggregate', _params['aggregate']))
+    if (_params.get('groupby') is not None):
+        _query_params.append(('groupby', _params['groupby']))
+    if (_params.get('trunc') is not None):
+        _query_params.append(('trunc', _params['trunc']))
+    _header_params = dict(_params.get('_headers', {}))
+    _form_params = []
+    _files = {}
+    _body_params = None
+    _header_params['Accept'] = self.api_client.select_header_accept(['application/json'])
+    _auth_settings = ['ApiKey']
+    _response_types_map = {'200': 'object', '204': 'object', '403': 'object', '404': 'object'}
+    return self.api_client.call_api('/api/v1/orgs/{owner}/stats', 'GET', _path_params, _query_params, _header_params, body=_body_params, post_params=_form_params, files=_files, response_types_map=_response_types_map, auth_settings=_auth_settings, async_req=_params.get('async_req'), _return_http_data_only=_params.get('_return_http_data_only'), _preload_content=_params.get('_preload_content', True), _request_timeout=_params.get('_request_timeout'), collection_formats=_collection_formats, _request_auth=_params.get('_request_auth'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,, groupby:=None,,):
+idx = 14:------------------- similar code ------------------ index = 2, score = 1.0 
+def stats(predictions, ground_truth, axis=None):
+    gold = pd.DataFrame(ground_truth, columns=['paper', 'task', 'dataset', 'metric', 'value'])
+    pred = pd.DataFrame(predictions, columns=['paper', 'task', 'dataset', 'metric', 'value'])
+    if (axis == 'tdm'):
+        columns = ['paper', 'task', 'dataset', 'metric']
+    elif ((axis == 'tdms') or (axis is None)):
+        columns = ['paper', 'task', 'dataset', 'metric', 'value']
+    else:
+        columns = ['paper', axis]
+    gold = gold[columns].drop_duplicates()
+    pred = pred[columns].drop_duplicates()
+    results = gold.merge(pred, on=columns, how='outer', indicator=True)
+    is_correct = (results['_merge'] == 'both')
+    no_pred = (results['_merge'] == 'left_only')
+    no_gold = (results['_merge'] == 'right_only')
+    results['TP'] = is_correct.astype('int8')
+    results['FP'] = no_gold.astype('int8')
+    results['FN'] = no_pred.astype('int8')
+    m = results.groupby(['paper']).agg({'TP': 'sum', 'FP': 'sum', 'FN': 'sum'})
+    m['precision'] = precision(m.TP, m.FP)
+    m['recall'] = recall(m.TP, m.FN)
+    m['f1'] = f1(m.precision, m.recall)
+    TP_ALL = m.TP.sum()
+    FP_ALL = m.FP.sum()
+    FN_ALL = m.FN.sum()
+    (prec, reca) = (precision(TP_ALL, FP_ALL), recall(TP_ALL, FN_ALL))
+    return {'Micro Precision': prec, 'Micro Recall': reca, 'Micro F1': f1(prec, reca), 'Macro Precision': m.precision.mean(), 'Macro Recall': m.recall.mean(), 'Macro F1': m.f1.mean()}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .groupby
+
+idx = 15:------------------- similar code ------------------ index = 1, score = 1.0 
+@validate_arguments
+def get_project_stats(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], name: Annotated[(StrictStr, Field(..., description='Entity managing the resource'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs) -> object:
+    'Get project stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_project_stats(owner, name, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param name: Entity managing the resource (required)\n        :type name: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: object\n        '
+    kwargs['_return_http_data_only'] = True
+    return self.get_project_stats_with_http_info(owner, name, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, **kwargs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,,, groupby:=None,,) ->  ... :
+idx = 16:------------------- similar code ------------------ index = 15, score = 1.0 
+@validate_arguments
+def get_organization_stats(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs) -> object:
+    'Get organization stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_organization_stats(owner, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: object\n        '
+    kwargs['_return_http_data_only'] = True
+    return self.get_organization_stats_with_http_info(owner, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, **kwargs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,, groupby:=None,,) ->  ... :
+idx = 17:------------------- similar code ------------------ index = 16, score = 1.0 
+def doOneFile(opts, lines):
+    alignments = mafInput(opts, lines)
+    for (k, v) in itertools.groupby(alignments, operator.itemgetter(0)):
+        doOneQuery(opts, k, list(v))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in  ... .groupby:
+idx = 18:------------------- similar code ------------------ index = 17, score = 1.0 
+def rolled_future(self):
+    'Returns continuous return, price index, expiries and days 2 expiry for vix future rolled according to\n        expiry type'
+    expiry_dates = self.expirations['expiry1']
+    returns = self._expiry_returns
+    business_days_2_exp = self._business_days_2_expiry
+    eom_dates = returns.loc[returns.groupby(returns.index.to_period('M')).apply((lambda x: x.index.max()))].index
+    last_month_end = (eom_dates[(- 1)] + pd.offsets.MonthEnd(0))
+    eom_dates = eom_dates[:(- 1)]
+    eom_dates = eom_dates.insert((- 1), last_month_end)
+    roll_dates = eom_dates.sort_values()
+    expiry_for_roll = []
+    for dts in expiry_dates:
+        idx = roll_dates.get_loc(dts, method='ffill')
+        expiry_for_roll.append(roll_dates[idx])
+    day_diff = (expiry_dates.index - pd.DatetimeIndex(expiry_for_roll))
+    front_month_bool = (day_diff.days <= 0)
+    back_month_bool = (~ front_month_bool)
+    (rolled_return, rolled_future_price) = [pd.concat([item['close2'][back_month_bool], item['close1'][front_month_bool]], axis=0).sort_index() for item in [returns, self.closing_prices]]
+    (rolled_expiries, days_2_exp) = [pd.concat([item['expiry2'][back_month_bool], item['expiry1'][front_month_bool]], axis=0).sort_index() for item in [self.expirations, business_days_2_exp]]
+    rolled_return[0] = np.nan
+    return (rolled_return, rolled_expiries, days_2_exp, rolled_future_price)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... . ... [ ... .groupby]
+
+idx = 19:------------------- similar code ------------------ index = 18, score = 1.0 
+def total_fees(cash_trans):
+    total_by_type = cash_trans.groupby('type').amount.sum()
+    return total_by_type[['Broker Interest Paid', 'Broker Interest Received', 'Other Fees']]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .groupby
+
+idx = 20:------------------- similar code ------------------ index = 20, score = 1.0 
+def get_stage_data(path, stage_idx, x_key, y_key, spread_measure, y_func=None):
+    y_func = (y_func or (lambda x: x))
+    df = _get_stage_data_helper(path, stage_idx)
+    groups = sorted(df.groupby(x_key))
+    x = [v for (v, _df) in groups]
+    ys = [y_func(_df[y_key]) for (v, _df) in groups]
+    y = [_y.mean() for _y in ys]
+    (y_upper, y_lower) = spread_measures[spread_measure](ys)
+    return np.stack([x, y, y_upper, y_lower])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ( ... .groupby)
+
+idx = 21:------------------- similar code ------------------ index = 21, score = 1.0 
+if (__name__ == '__main__'):
+    feedback_df = pd.read_json('data/ccn_feedback.json', orient='records', lines=True)
+    feedback_df['timestamp'] = pd.to_datetime(feedback_df.timestamp, infer_datetime_format=True)
+    feedback_df = feedback_df.sort_values('timestamp').groupby('registrant_id').last().reset_index().sort_values('timestamp')
+    (n_text_feedback, n_responses) = (feedback_df.feedback_text.map((lambda x: (x.strip() != ''))).sum(), len(feedback_df))
+    print('number of response = {}, number of text feedback = {}, percentage = {} %'.format(n_responses, n_text_feedback, ((100 * n_text_feedback) / n_responses)))
+    feedback_df['coi'] = feedback_df.coi.map((lambda x: ','.join([('1' if (int(e) > 0) else '0') for e in x])))
+    feedback_df['relevances'] = feedback_df.relevances.map((lambda x: ','.join(x)))
+    feedback_df['satisfactory'] = feedback_df.satisfactory.map((lambda x: ','.join(x)))
+    feedback_df.to_csv('data/ccn_2019_feedback.csv', index=False)
+    enjoyable = feedback_df.enjoyable.astype(int).values
+    enjoyable = enjoyable[(enjoyable > 0)]
+    print('average enjoyable score = {}'.format(enjoyable.mean()))
+    usefulness = feedback_df.useful.astype(int).values
+    usefulness = usefulness[(usefulness > 0)]
+    print('average usefulness score = {}'.format(usefulness.mean()))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... .groupby
+
+idx = 22:------------------- similar code ------------------ index = 22, score = 1.0 
+def preds_for_cell_content(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    test_df['pred'] = np.argmax(probs, axis=1)
+    grouped_preds = test_df.groupby(group_by)['pred'].agg((lambda x: x.value_counts().index[0]))
+    grouped_counts = test_df.groupby(group_by)['pred'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .groupby
+
+idx = 23:------------------- similar code ------------------ index = 23, score = 1.0 
+def create_coi_dataframe(df, people_maps, threshold=85, coreferred=True):
+    '\n    For a given dataframe of for mind-match people with \n    ``full_name``, ``mindMatchExcludeList`` column, and \n    a dictionary that map ``full_name`` to person_id, \n    create conflict of interest dataframe\n\n    Parameters\n    ==========\n    df: dataframe, original mind matching dataset\n    people_maps: list, list dictionary that map person id to their person_id, full_name, and affiliation\n    threshold: int, fuzzy string match ratio for matching name in ``mindMatchExcludeList`` and ``full_name``\n    coreferred: bool, if True, add extra conflict of interest for people who mentioned the same person\n\n    Output\n    ======\n    coi_df: dataframe, conflict of interest\n    '
+    coi_list = []
+    for (i, r) in df.iterrows():
+        if (len(r['mindMatchExcludeList']) > 0):
+            exclude_list = []
+            for exclude in r['mindMatchExcludeList']:
+                exclude_list.extend([p['person_id'] for p in people_maps if ((exclude in p['full_name']) or (fuzz.ratio(p['full_name'], exclude) >= threshold) or (fuzz.ratio(p['affiliation'], exclude) >= threshold))])
+            exclude_list = sorted(pd.unique(exclude_list))
+            if (len(exclude_list) > 0):
+                for e in exclude_list:
+                    coi_list.append([i, e])
+    coi_df = pd.DataFrame(coi_list, columns=['person_id', 'person_id_exclude'])
+    if coreferred:
+        coi_coreferred = [[g, list(g_df.person_id)] for (g, g_df) in coi_df.groupby(['person_id_exclude']) if (len(list(g_df.person_id)) >= 2)]
+        coi_coreferred_list = []
+        for (_, exclude_list) in coi_coreferred:
+            coi_coreferred_list.extend(list(itertools.combinations(exclude_list, 2)))
+        coi_coreferred_df = pd.DataFrame(coi_coreferred_list, columns=['person_id', 'person_id_exclude'])
+        coi_df = pd.concat((coi_df, coi_coreferred_df))
+        return coi_df
+    else:
+        return coi_df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :
+         ...  = [ for in  ... .groupby]
+
+idx = 24:------------------- similar code ------------------ index = 24, score = 1.0 
+@validate_arguments
+def get_run_stats(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], entity: Annotated[(StrictStr, Field(..., description='Entity name under namesapce'))], uuid: Annotated[(StrictStr, Field(..., description='SubEntity uuid'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs) -> object:
+    'Get run stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_run_stats(owner, entity, uuid, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param entity: Entity name under namesapce (required)\n        :type entity: str\n        :param uuid: SubEntity uuid (required)\n        :type uuid: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: object\n        '
+    kwargs['_return_http_data_only'] = True
+    return self.get_run_stats_with_http_info(owner, entity, uuid, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, **kwargs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,,,, groupby:=None,,) ->  ... :
+idx = 25:------------------- similar code ------------------ index = 25, score = 1.0 
+@classmethod
+def satisfied_waypoints(cls, home_pos, waypoints, uas_telemetry_logs):
+    'Determines whether the UAS satisfied the waypoints.\n\n        Waypoints must be satisfied in order. The entire pattern may be\n        restarted at any point. The best (most waypoints satisfied) attempt\n        will be returned.\n\n        Assumes that waypoints are at least\n        SATISFIED_WAYPOINT_DIST_MAX_FT apart.\n\n        Args:\n            home_pos: The home position for projections.\n            waypoints: A list of waypoints to check against.\n            uas_telemetry_logs: A list of UAS Telemetry logs to evaluate.\n        Returns:\n            A list of auvsi_suas.proto.WaypointEvaluation.\n        '
+    best = {}
+    hits = []
+    for log in cls.interpolate(uas_telemetry_logs):
+        for (iw, waypoint) in enumerate(waypoints):
+            dist = log.distance_to(waypoint)
+            best[iw] = min(best.get(iw, dist), dist)
+            score = pow(max(0, (float((SATISFIED_WAYPOINT_DIST_MAX_FT - dist)) / SATISFIED_WAYPOINT_DIST_MAX_FT)), (1.0 / 3.0))
+            if (score > 0):
+                hits.append((iw, dist, score))
+    hits = [max(g, key=(lambda x: x[2])) for (_, g) in itertools.groupby(hits, (lambda x: x[0]))]
+    dp = defaultdict((lambda : defaultdict((lambda : (0, None, None)))))
+    highest_total = None
+    highest_total_pos = (None, None)
+    for iw in range(len(waypoints)):
+        for (ih, (hiw, hdist, hscore)) in enumerate(hits):
+            score = (hscore if (iw == hiw) else 0.0)
+            prev_iw = (iw - 1)
+            total_score = score
+            total_score_back = (None, None)
+            if (prev_iw >= 0):
+                for prev_ih in range((ih + 1)):
+                    (prev_total_score, _) = dp[prev_iw][prev_ih]
+                    new_total_score = (prev_total_score + score)
+                    if (new_total_score > total_score):
+                        total_score = new_total_score
+                        total_score_back = (prev_iw, prev_ih)
+            dp[iw][ih] = (total_score, total_score_back)
+            if ((highest_total is None) or (total_score > highest_total)):
+                highest_total = total_score
+                highest_total_pos = (iw, ih)
+    scores = defaultdict((lambda : (0, None)))
+    cur_pos = highest_total_pos
+    while (cur_pos != (None, None)):
+        (cur_iw, cur_ih) = cur_pos
+        (hiw, hdist, hscore) = hits[cur_ih]
+        if (cur_iw == hiw):
+            scores[cur_iw] = (hscore, hdist)
+        (_, cur_pos) = dp[cur_iw][cur_ih]
+    waypoint_evals = []
+    for (iw, waypoint) in enumerate(waypoints):
+        (score, dist) = scores[iw]
+        waypoint_eval = interop_admin_api_pb2.WaypointEvaluation()
+        waypoint_eval.id = iw
+        waypoint_eval.score_ratio = score
+        if (dist is not None):
+            waypoint_eval.closest_for_scored_approach_ft = dist
+        if (iw in best):
+            waypoint_eval.closest_for_mission_ft = best[iw]
+        waypoint_evals.append(waypoint_eval)
+    return waypoint_evals
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = [ for in  ... .groupby]
+
+idx = 26:------------------- similar code ------------------ index = 26, score = 1.0 
+def _filter(self, proposals):
+    reason = pd.Series(data='', index=proposals.index)
+    indices = []
+    if (self.context == 'paper'):
+        context_column = proposals.index.to_series().str.split('/', expand=False).apply((lambda x: x[0]))
+    else:
+        context_column = proposals.index.to_series().str.split('/', expand=False).apply((lambda x: ((x[0] + '/') + x[1])))
+    for (key_all, group) in proposals[((proposals.model_type == 'model-best') & (~ proposals.parsed.isna()))].groupby(by=['dataset', 'metric', 'task', context_column]):
+        (dataset, metric, task, paper) = key_all
+        key = (task, dataset, metric)
+        d = 0
+        if (key in self.metrics_info):
+            d = self.metrics_info[key]
+        elif (metric in self.metrics_info):
+            d = self.metrics_info[metric]
+        elif ('error' in metric.lower()):
+            d = (- 1)
+        elif ('accuracy' in metric.lower()):
+            d = 1
+        if (d >= 0):
+            index = group.parsed.idxmax()
+        else:
+            index = group.parsed.idxmin()
+        indices.append(index)
+        reason[group.index[(group.index != index)]] = ('replaced by ' + str(index))
+    reason[(proposals.struct_model_type == 'model-competing')] = 'model-competing'
+    which = proposals.index.to_series().isin(indices)
+    return (which, reason[(~ which)])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in  ... .groupby:
+idx = 27:------------------- similar code ------------------ index = 27, score = 1.0 
+def generate_data(self):
+    self.df = pd.read_csv(self.options.samplefile, nrows=self.options.numsamples, header=0)
+    if self.options.prevent_zero:
+        self.quant_col_names = [col['field'] for col in self.sample_json['tables']['fact']['fields'] if (col['type'] == 'quantitative')]
+        for quant_col_name in self.quant_col_names:
+            self.df[quant_col_name] = (self.df[quant_col_name] - self.df[quant_col_name].min())
+    self.cat_col_names = [col['field'] for col in self.sample_json['tables']['fact']['fields'] if (col['type'] == 'categorical')]
+    for cat_col_name in self.cat_col_names:
+        self.df[cat_col_name] = self.df[cat_col_name].astype('category')
+    self.derived_cols = [col for col in self.sample_json['tables']['fact']['fields'] if ('deriveFrom' in col)]
+    self.derivates = {}
+    for derived_col in self.derived_cols:
+        kk = self.df.groupby(derived_col['deriveFrom'])[derived_col['field']].first().to_dict()
+        self.derivates[derived_col['field']] = kk
+    self.orgdf = self.df.copy()
+    self.cat_cols = list(self.orgdf.select_dtypes(include=['category']).columns)
+    self.cat_hists = {}
+    self.cat_hists_keys = {}
+    self.cat_hists_values = {}
+    for cat_col in self.cat_cols:
+        self.cat_hists[cat_col] = self.df[cat_col].value_counts(normalize=True).to_dict()
+        self.cat_hists[cat_col] = OrderedDict(sorted(self.cat_hists[cat_col].items(), key=(lambda x: x[0])))
+        self.cat_hists_keys[cat_col] = list(self.cat_hists[cat_col].keys())
+        self.cat_hists_values[cat_col] = list(self.cat_hists[cat_col].values())
+        del self.df[cat_col]
+    self.means = self.df.mean()
+    self.stdevs = self.df.std()
+    np.set_printoptions(suppress=True)
+    for (idx, col) in enumerate(self.df.columns):
+        self.df[col] = ((self.df[col] - self.means[col]) / self.stdevs[col])
+    self.inv_cdfs = self.get_inverse_cdfs(self.orgdf, self.df)
+    covariance = self.df.cov()
+    self.decomposition = cholesky(covariance, lower=True)
+    num_batches = int(math.ceil((self.options.size / self.options.batchsize)))
+    st = current_milli_time()
+    for batch_i in range(num_batches):
+        print((' %i/%i batches processed.' % (batch_i, num_batches)))
+        self.process_batch(batch_i)
+    print('done.')
+    print((current_milli_time() - st))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+         ...  =  ... .groupby
+
+idx = 28:------------------- similar code ------------------ index = 28, score = 1.0 
+def _rolled_future_return(self):
+    'Returns arithmetic return from long position in vix future'
+    expiry_dates = pd.to_datetime(self.raw_tsm_df['exp1'].astype(int), format='%Y%m%d')
+    returns = self._expiry_returns
+    days_2_exp = self._expiration_days_2_expiry
+    if (self.expiry_type == 'eom'):
+        eom_dates = returns.index[returns.reset_index().groupby(returns.index.to_period('M'))['index'].idxmax()]
+        last_month_end = (eom_dates[(- 1)] + pd.offsets.MonthEnd(0))
+        eom_dates = eom_dates[:(- 1)]
+        eom_dates = eom_dates.insert((- 1), last_month_end)
+        roll_dates = eom_dates.sort_values()
+    else:
+        expiry_dates_unique = pd.to_datetime(self.raw_tsm_df['exp1'].unique().astype(int), format='%Y%m%d')
+        roll_dates = (expiry_dates_unique - pd.offsets.BDay(self.expiry_type))
+    expiry_for_roll = []
+    for dts in expiry_dates:
+        idx = roll_dates.get_loc(dts, method='ffill')
+        expiry_for_roll.append(roll_dates[idx])
+    day_diff = (expiry_dates.index - pd.DatetimeIndex(expiry_for_roll))
+    front_month_bool = (day_diff.days < 0)
+    back_month_bool = (~ front_month_bool)
+    rolled_return = pd.concat([returns['close2'][back_month_bool], returns['close1'][front_month_bool]], axis=0).sort_index()
+    rolled_return[0] = np.nan
+    rolled_expiries = pd.concat([self.raw_tsm_df['exp2'][back_month_bool], self.raw_tsm_df['exp1'][front_month_bool]], axis=0).sort_index()
+    days_2_exp = pd.concat([days_2_exp['exp2'][back_month_bool], days_2_exp['exp1'][front_month_bool]], axis=0).sort_index()
+    rolled_future = pd.concat([self.raw_tsm_df['close2'][back_month_bool], self.raw_tsm_df['close1'][front_month_bool]], axis=0).sort_index()
+    return (rolled_return, rolled_expiries, days_2_exp, rolled_future)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
+         ...  =  ... . ... [ ... .groupby]
+
+idx = 29:------------------- similar code ------------------ index = 29, score = 1.0 
+def predict_causalforest(cforest, X, num_workers):
+    'Predicts individual treatment effects for a causal forest.\n\n    Predicts individual treatment effects for new observed features *X*\n    on a fitted causal forest *cforest*. Predictions are made in parallel with\n    *num_workers* processes.\n\n    Args:\n        cforest (pd.DataFrame): Fitted causal forest represented in a multi-\n            index pd.DataFrame consisting of several fitted causal trees\n        X (np.array): 2d array of new observations for which we predict the\n            individual treatment effect.\n        num_workers (int): Number of workers for parallelization.\n\n    Returns:\n        predictions (np.array): 1d array of treatment predictions.\n\n    '
+    num_trees = len(cforest.groupby(level=0))
+    (n, _) = X.shape
+    predictions = Parallel(n_jobs=num_workers)((delayed(predict_causaltree)(cforest.loc[i], X) for i in range(num_trees)))
+    predictions = [arr.reshape((1, n)) for arr in predictions]
+    predictions = np.concatenate(predictions, axis=0)
+    predictions = predictions.mean(axis=0)
+    return predictions
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ( ... .groupby)
+
+idx = 30:------------------- similar code ------------------ index = 30, score = 1.0 
+@property
+def realized_vol(self):
+    'Annualized daily volatility calculated as sum of squared 5 minute returns'
+    squared_diff = (np.log((self.bars['close'] / self.bars['close'].shift(1))) ** 2)
+    realized_quadratic_variation = squared_diff.groupby(squared_diff.index.date).sum()
+    realized_quadratic_variation = realized_quadratic_variation.reindex(pd.to_datetime(realized_quadratic_variation.index))
+    daily_vol = np.sqrt((realized_quadratic_variation * 252))
+    daily_vol = daily_vol.rename('rv_daily')
+    return daily_vol
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .groupby
+
+idx = 31:------------------- similar code ------------------ index = 31, score = 1.0 
+@validate_arguments
+def get_run_stats_with_http_info(self, owner: Annotated[(StrictStr, Field(..., description='Owner of the namespace'))], entity: Annotated[(StrictStr, Field(..., description='Entity name under namesapce'))], uuid: Annotated[(StrictStr, Field(..., description='SubEntity uuid'))], offset: Annotated[(Optional[StrictInt], Field(description='Pagination offset.'))]=None, limit: Annotated[(Optional[StrictInt], Field(description='Limit size.'))]=None, sort: Annotated[(Optional[StrictStr], Field(description='Sort to order the search.'))]=None, query: Annotated[(Optional[StrictStr], Field(description='Query filter the search.'))]=None, bookmarks: Annotated[(Optional[StrictBool], Field(description='Filter by bookmarks.'))]=None, kind: Annotated[(Optional[StrictStr], Field(description='Stats Kind.'))]=None, aggregate: Annotated[(Optional[StrictStr], Field(description='Stats aggregate.'))]=None, groupby: Annotated[(Optional[StrictStr], Field(description='Stats group.'))]=None, trunc: Annotated[(Optional[StrictStr], Field(description='Stats trunc.'))]=None, **kwargs):
+    'Get run stats  # noqa: E501\n\n        This method makes a synchronous HTTP request by default. To make an\n        asynchronous HTTP request, please pass async_req=True\n\n        >>> thread = api.get_run_stats_with_http_info(owner, entity, uuid, offset, limit, sort, query, bookmarks, kind, aggregate, groupby, trunc, async_req=True)\n        >>> result = thread.get()\n\n        :param owner: Owner of the namespace (required)\n        :type owner: str\n        :param entity: Entity name under namesapce (required)\n        :type entity: str\n        :param uuid: SubEntity uuid (required)\n        :type uuid: str\n        :param offset: Pagination offset.\n        :type offset: int\n        :param limit: Limit size.\n        :type limit: int\n        :param sort: Sort to order the search.\n        :type sort: str\n        :param query: Query filter the search.\n        :type query: str\n        :param bookmarks: Filter by bookmarks.\n        :type bookmarks: bool\n        :param kind: Stats Kind.\n        :type kind: str\n        :param aggregate: Stats aggregate.\n        :type aggregate: str\n        :param groupby: Stats group.\n        :type groupby: str\n        :param trunc: Stats trunc.\n        :type trunc: str\n        :param async_req: Whether to execute the request asynchronously.\n        :type async_req: bool, optional\n        :param _return_http_data_only: response data without head status code\n                                       and headers\n        :type _return_http_data_only: bool, optional\n        :param _preload_content: if False, the urllib3.HTTPResponse object will\n                                 be returned without reading/decoding response\n                                 data. Default is True.\n        :type _preload_content: bool, optional\n        :param _request_timeout: timeout setting for this request. If one\n                                 number provided, it will be total request\n                                 timeout. It can also be a pair (tuple) of\n                                 (connection, read) timeouts.\n        :param _request_auth: set to override the auth_settings for an a single\n                              request; this effectively ignores the authentication\n                              in the spec for a single request.\n        :type _request_auth: dict, optional\n        :type _content_type: string, optional: force content-type for the request\n        :return: Returns the result object.\n                 If the method is called asynchronously,\n                 returns the request thread.\n        :rtype: tuple(object, status_code(int), headers(HTTPHeaderDict))\n        '
+    _params = locals()
+    _all_params = ['owner', 'entity', 'uuid', 'offset', 'limit', 'sort', 'query', 'bookmarks', 'kind', 'aggregate', 'groupby', 'trunc']
+    _all_params.extend(['async_req', '_return_http_data_only', '_preload_content', '_request_timeout', '_request_auth', '_content_type', '_headers'])
+    for (_key, _val) in _params['kwargs'].items():
+        if (_key not in _all_params):
+            raise ApiTypeError(("Got an unexpected keyword argument '%s' to method get_run_stats" % _key))
+        _params[_key] = _val
+    del _params['kwargs']
+    _collection_formats = {}
+    _path_params = {}
+    if _params['owner']:
+        _path_params['owner'] = _params['owner']
+    if _params['entity']:
+        _path_params['entity'] = _params['entity']
+    if _params['uuid']:
+        _path_params['uuid'] = _params['uuid']
+    _query_params = []
+    if (_params.get('offset') is not None):
+        _query_params.append(('offset', _params['offset']))
+    if (_params.get('limit') is not None):
+        _query_params.append(('limit', _params['limit']))
+    if (_params.get('sort') is not None):
+        _query_params.append(('sort', _params['sort']))
+    if (_params.get('query') is not None):
+        _query_params.append(('query', _params['query']))
+    if (_params.get('bookmarks') is not None):
+        _query_params.append(('bookmarks', _params['bookmarks']))
+    if (_params.get('kind') is not None):
+        _query_params.append(('kind', _params['kind']))
+    if (_params.get('aggregate') is not None):
+        _query_params.append(('aggregate', _params['aggregate']))
+    if (_params.get('groupby') is not None):
+        _query_params.append(('groupby', _params['groupby']))
+    if (_params.get('trunc') is not None):
+        _query_params.append(('trunc', _params['trunc']))
+    _header_params = dict(_params.get('_headers', {}))
+    _form_params = []
+    _files = {}
+    _body_params = None
+    _header_params['Accept'] = self.api_client.select_header_accept(['application/json'])
+    _auth_settings = ['ApiKey']
+    _response_types_map = {'200': 'object', '204': 'object', '403': 'object', '404': 'object'}
+    return self.api_client.call_api('/api/v1/{owner}/{entity}/runs/{uuid}/stats', 'GET', _path_params, _query_params, _header_params, body=_body_params, post_params=_form_params, files=_files, response_types_map=_response_types_map, auth_settings=_auth_settings, async_req=_params.get('async_req'), _return_http_data_only=_params.get('_return_http_data_only'), _preload_content=_params.get('_preload_content', True), _request_timeout=_params.get('_request_timeout'), collection_formats=_collection_formats, _request_auth=_params.get('_request_auth'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,,,,,,,,,,, groupby:=None,,):
+idx = 32:------------------- similar code ------------------ index = 0, score = 1.0 
+def __init__(self, path):
+    self.path = path
+    stmt = self.get_lxml_root()
+    self.perf = clean_perf(stmt)
+    self.option_perf = clean_option_perf(self.perf)
+    self.option_perf_underlying = rollup_option_underlying(self.option_perf)
+    self.stock_perf = clean_stock_perf(self.perf)
+    self.cash_transactions = clean_cash(stmt)
+    self.dividends = clean_dividends(self.cash_transactions)
+    dividends_by_symbol = self.dividends.groupby('symbol').amount.sum()
+    self.mtm_ytd = pd.DataFrame({'Stocks': self.stock_perf.mtmYTD, 'Options': self.option_perf_underlying.mtmYTD, 'Dividends': dividends_by_symbol}).fillna(0)
+    self.realized = pd.DataFrame({'Stocks': self.stock_perf.realSTYTD, 'Options': self.option_perf_underlying.realSTYTD, 'Dividends': dividends_by_symbol}).fillna(0)
+    self.mtm_ytd['Total'] = self.mtm_ytd.sum(1)
+    self.realized['Total'] = self.realized.sum(1)
+    self.cash_by_type = self.cash_transactions.groupby('type').amount.sum()
+    self.fees = self.cash_by_type[['Broker Interest Paid', 'Broker Interest Received', 'Other Fees']]
+    self.in_out = clean_in_out(self.cash_transactions)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .groupby
+

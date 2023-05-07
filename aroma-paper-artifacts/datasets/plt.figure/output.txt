@@ -1,0 +1,1976 @@
+------------------------- example 1 ------------------------ 
+def visualize_weibull_outlier_probabilities(data_outlier_probs, other_data_outlier_probs_dict, data_name, save_path, tailsize):
+    "\n    Visualization of Weibull CDF outlier probabilites.\n\n    Parameters:\n        data_outlier_probs (np.array): Outlier probabilities for each input of the trained dataset's validation set.\n        other_data_outlier_probs_dict (dictionary): Outlier probabilities for each input of an unseen dataset.\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n        tailsize (int): Fitted Weibull model's tailsize.\n    "
+    data_outlier_probs = np.concatenate(data_outlier_probs, axis=0)
+    data_weights = (np.ones_like(data_outlier_probs) / float(len(data_outlier_probs)))
+    plt.figure(figsize=(20, 20))
+    plt.hist(data_outlier_probs, label=data_name, weights=data_weights, bins=50, color=colors[0], alpha=1.0, edgecolor='white', linewidth=5)
+    c = 0
+    for (other_data_name, other_data_outlier_probs) in other_data_outlier_probs_dict.items():
+        other_data_outlier_probs = np.concatenate(other_data_outlier_probs, axis=0)
+        other_data_weights = (np.ones_like(other_data_outlier_probs) / float(len(other_data_outlier_probs)))
+        plt.hist(other_data_outlier_probs, label=other_data_name, weights=other_data_weights, bins=50, color=colors[c], alpha=0.5, edgecolor='white', linewidth=5)
+        c += 1
+    plt.title(('Outlier probabilities: tailsize ' + str(tailsize)), fontsize=title_font_size)
+    plt.xlabel('Outlier probability according to Weibull CDF', fontsize=axes_font_size)
+    plt.ylabel('Percentage', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0)
+    plt.savefig(os.path.join(save_path, (((((data_name + '_') + ','.join(list(other_data_outlier_probs_dict.keys()))) + '_weibull_outlier_probabilities_tailsize_') + str(tailsize)) + '.png')), bbox_inches='tight')
+
+------------------------- example 2 ------------------------ 
+def visualize_entropy_histogram(data, other_data_dicts, max_entropy, dict_key, data_name, save_path):
+    "\n    Visualization of the entropy the datasets.\n\n    Parameters:\n        data (list):\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (str): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+// your code ...
+
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=25, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [x for x in other_data_dict[dict_key]]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=25, color=colors[c])
+        c += 1
+    plt.title('Dataset classification entropy', fontsize=title_font_size)
+    plt.xlabel('Classification entropy', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=max_entropy)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_classification_entropies.png')), bbox_inches='tight')
+
+------------------------- example 3 ------------------------ 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------------- example 4 ------------------------ 
+def plot_xo_full_decoder_kind(extension):
+    attn_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=attn_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_29_32')
+    mlp_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=mlp_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_29')
+    seq_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=seq_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_00')
+    attn_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=attn_alg=simple-xo_duration=long_seed=0_2018_06_08_17_49_36')
+    mlp_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=mlp_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_40')
+    seq_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=seq_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_20')
+    plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='attn-yolo')
+    attn_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([mlp_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='mlp-yolo')
+    mlp_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([seq_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='seq-yolo')
+    seq_colour = line.lines[0].get_c()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='attn-simple', c=attn_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([mlp_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='mlp-simple', c=mlp_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([seq_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='seq-simple', c=seq_colour, ls='--')
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    plt.legend()
+    plt.show()
+
+------------------------- example 5 ------------------------ 
+def scatter3d_and_projections(data_list, channels=[0, 1, 2], xscale='logicle', yscale='logicle', zscale='logicle', xlabel=None, ylabel=None, zlabel=None, xlim=None, ylim=None, zlim=None, color=None, figsize=None, savefig=None, **kwargs):
+    "\n    Plot a 3D scatter plot and 2D projections from FCSData objects.\n\n    `scatter3d_and_projections` creates a 3D scatter plot and three 2D\n    projected scatter plots in four different axes for each FCSData object\n    in `data_list`, in the same figure.\n\n    Parameters\n    ----------\n    data_list : FCSData object, or list of FCSData objects\n        Flow cytometry data to plot.\n    channels : list of int, list of str\n        Three channels to use for the plot.\n    savefig : str, optional\n        The name of the file to save the figure to. If None, do not save.\n\n    Other parameters\n    ----------------\n    xscale : str, optional\n        Scale of the x axis, either ``linear``, ``log``, or ``logicle``.\n    yscale : str, optional\n        Scale of the y axis, either ``linear``, ``log``, or ``logicle``.\n    zscale : str, optional\n        Scale of the z axis, either ``linear``, ``log``, or ``logicle``.\n    xlabel : str, optional\n        Label to use on the x axis. If None, attempts to extract channel\n        name from last data object.\n    ylabel : str, optional\n        Label to use on the y axis. If None, attempts to extract channel\n        name from last data object.\n    zlabel : str, optional\n        Label to use on the z axis. If None, attempts to extract channel\n        name from last data object.\n    xlim : tuple, optional\n        Limits for the x axis. If None, attempts to extract limits from the\n        range of the last data object.\n    ylim : tuple, optional\n        Limits for the y axis. If None, attempts to extract limits from the\n        range of the last data object.\n    zlim : tuple, optional\n        Limits for the z axis. If None, attempts to extract limits from the\n        range of the last data object.\n    color : matplotlib color or list of matplotlib colors, optional\n        Color for the scatter plot. It can be a list with the same length\n        as `data_list`. If `color` is not specified, elements from\n        `data_list` are plotted with colors taken from the module-level\n        variable `cmap_default`.\n    figsize : tuple, optional\n        Figure size. If None, use matplotlib's default.\n    kwargs : dict, optional\n        Additional parameters passed directly to matploblib's ``scatter``.\n\n    Notes\n    -----\n    `scatter3d_and_projections` uses matplotlib's ``scatter``, with the 3D\n    scatter plot using a 3D projection. Additional keyword arguments\n    provided to `scatter3d_and_projections` are passed directly to\n    ``scatter``.\n\n    "
+    if (len(channels) != 3):
+// your code ...
+
+    plt.figure(figsize=figsize)
+    plt.subplot(221)
+    scatter2d(data_list, channels=[channels[0], channels[2]], xscale=xscale, yscale=zscale, xlabel=xlabel, ylabel=zlabel, xlim=xlim, ylim=zlim, color=color, **kwargs)
+    ax_3d = plt.gcf().add_subplot(222, projection='3d')
+    scatter3d(data_list, channels=channels, xscale=xscale, yscale=yscale, zscale=zscale, xlabel=xlabel, ylabel=ylabel, zlabel=zlabel, xlim=xlim, ylim=ylim, zlim=zlim, color=color, **kwargs)
+    plt.subplot(223)
+    scatter2d(data_list, channels=[channels[0], channels[1]], xscale=xscale, yscale=yscale, xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim, color=color, **kwargs)
+    plt.subplot(224)
+    scatter2d(data_list, channels=[channels[2], channels[1]], xscale=zscale, yscale=yscale, xlabel=zlabel, ylabel=ylabel, xlim=zlim, ylim=ylim, color=color, **kwargs)
+    if (savefig is not None):
+        plt.tight_layout()
+        plt.savefig(savefig, dpi=savefig_dpi)
+        plt.close()
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        19         ||         0        
+example2  ||          5           ||        16         ||         1        
+example3  ||          4           ||        15         ||         0        
+example4  ||          2           ||        33         ||         0        
+example5  ||          3           ||        17         ||         1        
+
+avg       ||          3.2           ||        20.0         ||         0.4        
+
+idx = 0:------------------- similar code ------------------ index = 36, score = 7.0 
+if (__name__ == '__main__'):
+    import tensorflow as tf
+    import matplotlib.pyplot as plt
+    from astropy.utils.data import get_pkg_data_filename
+    image_file = '/home/eric/Downloads/abell_2744_RGB.fits'
+    image_data = fits.getdata(image_file, ext=0)
+    plt.figure()
+    plt.imshow(image_data, cmap='gray')
+    plt.colorbar()
+    plt.show()
+    n = 32
+    dset = FITSDataset(fits_file=image_file, postprocessing='tile_pad', n_samples_per_image=n, tile_shape=(1000, 1000), force_memmap=False)
+    print(dset.depth)
+    sess = tf.Session()
+    with sess.as_default():
+        dset.visualize(n)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.figure()
+
+idx = 1:------------------- similar code ------------------ index = 54, score = 7.0 
+def visualize_weibull_outlier_probabilities(data_outlier_probs, other_data_outlier_probs_dict, data_name, save_path, tailsize):
+    "\n    Visualization of Weibull CDF outlier probabilites.\n\n    Parameters:\n        data_outlier_probs (np.array): Outlier probabilities for each input of the trained dataset's validation set.\n        other_data_outlier_probs_dict (dictionary): Outlier probabilities for each input of an unseen dataset.\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n        tailsize (int): Fitted Weibull model's tailsize.\n    "
+    data_outlier_probs = np.concatenate(data_outlier_probs, axis=0)
+    data_weights = (np.ones_like(data_outlier_probs) / float(len(data_outlier_probs)))
+    plt.figure(figsize=(20, 20))
+    plt.hist(data_outlier_probs, label=data_name, weights=data_weights, bins=50, color=colors[0], alpha=1.0, edgecolor='white', linewidth=5)
+    c = 0
+    for (other_data_name, other_data_outlier_probs) in other_data_outlier_probs_dict.items():
+        other_data_outlier_probs = np.concatenate(other_data_outlier_probs, axis=0)
+        other_data_weights = (np.ones_like(other_data_outlier_probs) / float(len(other_data_outlier_probs)))
+        plt.hist(other_data_outlier_probs, label=other_data_name, weights=other_data_weights, bins=50, color=colors[c], alpha=0.5, edgecolor='white', linewidth=5)
+        c += 1
+    plt.title(('Outlier probabilities: tailsize ' + str(tailsize)), fontsize=title_font_size)
+    plt.xlabel('Outlier probability according to Weibull CDF', fontsize=axes_font_size)
+    plt.ylabel('Percentage', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0)
+    plt.savefig(os.path.join(save_path, (((((data_name + '_') + ','.join(list(other_data_outlier_probs_dict.keys()))) + '_weibull_outlier_probabilities_tailsize_') + str(tailsize)) + '.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 2:------------------- similar code ------------------ index = 35, score = 7.0 
+def make_plot(df, fit_params):
+    v_min = (df.volume.min() * 0.99)
+    v_max = (df.volume.max() * 1.01)
+    v_fitting = np.linspace(v_min, v_max, num=50)
+    e_fitting = murnaghan(v_fitting, *fit_params)
+    plt.figure(figsize=(8.0, 6.0))
+    loc = df.converged
+    plt.plot(df[loc].volume, df[loc].energy, 'o')
+    loc = [(not b) for b in df.converged]
+    plt.plot(df[loc].volume, df[loc].energy, 'o', c='grey')
+    plt.plot(v_fitting, e_fitting, '--')
+    plt.xlabel('volume [$\\mathrm{\\AA}^3$]')
+    plt.ylabel('energy [eV]')
+    plt.tight_layout()
+    plt.savefig('murn.pdf')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 3:------------------- similar code ------------------ index = 34, score = 7.0 
+def plot_grid_multiple(ca_list, shape=None, slice=(- 1), titles=None, colormap='Greys', vmin=None, vmax=None):
+    cmap = plt.get_cmap(colormap)
+    for i in range(0, len(ca_list)):
+        plt.figure(i)
+        if (titles is not None):
+            plt.title(titles[i])
+        activities = list(ca_list[i])
+        if (shape is not None):
+            activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
+        plt.imshow(activities, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for  ...  in:
+        plt.figure
+
+idx = 4:------------------- similar code ------------------ index = 33, score = 7.0 
+def visualize_means(means, num_classes, data_name, save_path, name):
+    '\n    Visualization of means, e.g. of latent code z.\n\n    Parameters:\n        means (torch.Tensor): 2-D Tensor with one mean z vector per class.\n        num_classes (int): Defines number of classes.\n        data_name (str): Dataset name. Used for naming.\n        save_path (str): Saving path.\n        name (str): Name for type of mean, e.g. "z".\n    '
+    classes = np.arange(0, num_classes)
+    plt.figure(figsize=(20, 20))
+    ax = sns.heatmap(means.cpu().numpy(), cmap='BrBG')
+    ax.set_title(data_name, fontsize=title_font_size)
+    ax.set_xlabel((name + ' mean activations'), fontsize=axes_font_size)
+    ax.set_yticklabels(classes, rotation=0)
+    plt.savefig(os.path.join(save_path, (name + '_mean_activations.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 5:------------------- similar code ------------------ index = 9, score = 7.0 
+def visualize_entropy_histogram(data, other_data_dicts, max_entropy, dict_key, data_name, save_path):
+    "\n    Visualization of the entropy the datasets.\n\n    Parameters:\n        data (list):\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (str): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+    data = [x for x in data]
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=25, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [x for x in other_data_dict[dict_key]]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=25, color=colors[c])
+        c += 1
+    plt.title('Dataset classification entropy', fontsize=title_font_size)
+    plt.xlabel('Classification entropy', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=max_entropy)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_classification_entropies.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 6:------------------- similar code ------------------ index = 10, score = 7.0 
+def visualize_entropy_histogram(data, other_data_dicts, max_entropy, dict_key, data_name, save_path):
+    "\n    Visualization of the entropy the datasets.\n\n    Parameters:\n        data (list):\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (str): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+    data = [x for x in data]
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=25, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [x for x in other_data_dict[dict_key]]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=25, color=colors[c])
+        c += 1
+    plt.title('Dataset classification entropy', fontsize=title_font_size)
+    plt.xlabel('Classification entropy', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=max_entropy)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_classification_entropies.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 7:------------------- similar code ------------------ index = 11, score = 7.0 
+if (__name__ == '__main__'):
+    instruments_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Instruments', index_col='ID')
+    beads_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Beads', index_col='ID')
+    samples_table = FlowCal.excel_ui.read_table(filename='experiment.xlsx', sheetname='Samples', index_col='ID')
+    (beads_samples, mef_transform_fxns) = FlowCal.excel_ui.process_beads_table(beads_table=beads_table, instruments_table=instruments_table, verbose=True, plot=True, plot_dir='plot_beads')
+    samples = FlowCal.excel_ui.process_samples_table(samples_table=samples_table, instruments_table=instruments_table, mef_transform_fxns=mef_transform_fxns, verbose=True, plot=True, plot_dir='plot_samples')
+    sample_ids = ['S00{:02}'.format(n) for n in range(1, (10 + 1))]
+    dapg = samples_table.loc[(sample_ids, 'DAPG (uM)')]
+    cmap = mpl.cm.get_cmap('gray_r')
+    norm = mpl.colors.LogNorm(vmin=1.0, vmax=3500.0)
+    colors = [cmap(norm((dapg_i + 4.0))) for dapg_i in dapg]
+    plt.figure(figsize=(6, 3.5))
+    FlowCal.plot.hist1d([samples[s_id] for s_id in sample_ids], channel='FL1', histtype='step', bins=128, edgecolor=colors)
+    plt.ylim((0, 2500))
+    plt.xlim((0, 50000.0))
+    plt.xlabel('FL1  (Molecules of Equivalent Fluorescein, MEFL)')
+    plt.legend(['{:.1f} $\\mu M$ DAPG'.format(i) for i in dapg], loc='upper left', fontsize='small')
+    plt.tight_layout()
+    plt.savefig('histograms.png', dpi=200)
+    plt.close()
+    samples_fluorescence = [FlowCal.stats.mean(samples[s_id], channels='FL1') for s_id in sample_ids]
+    min_fluorescence = FlowCal.stats.mean(samples['min'], channels='FL1')
+    max_fluorescence = FlowCal.stats.mean(samples['max'], channels='FL1')
+    dapg_color = '#ffc400'
+    plt.figure(figsize=(3, 3))
+    plt.plot(dapg, samples_fluorescence, marker='o', color=dapg_color)
+    plt.axhline(min_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Min', x=200.0, y=160.0, ha='left', va='bottom', color='gray')
+    plt.axhline(max_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Max', x=(- 0.7), y=5200.0, ha='left', va='top', color='gray')
+    plt.yscale('log')
+    plt.ylim((50.0, 10000.0))
+    plt.xscale('symlog')
+    plt.xlim(((- 1.0), 1000.0))
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response.png', dpi=200)
+    plt.close()
+
+    def dapg_sensor_output(dapg_concentration):
+        mn = 86.0
+        mx = 3147.0
+        K = 20.0
+        n = 3.57
+        if (dapg_concentration <= 0):
+            return mn
+        else:
+            return (mn + ((mx - mn) / (1 + ((K / dapg_concentration) ** n))))
+    autofluorescence = FlowCal.stats.mean(samples['min'], channels='FL1')
+
+    def dapg_sensor_cellular_fluorescence(dapg_concentration):
+        return (dapg_sensor_output(dapg_concentration) + autofluorescence)
+    plt.figure(figsize=(4, 3.5))
+    FlowCal.plot.violin_dose_response(data=[samples[s_id] for s_id in sample_ids], channel='FL1', positions=dapg, min_data=samples['min'], max_data=samples['max'], model_fxn=dapg_sensor_cellular_fluorescence, violin_kwargs={'facecolor': dapg_color, 'edgecolor': 'black'}, violin_width_to_span_fraction=0.075, xscale='log', yscale='log', ylim=(10.0, 30000.0), draw_model_kwargs={'color': 'gray', 'linewidth': 3, 'zorder': (- 1), 'solid_capstyle': 'butt'})
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response_violin.png', dpi=200)
+    plt.close()
+    print('\nDone.')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.figure
+
+idx = 8:------------------- similar code ------------------ index = 26, score = 7.0 
+if (__name__ == '__main__'):
+    if (not os.path.exists(beads_plot_dir)):
+        os.makedirs(beads_plot_dir)
+    if (not os.path.exists(samples_plot_dir)):
+        os.makedirs(samples_plot_dir)
+    print('\nProcessing calibration beads...')
+    print('Loading file "{}"...'.format(beads_filename))
+    beads_sample = FlowCal.io.FCSData(beads_filename)
+    min_beads_sample = FlowCal.io.FCSData(min_beads_filename)
+    max_beads_sample = FlowCal.io.FCSData(max_beads_filename)
+    print('Performing data transformation...')
+    beads_sample = FlowCal.transform.to_rfi(beads_sample)
+    min_beads_sample = FlowCal.transform.to_rfi(min_beads_sample)
+    max_beads_sample = FlowCal.transform.to_rfi(max_beads_sample)
+    print('Performing gating...')
+    beads_sample_gated = FlowCal.gate.start_end(beads_sample, num_start=250, num_end=100)
+    min_beads_sample_gated = FlowCal.gate.start_end(min_beads_sample, num_start=250, num_end=100)
+    max_beads_sample_gated = FlowCal.gate.start_end(max_beads_sample, num_start=250, num_end=100)
+    beads_sample_gated = FlowCal.gate.high_low(beads_sample_gated, channels=['FSC', 'SSC'])
+    min_beads_sample_gated = FlowCal.gate.high_low(min_beads_sample_gated, channels=['FSC', 'SSC'])
+    max_beads_sample_gated = FlowCal.gate.high_low(max_beads_sample_gated, channels=['FSC', 'SSC'])
+    density_gate_output = FlowCal.gate.density2d(data=beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    beads_sample_gated = density_gate_output.gated_data
+    gate_contour = density_gate_output.contour
+    min_density_gate_output = FlowCal.gate.density2d(data=min_beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    min_beads_sample_gated = min_density_gate_output.gated_data
+    min_gate_contour = min_density_gate_output.contour
+    max_density_gate_output = FlowCal.gate.density2d(data=max_beads_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, sigma=5.0, full_output=True)
+    max_beads_sample_gated = max_density_gate_output.gated_data
+    max_gate_contour = max_density_gate_output.contour
+    print('Plotting density plot and histogram...')
+    density_params = {}
+    density_params['mode'] = 'scatter'
+    density_params['xlim'] = [90, 1023]
+    density_params['ylim'] = [90, 1023]
+    density_params['sigma'] = 5.0
+    plot_filename = '{}/density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    min_plot_filename = '{}/min_density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    max_plot_filename = '{}/max_density_hist_{}.png'.format(beads_plot_dir, 'beads')
+    FlowCal.plot.density_and_hist(beads_sample, beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=gate_contour, density_params=density_params, savefig=plot_filename)
+    FlowCal.plot.density_and_hist(min_beads_sample, min_beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=min_gate_contour, density_params=density_params, savefig=min_plot_filename)
+    FlowCal.plot.density_and_hist(max_beads_sample, max_beads_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1', 'FL3'], gate_contour=max_gate_contour, density_params=density_params, savefig=max_plot_filename)
+    print('\nCalculating standard curve for channel FL1...')
+    mef_transform_fxn = FlowCal.mef.get_transform_fxn(beads_sample_gated, mef_channels='FL1', mef_values=mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='beads')
+    min_mef_transform_fxn = FlowCal.mef.get_transform_fxn(min_beads_sample_gated, mef_channels='FL1', mef_values=min_mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='min_beads')
+    max_mef_transform_fxn = FlowCal.mef.get_transform_fxn(max_beads_sample_gated, mef_channels='FL1', mef_values=max_mefl_values, clustering_channels=['FL1', 'FL3'], verbose=True, plot=True, plot_dir=beads_plot_dir, plot_filename='max_beads')
+    print('\nProcessing cell samples...')
+    samples = []
+    for (sample_id, sample_filename) in enumerate(samples_filenames):
+        print('\nLoading file "{}"...'.format(sample_filename))
+        sample = FlowCal.io.FCSData(sample_filename)
+        print('Performing data transformation...')
+        sample = FlowCal.transform.to_rfi(sample)
+        sample = mef_transform_fxn(sample, channels=['FL1'])
+        print('Performing gating...')
+        sample_gated = FlowCal.gate.start_end(sample, num_start=250, num_end=100)
+        sample_gated = FlowCal.gate.high_low(sample_gated, channels=['FSC', 'SSC', 'FL1'])
+        density_gate_output = FlowCal.gate.density2d(data=sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+        sample_gated = density_gate_output.gated_data
+        gate_contour = density_gate_output.contour
+        print('Plotting density plot and histogram...')
+        density_params = {}
+        density_params['mode'] = 'scatter'
+        hist_params = {}
+        hist_params['xlabel'] = ('FL1 ' + '(Molecules of Equivalent Fluorescein, MEFL)')
+        plot_filename = '{}/density_hist_{}.png'.format(samples_plot_dir, 'S{:03}'.format((sample_id + 1)))
+        FlowCal.plot.density_and_hist(sample, sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=gate_contour, density_params=density_params, hist_params=hist_params, savefig=plot_filename)
+        samples.append(sample_gated)
+    print('\nProcessing control samples...')
+    min_sample = FlowCal.io.FCSData(min_sample_filename)
+    max_sample = FlowCal.io.FCSData(max_sample_filename)
+    min_sample = FlowCal.transform.to_rfi(min_sample)
+    max_sample = FlowCal.transform.to_rfi(max_sample)
+    min_sample = min_mef_transform_fxn(min_sample, channels=['FL1'])
+    max_sample = max_mef_transform_fxn(max_sample, channels=['FL1'])
+    min_sample_gated = FlowCal.gate.start_end(min_sample, num_start=250, num_end=100)
+    max_sample_gated = FlowCal.gate.start_end(max_sample, num_start=250, num_end=100)
+    min_sample_gated = FlowCal.gate.high_low(min_sample_gated, channels=['FSC', 'SSC', 'FL1'])
+    max_sample_gated = FlowCal.gate.high_low(max_sample_gated, channels=['FSC', 'SSC', 'FL1'])
+    min_density_gate_output = FlowCal.gate.density2d(data=min_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+    min_sample_gated = min_density_gate_output.gated_data
+    min_gate_contour = min_density_gate_output.contour
+    max_density_gate_output = FlowCal.gate.density2d(data=max_sample_gated, channels=['FSC', 'SSC'], gate_fraction=0.85, full_output=True)
+    max_sample_gated = max_density_gate_output.gated_data
+    max_gate_contour = max_density_gate_output.contour
+    min_plot_filename = '{}/density_hist_min.png'.format(samples_plot_dir)
+    max_plot_filename = '{}/density_hist_max.png'.format(samples_plot_dir)
+    FlowCal.plot.density_and_hist(min_sample, min_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=min_gate_contour, density_params=density_params, hist_params=hist_params, savefig=min_plot_filename)
+    FlowCal.plot.density_and_hist(max_sample, max_sample_gated, density_channels=['FSC', 'SSC'], hist_channels=['FL1'], gate_contour=max_gate_contour, density_params=density_params, hist_params=hist_params, savefig=max_plot_filename)
+    cmap = mpl.cm.get_cmap('gray_r')
+    norm = mpl.colors.LogNorm(vmin=1.0, vmax=3500.0)
+    colors = [cmap(norm((dapg_i + 4.0))) for dapg_i in dapg]
+    plt.figure(figsize=(6, 3.5))
+    FlowCal.plot.hist1d(samples, channel='FL1', histtype='step', bins=128, edgecolor=colors)
+    plt.ylim((0, 2500))
+    plt.xlim((0, 50000.0))
+    plt.xlabel('FL1  (Molecules of Equivalent Fluorescein, MEFL)')
+    plt.legend(['{} $\\mu M$ DAPG'.format(i) for i in dapg], loc='upper left', fontsize='small')
+    plt.tight_layout()
+    plt.savefig('histograms.png', dpi=200)
+    plt.close()
+    samples_fluorescence = [FlowCal.stats.mean(s, channels='FL1') for s in samples]
+    min_fluorescence = FlowCal.stats.mean(min_sample_gated, channels='FL1')
+    max_fluorescence = FlowCal.stats.mean(max_sample_gated, channels='FL1')
+    dapg_color = '#ffc400'
+    plt.figure(figsize=(3, 3))
+    plt.plot(dapg, samples_fluorescence, marker='o', color=dapg_color)
+    plt.axhline(min_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Min', x=200.0, y=160.0, ha='left', va='bottom', color='gray')
+    plt.axhline(max_fluorescence, color='gray', linestyle='--', zorder=(- 1))
+    plt.text(s='Max', x=(- 0.7), y=5200.0, ha='left', va='top', color='gray')
+    plt.yscale('log')
+    plt.ylim((50.0, 10000.0))
+    plt.xscale('symlog')
+    plt.xlim(((- 1.0), 1000.0))
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response.png', dpi=200)
+    plt.close()
+
+    def dapg_sensor_output(dapg_concentration):
+        mn = 86.0
+        mx = 3147.0
+        K = 20.0
+        n = 3.57
+        if (dapg_concentration <= 0):
+            return mn
+        else:
+            return (mn + ((mx - mn) / (1 + ((K / dapg_concentration) ** n))))
+    autofluorescence = FlowCal.stats.mean(min_sample_gated, channels='FL1')
+
+    def dapg_sensor_cellular_fluorescence(dapg_concentration):
+        return (dapg_sensor_output(dapg_concentration) + autofluorescence)
+    plt.figure(figsize=(4, 3.5))
+    FlowCal.plot.violin_dose_response(data=samples, channel='FL1', positions=dapg, min_data=min_sample_gated, max_data=max_sample_gated, model_fxn=dapg_sensor_cellular_fluorescence, violin_kwargs={'facecolor': dapg_color, 'edgecolor': 'black'}, violin_width_to_span_fraction=0.075, xscale='log', yscale='log', ylim=(10.0, 30000.0), draw_model_kwargs={'color': 'gray', 'linewidth': 3, 'zorder': (- 1), 'solid_capstyle': 'butt'})
+    plt.xlabel('DAPG Concentration ($\\mu M$)')
+    plt.ylabel('FL1 Fluorescence (MEFL)')
+    plt.tight_layout()
+    plt.savefig('dose_response_violin.png', dpi=200)
+    plt.close()
+    print('\nDone.')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.figure
+
+idx = 9:------------------- similar code ------------------ index = 37, score = 7.0 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 10:------------------- similar code ------------------ index = 25, score = 7.0 
+def random_torque(driver, port, idn):
+    " Read the entire control table and randomly sampled torque commands to the DXL.\n\n    This is done 'N' times and timed. Relevant data is plotted.\n    "
+    dxl.write_torque_mode_enable(driver, port, idn, 1)
+    times = []
+    vals_dict = {'present_pos': ((2 * pi) / 3.0), 'current': 0}
+    actions = []
+    currents = []
+    for i in range(1000):
+        t1 = time.time()
+        if (vals_dict['present_pos'] < (pi / 3.0)):
+            action = 1000
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
+        elif (vals_dict['present_pos'] > pi):
+            action = (- 1000)
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
+        else:
+            action = int((np.random.uniform((- 1), 1) * 1000))
+        dxl.write_torque(driver, port, idn, action)
+        vals_dict = dxl.read_vals(driver, port, idn)
+        actions.append(action)
+        currents.append(vals_dict['current'])
+        times.append((time.time() - t1))
+    dxl.write_torque(driver, port, idn, 0)
+    print(np.mean(times))
+    print(currents[:10])
+    plt.xcorr(currents, actions)
+    plt.figure()
+    plt.plot(np.cumsum(times), actions, label='actions')
+    plt.plot(np.cumsum(times), currents, label='currents')
+    plt.legend()
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure()
+
+idx = 11:------------------- similar code ------------------ index = 13, score = 7.0 
+def plot_confusion_matrix(self, name):
+    (cm, target_names) = self.confusion_matrix(name)
+    df_cm = pd.DataFrame(cm, index=[i for i in target_names], columns=[i for i in target_names])
+    plt.figure(figsize=(20, 20))
+    ax = sn.heatmap(df_cm, annot=True, square=True, fmt='d', cmap='YlGnBu', mask=(cm == 0), linecolor='black', linewidths=0.01)
+    ax.set_ylabel('True')
+    ax.set_xlabel('Predicted')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 12:------------------- similar code ------------------ index = 23, score = 7.0 
+def threshold_map(self, metric):
+    lin = np.linspace(0, 1, 64)
+    triang = tri.Triangulation(self.results.threshold1.values, self.results.threshold2.values)
+    interpolator = tri.LinearTriInterpolator(triang, self.results[metric])
+    (Xi, Yi) = np.meshgrid(lin, lin)
+    zi = interpolator(Xi, Yi)
+    plt.figure(figsize=(6, 6))
+    img = plt.imshow(zi[::(- 1)], extent=[0, 1, 0, 1])
+    plt.colorbar(img)
+    plt.xlabel('threshold1')
+    plt.ylabel('threshold2')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 13:------------------- similar code ------------------ index = 14, score = 7.0 
+def plot_xo_full_decoder_kind(extension):
+    attn_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=attn_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_29_32')
+    mlp_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=mlp_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_29')
+    seq_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=seq_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_00')
+    attn_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=attn_alg=simple-xo_duration=long_seed=0_2018_06_08_17_49_36')
+    mlp_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=mlp_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_40')
+    seq_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=seq_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_20')
+    plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='attn-yolo')
+    attn_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([mlp_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='mlp-yolo')
+    mlp_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([seq_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='seq-yolo')
+    seq_colour = line.lines[0].get_c()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='attn-simple', c=attn_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([mlp_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='mlp-simple', c=mlp_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([seq_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='seq-simple', c=seq_colour, ls='--')
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.figure
+
+idx = 14:------------------- similar code ------------------ index = 21, score = 7.0 
+def dvf_statistics(setting, dvf, spacing=None, im_info=None, stage=None):
+    im_info_su = {'data': im_info['data'], 'deform_exp': im_info['deform_exp'], 'type_im': im_info['type_im'], 'cn': im_info['cn'], 'dsmooth': im_info['dsmooth'], 'stage': stage, 'padto': im_info['padto']}
+    max_dvf = np.max(setting['deform_exp'][im_info['deform_exp']]['MaxDeform'])
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.hist(np.ravel(dvf), log=True, bins=np.arange((- max_dvf), (max_dvf + 1)))
+    plt.draw()
+    plt.savefig(su.address_generator(setting, 'DVF_histogram', **im_info_su))
+    plt.close()
+    jac = ip.calculate_jac(dvf, spacing)
+    sitk.WriteImage(sitk.GetImageFromArray(jac.astype(np.float32)), su.address_generator(setting, 'Jac', **im_info_su))
+    jac_hist_max = 3
+    jac_hist_min = (- 1)
+    step_h = 0.2
+    if (np.max(jac) > jac_hist_max):
+        jac_hist_max = np.ceil(np.max(jac))
+    if (np.min(jac) < jac_hist_min):
+        jac_hist_min = np.floor(np.min(jac))
+    plt.figure()
+    plt.hist(np.ravel(jac), log=True, bins=np.arange(jac_hist_min, (jac_hist_max + step_h), step_h))
+    plt.title('min(Jac)={:.2f}, max(Jac)={:.2f}'.format(np.min(jac), np.max(jac)))
+    plt.draw()
+    plt.savefig(su.address_generator(setting, 'Jac_histogram', **im_info_su))
+    plt.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure()
+
+idx = 15:------------------- similar code ------------------ index = 19, score = 7.0 
+def read_time(driver, port, idn):
+    " Read the entire control table of the DXL MX-64AT device 'N' times and plot the mean & percentile time taken. "
+    times = []
+    for i in range(1000):
+        t1 = time.time()
+        dxl.read_vals(driver, port, idn)
+        times.append((time.time() - t1))
+    print(np.mean(times))
+    print(np.percentile(times, 99))
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure()
+
+idx = 16:------------------- similar code ------------------ index = 17, score = 7.0 
+def scatter3d_and_projections(data_list, channels=[0, 1, 2], xscale='logicle', yscale='logicle', zscale='logicle', xlabel=None, ylabel=None, zlabel=None, xlim=None, ylim=None, zlim=None, color=None, figsize=None, savefig=None, **kwargs):
+    "\n    Plot a 3D scatter plot and 2D projections from FCSData objects.\n\n    `scatter3d_and_projections` creates a 3D scatter plot and three 2D\n    projected scatter plots in four different axes for each FCSData object\n    in `data_list`, in the same figure.\n\n    Parameters\n    ----------\n    data_list : FCSData object, or list of FCSData objects\n        Flow cytometry data to plot.\n    channels : list of int, list of str\n        Three channels to use for the plot.\n    savefig : str, optional\n        The name of the file to save the figure to. If None, do not save.\n\n    Other parameters\n    ----------------\n    xscale : str, optional\n        Scale of the x axis, either ``linear``, ``log``, or ``logicle``.\n    yscale : str, optional\n        Scale of the y axis, either ``linear``, ``log``, or ``logicle``.\n    zscale : str, optional\n        Scale of the z axis, either ``linear``, ``log``, or ``logicle``.\n    xlabel : str, optional\n        Label to use on the x axis. If None, attempts to extract channel\n        name from last data object.\n    ylabel : str, optional\n        Label to use on the y axis. If None, attempts to extract channel\n        name from last data object.\n    zlabel : str, optional\n        Label to use on the z axis. If None, attempts to extract channel\n        name from last data object.\n    xlim : tuple, optional\n        Limits for the x axis. If None, attempts to extract limits from the\n        range of the last data object.\n    ylim : tuple, optional\n        Limits for the y axis. If None, attempts to extract limits from the\n        range of the last data object.\n    zlim : tuple, optional\n        Limits for the z axis. If None, attempts to extract limits from the\n        range of the last data object.\n    color : matplotlib color or list of matplotlib colors, optional\n        Color for the scatter plot. It can be a list with the same length\n        as `data_list`. If `color` is not specified, elements from\n        `data_list` are plotted with colors taken from the module-level\n        variable `cmap_default`.\n    figsize : tuple, optional\n        Figure size. If None, use matplotlib's default.\n    kwargs : dict, optional\n        Additional parameters passed directly to matploblib's ``scatter``.\n\n    Notes\n    -----\n    `scatter3d_and_projections` uses matplotlib's ``scatter``, with the 3D\n    scatter plot using a 3D projection. Additional keyword arguments\n    provided to `scatter3d_and_projections` are passed directly to\n    ``scatter``.\n\n    "
+    if (len(channels) != 3):
+        raise ValueError('three channels need to be specified')
+    plt.figure(figsize=figsize)
+    plt.subplot(221)
+    scatter2d(data_list, channels=[channels[0], channels[2]], xscale=xscale, yscale=zscale, xlabel=xlabel, ylabel=zlabel, xlim=xlim, ylim=zlim, color=color, **kwargs)
+    ax_3d = plt.gcf().add_subplot(222, projection='3d')
+    scatter3d(data_list, channels=channels, xscale=xscale, yscale=yscale, zscale=zscale, xlabel=xlabel, ylabel=ylabel, zlabel=zlabel, xlim=xlim, ylim=ylim, zlim=zlim, color=color, **kwargs)
+    plt.subplot(223)
+    scatter2d(data_list, channels=[channels[0], channels[1]], xscale=xscale, yscale=yscale, xlabel=xlabel, ylabel=ylabel, xlim=xlim, ylim=ylim, color=color, **kwargs)
+    plt.subplot(224)
+    scatter2d(data_list, channels=[channels[2], channels[1]], xscale=zscale, yscale=yscale, xlabel=zlabel, ylabel=ylabel, xlim=zlim, ylim=ylim, color=color, **kwargs)
+    if (savefig is not None):
+        plt.tight_layout()
+        plt.savefig(savefig, dpi=savefig_dpi)
+        plt.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 17:------------------- similar code ------------------ index = 16, score = 7.0 
+def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
+    '\n    Visualize the scores of correlation metrics with respect to k-worst bpes you tried\n    :param spearman_scores: The spearman correlation scores of Q1 and k-worst bpes each time\n    :param kendall_scores: The Kendall correlation scores of Q1 and k-worst bpes each time\n    :param pearson_scores: The Pearson correlation scores of Q1 and k-worst bpes each time\n    :param model_name: Name of Language Model you used (BERT or GPT2). It is used on the output file name\n    :param year: The corresponding year of the data\n    '
+    x_ticks = [i for i in range(1, (MAX_BPES_TO_SEARCH + 1))]
+    plt.figure(figsize=(26, 8))
+    y_max = max(spearman_scores)
+    x_pos = spearman_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 1)
+    plt.plot(x_ticks, spearman_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Spearman')
+    plt.xlabel('# of worst words')
+    y_max = max(kendall_scores)
+    x_pos = kendall_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 2)
+    plt.plot(x_ticks, kendall_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Kendall')
+    plt.xlabel('# of worst words')
+    y_max = max(pearson_scores)
+    x_pos = pearson_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 3)
+    plt.plot(x_ticks, pearson_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, x_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Pearson')
+    plt.xlabel('# of worst words')
+    path_to_save = os.path.join(OUTPUT_DIR, 'Q1 - {0:s}  {1:s}.png'.format(model_name, year))
+    plt.savefig(path_to_save)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 18:------------------- similar code ------------------ index = 38, score = 7.0 
+def visualize_classification_uncertainty(data_mus, data_sigmas, other_data_dicts, other_data_mu_key, other_data_sigma_key, data_name, num_samples, save_path):
+    "\n    Visualization of prediction uncertainty computed over multiple samples for each input.\n\n    Parameters:\n        data_mus (list or torch.Tensor): Encoded mu values for trained dataset's validation set.\n        data_sigmas (list or torch.Tensor): Encoded sigma values for trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries): A dataset with values per dictionary, among them mus and sigmas\n        other_data_mu_key (str): Dictionary key for the mus\n        other_data_sigma_key (str): Dictionary key for the sigmas\n        data_name (str): Original dataset's name.\n        num_samples (int): Number of used samples to obtain prediction values.\n        save_path (str): Saving path.\n    "
+    data_mus = [y for x in data_mus for y in x]
+    data_sigmas = [y for x in data_sigmas for y in x]
+    plt.figure(figsize=(20, 14))
+    plt.scatter(data_mus, data_sigmas, label=data_name, s=75, c=colors[0], alpha=1.0)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data_mus = [y for x in other_data_dict[other_data_mu_key] for y in x]
+        other_data_sigmas = [y for x in other_data_dict[other_data_sigma_key] for y in x]
+        plt.scatter(other_data_mus, other_data_sigmas, label=other_data_name, s=75, c=colors[c], alpha=0.3, marker='*')
+        c += 1
+    plt.xlabel('Prediction mean', fontsize=axes_font_size)
+    plt.ylabel('Prediction standard deviation', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=0.55)
+    plt.legend(loc=1, fontsize=legend_font_size)
+    plt.savefig(os.path.join(save_path, (((((data_name + '_vs_') + ','.join(list(other_data_dicts.keys()))) + '_classification_uncertainty_') + str(num_samples)) + '_samples.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 19:------------------- similar code ------------------ index = 45, score = 7.0 
+def visualize_weibull_outlier_probabilities(data_outlier_probs, other_data_outlier_probs_dict, data_name, save_path, tailsize):
+    "\n    Visualization of Weibull CDF outlier probabilites.\n\n    Parameters:\n        data_outlier_probs (np.array): Outlier probabilities for each input of the trained dataset's validation set.\n        other_data_outlier_probs_dict (dictionary): Outlier probabilities for each input of an unseen dataset.\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n        tailsize (int): Fitted Weibull model's tailsize.\n    "
+    data_outlier_probs = np.concatenate(data_outlier_probs, axis=0)
+    data_weights = (np.ones_like(data_outlier_probs) / float(len(data_outlier_probs)))
+    plt.figure(figsize=(20, 20))
+    plt.hist(data_outlier_probs, label=data_name, weights=data_weights, bins=50, color=colors[0], alpha=1.0, edgecolor='white', linewidth=5)
+    c = 0
+    for (other_data_name, other_data_outlier_probs) in other_data_outlier_probs_dict.items():
+        other_data_outlier_probs = np.concatenate(other_data_outlier_probs, axis=0)
+        other_data_weights = (np.ones_like(other_data_outlier_probs) / float(len(other_data_outlier_probs)))
+        plt.hist(other_data_outlier_probs, label=other_data_name, weights=other_data_weights, bins=50, color=colors[c], alpha=0.5, edgecolor='white', linewidth=5)
+        c += 1
+    plt.title(('Outlier probabilities: tailsize ' + str(tailsize)), fontsize=title_font_size)
+    plt.xlabel('Outlier probability according to Weibull CDF', fontsize=axes_font_size)
+    plt.ylabel('Percentage', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0)
+    plt.savefig(os.path.join(save_path, (((((data_name + '_') + ','.join(list(other_data_outlier_probs_dict.keys()))) + '_weibull_outlier_probabilities_tailsize_') + str(tailsize)) + '.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 20:------------------- similar code ------------------ index = 52, score = 7.0 
+def visualize_openset_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, tailsize):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    Weibull CDF rejection priors.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n        tailsize (int): Weibull model's tailsize.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Weibull CDF outlier rejection prior $\\Omega_t$', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_outlier_classification') + '_tailsize_') + str(tailsize)) + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 21:------------------- similar code ------------------ index = 2, score = 7.0 
+def visualize_reconstruction_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path, autoregression=False):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    entropy thresholds.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    if autoregression:
+        plt.xlabel('Dataset reconstruction loss (bits per dim)', fontsize=axes_font_size)
+    else:
+        plt.xlabel('Dataset reconstruction loss (nats)', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=thresholds[(- 1)])
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_reconstruction_loss_outlier_classification') + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 22:------------------- similar code ------------------ index = 50, score = 7.0 
+def visualize_classification_uncertainty(data_mus, data_sigmas, other_data_dicts, other_data_mu_key, other_data_sigma_key, data_name, num_samples, save_path):
+    "\n    Visualization of prediction uncertainty computed over multiple samples for each input.\n\n    Parameters:\n        data_mus (list or torch.Tensor): Encoded mu values for trained dataset's validation set.\n        data_sigmas (list or torch.Tensor): Encoded sigma values for trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries): A dataset with values per dictionary, among them mus and sigmas\n        other_data_mu_key (str): Dictionary key for the mus\n        other_data_sigma_key (str): Dictionary key for the sigmas\n        data_name (str): Original dataset's name.\n        num_samples (int): Number of used samples to obtain prediction values.\n        save_path (str): Saving path.\n    "
+    data_mus = [y for x in data_mus for y in x]
+    data_sigmas = [y for x in data_sigmas for y in x]
+    plt.figure(figsize=(20, 14))
+    plt.scatter(data_mus, data_sigmas, label=data_name, s=75, c=colors[0], alpha=1.0)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data_mus = [y for x in other_data_dict[other_data_mu_key] for y in x]
+        other_data_sigmas = [y for x in other_data_dict[other_data_sigma_key] for y in x]
+        plt.scatter(other_data_mus, other_data_sigmas, label=other_data_name, s=75, c=colors[c], alpha=0.3, marker='*')
+        c += 1
+    plt.xlabel('Prediction mean', fontsize=axes_font_size)
+    plt.ylabel('Prediction standard deviation', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=1.05)
+    plt.ylim(bottom=(- 0.05), top=0.55)
+    plt.legend(loc=1, fontsize=legend_font_size)
+    plt.savefig(os.path.join(save_path, (((((data_name + '_vs_') + ','.join(list(other_data_dicts.keys()))) + '_classification_uncertainty_') + str(num_samples)) + '_samples.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 23:------------------- similar code ------------------ index = 48, score = 7.0 
+def plot_spec(M):
+    M = np.flip(M, axis=0)
+    plt.figure(figsize=(18, 4))
+    plt.imshow(M, interpolation='nearest', aspect='auto')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.figure
+
+idx = 24:------------------- similar code ------------------ index = 47, score = 7.0 
+def visualize_means(means, classes_order, data_name, save_path, name):
+    '\n    Visualization of means, e.g. of latent code z.\n\n    Parameters:\n        means (torch.Tensor): 2-D Tensor with one mean z vector per class.\n        classes_order (dict): Defines mapping between integer indices and class names (strings).\n        data_name (str): Dataset name. Used for naming.\n        save_path (str): Saving path.\n        name (str): Name for type of mean, e.g. "z".\n    '
+    classes_order = sorted(classes_order)
+    classes = []
+    for key in classes_order:
+        classes.append(key)
+    plt.figure(figsize=(20, 20))
+    ax = sns.heatmap(means.cpu().numpy(), cmap='BrBG')
+    ax.set_title(data_name, fontsize=title_font_size)
+    ax.set_xlabel((name + ' mean activations'), fontsize=axes_font_size)
+    ax.set_yticklabels(classes, rotation=0)
+    plt.savefig(os.path.join(save_path, (name + '_mean_activations.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 25:------------------- similar code ------------------ index = 7, score = 7.0 
+def visualize_classification_scores(data, other_data_dicts, dict_key, data_name, save_path):
+    "\n    Visualization of classification scores per dataset.\n\n    Parameters:\n        data (list): Classification scores.\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (string): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+    data = [y for x in data for y in x]
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=20, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [y for x in other_data_dict[dict_key] for y in x]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=20, color=colors[c])
+        c += 1
+    plt.title('Dataset classification', fontsize=title_font_size)
+    plt.xlabel('Classification confidence', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=1.05)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_classification_scores.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 26:------------------- similar code ------------------ index = 46, score = 7.0 
+def visualize_recon_loss_histogram(data, other_data_dicts, max_recon_loss, dict_key, data_name, save_path):
+    "\n    Visualization of the entropy the datasets.\n\n    Parameters:\n        data (list):\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (str): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+    data = [x for x in data]
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=25, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [x for x in other_data_dict[dict_key]]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=25, color=colors[c])
+        c += 1
+    plt.title('Dataset reconstruction', fontsize=title_font_size)
+    plt.xlabel('Reconstruction loss (nats)', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=max_recon_loss)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_reconstruction_losses.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 27:------------------- similar code ------------------ index = 4, score = 7.0 
+def plot(self):
+    plt.figure(figsize=(6, 6))
+    plt.plot(self.results['precision'], self.results['recall'], '.')
+    plt.xlabel('precision')
+    plt.ylabel('recall')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.figure
+
+idx = 28:------------------- similar code ------------------ index = 43, score = 7.0 
+def plot_xo_2stage_decoder_kind(extension):
+    attn_yolo_path = os.path.join(data_dir, 'xo/pretrained/yolo/run_search_yolo-xo-continue_env=xo_decoder-kind=attn_alg=yolo-xo-continue_duration=long_seed=0_2018_06_07_12_12_19')
+    mlp_yolo_path = os.path.join(data_dir, 'xo/pretrained/yolo/run_search_yolo-xo-continue_env=xo_decoder-kind=mlp_alg=yolo-xo-continue_duration=long_seed=0_2018_06_07_12_17_35')
+    seq_yolo_path = os.path.join(data_dir, 'xo/pretrained/yolo/run_search_yolo-xo-continue_env=xo_decoder-kind=seq_alg=yolo-xo-continue_duration=long_seed=0_2018_06_07_12_13_03')
+    attn_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=attn_alg=simple-xo_duration=long_seed=0_2018_06_08_17_49_36')
+    mlp_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=mlp_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_40')
+    seq_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=seq_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_20')
+    plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_yolo_path], 'n_train', measure, 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='attn-yolo')
+    attn_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([mlp_yolo_path], 'n_train', measure, 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='mlp-yolo')
+    mlp_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([seq_yolo_path], 'n_train', measure, 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='seq-yolo')
+    seq_colour = line.lines[0].get_c()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='attn-simple', c=attn_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([mlp_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='mlp-simple', c=mlp_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([seq_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='seq-simple', c=seq_colour, ls='--')
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.figure
+
+idx = 29:------------------- similar code ------------------ index = 5, score = 7.0 
+def visualize_classification_scores(data, other_data_dicts, dict_key, data_name, save_path):
+    "\n    Visualization of classification scores per dataset.\n\n    Parameters:\n        data (list): Classification scores.\n        other_data_dicts (dictionary of dictionaries): Dictionary of key-value pairs per dataset\n        dict_key (string): Dictionary key to plot\n        data_name (str): Original trained dataset's name.\n        save_path (str): Saving path.\n    "
+    data = [y for x in data for y in x]
+    plt.figure(figsize=(20, 20))
+    plt.hist(data, label=data_name, alpha=1.0, bins=20, color=colors[0])
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        other_data = [y for x in other_data_dict[dict_key] for y in x]
+        plt.hist(other_data, label=other_data_name, alpha=0.5, bins=20, color=colors[c])
+        c += 1
+    plt.title('Dataset classification', fontsize=title_font_size)
+    plt.xlabel('Classification confidence', fontsize=axes_font_size)
+    plt.ylabel('Number of images', fontsize=axes_font_size)
+    plt.legend(loc=0)
+    plt.xlim(left=(- 0.0), right=1.05)
+    plt.savefig(os.path.join(save_path, (((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_classification_scores.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 30:------------------- similar code ------------------ index = 40, score = 7.0 
+def visualize_entropy_classification(data, other_data_dicts, dict_key, data_name, thresholds, save_path):
+    "\n    Visualization of percentage of datasets considered as statistical outliers evaluated for different\n    entropy thresholds.\n\n    Parameters:\n        data (list): Dataset outlier percentages per rejection prior value for the trained dataset's validation set.\n        other_data_dicts (dictionary of dictionaries):\n            Dataset outlier percentages per rejection prior value for an unseen dataset.\n        dict_key (str): Dictionary key of the values to visualize\n        data_name (str): Original trained dataset's name.\n        thresholds (list): List of integers with rejection prior values.\n        save_path (str): Saving path.\n    "
+    lw = 10
+    plt.figure(figsize=(20, 20))
+    plt.plot(thresholds, data, label=data_name, color=colors[0], linestyle='solid', linewidth=lw)
+    c = 0
+    for (other_data_name, other_data_dict) in other_data_dicts.items():
+        plt.plot(thresholds, other_data_dict[dict_key], label=other_data_name, color=colors[c], linestyle=linestyles[(c % len(linestyles))], linewidth=lw)
+        c += 1
+    plt.xlabel('Predictive entropy', fontsize=axes_font_size)
+    plt.ylabel('Percentage of dataset outliers', fontsize=axes_font_size)
+    plt.xlim(left=(- 0.05), right=thresholds[(- 1)])
+    plt.ylim(bottom=(- 0.05), top=1.05)
+    plt.legend(loc=0, fontsize=(legend_font_size - 15))
+    plt.savefig(os.path.join(save_path, ((((data_name + '_') + ','.join(list(other_data_dicts.keys()))) + '_entropy_outlier_classification') + '.pdf')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.figure
+
+idx = 31:------------------- similar code ------------------ index = 55, score = 6.0 
+def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
+    'Helper process for visualize the tasks and episodic returns.\n\n    Args:\n        env: An instance of ReacherEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
+    print('Started plotting routine')
+    import matplotlib.pyplot as plt
+    plt.ion()
+    time.sleep(5.0)
+    fig = plt.figure(figsize=(20, 6))
+    ax1 = fig.add_subplot(131)
+    (hl1,) = ax1.plot([], [], markersize=10, marker='o', color='r')
+    (hl2,) = ax1.plot([], [], markersize=10, marker='o', color='b')
+    ax1.set_xlabel('X', fontsize=14)
+    h = ax1.set_ylabel('Y', fontsize=14)
+    h.set_rotation(0)
+    ax3 = fig.add_subplot(132)
+    (hl3,) = ax3.plot([], [], markersize=10, marker='o', color='r')
+    (hl4,) = ax3.plot([], [], markersize=10, marker='o', color='b')
+    ax3.set_xlabel('Z', fontsize=14)
+    h = ax3.set_ylabel('Y', fontsize=14)
+    h.set_rotation(0)
+    ax2 = fig.add_subplot(133)
+    (hl11,) = ax2.plot([], [])
+    count = 0
+    old_size = len(shared_returns['episodic_returns'])
+    while plot_running.value:
+        plt.suptitle('Reward: {:.2f}'.format(env._reward_.value), x=0.375, fontsize=14)
+        hl1.set_ydata([env._x_target_[1]])
+        hl1.set_xdata([env._x_target_[2]])
+        hl2.set_ydata([env._x_[1]])
+        hl2.set_xdata([env._x_[2]])
+        ax1.set_ylim([env._end_effector_low[1], env._end_effector_high[1]])
+        ax1.set_xlim([env._end_effector_low[2], env._end_effector_high[2]])
+        ax1.set_title('X-Y plane', fontsize=14)
+        ax1.set_xlim(ax1.get_xlim()[::(- 1)])
+        ax1.set_ylim(ax1.get_ylim()[::(- 1)])
+        hl3.set_ydata([env._x_target_[1]])
+        hl3.set_xdata([env._x_target_[0]])
+        hl4.set_ydata([env._x_[1]])
+        hl4.set_xdata([env._x_[0]])
+        ax3.set_ylim([env._end_effector_low[1], env._end_effector_high[1]])
+        ax3.set_xlim([env._end_effector_low[0], env._end_effector_high[0]])
+        ax3.set_title('Y-Z plane', fontsize=14)
+        ax3.set_xlim(ax3.get_xlim()[::(- 1)])
+        ax3.set_ylim(ax3.get_ylim()[::(- 1)])
+        copied_returns = copy.deepcopy(shared_returns)
+        if ((not copied_returns['write_lock']) and (len(copied_returns['episodic_returns']) > old_size)):
+            returns = np.array(copied_returns['episodic_returns'])
+            old_size = len(copied_returns['episodic_returns'])
+            window_size_steps = 5000
+            x_tick = 1000
+            if copied_returns['episodic_lengths']:
+                ep_lens = np.array(copied_returns['episodic_lengths'])
+            else:
+                ep_lens = (batch_size * np.arange(len(returns)))
+            cum_episode_lengths = np.cumsum(ep_lens)
+            if (cum_episode_lengths[(- 1)] >= x_tick):
+                steps_show = np.arange(x_tick, (cum_episode_lengths[(- 1)] + 1), x_tick)
+                rets = []
+                for i in range(len(steps_show)):
+                    rets_in_window = returns[((cum_episode_lengths > max(0, ((x_tick * (i + 1)) - window_size_steps))) * (cum_episode_lengths < (x_tick * (i + 1))))]
+                    if rets_in_window.any():
+                        rets.append(np.mean(rets_in_window))
+                hl11.set_xdata((np.arange(1, (len(rets) + 1)) * x_tick))
+                ax2.set_xlim([x_tick, (len(rets) * x_tick)])
+                hl11.set_ydata(rets)
+                ax2.set_ylim([np.min(rets), (np.max(rets) + 50)])
+        time.sleep(0.01)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        count += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    plt
+     ...  =  ... .figure
+
+idx = 32:------------------- similar code ------------------ index = 27, score = 6.0 
+def plot_returns(env, batch_size, shared_returns, plot_running):
+    'Plots episodic returns\n\n    Args:\n        env: An instance of DoubleInvertedPendulumEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
+    print('Started plotting routine')
+    import matplotlib.pyplot as plt
+    plt.ion()
+    time.sleep(5.0)
+    fig = plt.figure(figsize=(20, 6))
+    ax = fig.add_subplot(111)
+    (hl11,) = ax.plot([], [])
+    fig.suptitle('Simulated Double Pendulum', fontsize=14)
+    ax.set_title('Learning Curve')
+    ax.set_xlabel('Time Step')
+    ax.set_ylabel('Average Returns')
+    count = 0
+    old_size = len(shared_returns['episodic_returns'])
+    returns = []
+    while plot_running.value:
+        if ((count % 20) == 0):
+            if (len(shared_returns['episodic_returns']) > old_size):
+                returns.append(np.mean(shared_returns['episodic_returns'][(- (len(shared_returns['episodic_returns']) - old_size)):]))
+                old_size = len(shared_returns['episodic_returns'])
+                hl11.set_ydata(returns)
+                hl11.set_xdata((batch_size * np.arange(len(returns))))
+                ax.set_ylim([np.min(returns), np.max(returns)])
+                ax.set_xlim([0, int((len(returns) * batch_size))])
+                fig.canvas.draw()
+                fig.canvas.flush_events()
+        time.sleep(0.01)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        count += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    plt
+     ...  =  ... .figure
+
+idx = 33:------------------- similar code ------------------ index = 41, score = 6.0 
+def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
+    'Helper process for visualize the tasks and episodic returns.\n\n    Args:\n        env: An instance of ReacherEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
+    print('Started plotting routine')
+    import matplotlib.pyplot as plt
+    plt.ion()
+    time.sleep(5.0)
+    fig = plt.figure(figsize=(20, 6))
+    ax1 = fig.add_subplot(131)
+    (hl1,) = ax1.plot([], [], markersize=10, marker='o', color='r')
+    (hl2,) = ax1.plot([], [], markersize=10, marker='o', color='b')
+    ax1.set_xlabel('X', fontsize=14)
+    h = ax1.set_ylabel('Y', fontsize=14)
+    h.set_rotation(0)
+    ax3 = fig.add_subplot(132)
+    (hl3,) = ax3.plot([], [], markersize=10, marker='o', color='r')
+    (hl4,) = ax3.plot([], [], markersize=10, marker='o', color='b')
+    ax3.set_xlabel('Z', fontsize=14)
+    h = ax3.set_ylabel('Y', fontsize=14)
+    h.set_rotation(0)
+    ax2 = fig.add_subplot(133)
+    (hl11,) = ax2.plot([], [])
+    count = 0
+    old_size = len(shared_returns['episodic_returns'])
+    while plot_running.value:
+        plt.suptitle('Reward: {:.2f}'.format(env._reward_.value), x=0.375, fontsize=14)
+        hl1.set_ydata([env._x_target_[1]])
+        hl1.set_xdata([env._x_target_[2]])
+        hl2.set_ydata([env._x_[1]])
+        hl2.set_xdata([env._x_[2]])
+        ax1.set_ylim([env._end_effector_low[1], env._end_effector_high[1]])
+        ax1.set_xlim([env._end_effector_low[2], env._end_effector_high[2]])
+        ax1.set_title('X-Y plane', fontsize=14)
+        ax1.set_xlim(ax1.get_xlim()[::(- 1)])
+        ax1.set_ylim(ax1.get_ylim()[::(- 1)])
+        hl3.set_ydata([env._x_target_[1]])
+        hl3.set_xdata([env._x_target_[0]])
+        hl4.set_ydata([env._x_[1]])
+        hl4.set_xdata([env._x_[0]])
+        ax3.set_ylim([env._end_effector_low[1], env._end_effector_high[1]])
+        ax3.set_xlim([env._end_effector_low[0], env._end_effector_high[0]])
+        ax3.set_title('Y-Z plane', fontsize=14)
+        ax3.set_xlim(ax3.get_xlim()[::(- 1)])
+        ax3.set_ylim(ax3.get_ylim()[::(- 1)])
+        copied_returns = copy.deepcopy(shared_returns)
+        if ((not copied_returns['write_lock']) and (len(copied_returns['episodic_returns']) > old_size)):
+            returns = np.array(copied_returns['episodic_returns'])
+            old_size = len(copied_returns['episodic_returns'])
+            window_size_steps = 5000
+            x_tick = 1000
+            if copied_returns['episodic_lengths']:
+                ep_lens = np.array(copied_returns['episodic_lengths'])
+            else:
+                ep_lens = (batch_size * np.arange(len(returns)))
+            cum_episode_lengths = np.cumsum(ep_lens)
+            if (cum_episode_lengths[(- 1)] >= x_tick):
+                steps_show = np.arange(x_tick, (cum_episode_lengths[(- 1)] + 1), x_tick)
+                rets = []
+                for i in range(len(steps_show)):
+                    rets_in_window = returns[((cum_episode_lengths > max(0, ((x_tick * (i + 1)) - window_size_steps))) * (cum_episode_lengths < (x_tick * (i + 1))))]
+                    if rets_in_window.any():
+                        rets.append(np.mean(rets_in_window))
+                hl11.set_xdata((np.arange(1, (len(rets) + 1)) * x_tick))
+                ax2.set_xlim([x_tick, (len(rets) * x_tick)])
+                hl11.set_ydata(rets)
+                ax2.set_ylim([np.min(rets), (np.max(rets) + 50)])
+        time.sleep(0.01)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        count += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    plt
+     ...  =  ... .figure
+
+idx = 34:------------------- similar code ------------------ index = 30, score = 6.0 
+def plot_dxl_reacher(env, batch_size, shared_returns, plot_running):
+    ' Visualizes the DXL reacher task and plots episodic returns\n\n    Args:\n        env: An instance of DxlReacher1DEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
+    print('Started plotting routine')
+    import matplotlib.pyplot as plt
+    plt.ion()
+    time.sleep(5.0)
+    fig = plt.figure(figsize=(20, 6))
+    ax1 = fig.add_subplot(121)
+    (hl1,) = ax1.plot([], [], markersize=10, marker='o', color='r')
+    (hl2,) = ax1.plot([], [], markersize=10, marker='o', color='b')
+    ax1.set_xlabel('X')
+    ax1.set_ylabel('Y')
+    ax2 = fig.add_subplot(122)
+    (hl11,) = ax2.plot([], [])
+    fig.suptitle('DXL Reacher', fontsize=14)
+    ax2.set_title('Learning Curve')
+    ax2.set_xlabel('Time Step')
+    ax2.set_ylabel('Average Returns')
+    count = 0
+    old_size = len(shared_returns['episodic_returns'])
+    while plot_running.value:
+        hl1.set_ydata([1])
+        hl1.set_xdata([env._target_pos_.value])
+        hl2.set_ydata([1])
+        hl2.set_xdata([env._present_pos_[(- 1)]])
+        ax1.set_ylim([0, 2])
+        ax1.set_xlim([env.angle_low, env.angle_high])
+        ax1.set_title(('Current Reward: ' + str(env._reward_.value)))
+        ax1.set_xlim(ax1.get_xlim()[::(- 1)])
+        ax1.set_ylim(ax1.get_ylim()[::(- 1)])
+        copied_returns = copy.deepcopy(shared_returns)
+        if ((not copied_returns['write_lock']) and (len(copied_returns['episodic_returns']) > old_size)):
+            returns = np.array(copied_returns['episodic_returns'])
+            old_size = len(copied_returns['episodic_returns'])
+            window_size_steps = 5000
+            x_tick = 1000
+            if copied_returns['episodic_lengths']:
+                ep_lens = np.array(copied_returns['episodic_lengths'])
+            else:
+                ep_lens = (batch_size * np.arange(len(returns)))
+            cum_episode_lengths = np.cumsum(ep_lens)
+            if (cum_episode_lengths[(- 1)] >= x_tick):
+                steps_show = np.arange(x_tick, (cum_episode_lengths[(- 1)] + 1), x_tick)
+                rets = []
+                for i in range(len(steps_show)):
+                    rets_in_window = returns[((cum_episode_lengths > max(0, ((x_tick * (i + 1)) - window_size_steps))) * (cum_episode_lengths < (x_tick * (i + 1))))]
+                    if rets_in_window.any():
+                        rets.append(np.mean(rets_in_window))
+                hl11.set_xdata((np.arange(1, (len(rets) + 1)) * x_tick))
+                ax2.set_xlim([x_tick, (len(rets) * x_tick)])
+                hl11.set_ydata(rets)
+                ax2.set_ylim([np.min(rets), (np.max(rets) + 50)])
+        time.sleep(0.01)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        count += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    plt
+     ...  =  ... .figure
+
+idx = 35:------------------- similar code ------------------ index = 0, score = 6.0 
+def plot_dxl_tracker(env, batch_size, shared_returns, plot_running):
+    ' Visualizes the DXL tracker task and plots episodic returns\n\n    Args:\n        env: An instance of DxlTracker1DEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
+    print('Started plotting routine')
+    import matplotlib.pyplot as plt
+    plt.ion()
+    time.sleep(5.0)
+    fig = plt.figure(figsize=(20, 6))
+    ax1 = fig.add_subplot(121)
+    (hl1,) = ax1.plot([], [], markersize=10, marker='o', color='r')
+    (hl2,) = ax1.plot([], [], markersize=10, marker='o', color='b')
+    ax1.set_xlabel('X')
+    ax1.set_ylabel('Y')
+    ax2 = fig.add_subplot(122)
+    (hl11,) = ax2.plot([], [])
+    fig.suptitle('DXL Tracker', fontsize=14)
+    ax2.set_title('Learning Curve')
+    ax2.set_xlabel('Time Step')
+    ax2.set_ylabel('Average Returns')
+    count = 0
+    old_size = len(shared_returns['episodic_returns'])
+    while plot_running.value:
+        hl1.set_ydata([1])
+        hl1.set_xdata([env._target_pos_.value])
+        hl2.set_ydata([1])
+        hl2.set_xdata([env._present_pos_[(- 1)]])
+        ax1.set_ylim([0, 2])
+        ax1.set_xlim([env.angle_low, env.angle_high])
+        ax1.set_title(('Current Reward: ' + str(env._reward_.value)))
+        ax1.set_xlim(ax1.get_xlim()[::(- 1)])
+        ax1.set_ylim(ax1.get_ylim()[::(- 1)])
+        copied_returns = copy.deepcopy(shared_returns)
+        if ((not copied_returns['write_lock']) and (len(copied_returns['episodic_returns']) > old_size)):
+            returns = np.array(copied_returns['episodic_returns'])
+            old_size = len(copied_returns['episodic_returns'])
+            window_size_steps = 5000
+            x_tick = 1000
+            if copied_returns['episodic_lengths']:
+                ep_lens = np.array(copied_returns['episodic_lengths'])
+            else:
+                ep_lens = (batch_size * np.arange(len(returns)))
+            cum_episode_lengths = np.cumsum(ep_lens)
+            if (cum_episode_lengths[(- 1)] >= x_tick):
+                steps_show = np.arange(x_tick, (cum_episode_lengths[(- 1)] + 1), x_tick)
+                rets = []
+                for i in range(len(steps_show)):
+                    rets_in_window = returns[((cum_episode_lengths > max(0, ((x_tick * (i + 1)) - window_size_steps))) * (cum_episode_lengths < (x_tick * (i + 1))))]
+                    if rets_in_window.any():
+                        rets.append(np.mean(rets_in_window))
+                hl11.set_xdata((np.arange(1, (len(rets) + 1)) * x_tick))
+                ax2.set_xlim([x_tick, (len(rets) * x_tick)])
+                hl11.set_ydata(rets)
+                ax2.set_ylim([np.min(rets), (np.max(rets) + 50)])
+        time.sleep(0.01)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        count += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    plt
+     ...  =  ... .figure
+
+idx = 36:------------------- similar code ------------------ index = 12, score = 6.0 
+def draw_voxel_model(voxels, is_show=True, save_path=None):
+    import matplotlib.pyplot as plt
+    if (not is_show):
+        import matplotlib
+        matplotlib.use('Agg')
+    from mpl_toolkits.mplot3d import Axes3D
+    from matplotlib.colors import LightSource
+    import seaborn as sns
+    color_num = voxels.max()
+    current_palette = sns.color_palette(as_cmap=True)
+    colors = np.empty(voxel.shape, dtype=object)
+    for i in range(color_num):
+        colors[(voxel == (i + 1))] = current_palette[i]
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.voxels(voxels, facecolors=colors, lightsource=LightSource(azdeg=315, altdeg=45))
+    if is_show:
+        plt.show()
+    if (save_path is not None):
+        plt.savefig(save_path, transparent=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 37:------------------- similar code ------------------ index = 8, score = 6.0 
+@exp.automain
+def compute_components(n_components, batch_size, learning_rate, method, reduction, alpha, step_size, n_jobs, n_epochs, verbose, source, _run):
+    basedir = join(_run.observers[0].basedir, str(_run._id))
+    artifact_dir = join(basedir, 'artifacts')
+    if (not os.path.exists(artifact_dir)):
+        os.makedirs(artifact_dir)
+    if (source == 'hcp'):
+        train_size = None
+        smoothing_fwhm = 3
+        test_size = 2
+        data_dir = get_data_dirs()[0]
+        mask = fetch_hcp_mask()
+        masker = MultiRawMasker(mask_img=mask, smoothing_fwhm=smoothing_fwhm, detrend=True, standardize=True)
+        mapping = json.load(open(join(data_dir, 'HCP_unmasked/mapping.json'), 'r'))
+        data = sorted(list(mapping.values()))
+        data = list(map((lambda x: join(data_dir, x)), data))
+        data = pd.DataFrame(data, columns=['filename'])
+    else:
+        smoothing_fwhm = 6
+        train_size = 4
+        test_size = 4
+        raw_res_dir = join(get_output_dir(), 'unmasked', source)
+        try:
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+        except ValueError:
+            raw_res_dir = join(get_output_dir(), 'unmask', source)
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+    (train_imgs, test_imgs) = train_test_split(data, test_size=test_size, random_state=0, train_size=train_size)
+    train_imgs = train_imgs['filename'].values
+    test_imgs = test_imgs['filename'].values
+    cb = rfMRIDictionaryScorer(test_imgs, info=_run.info)
+    dict_fact = fMRIDictFact(method=method, mask=masker, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, smoothing_fwhm=smoothing_fwhm, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, step_size=step_size, alpha=alpha, callback=cb)
+    dict_fact.fit(train_imgs)
+    dict_fact.components_img_.to_filename(join(artifact_dir, 'components.nii.gz'))
+    fig = plt.figure()
+    display_maps(fig, dict_fact.components_img_)
+    plt.savefig(join(artifact_dir, 'components.png'))
+    (fig, ax) = plt.subplots(1, 1)
+    ax.plot(cb.cpu_time, cb.score, marker='o')
+    _run.info['time'] = cb.cpu_time
+    _run.info['score'] = cb.score
+    _run.info['iter'] = cb.iter
+    plt.savefig(join(artifact_dir, 'score.png'))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 38:------------------- similar code ------------------ index = 3, score = 6.0 
+def visualize_confusion(writer, step, matrix, class_dict, save_path):
+    '\n    Visualization of confusion matrix. Is saved to hard-drive and TensorBoard.\n\n    Parameters:\n        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.\n        step (int): Counter usually specifying steps/epochs/time.\n        matrix (numpy.array): Square-shaped array of size class x class.\n            Should specify cross-class accuracies/confusion in percent\n            values (range 0-1).\n        class_dict (dict): Dictionary specifying class names as keys and\n            corresponding integer labels/targets as values.\n        save_path (str): Path used for saving\n    '
+    all_categories = sorted(class_dict, key=class_dict.get)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(matrix)
+    fig.colorbar(cax, boundaries=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+    ax.set_xticklabels(([''] + all_categories), rotation=90)
+    ax.set_yticklabels(([''] + all_categories))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.grid(False)
+    plt.tight_layout()
+    writer.add_figure('Training data', fig, global_step=str(step))
+    plt.savefig(os.path.join(save_path, (('confusion_epoch_' + str(step)) + '.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 39:------------------- similar code ------------------ index = 6, score = 6.0 
+def animate_plot1D(x, y, save=False, interval=50, dpi=80):
+    if isinstance(y[0], State):
+        y = get_activities_over_time_as_list(y)
+    fig1 = plt.figure()
+    (line,) = plt.plot(x, y[0])
+
+    def update_line(activity):
+        line.set_data(x, activity)
+        return (line,)
+    ani = animation.FuncAnimation(fig1, update_line, frames=y, blit=True, interval=interval)
+    if save:
+        ani.save('plot.gif', dpi=dpi, writer='imagemagick')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 40:------------------- similar code ------------------ index = 15, score = 6.0 
+def visualize_dataset_in_2d_embedding(writer, encoding_list, dataset_name, save_path, task=1):
+    '\n    Visualization of 2-D latent embedding. Is saved to both hard-disc as well as TensorBoard.\n\n    Parameters:\n        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.\n        encoding_list (list): List of Tensors containing encoding values\n        dataset_name (str): Dataset name.\n        save_path (str): Path used for saving.\n        task (int): task counter. Used for naming.\n    '
+    num_classes = len(encoding_list)
+    encoded_classes = []
+    for i in range(len(encoding_list)):
+        if isinstance(encoding_list[i], torch.Tensor):
+            encoded_classes.append(([i] * encoding_list[i].size(0)))
+        else:
+            device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+            encoding_list[i] = torch.Tensor(encoding_list[i]).to(device)
+            encoded_classes.append(([i] * 0))
+    encoded_classes = np.concatenate(np.asarray(encoded_classes), axis=0)
+    encoding = torch.cat(encoding_list, dim=0)
+    if (encoding.size(1) != 2):
+        print('Skipping visualization of latent space because it is not 2-D')
+        return
+    encoded_dim1 = np.squeeze(encoding.narrow(1, 0, 1).cpu().numpy())
+    encoded_dim2 = np.squeeze(encoding.narrow(1, 1, 1).cpu().numpy())
+    xlabel = 'z dimension 1'
+    ylabel = 'z dimension 2'
+    my_cmap = ListedColormap(sns.color_palette('Paired', num_classes).as_hex())
+    fig = plt.figure(figsize=(20, 20))
+    plt.scatter(encoded_dim1, encoded_dim2, c=encoded_classes, cmap=my_cmap)
+    plt.xlabel(xlabel, fontsize=axes_font_size)
+    plt.ylabel(ylabel, fontsize=axes_font_size)
+    plt.xticks(fontsize=ticks_font_size)
+    plt.yticks(fontsize=ticks_font_size)
+    cbar = plt.colorbar(ticks=np.linspace(0, (num_classes - 1), num_classes))
+    cbar.ax.set_yticklabels([str(i) for i in range(num_classes)])
+    cbar.ax.tick_params(labelsize=legend_font_size)
+    plt.tight_layout()
+    writer.add_figure('latent_embedding', fig, global_step=task)
+    plt.savefig(os.path.join(save_path, (((dataset_name + '_latent_2d_embedding_task_') + str(task)) + '.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure
+
+idx = 41:------------------- similar code ------------------ index = 1, score = 6.0 
+def plot_arithmetic(extension):
+    yolo_path = os.path.join(data_dir, 'arithmetic/2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_2stage_duration=long_seed=0_2018_05_15_00_32_28')
+    simple_path = os.path.join(data_dir, 'arithmetic/simple/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_duration=long_seed=0_2018_05_15_00_01_16')
+    simple_2stage_path = os.path.join(data_dir, 'arithmetic/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([yolo_path], 'n_train', measure, 1, 'ci95')
+    label = 'SI-AIR'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv - 2stage'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('# Training Samples / 1000', fontsize=12)
+    ax.set_title('Arithmetic - Between 1 and 11 numbers', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='upper left')
+    plot_path = os.path.join(plot_dir, ('arithmetic/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = plt.figure
+
+idx = 42:------------------- similar code ------------------ index = 18, score = 6.0 
+def plot_rolling_beta(self, **kwargs):
+    (beta, rolling_window) = self.vix_beta(**kwargs)
+    pc = PlotConstants()
+    with plt.style.context('bmh'):
+        _ = plt.figure(figsize=pc.fig_size, dpi=600, facecolor='None', edgecolor='None')
+        gs = gridspec.GridSpec(1, 1, wspace=0.5, hspace=0.25)
+        ax_beta = plt.subplot(gs[:])
+        ax_beta = beta.plot(lw=1.5, ax=ax_beta, grid=True, alpha=0.4, color=pc.color_yellow, title='VIX beta to S&P500 - {} days rolling window'.format(rolling_window))
+        ax_beta.set_ylabel('Beta')
+        ax_beta.axhline(beta.mean(), color='k', ls='--', lw=0.75, alpha=1.0)
+        chart_format([ax_beta], pc.color_light)
+        plt.autoscale(enable=True, axis='x', tight=True)
+    return ax_beta
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  = plt.figure
+
+idx = 43:------------------- similar code ------------------ index = 20, score = 6.0 
+def plot_addition_old(extension):
+    yolo_path = os.path.join(data_dir, 'addition/2stage/run_search_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=long_cedar_seed=0_2018_05_14_03_04_29')
+    yolo_supplement_path = os.path.join(data_dir, 'addition/2stage/run_search_supplement_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=supplement_seed=0_2018_05_14_14_18_26')
+    simple_path = os.path.join(data_dir, 'addition/simple/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_duration=long_seed=0_2018_05_14_23_59_50')
+    simple_2stage_path = os.path.join(data_dir, 'addition/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_55_38')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([yolo_path, yolo_supplement_path], 'n_train', measure, 1, 'ci95')
+    label = 'SI-AIR'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv - 2stage'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples / 1000', fontsize=12)
+    ax.set_title('Addition - Between 1 and 11 numbers', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='upper left')
+    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = plt.figure
+
+idx = 44:------------------- similar code ------------------ index = 53, score = 6.0 
+def plot_3d_func(X, Y, Z, zlabel, figsize):
+    'Plot a 3 dimensional function.\n\n    Plots a 3 dimensional function, where X, Y, Z form a meshgrid, with the\n    usual functional relationship: z = f(x, y).\n\n    Args:\n        X (np.array): Meshgrid on first dimension.\n        Y (np.array): Meshgrid on second dimension.\n        Z (np.array): Meshgrid on outcome dimensions.\n        zlabel (str): Name of z-axis.\n        figsize (tuple): Figure size.\n\n    Returns:\n        ax (matplotlib.axis): The finished plot.\n\n    '
+    mpl.rcParams.update({'font.family': 'stix'})
+    mpl.rcParams.update({'font.size': 30})
+    plt.rcParams.update({'font.size': 22})
+    fig = plt.figure()
+    ax = fig.gca(projection=Axes3D.name)
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+    ax.set_xlabel('x1')
+    ax.set_ylabel('x2')
+    ax.set_zlabel(zlabel)
+    ax.set_zlim((0, 5))
+    ax.yaxis.labelpad = 30
+    ax.zaxis.labelpad = 10
+    ax.xaxis.labelpad = 30
+    ax.view_init(30, 240)
+    ax.grid(False)
+    ax.xaxis.pane.set_edgecolor('black')
+    ax.yaxis.pane.set_edgecolor('black')
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    plt.rcParams['figure.figsize'] = [figsize[0], figsize[1]]
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 45:------------------- similar code ------------------ index = 51, score = 6.0 
+def plot(array):
+    fig = plt.figure(figsize=(30, 5))
+    ax = fig.add_subplot(111)
+    ax.xaxis.label.set_color('grey')
+    ax.yaxis.label.set_color('grey')
+    ax.xaxis.label.set_fontsize(23)
+    ax.yaxis.label.set_fontsize(23)
+    ax.tick_params(axis='x', colors='grey', labelsize=23)
+    ax.tick_params(axis='y', colors='grey', labelsize=23)
+    plt.plot(array)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = plt.figure
+
+idx = 46:------------------- similar code ------------------ index = 49, score = 6.0 
+def poincare_plot(activities, timesteps, xlabel=None, ylabel=None, xlim=None, ylim=None, title=None):
+    '\n    Create a Poincaré plot.\n\n    :param activities: A list of activities. If the values of this list are also lists, then each will\n                       be plotted as a separate series.\n\n    :param timesteps: The number of timesteps in the trajectory to consider, starting from the end.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string representing the label of the y-axis.\n\n    :param xlim: A 2-tuple of numbers, representing the limits of the x-axis.\n\n    :param ylim: A 2-tuple of numbers, or a list of at most two 2-tuples of numbers, representing the\n                 limits of the y-axis.\n\n    :param title: The plot title.\n    '
+    cm = plt.get_cmap('gist_rainbow')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    is_multiseries = isinstance(activities[0], (list, np.ndarray))
+    if is_multiseries:
+        ax.set_prop_cycle(color=[cm(((1.0 * i) / len(activities))) for i in range(len(activities))])
+    else:
+        activities = [activities]
+    for a in activities:
+        x = []
+        y = []
+        for t in range((timesteps - 1)):
+            x.append(a[(- timesteps):][t])
+            y.append(a[(- timesteps):][(t + 1)])
+        plt.scatter(x, y, s=1)
+    if xlim:
+        plt.xlim(xlim)
+    if ylim:
+        plt.ylim(ylim)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+    if title:
+        plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure()
+
+idx = 47:------------------- similar code ------------------ index = 44, score = 6.0 
+def _plot_reconstruction(self, updater, fetched):
+    inp = fetched['inp']
+    output = fetched['output']
+    (_, image_height, image_width, _) = inp.shape
+    obj = fetched['obj'].reshape(self.N, (- 1))
+    anchor_box = updater.network.anchor_box
+    (yt, xt, ys, xs) = np.split(fetched['normalized_box'], 4, axis=(- 1))
+    (yt, xt, ys, xs) = coords_to_pixel_space(yt, xt, ys, xs, (image_height, image_width), anchor_box, top_left=True)
+    box = np.concatenate([yt, xt, ys, xs], axis=(- 1))
+    box = box.reshape(self.N, (- 1), 4)
+    on_colour = np.array(to_rgb('xkcd:azure'))
+    off_colour = np.array(to_rgb('xkcd:red'))
+    for (n, (pred, gt)) in enumerate(zip(output, inp)):
+        fig = plt.figure(figsize=(5, 5))
+        ax = plt.gca()
+        self.imshow(ax, gt)
+        ax.set_axis_off()
+        for (o, (top, left, height, width)) in zip(obj[n], box[n]):
+            if ((not self.show_zero_boxes) and (o <= 1e-06)):
+                continue
+            colour = ((o * on_colour) + ((1 - o) * off_colour))
+            rect = patches.Rectangle((left, top), width, height, linewidth=2, edgecolor=colour, facecolor='none')
+            ax.add_patch(rect)
+        plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01, wspace=0.1, hspace=0.1)
+        self.savefig(('ground_truth/' + str(n)), fig, updater, is_dir=False)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = plt.figure
+
+idx = 48:------------------- similar code ------------------ index = 42, score = 6.0 
+def save_attention(attn, path):
+    fig = plt.figure(figsize=(12, 6))
+    plt.imshow(attn.T, interpolation='nearest', aspect='auto')
+    fig.savefig(f'{path}.png', bbox_inches='tight')
+    plt.close(fig)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure
+
+idx = 49:------------------- similar code ------------------ index = 32, score = 6.0 
+def SITKshow(img, title=None, margin=0.05, dpi=80):
+    import matplotlib.pyplot as plt
+    nda = sitk.GetArrayViewFromImage(img)
+    spacing = img.GetSpacing()
+    ysize = nda.shape[0]
+    xsize = nda.shape[1]
+    figsize = ((((1 + margin) * ysize) / dpi), (((1 + margin) * xsize) / dpi))
+    fig = plt.figure(title, figsize=figsize, dpi=dpi)
+    ax = fig.add_axes([margin, margin, (1 - (2 * margin)), (1 - (2 * margin))])
+    extent = (0, (xsize * spacing[1]), 0, (ysize * spacing[0]))
+    t = ax.imshow(nda, extent=extent, interpolation='hamming', cmap='gray', origin='lower')
+    if title:
+        plt.title(title)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = plt.figure
+
+idx = 50:------------------- similar code ------------------ index = 31, score = 6.0 
+def plot_comparison(extension):
+    yolo_air_path = os.path.join(data_dir, 'comparison/run_search_yolo-air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=yolo-air_duration=long_seed=0_2018_07_16_13_46_48/')
+    air_path = os.path.join(data_dir, 'comparison/run_search_air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_24_13_02_34')
+    dair_path = os.path.join(data_dir, 'comparison/run_search_dair-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_10_09_22_24')
+    baseline_path = os.path.join(data_dir, 'comparison/run_search_comparison-baseline_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=baseline_duration=oak_seed=0_2018_07_20_11_15_24/')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    y_func = (lambda y: (100 * y))
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR', marker='o', ls='-')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR', marker='^', ls='-.')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([dair_path], 'n_digits', 'AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='DAIR', marker='v', ls='--')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([baseline_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    ax.plot(x, y, label='ConnComp', marker='s', ls=':')
+    ax.set_ylabel('Average Precision', fontsize=12)
+    ax.set_xlabel('\\# Digits in Image', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 105.0))
+    ax.set_xticks(x)
+    plt.legend(loc='upper right', handlelength=4)
+    plt.subplots_adjust(left=0.12, bottom=0.13, right=0.99, top=0.99)
+    plot_path = os.path.join(plot_dir, ('comparison/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = plt.figure
+
+idx = 51:------------------- similar code ------------------ index = 29, score = 6.0 
+def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font_size=20):
+
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
+        return new_cmap
+    fig = plt.figure(figsize=(16, 9))
+    fig.suptitle(returns.name, fontsize=16)
+    gs = gridspec.GridSpec(2, 2, wspace=0.2, hspace=0.3)
+    ax_heatmap = plt.subplot(gs[(0, 0)])
+    ax_monthly = plt.subplot(gs[(0, 1)])
+    ax_box_plot = plt.subplot(gs[(1, 0)])
+    ax_yearly = plt.subplot(gs[(1, 1)])
+    monthly_ret_table = pf.timeseries.aggregate_returns(returns, 'monthly')
+    monthly_ret_table = monthly_ret_table.unstack().round(3)
+    ax = plt.gca()
+    cmap = cm.viridis
+    new_cmap = truncate_colormap(cmap, 0.2, 0.8)
+    sns.heatmap((monthly_ret_table.fillna(0) * 100.0), annot=True, annot_kws={'size': font_size}, alpha=1.0, center=0.0, cbar=False, mask=monthly_ret_table.isna(), cmap=new_cmap, ax=ax_heatmap)
+    ax_heatmap.set_xticklabels(np.arange(0.5, 12.5, step=1))
+    ax_heatmap.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], rotation=45)
+    ylabels = ax_heatmap.get_yticklabels()
+    ax_heatmap.set_yticklabels(ylabels, rotation=45)
+    ax_heatmap.set_xlabel('')
+    ax_heatmap.set_ylabel('')
+    pf.plotting.plot_monthly_returns_dist(returns, ax=ax_monthly)
+    ax_monthly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    ax_monthly.set_xlabel('')
+    leg1 = ax_monthly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    for text in leg1.get_texts():
+        text.set_label('mean')
+    df_weekly = pf.timeseries.aggregate_returns(returns, convert_to='weekly')
+    df_monthly = pf.timeseries.aggregate_returns(returns, convert_to='monthly')
+    pf.plotting.plot_return_quantiles(returns, df_weekly, df_monthly, ax=ax_box_plot)
+    pf.plotting.plot_annual_returns(returns, ax=ax_yearly)
+    _ = ax_yearly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    ax_yearly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    plt.xticks(rotation=45)
+    ax_yearly.set_xlabel('')
+    ax_yearly.set_ylabel('')
+    for ax in [ax_box_plot, ax_heatmap, ax_monthly, ax_yearly]:
+        for item in (([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels()) + ax.get_yticklabels()):
+            item.set_fontsize(font_size)
+    for items in (ax_yearly.get_yticklabels() + ax_heatmap.get_yticklabels()):
+        items.set_fontsize((font_size - 5))
+    if (fig_path is not None):
+        if Path.is_dir(fig_path):
+            plt.savefig((fig_path / fig_name), dpi=600, bbox_inches='tight', transparent=True)
+        return fig
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+     ...  = plt.figure
+
+idx = 52:------------------- similar code ------------------ index = 28, score = 6.0 
+def run(self, total_steps):
+    ' Runs PPO\n\n        Args:\n            total_steps (int): total number of environment steps to run for\n        '
+    N = self.num_workers
+    T = self.worker_steps
+    E = self.opt_epochs
+    A = self.venv.action_space.n
+    while (self.taken_steps < total_steps):
+        progress = (self.taken_steps / total_steps)
+        (obs, rewards, masks, actions, steps) = self.interact()
+        ob_shape = obs.size()[2:]
+        ep_reward = self.test()
+        self.reward_histr.append(ep_reward)
+        self.steps_histr.append(self.taken_steps)
+        group_size = (len(self.steps_histr) // self.plot_points)
+        if (self.plot_reward and ((len(self.steps_histr) % (self.plot_points * 10)) == 0) and (group_size >= 10)):
+            (x_means, _, y_means, y_stds) = mean_std_groups(np.array(self.steps_histr), np.array(self.reward_histr), group_size)
+            fig = plt.figure()
+            fig.set_size_inches(8, 6)
+            plt.ticklabel_format(axis='x', style='sci', scilimits=((- 2), 6))
+            plt.errorbar(x_means, y_means, yerr=y_stds, ecolor='xkcd:blue', fmt='xkcd:black', capsize=5, elinewidth=1.5, mew=1.5, linewidth=1.5)
+            plt.title('Training progress')
+            plt.xlabel('Total steps')
+            plt.ylabel('Episode reward')
+            plt.savefig(self.plot_path, dpi=200)
+            plt.clf()
+            plt.close()
+            plot_timer = 0
+        obs_ = obs.view(((((T + 1) * N),) + ob_shape))
+        obs_ = Variable(obs_)
+        (_, values) = self.policy(obs_)
+        values = values.view((T + 1), N, 1)
+        (advantages, returns) = gae(rewards, masks, values, self.gamma, self.lambd)
+        self.policy_old.load_state_dict(self.policy.state_dict())
+        for e in range(E):
+            self.policy.zero_grad()
+            MB = (steps // self.minibatch_steps)
+            b_obs = Variable(obs[:T].view(((steps,) + ob_shape)))
+            b_rewards = Variable(rewards.view(steps, 1))
+            b_masks = Variable(masks.view(steps, 1))
+            b_actions = Variable(actions.view(steps, 1))
+            b_advantages = Variable(advantages.view(steps, 1))
+            b_returns = Variable(returns.view(steps, 1))
+            b_inds = np.arange(steps)
+            np.random.shuffle(b_inds)
+            for start in range(0, steps, self.minibatch_steps):
+                mb_inds = b_inds[start:(start + self.minibatch_steps)]
+                mb_inds = cuda_if(torch.from_numpy(mb_inds).long(), self.cuda)
+                (mb_obs, mb_rewards, mb_masks, mb_actions, mb_advantages, mb_returns) = [arr[mb_inds] for arr in [b_obs, b_rewards, b_masks, b_actions, b_advantages, b_returns]]
+                (mb_pis, mb_vs) = self.policy(mb_obs)
+                (mb_pi_olds, mb_v_olds) = self.policy_old(mb_obs)
+                (mb_pi_olds, mb_v_olds) = (mb_pi_olds.detach(), mb_v_olds.detach())
+                losses = self.objective(self.clip_func(progress), mb_pis, mb_vs, mb_pi_olds, mb_v_olds, mb_actions, mb_advantages, mb_returns)
+                (policy_loss, value_loss, entropy_loss) = losses
+                loss = ((policy_loss + (value_loss * self.value_coef)) + (entropy_loss * self.entropy_coef))
+                set_lr(self.optimizer, self.lr_func(progress))
+                self.optimizer.zero_grad()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm(self.policy.parameters(), self.max_grad_norm)
+                self.optimizer.step()
+        self.taken_steps += steps
+        print(self.taken_steps)
+        torch.save({'policy': self.policy.state_dict()}, (('./save/PPO_' + self.env_name) + '.pt'))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    while:
+        if:
+             ...  = plt.figure()
+
+idx = 53:------------------- similar code ------------------ index = 24, score = 6.0 
+@staticmethod
+def _tsplot(y, lags=None, figsize=(16, 9), style='bmh'):
+    if (not isinstance(y, pd.Series)):
+        y = pd.Series(y)
+    with plt.style.context(style):
+        _ = plt.figure(figsize=figsize)
+        mpl.rcParams['font.sans-serif'] = 'Roboto Condensed'
+        mpl.rcParams['font.family'] = 'sans-serif'
+        layout = (3, 2)
+        ts_ax = plt.subplot2grid(layout, (0, 0), colspan=2)
+        acf_ax = plt.subplot2grid(layout, (1, 0))
+        pacf_ax = plt.subplot2grid(layout, (1, 1))
+        qq_ax = plt.subplot2grid(layout, (2, 0))
+        pp_ax = plt.subplot2grid(layout, (2, 1))
+        y.plot(ax=ts_ax)
+        ts_ax.set_title('Time Series Analysis Plots')
+        smt.graphics.plot_acf(y, lags=lags, ax=acf_ax, alpha=0.5)
+        smt.graphics.plot_pacf(y, lags=lags, ax=pacf_ax, alpha=0.5)
+        sm.qqplot(y, line='s', ax=qq_ax)
+        qq_ax.set_title('QQ Plot')
+        scs.probplot(y, sparams=(y.mean(), y.std()), plot=pp_ax)
+        plt.tight_layout()
+    return
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  = plt.figure
+    return
+
+idx = 54:------------------- similar code ------------------ index = 22, score = 6.0 
+def plot_addition(extension):
+    air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_58/')
+    baseline_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_21/')
+    ground_truth_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_14/')
+    simple_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_18/')
+    yolo_air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_04/')
+    baseline_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=baseline-math_duration=long_seed=0_2018_07_28_22_00_58/')
+    ground_truth_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_01_56/')
+    simple_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=simple-math_duration=long_seed=0_2018_07_28_22_02_59/')
+    air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_32/')
+    baseline_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_39/')
+    ground_truth_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_30/')
+    simple_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_41/')
+    yolo_air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_21/')
+    fig = plt.figure(figsize=(5, 4.5))
+    ax = plt.gca()
+    (x, y, *yerr) = get_arithmetic_data([baseline_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='ConnComp', marker='o', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([ground_truth_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='TrueBB', marker='^', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([simple_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='ConvNet', marker='v', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Fixed', marker='v', ls='-')
+    yolo_air_color = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Unfixed', marker='v', ls='--', color=yolo_air_color)
+    (x, y, *yerr) = get_arithmetic_data([air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Fixed', marker='o', ls='-')
+    air_color = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Unfixed', marker='o', ls='--', color=air_color)
+    ax.set_ylabel('Accuracy')
+    ax.set_xlabel('\\# Training Examples / 1000')
+    ax.tick_params(axis='both')
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xscale('log')
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='lower center', handlelength=2.5, bbox_to_anchor=(0.5, 1.01), ncol=3, columnspacing=1)
+    plt.subplots_adjust(left=0.1, bottom=0.1, right=0.99, top=0.82)
+    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = plt.figure
+
+idx = 55:------------------- similar code ------------------ index = 39, score = 4.0 
+def show_all_imgs(self, pause=False, time=0):
+    if (not self.ipynb):
+        for (i, v) in self.imgs.items():
+            cv2.imshow('{}'.format(i), v)
+        if (cv2.waitKey((0 if pause else 1)) == 27):
+            import sys
+            sys.exit(0)
+    else:
+        self.ax = None
+        nImgs = len(self.imgs)
+        fig = self.plt.figure(figsize=((nImgs * 10), 10))
+        nCols = nImgs
+        nRows = (nImgs // nCols)
+        for (i, (k, v)) in enumerate(self.imgs.items()):
+            fig.add_subplot(1, nImgs, (i + 1))
+            if (len(v.shape) == 3):
+                self.plt.imshow(cv2.cvtColor(v, cv2.COLOR_BGR2RGB))
+            else:
+                self.plt.imshow(v)
+        self.plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    if:    else:
+         ...  =  ... .plt.figure
+

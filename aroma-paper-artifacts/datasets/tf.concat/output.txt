@@ -87,6 +87,7 @@ example3  ||          2           ||        10         ||         0
 example4  ||          3           ||        9         ||         2        
 example5  ||          2           ||        28         ||         2        
 
+avg       ||          3.0           ||        11.8         ||         1.0        
 
 idx = 0:------------------- similar code ------------------ index = 52, score = 7.0 
 def concat(self, inputs):

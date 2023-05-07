@@ -85,6 +85,7 @@ example3  ||          2           ||        19         ||         3
 example4  ||          3           ||        11         ||         1        
 example5  ||          2           ||        4         ||         0        
 
+avg       ||          3.8           ||        12.0         ||         1.2        
 
 idx = 0:------------------- similar code ------------------ index = 12, score = 6.0 
 def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True, bias_init=tf.constant_initializer(0.0), sn=False, scope='conv_0'):

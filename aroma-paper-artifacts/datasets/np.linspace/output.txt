@@ -91,6 +91,7 @@ example3  ||          3           ||        8         ||         1
 example4  ||          3           ||        12         ||         1        
 example5  ||          4           ||        16         ||         0        
 
+avg       ||          3.4           ||        12.6         ||         1.4        
 
 idx = 0:------------------- similar code ------------------ index = 35, score = 6.0 
 def plot_kinematics(signal, background, nbins=100, mass_range=(50.0, 110.0), pt_range=(200.0, 500.0), mass_pad=10, pt_pad=50, linewidth=1, title=None):

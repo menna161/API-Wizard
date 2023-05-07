@@ -64,6 +64,7 @@ example3  ||          4           ||        8         ||         1
 example4  ||          3           ||        5         ||         0        
 example5  ||          3           ||        8         ||         1        
 
+avg       ||          3.4           ||        8.6         ||         1.2        
 
 idx = 0:------------------- similar code ------------------ index = 12, score = 9.0 
 def get_visual_samples(test_ds, model, test_num_samples, difficulty):

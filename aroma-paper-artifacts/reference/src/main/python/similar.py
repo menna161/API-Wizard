@@ -90,7 +90,7 @@ def parse_args():
 class Config:
     def __init__(self):
         self.MIN_MERGED_CODE = 3
-        self.MIN_PRUNED_SCORE = 0.20
+        self.MIN_PRUNED_SCORE = 0  # changed it to zero
         self.N_PARENTS = 3
         self.N_SIBLINGS = 1
         self.N_VAR_SIBLINGS = 2
@@ -143,7 +143,7 @@ class Vocab:
             return config.NUM_FEATURE_MIN
 
     def dump(self):
-        with open(os.path.join(options.working_dir, config.VOCAB_FILE), "wb") as out:
+        with open(os.path.join(cwd+options.working_dir, config.VOCAB_FILE), "wb") as out:
             pickle.dump([self.vocab, self.words], out)
             logging.info(f"Dumped vocab with size {len(self.vocab)}")
 
@@ -153,7 +153,8 @@ class Vocab:
         if not init:
             try:
                 with open(
-                    os.path.join(options.working_dir, config.VOCAB_FILE), "rb"
+                    os.path.join(cwd+options.working_dir,
+                                 config.VOCAB_FILE), "rb"
                 ) as out:
                     [tmp.vocab, tmp.words] = pickle.load(out)
                 logging.info(f"Loaded vocab with size {len(tmp.vocab)}")
@@ -1018,9 +1019,11 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         avg_rep += rep[i]
         avg_lines += lines_count[i]
         avg_comments += comments_count[i]
-    f.write("\n")
-    f.write("avg       ||          "+str(avg_rep/no_examples)+"           ||        "+str(
-            avg_lines/no_examples)+"         ||         "+str(avg_comments/no_examples)+"        ")
+
+    if no_examples > 0:
+        f.write("\n")
+        f.write("avg       ||          "+str(avg_rep/no_examples)+"           ||        "+str(
+                avg_lines/no_examples)+"         ||         "+str(avg_comments/no_examples)+"        ")
 
     f.write("\n\n")
 
@@ -1146,7 +1149,7 @@ def setup(records_file):
     config = Config()
     logging.basicConfig(level=logging.DEBUG)
     random.seed(config.SEED)
-    os.makedirs(options.working_dir, exist_ok=True)
+    os.makedirs(cwd+options.working_dir, exist_ok=True)
 
     if records_file is None:
         vocab = Vocab.load()
@@ -1155,13 +1158,13 @@ def setup(records_file):
         vocab = Vocab.load(True)
         featurize_records_file(
             records_file, os.path.join(
-                options.working_dir, config.FEATURES_FILE)
+                cwd+options.working_dir, config.FEATURES_FILE)
         )
         vocab.dump()
         logging.info("Done featurizing.")
         counter_vectorize(
-            os.path.join(options.working_dir, config.FEATURES_FILE),
-            os.path.join(options.working_dir, config.TFIDF_FILE),
+            os.path.join(cwd+options.working_dir, config.FEATURES_FILE),
+            os.path.join(cwd+options.working_dir, config.TFIDF_FILE),
         )
         logging.info("Done computing counter matrix.")
 
@@ -1182,7 +1185,7 @@ setup(options.corpus)
     os.path.join(cwd+options.working_dir, config.FEATURES_FILE),
 )
 
-output_file = options.output_file
+output_file = cwd+options.output_file
 
 
 if options.index_query is not None:

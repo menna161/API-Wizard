@@ -1,4 +1,4 @@
-------------------------- example 1 ------------------------
+------------------------- example 1 ------------------------ 
 def get_sub_slice(indices, sub_indices):
     '\n    Safe indexer with nested slices.\n\n    Parameters\n    ----------\n    indices: ndarray or slice\n    sub_indices: ndarray or slice\n\n    Returns\n    -------\n    result: np.array(indices[sub_indices])\n    '
     if (indices is None):
@@ -12,7 +12,7 @@ def get_sub_slice(indices, sub_indices):
     else:
         return indices[sub_indices]
 
-------------------------- example 2 ------------------------
+------------------------- example 2 ------------------------ 
 def _draw_resample_index(n, seed):
     'Compute vector of randomly drawn indices with replacement.\n\n    Draw indices with replacement from the discrete uniform distribution\n    on {0,...,n-1}. We control the randomness by setting the seed to *seed*.\n    If *seed* = -1 we return all indices {0,...,n-1} for debugging.\n\n    Args:\n        n (int): Upper bound for indices and number of indices to draw\n        seed (int): Random number seed.\n\n    Returns:\n        indices (np.array): Resample indices.\n\n    '
     if (seed == (- 1)):
@@ -21,7 +21,7 @@ def _draw_resample_index(n, seed):
     indices = np.random.randint(0, n, n)
     return indices
 
-------------------------- example 3 ------------------------
+------------------------- example 3 ------------------------ 
 if (__name__ == '__main__'):
     import numpy as np
     np.random.seed(314)
@@ -35,7 +35,7 @@ if (__name__ == '__main__'):
     dprint(model(*args))
     ch2o.generate_testcase(model, args)
 
-------------------------- example 4 ------------------------
+------------------------- example 4 ------------------------ 
 def prepare_datasets(sig_h5_file, bkd_h5_file, dataset_name='dataset', n_sig=(- 1), n_bkd=(- 1), test_frac=0.1, val_frac=0.0, n_folds=1, shuffle=True, shuffle_seed=1, balance=True):
     'Prepare datasets for network training.\n\n    Combine signal and background images; k-fold into training, validation,\n    test sets. Save to files.\n\n    Args:\n        sig_h5_file, bkd_h5_file: location of h5 files containing signal,\n                                  background images.\n        dataset_name: base filename to use for saving datasets.\n        n_sig, n_bkd: number of signal, background images to load.\n        test_frac: proportion of images to save for testing.\n        val_frac: proportion of images to save for validation. Leave at zero\n                  unless using ROC AUC scoring.\n        n_folds: number of k-folds.\n        auxvars: list of auxvar field names to load.\n        shuffle: if True shuffle images before k-folding.\n        shuffle_seed: seed for shuffling.\n    Returns:\n        file_dict: dict containing list of filenames containing train, test\n                   datasets.\n    TODO: add support for multiple classes.\n    '
 // your code ...
@@ -78,7 +78,7 @@ def prepare_datasets(sig_h5_file, bkd_h5_file, dataset_name='dataset', n_sig=(- 
         file_dict['train'] = out_file
     return file_dict
 
-------------------------- example 5 ------------------------
+------------------------- example 5 ------------------------ 
 def train(base_lr, batch_sz, gpu_no, model_name, power_s):
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 // your code ...
@@ -117,15 +117,16 @@ def train(base_lr, batch_sz, gpu_no, model_name, power_s):
 // your code ...
 
 
-examples  ||  representativeness  ||  number of lines  || number of comments
-example1  ||          2           ||        11         ||         1
-example2  ||          2           ||        7         ||         0
-example3  ||          2           ||        12         ||         0
-example4  ||          4           ||        34         ||         7
-example5  ||          6           ||        29         ||         8
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        11         ||         1        
+example2  ||          2           ||        7         ||         0        
+example3  ||          2           ||        12         ||         0        
+example4  ||          4           ||        34         ||         7        
+example5  ||          6           ||        29         ||         8        
 
+avg       ||          3.2           ||        18.6         ||         3.2        
 
-idx = 0:------------------- similar code ------------------ index = 34, score = 6.0
+idx = 0:------------------- similar code ------------------ index = 34, score = 6.0 
 def get_sub_slice(indices, sub_indices):
     '\n    Safe indexer with nested slices.\n\n    Parameters\n    ----------\n    indices: ndarray or slice\n    sub_indices: ndarray or slice\n\n    Returns\n    -------\n    result: np.array(indices[sub_indices])\n    '
     if (indices is None):
@@ -138,13 +139,13 @@ def get_sub_slice(indices, sub_indices):
     else:
         return indices[sub_indices]
 
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     if:
         if:
             return np.arange
 
-idx = 1:------------------- similar code ------------------ index = 41, score = 6.0
+idx = 1:------------------- similar code ------------------ index = 41, score = 6.0 
 def _draw_resample_index(n, seed):
     'Compute vector of randomly drawn indices with replacement.\n\n    Draw indices with replacement from the discrete uniform distribution\n    on {0,...,n-1}. We control the randomness by setting the seed to *seed*.\n    If *seed* = -1 we return all indices {0,...,n-1} for debugging.\n\n    Args:\n        n (int): Upper bound for indices and number of indices to draw\n        seed (int): Random number seed.\n\n    Returns:\n        indices (np.array): Resample indices.\n\n    '
     if (seed == (- 1)):
@@ -153,12 +154,12 @@ def _draw_resample_index(n, seed):
     indices = np.random.randint(0, n, n)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     if:
         return np.arange
 
-idx = 2:------------------- similar code ------------------ index = 52, score = 6.0
+idx = 2:------------------- similar code ------------------ index = 52, score = 6.0 
 def _draw_feature_index(p, ratio, seed):
     'Draw random vector of feature indices.\n\n    Draw np.ceil(p * ratio) many indices from {0,...,p-1} without replacement.\n    We control the randomness by setting the seed to *seed*. If *ratio* = -1 we\n    return all indices {0,...,p-1} for debugging.\n\n    Args:\n        p (int): Number of features.\n        ratio (float): Ratio of features to draw, in [0, 1].\n        seed (int): Random number seed.\n\n    Returns:\n        indices (np.array): Index vector of length p.\n\n    '
     if (ratio == (- 1)):
@@ -168,12 +169,12 @@ def _draw_feature_index(p, ratio, seed):
     indices = np.random.choice(p, nfeat, replace=False)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     if:
         return np.arange
 
-idx = 3:------------------- similar code ------------------ index = 83, score = 6.0
+idx = 3:------------------- similar code ------------------ index = 83, score = 6.0 
 if (__name__ == '__main__'):
     import numpy as np
     np.random.seed(314)
@@ -187,11 +188,11 @@ if (__name__ == '__main__'):
     dprint(model(*args))
     ch2o.generate_testcase(model, args)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 if:
      ...  = [ ... ,  ... , np.arange]
 
-idx = 4:------------------- similar code ------------------ index = 88, score = 6.0
+idx = 4:------------------- similar code ------------------ index = 88, score = 6.0 
 def prepare_datasets(sig_h5_file, bkd_h5_file, dataset_name='dataset', n_sig=(- 1), n_bkd=(- 1), test_frac=0.1, val_frac=0.0, n_folds=1, shuffle=True, shuffle_seed=1, balance=True):
     'Prepare datasets for network training.\n\n    Combine signal and background images; k-fold into training, validation,\n    test sets. Save to files.\n\n    Args:\n        sig_h5_file, bkd_h5_file: location of h5 files containing signal,\n                                  background images.\n        dataset_name: base filename to use for saving datasets.\n        n_sig, n_bkd: number of signal, background images to load.\n        test_frac: proportion of images to save for testing.\n        val_frac: proportion of images to save for validation. Leave at zero\n                  unless using ROC AUC scoring.\n        n_folds: number of k-folds.\n        auxvars: list of auxvar field names to load.\n        shuffle: if True shuffle images before k-folding.\n        shuffle_seed: seed for shuffling.\n    Returns:\n        file_dict: dict containing list of filenames containing train, test\n                   datasets.\n    TODO: add support for multiple classes.\n    '
     (sig_images, sig_auxvars) = load_images(sig_h5_file, n_sig)
@@ -276,12 +277,12 @@ def prepare_datasets(sig_h5_file, bkd_h5_file, dataset_name='dataset', n_sig=(- 
         file_dict['train'] = out_file
     return file_dict
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:
          ...  = np.arange
 
-idx = 5:------------------- similar code ------------------ index = 24, score = 6.0
+idx = 5:------------------- similar code ------------------ index = 24, score = 6.0 
 def train(base_lr, batch_sz, gpu_no, model_name, power_s):
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_no
@@ -403,14 +404,14 @@ def train(base_lr, batch_sz, gpu_no, model_name, power_s):
         with open(os.path.join(log_path, log_test_fname), 'a') as test_acc_file:
             test_acc_file.write(('++++iter_%d: test acc=%.4f\n' % (i, acc)))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     with:
         for  ...  in:
             if:
                  ...  = np.arange
 
-idx = 6:------------------- similar code ------------------ index = 53, score = 6.0
+idx = 6:------------------- similar code ------------------ index = 53, score = 6.0 
 def gen_new_list(self):
     np.random.seed(0)
     all_size = self.total_size
@@ -423,11 +424,11 @@ def gen_new_list(self):
     assert (len(indices) == self.total_size)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 7:------------------- similar code ------------------ index = 29, score = 6.0
+idx = 7:------------------- similar code ------------------ index = 29, score = 6.0 
 def gen_new_list(self):
     np.random.seed(0)
     all_size = (self.total_size * self.world_size)
@@ -442,11 +443,11 @@ def gen_new_list(self):
     assert (len(indices) == self.total_size)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 8:------------------- similar code ------------------ index = 31, score = 6.0
+idx = 8:------------------- similar code ------------------ index = 31, score = 6.0 
 def main():
     np.random.seed(314)
     batch_size = 3
@@ -458,11 +459,11 @@ def main():
     args = [x, h, np.arange(sequence_length)]
     testtools.generate_testcase(model, args)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = [ ... ,  ... , np.arange]
 
-idx = 9:------------------- similar code ------------------ index = 78, score = 6.0
+idx = 9:------------------- similar code ------------------ index = 78, score = 6.0 
 def icecore_diffuse(d18O, b, time, T, P, depth, depth_horizons, dz, drho):
     '\n        DOCSTRING: Function \'icecore_diffuse\'\n        DESCRIPTION: accounts for diffusion and compaction in the firn.\n\n        Inputs:\n            d18O: ice core isotope ratio, output from sensor Model (permil)\n            b   : average accumulation rate at site (m/year)\n            time: calendar years of record\n            T   : average temperature at site (K)\n            P   : average sea level pressure at site (atm)\n            depth: total depth of core\n            depth_horizons: accumulation by year in ice core--depth horizons (moving downwards in core) in meters\n            dz: step in depth (default = min(depth_horizons)/10.) \n            drho: step in density (default=0.5 kg/m^3)\n\n        Diffusion is computed using a convolution (Gaussian smoothing).\n\n        Functionality: Calculates diffusion length as a function of density\n        in firn, and given vectors of time-depth and density-depth \n        Also expects Pressure in atm, T in K, rho and rho_ice in \n        kg/m^3, but defaults on these, so only the first three arguments\n        must be entered.\n\n        "Time" is really "age" (increasing down core) and is given in years.\n        z is depth in meters\n        rho should be in kg/m^3\n        the vectors rho, time, and z should all correponding with one another\n    '
     import numpy as np
@@ -523,21 +524,21 @@ def icecore_diffuse(d18O, b, time, T, P, depth, depth_horizons, dz, drho):
     ice_diffused = final_iso
     return (z, sigma, D, time_d, diffs, ice_diffused, rho, zieq)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange +  ... )
 
-idx = 10:------------------- similar code ------------------ index = 77, score = 6.0
+idx = 10:------------------- similar code ------------------ index = 77, score = 6.0 
 def _shuffle_update_order(self, n):
     self._update_order = np.arange(n)
     np.random.shuffle(self._update_order)
     self._update_order = self._update_order.tolist()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
  = np.arange
 
-idx = 11:------------------- similar code ------------------ index = 35, score = 6.0
+idx = 11:------------------- similar code ------------------ index = 35, score = 6.0 
 def __getitem__(self, idx):
     pt_idxs = np.arange(0, self.num_points)
     np.random.shuffle(pt_idxs)
@@ -545,22 +546,22 @@ def __getitem__(self, idx):
     current_labels = torch.from_numpy(self.labels[(idx, pt_idxs)].copy()).long()
     return (current_points, current_labels)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 12:------------------- similar code ------------------ index = 20, score = 6.0
+idx = 12:------------------- similar code ------------------ index = 20, score = 6.0 
 def shuffle_data(data, labels):
     ' Shuffle data and labels.\n        Input:\n          data: B,N,... numpy array\n          label: B,... numpy array\n        Return:\n          shuffled data, label and shuffle indices\n    '
     idx = np.arange(len(labels))
     np.random.shuffle(idx)
     return (data[(idx, ...)], labels[idx], idx)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 13:------------------- similar code ------------------ index = 37, score = 6.0
+idx = 13:------------------- similar code ------------------ index = 37, score = 6.0 
 def main():
     np.random.seed(314)
     batch_size = 3
@@ -578,11 +579,11 @@ def main():
     args = [xs, h, c, mask]
     testtools.generate_testcase(model_fn, args)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = ( ... . ... (np.arange,  ... ) <)
 
-idx = 14:------------------- similar code ------------------ index = 42, score = 6.0
+idx = 14:------------------- similar code ------------------ index = 42, score = 6.0 
 if (__name__ == '__main__'):
     import numpy as np
     np.random.seed(314)
@@ -601,11 +602,11 @@ if (__name__ == '__main__'):
     args = [xs, h, c, mask]
     ch2o.generate_testcase(model_fn, args)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 if:
      ...  = ( ... . ... (np.arange,  ... ) <)
 
-idx = 15:------------------- similar code ------------------ index = 43, score = 6.0
+idx = 15:------------------- similar code ------------------ index = 43, score = 6.0 
 def gen_new_list(self):
     np.random.seed(0)
     all_size = (self.total_size * self.world_size)
@@ -621,11 +622,11 @@ def gen_new_list(self):
     assert (len(indices) == self.total_size)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 16:------------------- similar code ------------------ index = 61, score = 6.0
+idx = 16:------------------- similar code ------------------ index = 61, score = 6.0 
 def fn(test_name):
     gb = onnx_script.GraphBuilder(test_name)
     if (cell_type == 'LSTM'):
@@ -713,12 +714,12 @@ def fn(test_name):
     gb.output(loss_v, loss.array)
     gb.gen_test()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     if:    elif:
          ...  = ( + ( ... . ... (np.arange,  ... ) *  ... ))
 
-idx = 17:------------------- similar code ------------------ index = 49, score = 6.0
+idx = 17:------------------- similar code ------------------ index = 49, score = 6.0 
 def run(self, total_steps):
     ' Runs PPO\n\n        Args:\n            total_steps (int): total number of environment steps to run for\n        '
     N = self.num_workers
@@ -782,13 +783,13 @@ def run(self, total_steps):
         print(self.taken_steps)
         torch.save({'policy': self.policy.state_dict()}, (('./save/PPO_' + self.env_name) + '.pt'))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         for  ...  in:
              ...  = np.arange
 
-idx = 18:------------------- similar code ------------------ index = 57, score = 6.0
+idx = 18:------------------- similar code ------------------ index = 57, score = 6.0 
 def test_smooth_lsf(pop_and_params):
     (pop, params) = pop_and_params
     _reset_default_params(pop, params)
@@ -808,11 +809,11 @@ def test_smooth_lsf(pop_and_params):
     pop.set_lsf(wave_lsf, (sigma_lsf * 2))
     assert (pop.params.dirtiness == 2)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 19:------------------- similar code ------------------ index = 23, score = 6.0
+idx = 19:------------------- similar code ------------------ index = 23, score = 6.0 
 def train_batch(self, epochs=1, lr=0.001, seq=1):
     count = (self.settings.num_dataset + 1)
     checkdir = 'checkpoint'
@@ -844,11 +845,11 @@ def train_batch(self, epochs=1, lr=0.001, seq=1):
         x = [self.train_lx, self.train_rx]
         self.model.fit(x, self.train_dx, epochs=epochs, batch_size=self.settings.batch_size, shuffle=True, callbacks=callbacks)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 20:------------------- similar code ------------------ index = 17, score = 6.0
+idx = 20:------------------- similar code ------------------ index = 17, score = 6.0 
 def gen_new_list(self):
     np.random.seed(0)
     all_size = (self.total_size * self.world_size)
@@ -864,11 +865,11 @@ def gen_new_list(self):
     assert (len(indices) == self.total_size)
     return indices
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 21:------------------- similar code ------------------ index = 7, score = 6.0
+idx = 21:------------------- similar code ------------------ index = 7, score = 6.0 
 def reset(self):
     self.idxs = np.arange(0, len(self.datapath))
     if self.shuffle:
@@ -876,11 +877,11 @@ def reset(self):
     self.num_batches = (((len(self.datapath) + self.batch_size) - 1) // self.batch_size)
     self.batch_idx = 0
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
  = np.arange
 
-idx = 22:------------------- similar code ------------------ index = 2, score = 6.0
+idx = 22:------------------- similar code ------------------ index = 2, score = 6.0 
 def gen_rnn_sentiment_test(cell_type, num_vocabs=10, num_hidden=5, batch_size=3, sequence_length=4, output_loss_only=False, param_initializer=np.random.random):
 
     def fn(test_name):
@@ -971,14 +972,14 @@ def gen_rnn_sentiment_test(cell_type, num_vocabs=10, num_hidden=5, batch_size=3,
         gb.gen_test()
     return fn
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
 
     def  ... ( ... ):
         if:        elif:
              ...  = ( + ( ... . ... (np.arange,  ... ) *  ... ))
 
-idx = 23:------------------- similar code ------------------ index = 5, score = 6.0
+idx = 23:------------------- similar code ------------------ index = 5, score = 6.0 
 def convert_files_to_npz(input_folder, out_folder, out_prefix):
     files = glob.glob((input_folder + '*LEFT_RGB*.tif'))
     num = len(files)
@@ -1075,11 +1076,11 @@ def convert_files_to_npz(input_folder, out_folder, out_prefix):
     np.savez_compressed(left_cat_name, left_categories)
     np.savez_compressed(left_agl_name, left_agls)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 24:------------------- similar code ------------------ index = 11, score = 6.0
+idx = 24:------------------- similar code ------------------ index = 11, score = 6.0 
 def reset(self):
     ' reset order of h5 files '
     self.file_idxs = np.arange(0, len(self.h5_files))
@@ -1090,22 +1091,22 @@ def reset(self):
     self.current_file_idx = 0
     self.batch_idx = 0
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
  = np.arange
 
-idx = 25:------------------- similar code ------------------ index = 12, score = 6.0
+idx = 25:------------------- similar code ------------------ index = 12, score = 6.0 
 def hot_one_vector(y, max):
     import numpy as np
     labels_hot_vector = np.zeros((y.shape[0], max), dtype=np.int32)
     labels_hot_vector[(np.arange(y.shape[0]), y)] = 1
     return labels_hot_vector
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ... [(np.arange,  ... )]
 
-idx = 26:------------------- similar code ------------------ index = 98, score = 6.0
+idx = 26:------------------- similar code ------------------ index = 98, score = 6.0 
 def train_model(self):
     checkdir = 'checkpoint'
     try:
@@ -1136,23 +1137,23 @@ def train_model(self):
                 is_compiled = True
             self.model.fit(self.train_images, [self.Y1, self.Y2, self.Y3], epochs=1, batch_size=self.args.batch_size, shuffle=True, callbacks=callbacks)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     for  ...  in:
          ...  = np.arange
 
-idx = 27:------------------- similar code ------------------ index = 100, score = 6.0
+idx = 27:------------------- similar code ------------------ index = 100, score = 6.0 
 def shuffle_data(data, labels):
     ' Shuffle data and labels.\n        Input:\n          data: B,N,... numpy array\n          label: B,... numpy array\n        Return:\n          shuffled data, label and shuffle indices\n    '
     idx = np.arange(len(labels))
     np.random.shuffle(idx)
     return (data[(idx, ...)], labels[idx], idx)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 28:------------------- similar code ------------------ index = 18, score = 5.0
+idx = 28:------------------- similar code ------------------ index = 18, score = 5.0 
 @lru_cache(maxsize=1)
 def _center_function(population_size):
     centers = np.arange(0, population_size)
@@ -1160,11 +1161,11 @@ def _center_function(population_size):
     centers -= 0.5
     return centers
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 29:------------------- similar code ------------------ index = 44, score = 5.0
+idx = 29:------------------- similar code ------------------ index = 44, score = 5.0 
 def plot_hyperparam_env(ax, env):
     ylabel = list(relevant_param('AIRL').keys())
     r1 = np.arange(len(ylabel))
@@ -1187,11 +1188,11 @@ def plot_hyperparam_env(ax, env):
     ax.set_yticklabels([])
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=30)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 30:------------------- similar code ------------------ index = 40, score = 5.0
+idx = 30:------------------- similar code ------------------ index = 40, score = 5.0 
 def _some_variables():
     parent = (np.array([0, 1, 2, 3, 4, 5, 6, 1, 8, 9, 10, 11, 12, 1, 14, 15, 16, 17, 18, 19, 16, 21, 22, 23, 24, 25, 26, 24, 28, 16, 30, 31, 32, 33, 34, 35, 33, 37]) - 1)
     offset = np.array([0, 0, 0, 0, 0, 0, 1.65674, (- 1.80282), 0.62477, 2.5972, (- 7.13576), 0, 2.49236, (- 6.8477), 0, 0.19704, (- 0.54136), 2.14581, 0, 0, 1.11249, 0, 0, 0, (- 1.6107), (- 1.80282), 0.62476, (- 2.59502), (- 7.12977), 0, (- 2.4678), (- 6.78024), 0, (- 0.23024), (- 0.63258), 2.13368, 0, 0, 1.11569, 0, 0, 0, 0.01961, 2.0545, (- 0.14112), 0.01021, 2.06436, (- 0.05921), 0, 0, 0, 0.00713, 1.56711, 0.14968, 0.03429, 1.56041, (- 0.10006), 0.01305, 1.6256, (- 0.05265), 0, 0, 0, 3.54205, 0.90436, (- 0.17364), 4.86513, 0, 0, 3.35554, 0, 0, 0, 0, 0, 0.66117, 0, 0, 0.53306, 0, 0, 0, 0, 0, 0.5412, 0, 0.5412, 0, 0, 0, (- 3.49802), 0.75994, (- 0.32616), (- 5.02649), 0, 0, (- 3.36431), 0, 0, 0, 0, 0, (- 0.73041), 0, 0, (- 0.58887), 0, 0, 0, 0, 0, (- 0.59786), 0, 0.59786]).reshape((- 1), 3)
@@ -1205,10 +1206,10 @@ def _some_variables():
     expmapInd = np.split((np.arange(4, 118) - 1), 38)
     return (parent, offset, posInd, expmapInd)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for  ...  in np.arange:
-idx = 31:------------------- similar code ------------------ index = 6, score = 5.0
+idx = 31:------------------- similar code ------------------ index = 6, score = 5.0 
 def _some_variables():
     parent = (np.array([0, 1, 2, 3, 4, 5, 6, 1, 8, 9, 10, 11, 12, 1, 14, 15, 16, 17, 18, 19, 16, 21, 22, 23, 24, 25, 26, 24, 28, 16, 30, 31, 32, 33, 34, 35, 33, 37]) - 1)
     offset = np.array([0, 0, 0, 0, 0, 0, 1.65674, (- 1.80282), 0.62477, 2.5972, (- 7.13576), 0, 2.49236, (- 6.8477), 0, 0.19704, (- 0.54136), 2.14581, 0, 0, 1.11249, 0, 0, 0, (- 1.6107), (- 1.80282), 0.62476, (- 2.59502), (- 7.12977), 0, (- 2.4678), (- 6.78024), 0, (- 0.23024), (- 0.63258), 2.13368, 0, 0, 1.11569, 0, 0, 0, 0.01961, 2.0545, (- 0.14112), 0.01021, 2.06436, (- 0.05921), 0, 0, 0, 0.00713, 1.56711, 0.14968, 0.03429, 1.56041, (- 0.10006), 0.01305, 1.6256, (- 0.05265), 0, 0, 0, 3.54205, 0.90436, (- 0.17364), 4.86513, 0, 0, 3.35554, 0, 0, 0, 0, 0, 0.66117, 0, 0, 0.53306, 0, 0, 0, 0, 0, 0.5412, 0, 0.5412, 0, 0, 0, (- 3.49802), 0.75994, (- 0.32616), (- 5.02649), 0, 0, (- 3.36431), 0, 0, 0, 0, 0, (- 0.73041), 0, 0, (- 0.58887), 0, 0, 0, 0, 0, (- 0.59786), 0, 0.59786]).reshape((- 1), 3)
@@ -1222,10 +1223,10 @@ def _some_variables():
     expmapInd = np.split((np.arange(4, 118) - 1), 38)
     return (parent, offset, posInd, expmapInd)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for  ...  in np.arange:
-idx = 32:------------------- similar code ------------------ index = 46, score = 5.0
+idx = 32:------------------- similar code ------------------ index = 46, score = 5.0 
 def transform(self, X):
     '\n        Compute the codes associated to input matrix X, decomposing it onto\n        the dictionary\n\n        Parameters\n        ----------\n        X: ndarray, shape = (n_samples, n_features)\n\n        Returns\n        -------\n        code: ndarray, shape = (n_samples, n_components)\n        '
     check_is_fitted(self, 'components_')
@@ -1251,22 +1252,22 @@ def transform(self, X):
         _enet_regression_single_gram(G, Dx, X, code, sample_indices, self.code_l1_ratio, self.code_alpha, self.code_pos, self.tol, self.max_iter)
     return code
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 33:------------------- similar code ------------------ index = 45, score = 5.0
+idx = 33:------------------- similar code ------------------ index = 45, score = 5.0 
 def __getitem__(self, index):
     (speaker_id, name) = self.all_files[index]
     speaker_onehot = (np.arange(len(self.index)) == speaker_id).astype(np.long)
     audio = np.load(f'{self.path}/{speaker_id}/{name}.npy')
     return (speaker_onehot, audio)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange ==  ... )
 
-idx = 34:------------------- similar code ------------------ index = 38, score = 5.0
+idx = 34:------------------- similar code ------------------ index = 38, score = 5.0 
 def __iter__(self):
     if cfg.TRAIN.ASPECT_GROUPING:
         (n, rem) = divmod(self.num_data, cfg.TRAIN.IMS_PER_BATCH)
@@ -1284,12 +1285,12 @@ def __iter__(self):
         ratio_list_minibatch = cal_minibatch_ratio(ratio_list)
     return iter(zip(ratio_index.tolist(), ratio_list_minibatch.tolist()))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     if:
          ...  = np.arange
 
-idx = 35:------------------- similar code ------------------ index = 4, score = 5.0
+idx = 35:------------------- similar code ------------------ index = 4, score = 5.0 
 def compute_gt_annotations(anchors, annotations, negative_overlap=0.4, positive_overlap=0.5):
     ' Obtain indices of gt annotations with the greatest overlap.\n\tArgs\n\t\tanchors: np.array of annotations of shape (N, 4) for (x1, y1, x2, y2).\n\t\tannotations: np.array of shape (N, 5) for (x1, y1, x2, y2, label).\n\t\tnegative_overlap: IoU overlap for negative anchors (all anchors with overlap < negative_overlap are negative).\n\t\tpositive_overlap: IoU overlap or positive anchors (all anchors with overlap > positive_overlap are positive).\n\tReturns\n\t\tpositive_indices: indices of positive anchors\n\t\tignore_indices: indices of ignored anchors\n\t\targmax_overlaps_inds: ordered overlaps indices\n\t'
     overlaps = compute_overlap(anchors.astype(np.float64), annotations.astype(np.float64))
@@ -1299,11 +1300,11 @@ def compute_gt_annotations(anchors, annotations, negative_overlap=0.4, positive_
     ignore_indices = ((max_overlaps > negative_overlap) & (~ positive_indices))
     return (positive_indices, ignore_indices, argmax_overlaps_inds)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... [(np.arange,  ... )]
 
-idx = 36:------------------- similar code ------------------ index = 47, score = 5.0
+idx = 36:------------------- similar code ------------------ index = 47, score = 5.0 
 def plot_returns(env, batch_size, shared_returns, plot_running):
     'Plots episodic returns\n\n    Args:\n        env: An instance of DoubleInvertedPendulumEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
     print('Started plotting routine')
@@ -1336,14 +1337,14 @@ def plot_returns(env, batch_size, shared_returns, plot_running):
         fig.canvas.flush_events()
         count += 1
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         if:
             if:
                  ... . ... (( ...  * np.arange))
 
-idx = 37:------------------- similar code ------------------ index = 48, score = 5.0
+idx = 37:------------------- similar code ------------------ index = 48, score = 5.0 
 def diagonal_inds(array):
     '\n    Returns the indices required to go along first 2 dims of tensor in diag fashion\n    :param tensor: thing\n    :return: \n    '
     assert (len(array.shape) >= 2)
@@ -1352,11 +1353,11 @@ def diagonal_inds(array):
     arange_inds = np.arange(0, size, dtype=np.int64)
     return ((size + 1) * arange_inds)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 38:------------------- similar code ------------------ index = 3, score = 5.0
+idx = 38:------------------- similar code ------------------ index = 3, score = 5.0 
 def process_batch_data(self, input_batch, flag_same=False):
     (im_faces, im_lndm, im_msk, im_ind) = input_batch
     im_faces = [item.float().to(self.device_comp) for item in im_faces]
@@ -1374,22 +1375,22 @@ def process_batch_data(self, input_batch, flag_same=False):
         return (im_faces, im_lndm, im_msk, labels_one_hot, label_same.to(self.device_comp))
     return (im_faces, im_lndm, im_msk, labels_one_hot)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:
          ... [(np.arange,)]
 
-idx = 39:------------------- similar code ------------------ index = 50, score = 5.0
+idx = 39:------------------- similar code ------------------ index = 50, score = 5.0 
 @pytest.mark.parametrize('t, min_leaf', zip(tt, min_leafs))
 def test__compute_valid_splitting_indices_with_empty_output(t, min_leaf):
     out = _compute_valid_splitting_indices(t, min_leaf)
     assert_array_equal(out, np.arange(0))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ... ( ... , np.arange)
 
-idx = 40:------------------- similar code ------------------ index = 51, score = 5.0
+idx = 40:------------------- similar code ------------------ index = 51, score = 5.0 
 def create_circle_region_for(observation: cluster.Observation):
     mask_fits = fits.open(observation.cluster.combined_mask)
     region_map = observation.cluster.scale_map_region_index
@@ -1420,11 +1421,11 @@ def create_circle_region_for(observation: cluster.Observation):
     regions = [['circle({x},{y},{rad})'.format(x=x[0], y=x[1], rad=x[2]), int(x[3])] for x in region_array]
     observation.scale_map_region_list = regions
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 41:------------------- similar code ------------------ index = 39, score = 5.0
+idx = 41:------------------- similar code ------------------ index = 39, score = 5.0 
 if (__name__ == '__main__'):
     parser = build_parser()
     args = parser.parse_args()
@@ -1483,12 +1484,12 @@ if (__name__ == '__main__'):
     os.makedirs('oofs/', exist_ok=True)
     pd.DataFrame(oofs, columns=TARGETS).to_csv(f'oofs/{model_name}_tuned_oofs.csv')
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 if:
     for in:
          ...  =  ... ( ... ( ... ,,,,, np.arange,  ... ),,,)
 
-idx = 42:------------------- similar code ------------------ index = 9, score = 5.0
+idx = 42:------------------- similar code ------------------ index = 9, score = 5.0 
 def _get_policy(self):
     total_novelty = []
     for (policy, _) in self.meta_population:
@@ -1501,11 +1502,11 @@ def _get_policy(self):
     (policy, optimizer) = self.meta_population[self.idx]
     return (policy, optimizer)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
  =  ... . ... (np.arange,)
 
-idx = 43:------------------- similar code ------------------ index = 8, score = 5.0
+idx = 43:------------------- similar code ------------------ index = 8, score = 5.0 
 def create_dating_schedule(person_df, n_meeting=10):
     '\n    Function to create speed dating schedule at CCN 2018 conference\n\n    Parameters\n    ==========\n    person_df: pandas dataframe contains - PersonID, FullName, Abstract\n    n_meeting: int, number of meeting we would like to have\n\n    Output\n    ======\n    schedule: list, list of person id and person ids to meet in the \n        following format: [PersonID, [PersonID to meet]]\n    '
     persons_1 = list(map(preprocess, list(person_df['Abstract'])))
@@ -1522,11 +1523,11 @@ def create_dating_schedule(person_df, n_meeting=10):
     schedule = nest_answer(output, format_answer(color_graph(build_line_graph(output))))
     return schedule
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ... [(np.arange,)]
 
-idx = 44:------------------- similar code ------------------ index = 27, score = 5.0
+idx = 44:------------------- similar code ------------------ index = 27, score = 5.0 
 def drop(self, rows: Union[(int, List[int], ndarray, None)]=None, columns: Union[(str, int, List[IntStr], ndarray, None)]=None):
     if (rows is None):
         return self._drop_just_cols(columns)
@@ -1576,11 +1577,11 @@ def drop(self, rows: Union[(int, List[int], ndarray, None)]=None, columns: Union
         new_data[dtype] = self._data[dtype][np.ix_(new_rows, locs)]
     return self._construct_from_new(new_data, new_column_info, np.asarray(new_columns, dtype='O'))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... (np.arange,  ... ,)
 
-idx = 45:------------------- similar code ------------------ index = 15, score = 5.0
+idx = 45:------------------- similar code ------------------ index = 15, score = 5.0 
 def decode(self, segms, bboxes, labels, sizes):
     "Decodes back to masks.\n\n        Args:\n            segms (iterable of arrays): An iterable of arrays of\n                shape :math:`(R_n, n\\_class, M, M)`.\n            bboxes (iterable of arrays): An iterable of arrays of\n                shape :math:`(R_n, 4)`.\n            labels (iterable of arrays): An iterable of arrays of\n                shape :math:`(R_n,)`.\n            sizes (list of tuples of two ints): A list of\n                :math:`(H_n, W_n)`, where :math:`H_n` and :math:`W_n`\n                are height and width of the :math:`n`-th image.\n\n        Returns:\n            list of arrays:\n            This list contains instance segmentation for each image\n            in the batch.\n            More precisely, this is a list of boolean arrays of shape\n            :math:`(R'_n, H_n, W_n)`, where :math:`R'_n` is the number of\n            bounding boxes in the :math:`n`-th image.\n        "
     xp = chainer.backends.cuda.get_array_module(*segms)
@@ -1594,13 +1595,13 @@ def decode(self, segms, bboxes, labels, sizes):
             masks.append(np.zeros(((0,) + size), dtype=np.bool))
     return masks
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for in:
         if:
              ... . ... ( ... ( ... [(np.arange,)],  ... ,  ... ))
 
-idx = 46:------------------- similar code ------------------ index = 14, score = 5.0
+idx = 46:------------------- similar code ------------------ index = 14, score = 5.0 
 @pytest.mark.parametrize('systematic, sparse', product([False, True], [False, True]))
 def test_decoding_did_not_converge(systematic, sparse):
     n = 15
@@ -1616,41 +1617,41 @@ def test_decoding_did_not_converge(systematic, sparse):
     with pytest.warns(UserWarning, match='stopped before convergence'):
         decode(H, y, snr, maxiter=1)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange %  ... )
 
-idx = 47:------------------- similar code ------------------ index = 25, score = 5.0
+idx = 47:------------------- similar code ------------------ index = 25, score = 5.0 
 def shuffle_samples(self):
     image_indices = np.random.permutation(np.arange(self.num_samples))
     self.images = self.images[image_indices]
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  =  ... . ... (np.arange)
 
-idx = 48:------------------- similar code ------------------ index = 26, score = 5.0
+idx = 48:------------------- similar code ------------------ index = 26, score = 5.0 
 def append_multiple_new_old_arrays(self):
     df1 = self.df.append({'a': 10, 'b': np.arange(10, 15), 'h': np.arange(5), 'i': np.linspace(2.4, 20.9, 5)}, axis='columns')
     data2 = {'a': array([10, 10, 10, 10, 10]), 'b': array([10, 11, 12, 13, 14]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([2.4, 7.025, 11.65, 16.275, 20.9]), 'h': array([0, 1, 2, 3, 4]), 'i': array([2.4, 7.025, 11.65, 16.275, 20.9])}
     df2 = dx.DataFrame(data2)
     assert_frame_equal(df1, df2)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  =  ... . ... ({ ... :  ... ,  ... : np.arange,  ... :,  ... :},)
 
-idx = 49:------------------- similar code ------------------ index = 28, score = 5.0
+idx = 49:------------------- similar code ------------------ index = 28, score = 5.0 
 def pixel_edges(jet_size=1.0, pixel_size=(0.1, 0.1), border_size=0.25):
     'Return pixel edges required to contain all subjets.\n\n    border_size is interpreted as a fraction of the jet_size\n    '
     im_edge = ((1.0 + border_size) * jet_size)
     return (np.arange((- im_edge), (im_edge + pixel_size[0]), pixel_size[0]), np.arange((- im_edge), (im_edge + pixel_size[1]), pixel_size[1]))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     return (np.arange,)
 
-idx = 50:------------------- similar code ------------------ index = 36, score = 5.0
+idx = 50:------------------- similar code ------------------ index = 36, score = 5.0 
 def _compute_and_log_stats(roidb):
     classes = roidb[0]['dataset'].classes
     char_len = np.max([len(c) for c in classes])
@@ -1666,11 +1667,11 @@ def _compute_and_log_stats(roidb):
     logger.debug(('-' * char_len))
     logger.debug('{:s}: {:d}'.format('total'.rjust(char_len), np.sum(gt_hist)))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 51:------------------- similar code ------------------ index = 13, score = 5.0
+idx = 51:------------------- similar code ------------------ index = 13, score = 5.0 
 def animate_activities(trajectory_or_activities, title='', shape=None, save=False, interval=50, colormap='Greys', vmin=None, vmax=None, show_grid=False, show_margin=True, scale=0.6, dpi=80, blit=True, with_timestep=False):
     if (len(trajectory_or_activities) is 0):
         raise Exception('there are no activities')
@@ -1715,12 +1716,12 @@ def animate_activities(trajectory_or_activities, title='', shape=None, save=Fals
         ani.save('evolved.gif', dpi=dpi, writer='imagemagick')
     plt.show()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if  ... :
          ... . ... (np.arange,  ... )
 
-idx = 52:------------------- similar code ------------------ index = 30, score = 5.0
+idx = 52:------------------- similar code ------------------ index = 30, score = 5.0 
 def calculate_effective_times(cluster: cluster.ClusterObj):
     start_time = time.time()
     scale_map = cluster.scale_map
@@ -1759,12 +1760,12 @@ def calculate_effective_times(cluster: cluster.ClusterObj):
         observation.effective_data_time = effective_data_times
         observation.effective_background_time = effective_background_times
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for  ...  in:
  =  ... . ... (np.arange,)
 
-idx = 53:------------------- similar code ------------------ index = 32, score = 5.0
+idx = 53:------------------- similar code ------------------ index = 32, score = 5.0 
 def load_class_id(self, data_dir, total_num):
     if os.path.isfile((data_dir + '/class_info.pickle')):
         with open((data_dir + '/class_info.pickle'), 'rb') as f:
@@ -1773,12 +1774,12 @@ def load_class_id(self, data_dir, total_num):
         class_id = np.arange(total_num)
     return class_id
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:    else:
          ...  = np.arange
 
-idx = 54:------------------- similar code ------------------ index = 33, score = 5.0
+idx = 54:------------------- similar code ------------------ index = 33, score = 5.0 
 def shift(shape, stride, anchors):
     shift_h = (np.arange(0, shape[0]) * stride)
     shift_w = (np.arange(0, shape[1]) * stride)
@@ -1790,11 +1791,11 @@ def shift(shape, stride, anchors):
     all_anchors = all_anchors.reshape(((K * A), 2))
     return all_anchors
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange *  ... )
 
-idx = 55:------------------- similar code ------------------ index = 10, score = 5.0
+idx = 55:------------------- similar code ------------------ index = 10, score = 5.0 
 def generate_metadata(self):
     for id in self.ids:
         math_patches = []
@@ -1834,12 +1835,12 @@ def generate_metadata(self):
                     y_l = int(np.round((crop_size * j)))
                     self.metadata.append([id[1], x_l, y_l])
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     for  ...  in:
          ...  = np.arange
 
-idx = 56:------------------- similar code ------------------ index = 19, score = 5.0
+idx = 56:------------------- similar code ------------------ index = 19, score = 5.0 
 def _some_variables():
     parent = (np.array([0, 1, 2, 3, 4, 5, 1, 7, 8, 9, 10, 1, 12, 13, 14, 15, 13, 17, 18, 19, 20, 21, 20, 23, 13, 25, 26, 27, 28, 29, 28, 31]) - 1)
     offset = np.array([0.0, 0.0, 0.0, (- 132.948591), 0.0, 0.0, 0.0, (- 442.894612), 0.0, 0.0, (- 454.206447), 0.0, 0.0, 0.0, 162.767078, 0.0, 0.0, 74.999437, 132.948826, 0.0, 0.0, 0.0, (- 442.894413), 0.0, 0.0, (- 454.20659), 0.0, 0.0, 0.0, 162.767426, 0.0, 0.0, 74.999948, 0.0, 0.1, 0.0, 0.0, 233.383263, 0.0, 0.0, 257.077681, 0.0, 0.0, 121.134938, 0.0, 0.0, 115.002227, 0.0, 0.0, 257.077681, 0.0, 0.0, 151.034226, 0.0, 0.0, 278.882773, 0.0, 0.0, 251.733451, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 99.999627, 0.0, 100.000188, 0.0, 0.0, 0.0, 0.0, 0.0, 257.077681, 0.0, 0.0, 151.031437, 0.0, 0.0, 278.892924, 0.0, 0.0, 251.72868, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 99.999888, 0.0, 137.499922, 0.0, 0.0, 0.0, 0.0]).reshape((- 1), 3)
@@ -1847,11 +1848,11 @@ def _some_variables():
     expmapInd = np.split((np.arange(4, 100) - 1), 32)
     return (parent, offset, rotInd, expmapInd)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... ((np.arange -  ... ),  ... )
 
-idx = 57:------------------- similar code ------------------ index = 56, score = 5.0
+idx = 57:------------------- similar code ------------------ index = 56, score = 5.0 
 def plot_dxl_reacher(env, batch_size, shared_returns, plot_running):
     ' Visualizes the DXL reacher task and plots episodic returns\n\n    Args:\n        env: An instance of DxlReacher1DEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
     print('Started plotting routine')
@@ -1909,14 +1910,14 @@ def plot_dxl_reacher(env, batch_size, shared_returns, plot_running):
         fig.canvas.flush_events()
         count += 1
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         if:
             if:            else:
                  ...  = ( ...  * np.arange)
 
-idx = 58:------------------- similar code ------------------ index = 0, score = 5.0
+idx = 58:------------------- similar code ------------------ index = 0, score = 5.0 
 def plot_dxl_tracker(env, batch_size, shared_returns, plot_running):
     ' Visualizes the DXL tracker task and plots episodic returns\n\n    Args:\n        env: An instance of DxlTracker1DEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
     print('Started plotting routine')
@@ -1974,14 +1975,14 @@ def plot_dxl_tracker(env, batch_size, shared_returns, plot_running):
         fig.canvas.flush_events()
         count += 1
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         if:
             if:            else:
                  ...  = ( ...  * np.arange)
 
-idx = 59:------------------- similar code ------------------ index = 54, score = 5.0
+idx = 59:------------------- similar code ------------------ index = 54, score = 5.0 
 def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font_size=20):
 
     def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
@@ -2031,12 +2032,12 @@ def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font
             plt.savefig((fig_path / fig_name), dpi=600, bbox_inches='tight', transparent=True)
         return fig
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
 
      ... . ... (np.arange)
 
-idx = 60:------------------- similar code ------------------ index = 109, score = 5.0
+idx = 60:------------------- similar code ------------------ index = 109, score = 5.0 
 def optimize_rounding_params(oofs, y, verbose=True, ix=None):
     ix = (ix if (ix is not None) else np.arange(oofs.shape[0]))
     opt_ds = []
@@ -2051,11 +2052,11 @@ def optimize_rounding_params(oofs, y, verbose=True, ix=None):
             opt_indices.append(idx)
     return (opt_ds, opt_indices)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = ( ...  if else np.arange)
 
-idx = 61:------------------- similar code ------------------ index = 87, score = 5.0
+idx = 61:------------------- similar code ------------------ index = 87, score = 5.0 
 def plot_confusion_matrix(cm, classes=[], title='Confusion matrix', cmap=plt.cm.Blues, fmt='d'):
     '\n    This function prints and plots the confusion matrix.\n    Normalization can be applied by setting `normalize=True`.\n    '
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
@@ -2071,11 +2072,11 @@ def plot_confusion_matrix(cm, classes=[], title='Confusion matrix', cmap=plt.cm.
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 62:------------------- similar code ------------------ index = 111, score = 5.0
+idx = 62:------------------- similar code ------------------ index = 111, score = 5.0 
 def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
     'Helper process for visualize the tasks and episodic returns.\n\n    Args:\n        env: An instance of ReacherEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
     print('Started plotting routine')
@@ -2146,14 +2147,14 @@ def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
         fig.canvas.flush_events()
         count += 1
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         if:
             if:            else:
                  ...  = ( ...  * np.arange)
 
-idx = 63:------------------- similar code ------------------ index = 90, score = 5.0
+idx = 63:------------------- similar code ------------------ index = 90, score = 5.0 
 def npairsampling(self, batch, labels):
     "\n        This methods finds N-Pairs in a batch given by the classes provided in labels in the\n        creation fashion proposed in 'Improved Deep Metric Learning with Multi-class N-pair Loss Objective'.\n\n        Args:\n            batch:  np.ndarray or torch.Tensor, batch-wise embedded training samples.\n            labels: np.ndarray or torch.Tensor, ground truth labels corresponding to batch.\n        Returns:\n            list of sampled data tuples containing reference indices to the position IN THE BATCH.\n        "
     if isinstance(labels, torch.Tensor):
@@ -2168,12 +2169,12 @@ def npairsampling(self, batch, labels):
     sampled_npairs = [[a, p, *list(neg)] for ((a, p), neg) in zip(pos_pairs, neg_tuples)]
     return sampled_npairs
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for  ...  in:
          ... . ... ( ... [( ... . ... (np.arange,  ... ),  ... )])
 
-idx = 64:------------------- similar code ------------------ index = 91, score = 5.0
+idx = 64:------------------- similar code ------------------ index = 91, score = 5.0 
 def co_nms(self, p_det_rois, scores):
     pre_topN = (cfg.TRAIN.PRUNE_PAIRS_PRE_NMS_TOP_N if self.training else cfg.TEST.PRUNE_PAIRS_PRE_NMS_TOP_N)
     post_topN = (cfg.TRAIN.PRUNE_PAIRS_POST_NMS_TOP_N if self.training else cfg.TEST.PRUNE_PAIRS_POST_NMS_TOP_N)
@@ -2191,12 +2192,12 @@ def co_nms(self, p_det_rois, scores):
         keep_inds = keep_inds[sort_inds]
     return keep_inds
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:    else:
          ...  = np.arange
 
-idx = 65:------------------- similar code ------------------ index = 92, score = 5.0
+idx = 65:------------------- similar code ------------------ index = 92, score = 5.0 
 def recover_closest_one_dataset(feature_matrix_all, image_paths, save_path, n_image_samples=10, n_closest=3):
     '\n    Provide sample recoveries.\n\n    Args:\n        feature_matrix_all: np.ndarray [n_samples x embed_dim], full data embedding of test samples.\n        image_paths:        list [n_samples], list of datapaths corresponding to <feature_matrix_all>\n        save_path:          str, where to store sample image.\n        n_image_samples:    Number of sample recoveries.\n        n_closest:          Number of closest recoveries to show.\n    Returns:\n        Nothing!\n    '
     image_paths = np.array([x[0] for x in image_paths])
@@ -2219,11 +2220,11 @@ def recover_closest_one_dataset(feature_matrix_all, image_paths, save_path, n_im
     f.savefig(save_path)
     plt.close()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... (np.arange,  ... )
 
-idx = 66:------------------- similar code ------------------ index = 93, score = 5.0
+idx = 66:------------------- similar code ------------------ index = 93, score = 5.0 
 def shift(shape, stride, anchors):
     shift_h = (np.arange(0, shape[0]) * stride)
     shift_w = (np.arange(0, shape[1]) * stride)
@@ -2235,11 +2236,11 @@ def shift(shape, stride, anchors):
     all_anchors = all_anchors.reshape(((K * A), 2))
     return all_anchors
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange *  ... )
 
-idx = 67:------------------- similar code ------------------ index = 94, score = 5.0
+idx = 67:------------------- similar code ------------------ index = 94, score = 5.0 
 def spearmanr_np(preds, targets, ix=None, ignore_hard_targets=False, optimized_rounding=False):
     ix = (ix if (ix is not None) else np.arange(preds.shape[0]))
     n_targets = (N_TARGETS - (ignore_hard_targets * len(hard_targets)))
@@ -2253,11 +2254,11 @@ def spearmanr_np(preds, targets, ix=None, ignore_hard_targets=False, optimized_r
         score += np.nan_to_num((score_i / n_targets))
     return score
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = ( ...  if else np.arange)
 
-idx = 68:------------------- similar code ------------------ index = 95, score = 5.0
+idx = 68:------------------- similar code ------------------ index = 95, score = 5.0 
 @pytest.mark.parametrize('systematic, sparse', product([False, True], [False, True]))
 def test_decoding(systematic, sparse):
     n = 15
@@ -2274,22 +2275,22 @@ def test_decoding(systematic, sparse):
     x = get_message(G, d)
     assert (abs((v - x)).sum() == 0)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = (np.arange %  ... )
 
-idx = 69:------------------- similar code ------------------ index = 96, score = 5.0
+idx = 69:------------------- similar code ------------------ index = 96, score = 5.0 
 def _compute_ranks(rewards):
     rewards = np.array(rewards)
     ranks = np.empty(rewards.size, dtype=int)
     ranks[rewards.argsort()] = np.arange(rewards.size)
     return ranks
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
  = np.arange
 
-idx = 70:------------------- similar code ------------------ index = 97, score = 5.0
+idx = 70:------------------- similar code ------------------ index = 97, score = 5.0 
 def randomsampling(self, batch, labels):
     '\n        This methods finds all available triplets in a batch given by the classes provided in labels, and randomly\n        selects <len(batch)> triplets.\n\n        Args:\n            batch:  np.ndarray or torch.Tensor, batch-wise embedded training samples.\n            labels: np.ndarray or torch.Tensor, ground truth labels corresponding to batch.\n        Returns:\n            list of sampled data tuples containing reference indices to the position IN THE BATCH.\n        '
     if isinstance(labels, torch.Tensor):
@@ -2304,11 +2305,11 @@ def randomsampling(self, batch, labels):
     sampled_triplets = random.sample(sampled_triplets, batch.shape[0])
     return sampled_triplets
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 71:------------------- similar code ------------------ index = 99, score = 5.0
+idx = 71:------------------- similar code ------------------ index = 99, score = 5.0 
 def recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all, query_image_paths, gallery_image_paths, save_path, n_image_samples=10, n_closest=3):
     '\n    Provide sample recoveries.\n\n    Args:\n        query_feature_matrix_all:   np.ndarray [n_query_samples x embed_dim], full data embedding of query samples.\n        gallery_feature_matrix_all: np.ndarray [n_gallery_samples x embed_dim], full data embedding of gallery samples.\n        query_image_paths:          list [n_samples], list of datapaths corresponding to <query_feature_matrix_all>\n        gallery_image_paths:        list [n_samples], list of datapaths corresponding to <gallery_feature_matrix_all>\n        save_path:          str, where to store sample image.\n        n_image_samples:    Number of sample recoveries.\n        n_closest:          Number of closest recoveries to show.\n    Returns:\n        Nothing!\n    '
     (query_image_paths, gallery_image_paths) = (np.array(query_image_paths), np.array(gallery_image_paths))
@@ -2333,11 +2334,11 @@ def recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all,
     f.savefig(save_path)
     plt.close()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... (np.arange,  ... )
 
-idx = 72:------------------- similar code ------------------ index = 101, score = 5.0
+idx = 72:------------------- similar code ------------------ index = 101, score = 5.0 
 def recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all, query_image_paths, gallery_image_paths, save_path, n_image_samples=10, n_closest=3):
     '\n    Provide sample recoveries.\n\n    Args:\n        query_feature_matrix_all:   np.ndarray [n_query_samples x embed_dim], full data embedding of query samples.\n        gallery_feature_matrix_all: np.ndarray [n_gallery_samples x embed_dim], full data embedding of gallery samples.\n        query_image_paths:          list [n_samples], list of datapaths corresponding to <query_feature_matrix_all>\n        gallery_image_paths:        list [n_samples], list of datapaths corresponding to <gallery_feature_matrix_all>\n        save_path:          str, where to store sample image.\n        n_image_samples:    Number of sample recoveries.\n        n_closest:          Number of closest recoveries to show.\n    Returns:\n        Nothing!\n    '
     (query_image_paths, gallery_image_paths) = (np.array(query_image_paths), np.array(gallery_image_paths))
@@ -2362,11 +2363,11 @@ def recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all,
     f.savefig(save_path)
     plt.close()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... (np.arange,  ... )
 
-idx = 73:------------------- similar code ------------------ index = 102, score = 5.0
+idx = 73:------------------- similar code ------------------ index = 102, score = 5.0 
 def disk(radius, alias_blur=0.1, dtype=np.float32):
     if (radius <= 8):
         L = np.arange((- 8), (8 + 1))
@@ -2379,12 +2380,12 @@ def disk(radius, alias_blur=0.1, dtype=np.float32):
     aliased_disk /= np.sum(aliased_disk)
     return cv2.GaussianBlur(aliased_disk, ksize=ksize, sigmaX=alias_blur)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:
          ...  = np.arange
 
-idx = 74:------------------- similar code ------------------ index = 103, score = 5.0
+idx = 74:------------------- similar code ------------------ index = 103, score = 5.0 
 def __init__(self, data_path, targetFile=None, targetClass=None):
     if (targetFile is None):
         random.seed(5566)
@@ -2425,12 +2426,12 @@ def __init__(self, data_path, targetFile=None, targetClass=None):
         self.test_labels[(0, temp_label)] = 1
         print('Read target file {}'.format(targetFile))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:
          ... . ... [(np.arange,  ... )]
 
-idx = 75:------------------- similar code ------------------ index = 104, score = 5.0
+idx = 75:------------------- similar code ------------------ index = 104, score = 5.0 
 def intersectionAndUnion(output, target, K, ignore_index=255):
     assert (output.ndim in [1, 2, 3])
     assert (output.shape == target.shape)
@@ -2444,11 +2445,11 @@ def intersectionAndUnion(output, target, K, ignore_index=255):
     area_union = ((area_output + area_target) - area_intersection)
     return (area_intersection, area_union, area_target)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
  =  ... . ... ( ... ,  ... =np.arange)
 
-idx = 76:------------------- similar code ------------------ index = 105, score = 5.0
+idx = 76:------------------- similar code ------------------ index = 105, score = 5.0 
 def fusion_stitch_grid(filename, annotations_dir, output_dir, image_dir='/home/psm2208/data/GTDB/images/', gt_dir='/home/psm2208/data/GTDB/', char_gt='', thresh=20):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
@@ -2481,11 +2482,11 @@ def fusion_stitch_grid(filename, annotations_dir, output_dir, image_dir='/home/p
     pool.close()
     pool.join()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     for in:
         for  ...  in np.arange:
-idx = 77:------------------- similar code ------------------ index = 106, score = 5.0
+idx = 77:------------------- similar code ------------------ index = 106, score = 5.0 
 def return_adj_matrix(dataframe):
     classes = sorted(dataframe.processed_classes.unique())
     classes_dict = {v: k for (k, v) in enumerate(classes)}
@@ -2499,11 +2500,11 @@ def return_adj_matrix(dataframe):
         adj_matrix[class_tuple] = adj_matrix[(v, u)] = (1 - sum((normalised_sentence_embeddings[u] * normalised_sentence_embeddings[v])))
     return adj_matrix
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  =  ... ( ... (np.arange,))
 
-idx = 78:------------------- similar code ------------------ index = 107, score = 5.0
+idx = 78:------------------- similar code ------------------ index = 107, score = 5.0 
 def load_clips_tsn(fname, clip_len=16, n_clips=1, is_validation=False):
     if (not os.path.exists(fname)):
         print(('Missing: ' + fname))
@@ -2552,11 +2553,11 @@ def load_clips_tsn(fname, clip_len=16, n_clips=1, is_validation=False):
     frames = frames.reshape([n_clips, clip_len, frame_height, frame_width, 3])
     return frames
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 79:------------------- similar code ------------------ index = 84, score = 5.0
+idx = 79:------------------- similar code ------------------ index = 84, score = 5.0 
 @njit
 def _compute_valid_splitting_indices(t, min_leaf):
     'Compute valid split indices for treatment array *t* given *min_leaf*.\n\n    Given an array *t* of treatment status and an integer *min_leaf* --denoting\n    the minimum number of allowed observations of each type in a leaf node--\n    computes a sequence of indices on which we can split *t* and get that each\n    resulting side contains a minimum of *min_leaf* treated and untreated\n    observations. Returns an empty sequence if no split is possible.\n\n    Args:\n        t (np.array): 1d array containing the treatment status as treated =\n            True and untreated = False.\n        min_leaf (int): Minimum number of observations of each type (treated,\n            untreated) allowed in a leaf; has to be greater than 1.\n\n    Returns:\n        out (np.array): a sequence of indices representing valid splitting\n            points.\n\n    '
@@ -2586,20 +2587,20 @@ def _compute_valid_splitting_indices(t, min_leaf):
         out = np.arange(left, (right - 1))
         return out
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 80:------------------- similar code ------------------ index = 82, score = 5.0
+idx = 80:------------------- similar code ------------------ index = 82, score = 5.0 
 def shuffle_samples(self):
     image_indices = np.random.permutation(np.arange(self.num_samples))
     self.images = self.images[image_indices]
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  =  ... . ... (np.arange)
 
-idx = 81:------------------- similar code ------------------ index = 81, score = 5.0
+idx = 81:------------------- similar code ------------------ index = 81, score = 5.0 
 def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
     'Helper process for visualize the tasks and episodic returns.\n\n    Args:\n        env: An instance of ReacherEnv\n        batch_size: An int representing timesteps_per_batch provided to the PPO learn function\n        shared_returns: A manager dictionary object containing `episodic returns` and `episodic lengths`\n        plot_running: A multiprocessing Value object containing 0/1.\n            1: Continue plotting, 0: Terminate plotting loop\n    '
     print('Started plotting routine')
@@ -2670,14 +2671,14 @@ def plot_ur5_reacher(env, batch_size, shared_returns, plot_running):
         fig.canvas.flush_events()
         count += 1
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     while:
         if:
             if:            else:
                  ...  = ( ...  * np.arange)
 
-idx = 82:------------------- similar code ------------------ index = 67, score = 5.0
+idx = 82:------------------- similar code ------------------ index = 67, score = 5.0 
 def get_states(self):
     if (len(LinkAction.LINKS) == 0):
         return
@@ -2726,13 +2727,13 @@ def get_states(self):
     filter_per_dim = [('(%s)' % f) for f in filter_per_dim]
     return Operation(OrderedDict({'name': ('viz_%s' % rand_link_src), 'selection': ' and '.join(filter_per_dim)}))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     for  ...  in:
         if:
              ...  =  ... . ... (np.arange,,)
 
-idx = 83:------------------- similar code ------------------ index = 112, score = 5.0
+idx = 83:------------------- similar code ------------------ index = 112, score = 5.0 
 if (__name__ == '__main__'):
     '\n    Example script to create dating schedule for CCN 2018 conference\n    '
     person_df = pd.ExcelFile('CCN18_MindMatchData.xlsx').parse('Grid Results')
@@ -2764,11 +2765,11 @@ if (__name__ == '__main__'):
         for l in output_text:
             f.write('{}\n'.format(l))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 if:
  = np.arange
 
-idx = 84:------------------- similar code ------------------ index = 58, score = 5.0
+idx = 84:------------------- similar code ------------------ index = 58, score = 5.0 
 def get_states(self):
     src_viz_num = random.randint(0, VizAction.VIZ_COUNTER)
     src_viz = list(self.vizgraph.get_nodes())[src_viz_num]
@@ -2813,13 +2814,13 @@ def get_states(self):
     filter_per_dim = [('(%s)' % f) for f in filter_per_dim]
     return Operation(OrderedDict({'name': ('viz_%s' % src_viz_num), 'filter': ' and '.join(filter_per_dim)}))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     for  ...  in:
         if:
              ...  =  ... . ... (np.arange,,)
 
-idx = 85:------------------- similar code ------------------ index = 59, score = 5.0
+idx = 85:------------------- similar code ------------------ index = 59, score = 5.0 
 def plot_hyperparam(ax, alg, param):
     relevant_dict = relevant_param(alg)
     hyperparam_range = relevant_dict[param]
@@ -2842,11 +2843,11 @@ def plot_hyperparam(ax, alg, param):
     ax.margins(x=0.0, y=0.0, tight=True)
     return barlist
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 86:------------------- similar code ------------------ index = 60, score = 5.0
+idx = 86:------------------- similar code ------------------ index = 60, score = 5.0 
 def mask_head_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels, batchsize):
     'Loss function for Mask Head (post).\n\n     Args:\n         segms (array): An array whose shape is :math:`(R, n\\_class, M, M)`,\n             where :math:`R` is the total number of RoIs in the given batch.\n         mask_roi_indices (array): A list of arrays returned by\n             :func:`mask_head_loss_pre`.\n         gt_segms (list of arrays): A list of arrays returned by\n             :func:`mask_head_loss_pre`.\n         gt_mask_labels (list of arrays): A list of arrays returned by\n             :func:`mask_head_loss_pre`.\n         batchsize (int): The size of batch.\n\n     Returns:\n        chainer.Variable:\n        Mask loss.\n    '
     xp = cuda.get_array_module(segms.array)
@@ -2856,11 +2857,11 @@ def mask_head_loss_post(segms, mask_roi_indices, gt_segms, gt_mask_labels, batch
     mask_loss = F.sigmoid_cross_entropy(segms[(np.arange(len(gt_mask_labels)), gt_mask_labels)], gt_segms.astype(np.int32))
     return mask_loss
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  =  ... . ... ( ... [(np.arange,  ... )],)
 
-idx = 87:------------------- similar code ------------------ index = 63, score = 5.0
+idx = 87:------------------- similar code ------------------ index = 63, score = 5.0 
 def visualize_means(means, num_classes, data_name, save_path, name):
     '\n    Visualization of means, e.g. of latent code z.\n\n    Parameters:\n        means (torch.Tensor): 2-D Tensor with one mean z vector per class.\n        num_classes (int): Defines number of classes.\n        data_name (str): Dataset name. Used for naming.\n        save_path (str): Saving path.\n        name (str): Name for type of mean, e.g. "z".\n    '
     classes = np.arange(0, num_classes)
@@ -2871,33 +2872,33 @@ def visualize_means(means, num_classes, data_name, save_path, name):
     ax.set_yticklabels(classes, rotation=0)
     plt.savefig(os.path.join(save_path, (name + '_mean_activations.png')), bbox_inches='tight')
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 88:------------------- similar code ------------------ index = 64, score = 5.0
+idx = 88:------------------- similar code ------------------ index = 64, score = 5.0 
 def test_append_one_array(self):
     df1 = self.df.append({'h': np.arange(5)}, axis='columns')
     data2 = {'a': array([9, 10, 9, 9, 10]), 'b': array([0.0, nan, nan, 0.0, 1.0]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([nan, nan, nan, nan, nan]), 'h': array([0, 1, 2, 3, 4])}
     df2 = dx.DataFrame(data2)
     assert_frame_equal(df1, df2)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  =  ... . ... ({ ... : np.arange},)
 
-idx = 89:------------------- similar code ------------------ index = 65, score = 5.0
+idx = 89:------------------- similar code ------------------ index = 65, score = 5.0 
 def test_shuffle():
     ind = np.arange(10)
     rs = RandomState(seed=0)
     rs.shuffle(ind)
     assert_array_equal(ind, [2, 8, 4, 9, 1, 6, 7, 3, 0, 5])
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 90:------------------- similar code ------------------ index = 66, score = 5.0
+idx = 90:------------------- similar code ------------------ index = 66, score = 5.0 
 def plot_hyperparam_alg(ax, alg):
     relevant_dict = relevant_param(alg)
     ylabel = list(relevant_dict.keys())
@@ -2920,11 +2921,11 @@ def plot_hyperparam_alg(ax, alg):
     ax.set_ylabel(alg)
     ax.set_yticklabels([])
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 91:------------------- similar code ------------------ index = 108, score = 5.0
+idx = 91:------------------- similar code ------------------ index = 108, score = 5.0 
 def load_clips_npy(fname, clip_len=16, n_clips=1, is_validation=False):
     if (not os.path.exists(fname)):
         return []
@@ -2951,11 +2952,11 @@ def load_clips_npy(fname, clip_len=16, n_clips=1, is_validation=False):
     clip = clip.reshape([n_clips, clip_len, H, W, 3])
     return clip
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.arange
 
-idx = 92:------------------- similar code ------------------ index = 80, score = 5.0
+idx = 92:------------------- similar code ------------------ index = 80, score = 5.0 
 def create_circle_regions(cluster):
     start_time = time.time()
     scale_map_fits = fits.open(cluster.scale_map_file)
@@ -2991,11 +2992,11 @@ def create_circle_regions(cluster):
     end_time = time.time()
     print('Time elapsed making regions for fit: {:0.2f} (s)'.format((end_time - start_time)))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.arange
 
-idx = 93:------------------- similar code ------------------ index = 69, score = 5.0
+idx = 93:------------------- similar code ------------------ index = 69, score = 5.0 
 def plot_grid(activities, shape=None, slice=(- 1), title='', colormap='Greys', vmin=None, vmax=None, node_annotations=None, show_grid=False):
     if (shape is not None):
         activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
@@ -3013,30 +3014,30 @@ def plot_grid(activities, shape=None, slice=(- 1), title='', colormap='Greys', v
         plt.tick_params(axis='both', which='both', length=0)
     plt.show()
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if  ... :
          ... . ... (np.arange,  ... )
 
-idx = 94:------------------- similar code ------------------ index = 21, score = 5.0
+idx = 94:------------------- similar code ------------------ index = 21, score = 5.0 
 def aranges(*shape):
     r = np.prod(shape)
     return np.arange(r).reshape(shape).astype(np.float32)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ():
     return np.arange
 
-idx = 95:------------------- similar code ------------------ index = 16, score = 5.0
+idx = 95:------------------- similar code ------------------ index = 16, score = 5.0 
 def aranges(xp, *shape):
     r = np.prod(shape)
     return np.arange(r).reshape(shape).astype(np.float32)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ():
     return np.arange
 
-idx = 96:------------------- similar code ------------------ index = 55, score = 5.0
+idx = 96:------------------- similar code ------------------ index = 55, score = 5.0 
 if (__name__ == '__main__'):
     import numpy as np
     if ((len(sys.argv) > 1) and sys.argv[1].startswith('-')):
@@ -3070,13 +3071,13 @@ if (__name__ == '__main__'):
         ch2o.generate_testcase(ROIAlign2D(F.roi_max_align_2d, 7, 1.2, 2), [x, rois, roi_indices], subname='max_align')
         ch2o.generate_testcase(ROIAlign2D(F.roi_average_align_2d, 7, 1.2, 3), [x, rois, roi_indices], subname='avg_align')
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 if:
     import  ...  as np
     if:    else:
          ...  =  ... .arange
 
-idx = 97:------------------- similar code ------------------ index = 86, score = 5.0
+idx = 97:------------------- similar code ------------------ index = 86, score = 5.0 
 def _get_backprop_tests(dtype):
     chainer.config.dtype = dtype
     F = chainer.functions
@@ -3311,27 +3312,27 @@ def _get_backprop_tests(dtype):
     test('pad', Pad(), aranges(5, 4, 3))
     return tests
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ( ... ):
     def  ... ():
         return np.arange
 
 
-idx = 98:------------------- similar code ------------------ index = 110, score = 5.0
+idx = 98:------------------- similar code ------------------ index = 110, score = 5.0 
 def aranges(*shape):
     r = np.prod(shape)
     return np.arange(r).reshape(shape).astype(np.float32)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ():
     return np.arange
 
-idx = 99:------------------- similar code ------------------ index = 62, score = 5.0
+idx = 99:------------------- similar code ------------------ index = 62, score = 5.0 
 def aranges(*shape):
     r = np.prod(shape)
     return np.arange(r).reshape(shape).astype(np.float32)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ():
     return np.arange
 

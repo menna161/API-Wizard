@@ -2,5 +2,10 @@
 
 for file in *
 do
-	./"$file"
+	# printf "%s\n" "$file"
+	if [ "$file" != "run_all" ]
+	then
+		./"$file"
+		# printf "%s\n" "$file"
+	fi
 done

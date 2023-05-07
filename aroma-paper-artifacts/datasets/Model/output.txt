@@ -1,0 +1,47 @@
+------------------------- example 1 ------------------------ 
+def load_model(self, model, **model_args):
+    Model = import_class(model)
+    model = Model(**model_args)
+    self.model_text += ('\n\n' + str(model))
+    return model
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        5         ||         0        
+
+avg       ||          2.0           ||        5.0         ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 63, score = 2.0 
+def load_model(self, model, **model_args):
+    Model = import_class(model)
+    model = Model(**model_args)
+    self.model_text += ('\n\n' + str(model))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    Model
+
+idx = 1:------------------- similar code ------------------ index = 111, score = 2.0 
+def pretrained_embedding():
+    '\n    :return: A Model with an embeddings layer\n    '
+    inputs = Input(shape=(None,), dtype='int32')
+    embeddings = KeyedVectors.load_word2vec_format(EMBEDDINGS_PATH, binary=False)
+    word_encodings_weights = np.concatenate((np.zeros((1, embeddings.syn0.shape[(- 1)]), dtype=np.float32), embeddings.syn0), axis=0)
+    embeds = Embedding(len(word_encodings_weights), word_encodings_weights.shape[(- 1)], weights=[word_encodings_weights], trainable=False)(inputs)
+    return Model(inputs=inputs, outputs=embeds, name='embedding')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return Model
+
+idx = 2:------------------- similar code ------------------ index = 23, score = 2.0 
+def load_model(self, model, **model_args):
+    Model = import_class(model)
+    model = Model(**model_args)
+    self.model_text += ('\n\n' + str(model))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    Model
+

@@ -1,0 +1,413 @@
+------------------------- example 1 ------------------------ 
+def read_atomic_dos_as_df(self, atom_number: int) -> pd.DataFrame:
+    assert (atom_number > (0 & atom_number) <= self.number_of_atoms)
+// your code ...
+
+    return df.drop('energy', axis=1)
+
+------------------------- example 2 ------------------------ 
+def perf_stats(returns: pd.Series, **kwargs):
+    ' Wrapper function for pf.timeseries.performance'
+// your code ...
+
+    perf_index = list(performance.index)
+    (performance['StartDate'], performance['EndDate']) = list(returns.index[[0, (- 1)]].strftime('%b %d, %Y'))
+    performance = performance.reindex((['StartDate', 'EndDate'] + perf_index))
+// your code ...
+
+    performance = performance.drop('common_sense_ratio', axis=0)
+    return performance
+
+------------------------- example 3 ------------------------ 
+def build_procedures_table(data_dir, out_dir, conn):
+    print('Build procedures_table')
+    left = pandas.read_csv(os.path.join(data_dir, 'PROCEDURES_ICD.csv'), dtype=str)
+    right = pandas.read_csv(os.path.join(data_dir, 'D_ICD_PROCEDURES.csv'), dtype=str)
+    left = left.drop(columns=['ROW_ID', 'SEQ_NUM'])
+    right = right.drop(columns=['ROW_ID'])
+    out = pandas.merge(left, right, on='ICD9_CODE')
+    out = out.sort_values(by='HADM_ID')
+    print('-- write table')
+    out.to_csv(os.path.join(out_dir, 'PROCEDURES.csv'), sep=',', index=False)
+    print('-- write sql')
+    out.to_sql('PROCEDURES', conn, if_exists='replace', index=False)
+
+------------------------- example 4 ------------------------ 
+
+def performance_summary(self):
+    'Get simulation performance'
+    performance = pf.timeseries.perf_stats(self.returns)
+    perf_index = list(performance.index)
+// your code ...
+
+    (performance['StartDate'], performance['EndDate']) = list(self.simulation_parameters.sim_dates_live[[0, (- 1)]].strftime('%b %d, %Y'))
+    (performance['Leverage'], performance['ZScore'], performance['Avg_Days']) = [self.leverage.mean(), self.simulation_parameters.zscore, self.days_2_expiry.mean()]
+    performance = performance.reindex((['StartDate', 'EndDate', 'Leverage', 'ZScore', 'Avg_Days'] + perf_index))
+    performance = performance.append(self.greeks.mean())
+    performance = performance.rename(self.strategy_name)
+    performance = performance.to_frame()
+    performance = performance.drop(['active_underlying_price_1545'], axis=0)
+    return performance
+
+------------------------- example 5 ------------------------ 
+def rollup_statements(statements, key='mtm_ytd'):
+
+    def clean(x):
+        return x.drop('Total', axis=1)
+    result = clean(getattr(statements[0], key))
+// your code ...
+
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          3           ||        4         ||         1        
+example2  ||          3           ||        9         ||         2        
+example3  ||          2           ||        12         ||         0        
+example4  ||          2           ||        14         ||         1        
+example5  ||          2           ||        4         ||         1        
+
+avg       ||          2.4           ||        8.6         ||         1.0        
+
+idx = 0:------------------- similar code ------------------ index = 19, score = 2.0 
+def drop(self):
+    if (self.with_database and self.db_exists()):
+        self.drop_database()
+    if self.role_exists():
+        self.drop_user()
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def drop( ... ):
+idx = 1:------------------- similar code ------------------ index = 4, score = 2.0 
+def read_total_dos(self) -> pd.DataFrame:
+    start_to_read: int = Doscar.number_of_header_lines
+    df: pd.DataFrame = pd.read_csv(self.filename, skiprows=start_to_read, nrows=self.number_of_data_points, delim_whitespace=True, names=['energy', 'up', 'down', 'int_up', 'int_down'], index_col=False)
+    self.energy: np.ndarray = df.energy.values
+    df.drop('energy', axis=1)
+    self.tdos = df
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ) ->:
+     ... .drop
+
+idx = 2:------------------- similar code ------------------ index = 8, score = 2.0 
+def delete(self):
+    if (self.physical_resource_id == 'could-not-create'):
+        self.success('user was never created')
+    try:
+        self.connect()
+        self.drop()
+    except Exception as e:
+        return self.fail(str(e))
+    finally:
+        self.close()
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    try:
+         ... .drop()
+
+idx = 3:------------------- similar code ------------------ index = 31, score = 1.0 
+def read_atomic_dos_as_df(self, atom_number: int) -> pd.DataFrame:
+    assert (atom_number > (0 & atom_number) <= self.number_of_atoms)
+    start_to_read = (Doscar.number_of_header_lines + (atom_number * (self.number_of_data_points + 1)))
+    df = pd.read_csv(self.filename, skiprows=start_to_read, nrows=self.number_of_data_points, delim_whitespace=True, names=pdos_column_names(lmax=self.lmax, ispin=self.ispin), index_col=False)
+    return df.drop('energy', axis=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->:
+    return  ... .drop
+
+idx = 4:------------------- similar code ------------------ index = 1, score = 1.0 
+def perf_stats(returns: pd.Series, **kwargs):
+    ' Wrapper function for pf.timeseries.performance'
+    performance = pf.timeseries.perf_stats(returns, **kwargs)
+    perf_index = list(performance.index)
+    (performance['StartDate'], performance['EndDate']) = list(returns.index[[0, (- 1)]].strftime('%b %d, %Y'))
+    performance = performance.reindex((['StartDate', 'EndDate'] + perf_index))
+    performance = performance.rename(returns.name)
+    performance = performance.drop('common_sense_ratio', axis=0)
+    return performance
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+
+idx = 5:------------------- similar code ------------------ index = 2, score = 1.0 
+def build_procedures_table(data_dir, out_dir, conn):
+    print('Build procedures_table')
+    left = pandas.read_csv(os.path.join(data_dir, 'PROCEDURES_ICD.csv'), dtype=str)
+    right = pandas.read_csv(os.path.join(data_dir, 'D_ICD_PROCEDURES.csv'), dtype=str)
+    left = left.drop(columns=['ROW_ID', 'SEQ_NUM'])
+    right = right.drop(columns=['ROW_ID'])
+    out = pandas.merge(left, right, on='ICD9_CODE')
+    out = out.sort_values(by='HADM_ID')
+    print('-- write table')
+    out.to_csv(os.path.join(out_dir, 'PROCEDURES.csv'), sep=',', index=False)
+    print('-- write sql')
+    out.to_sql('PROCEDURES', conn, if_exists='replace', index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+
+idx = 6:------------------- similar code ------------------ index = 6, score = 1.0 
+@property
+def performance_summary(self):
+    'Get simulation performance'
+    performance = pf.timeseries.perf_stats(self.returns)
+    perf_index = list(performance.index)
+    performance = performance['perf_stats']
+    (performance['StartDate'], performance['EndDate']) = list(self.simulation_parameters.sim_dates_live[[0, (- 1)]].strftime('%b %d, %Y'))
+    (performance['Leverage'], performance['ZScore'], performance['Avg_Days']) = [self.leverage.mean(), self.simulation_parameters.zscore, self.days_2_expiry.mean()]
+    performance = performance.reindex((['StartDate', 'EndDate', 'Leverage', 'ZScore', 'Avg_Days'] + perf_index))
+    performance = performance.append(self.greeks.mean())
+    performance = performance.rename(self.strategy_name)
+    performance = performance.to_frame()
+    performance = performance.drop(['active_underlying_price_1545'], axis=0)
+    return performance
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .drop
+
+idx = 7:------------------- similar code ------------------ index = 7, score = 1.0 
+def rollup_statements(statements, key='mtm_ytd'):
+
+    def clean(x):
+        return x.drop('Total', axis=1)
+    result = clean(getattr(statements[0], key))
+    for stmt in statements[1:]:
+        result = result.add(clean(getattr(stmt, key)), fill_value=0)
+    result = result.fillna(0)
+    result['Total'] = result.sum(1)
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    def  ... ( ... ):
+        return  ... .drop
+
+idx = 8:------------------- similar code ------------------ index = 9, score = 1.0 
+def forward(self, input_):
+    ' \n        HT+X(1-T)\n        '
+    hh = torch.relu(self.ff1(input_))
+    tt = torch.sigmoid(self.ff2(input_))
+    return self.drop(((hh * tt) + (input_ * (1 - tt))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .drop
+
+idx = 9:------------------- similar code ------------------ index = 10, score = 1.0 
+def build_prescriptions_table(data_dir, out_dir, conn):
+    print('Build prescriptions_table')
+    data = pandas.read_csv(os.path.join(data_dir, 'PRESCRIPTIONS.csv'), dtype=str)
+    data = data.drop(columns=['ROW_ID', 'GSN', 'DRUG_NAME_POE', 'DRUG_NAME_GENERIC', 'NDC', 'PROD_STRENGTH', 'FORM_VAL_DISP', 'FORM_UNIT_DISP', 'STARTDATE', 'ENDDATE'])
+    data = data.dropna(subset=['DOSE_VAL_RX', 'DOSE_UNIT_RX'])
+    data['DRUG_DOSE'] = data[['DOSE_VAL_RX', 'DOSE_UNIT_RX']].apply((lambda x: ''.join(x)), axis=1)
+    data = data.drop(columns=['DOSE_VAL_RX', 'DOSE_UNIT_RX'])
+    print('-- write table')
+    data.to_csv(os.path.join(out_dir, 'PRESCRIPTIONS.csv'), sep=',', index=False)
+    print('-- write sql')
+    data.to_sql('PRESCRIPTIONS', conn, if_exists='replace', index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+
+idx = 10:------------------- similar code ------------------ index = 13, score = 1.0 
+def main():
+    '\n\tMain function\n\n\tMain function that joins the bitcoin and dark web data\n\n\t'
+    appName = 'DarkCoinJoin'
+    master = config.spark['MASTERIP']
+    spark = SparkSession.builder.appName(appName).config('spark.cassandra.connection.host', config.cassandra['HOSTS']).config('spark.cassandra.connection.port', config.cassandra['PORT']).config('spark.cassandra.output.consistency.level', 'ONE').config('spark.kryoserializer.buffer.max', '2047m').config('spark.driver.port', config.cassandra['DRIVERPORT']).config('spark.network.timeout', '10000000').master(master).getOrCreate()
+    sqlContext = SQLContext(spark)
+    df_bitcoin = spark.read.format('org.apache.spark.sql.cassandra').options(table=config.cassandra['BITCOIN'], keyspace=config.cassandra['KEYSPACE']).load()
+    df_bitcoin.registerTempTable('bitcoin')
+    df_marketplace = spark.read.format('org.apache.spark.sql.cassandra').options(table=config.cassandra['MARKETPLACE'], keyspace=config.cassandra['KEYSPACE']).load()
+    df_marketplace.registerTempTable('marketplace')
+    substring = udf((lambda x: x[0:510]), StringType())
+    substring2 = udf((lambda x: x[0:99]), StringType())
+    df_marketplace = df_marketplace.withColumn('description', substring('description')).withColumn('ship_to', substring2('ship_to')).withColumn('ship_from', substring2('ship_from')).withColumn('category', substring2('category')).withColumn('image_url', substring('image_url')).withColumn('product_name', substring('product_name'))
+    date_incr = udf((lambda date, num_days: (date + relativedelta(days=num_days))), TimestampType())
+    result = df_bitcoin.join(df_marketplace, (((df_bitcoin.recv_amount == df_marketplace.price) & (df_bitcoin.time > df_marketplace.ad_date)) & (df_bitcoin.time < date_incr(df_marketplace.ad_date, lit(10)))), 'inner').drop(df_bitcoin.recv_amount)
+    write_postgres(result)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+
+idx = 11:------------------- similar code ------------------ index = 30, score = 1.0 
+def feather_clean(in_directory):
+    ' Utility function to clean feather files'
+    Path.is_dir(in_directory)
+    all_files = os.listdir(in_directory)
+    for item in all_files:
+        if item.endswith('.feather'):
+            option_df = pd.read_feather((in_directory / item))
+            idx = (option_df['strike'] == 5)
+            option_df = option_df.drop(option_df.index[idx])
+            option_df.to_feather(str((in_directory / item)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+             ...  =  ... .drop
+
+idx = 12:------------------- similar code ------------------ index = 0, score = 1.0 
+def create_assignment_dataframe(b, reviewer_map, paper_id_map, pool_group='a'):
+    '\n    Get the assignment array, generate assignment dataframe\n    '
+    assignments = []
+    for i in range(len(b)):
+        assignments.append([paper_id_map[i], [reviewer_map[b_] for b_ in np.nonzero(b[i])[0]]])
+    assignments_df = pd.DataFrame(assignments, columns=['PaperID', 'UserIDs'])
+    n_reviewers = len(assignments_df.UserIDs.iloc[0])
+    for c in range(n_reviewers):
+        assignments_df['UserID_{}_{}'.format(pool_group, (c + 1))] = assignments_df.UserIDs.map((lambda x: x[c]))
+    return assignments_df.drop('UserIDs', axis=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .drop
+
+idx = 13:------------------- similar code ------------------ index = 23, score = 1.0 
+def _transform_df(self, df):
+    df = df.copy(True)
+    if self.distinguish_ablation:
+        df['label'] = 2
+        df.loc[(df.ablation, 'label')] = 1
+        df.loc[(df.sota, 'label')] = 0
+    else:
+        df['label'] = 1
+        df.loc[(df.sota, 'label')] = 0
+        df.loc[(df.ablation, 'label')] = 0
+    if self.sigmoid:
+        if self.irrelevant_as_class:
+            df['irrelevant'] = (~ (df['sota'] | df['ablation']))
+        if (not self.distinguish_ablation):
+            df['sota'] = (df['sota'] | df['ablation'])
+            df = df.drop(columns=['ablation'])
+    else:
+        df['class'] = df['label']
+    drop_columns = []
+    if (not self.caption):
+        drop_columns.append('caption')
+    if (not self.first_column):
+        drop_columns.append('col0')
+    if (not self.first_row):
+        drop_columns.append('row0')
+    if (not self.referencing_sections):
+        drop_columns.append('sections')
+    df = df.drop(columns=drop_columns)
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        if:
+             ...  =  ... .drop
+
+idx = 14:------------------- similar code ------------------ index = 26, score = 1.0 
+def clean_stock_perf(perf):
+    perf = perf[(perf.assetCategory == 'STK')]
+    perf = perf.drop(['acctAlias', 'assetCategory', 'expiry', 'multiplier', 'putCall', 'strike', 'securityID', 'securityIDType', 'underlyingSymbol', 'underlyingConid'], axis='columns')
+    return perf.set_index('symbol')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .drop
+
+idx = 15:------------------- similar code ------------------ index = 29, score = 1.0 
+def forward(self, x):
+    out = F.relu(self.bn1(x))
+    shortcut = (self.shortcut(out) if hasattr(self, 'shortcut') else x)
+    out = self.conv1(out)
+    if (self.drop is not None):
+        out = self.drop(out)
+    out = self.conv2(F.relu(self.bn2(out)))
+    out += shortcut
+    return out
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if ( ... .drop is not None):
+idx = 16:------------------- similar code ------------------ index = 20, score = 1.0 
+def forward(self, input_):
+    ' \n        (B, S, D) -> (B, S, D_ff) -> (B, S, D)\n        '
+    return self.drop(self.ff2(gelu(self.ff1(input_))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .drop
+
+idx = 17:------------------- similar code ------------------ index = 21, score = 1.0 
+def build_lab_table(data_dir, out_dir, conn):
+    print('Build lab_table')
+    cnt = 0
+    show_progress(cnt, 4)
+    left = pandas.read_csv(os.path.join(data_dir, 'LABEVENTS.csv'), dtype=str)
+    cnt += 1
+    show_progress(cnt, 4)
+    right = pandas.read_csv(os.path.join(data_dir, 'D_LABITEMS.csv'), dtype=str)
+    cnt += 1
+    show_progress(cnt, 4)
+    left = left.dropna(subset=['HADM_ID', 'VALUE', 'VALUEUOM'])
+    left = left.drop(columns=['ROW_ID', 'VALUENUM'])
+    left['VALUE_UNIT'] = left[['VALUE', 'VALUEUOM']].apply((lambda x: ''.join(x)), axis=1)
+    left = left.drop(columns=['VALUE', 'VALUEUOM'])
+    right = right.drop(columns=['ROW_ID', 'LOINC_CODE'])
+    cnt += 1
+    show_progress(cnt, 4)
+    out = pandas.merge(left, right, on='ITEMID')
+    cnt += 1
+    show_progress(cnt, 4)
+    print()
+    print('-- write table')
+    out.to_csv(os.path.join(out_dir, 'LAB.csv'), sep=',', index=False)
+    print('-- write sql')
+    out.to_sql('LAB', conn, if_exists='replace', index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+    print()
+
+idx = 18:------------------- similar code ------------------ index = 27, score = 1.0 
+def build_diagnoses_table(data_dir, out_dir, conn):
+    print('Build diagnoses_table')
+    left = pandas.read_csv(os.path.join(data_dir, 'DIAGNOSES_ICD.csv'), dtype=str)
+    right = pandas.read_csv(os.path.join(data_dir, 'D_ICD_DIAGNOSES.csv'), dtype=str)
+    left = left.drop(columns=['ROW_ID', 'SEQ_NUM'])
+    right = right.drop(columns=['ROW_ID'])
+    out = pandas.merge(left, right, on='ICD9_CODE')
+    out = out.sort_values(by='HADM_ID')
+    print('-- write table')
+    out.to_csv(os.path.join(out_dir, 'DIAGNOSES.csv'), sep=',', index=False)
+    print('-- write sql')
+    out.to_sql('DIAGNOSES', conn, if_exists='replace', index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop
+
+idx = 19:------------------- similar code ------------------ index = 22, score = 1.0 
+def clean(x):
+    return x.drop('Total', axis=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .drop
+
+idx = 20:------------------- similar code ------------------ index = 24, score = 1.0 
+def forward(self, input_, mask=None):
+    '\n        Transformer\n        '
+    hd = self.attentionMH(input_, mask)
+    hd = self.norm1((input_ + self.drop(hd)))
+    hd = self.norm2((hd + self.layer_ff(hd)))
+    return self.drop(hd)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... (( ...  +  ... .drop))
+
