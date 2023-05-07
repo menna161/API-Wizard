@@ -464,21 +464,21 @@ public class ConvertJava {
     //// another way: check if the second argument has .py or not
 
     ConvertJava p = new ConvertJava();
-    p.openWriter(args[1]);
+    String cwd = Paths.get("")
+        .toAbsolutePath()
+        .toString();
+    // System.out.println(cwd);
+    cwd = cwd.replace("reference", "datasets");
+    p.openWriter(cwd + File.separator + args[1]);
 
     if (!(args[2].contains(".py"))) {
       ArrayList<String> fileNames = new ArrayList<String>();
-      String cwd = Paths.get("")
-          .toAbsolutePath()
-          .toString();
-      // System.out.println(cwd);
-      cwd = cwd.replace("reference", "datasets");
       File[] files = new File(
           cwd + File.separator + args[2] + "/snippets").listFiles();
 
       for (File file : files) {
         if (file.isFile()) {
-          String tmp = args[2] + "/snippets/" + file.getName();
+          String tmp = cwd + File.separator + args[2] + "/snippets/" + file.getName();
           fileNames.add(tmp);
           // System.out.println(tmp);
         }
@@ -496,10 +496,10 @@ public class ConvertJava {
         }
       }
     } else {
-      if (Files.isRegularFile(new File(args[2]).toPath())) {
-        p.serializeFile(args[2], args[0]);
+      if (Files.isRegularFile(new File(cwd + File.separator + args[2]).toPath())) {
+        p.serializeFile(cwd + File.separator + args[2], args[0]);
       } else {
-        Files.walk(Paths.get(args[2]))
+        Files.walk(Paths.get(cwd + File.separator + args[2]))
             .filter(path -> !Files.isDirectory(path) &&
                 path.toString().endsWith(".java"))
             .forEach(path -> p.serializeFile(path.normalize().toString(), args[0]));

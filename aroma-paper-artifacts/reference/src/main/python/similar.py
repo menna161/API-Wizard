@@ -45,7 +45,7 @@ def parse_args():
         "--output-file",
         action="store",
         dest="output_file",
-        default=None,
+        default="",
         help="Output file.",
     )
 
@@ -1137,9 +1137,12 @@ def load_all(counter_path, asts_path):
 
 
 def setup(records_file):
+    # print(type(records_file))
     global config
     global vocab
+    # print(records_file)
 
+    print(records_file)
     config = Config()
     logging.basicConfig(level=logging.DEBUG)
     random.seed(config.SEED)
@@ -1148,6 +1151,7 @@ def setup(records_file):
     if records_file is None:
         vocab = Vocab.load()
     else:
+        records_file = cwd+records_file
         vocab = Vocab.load(True)
         featurize_records_file(
             records_file, os.path.join(
@@ -1163,19 +1167,28 @@ def setup(records_file):
 
 
 logging.basicConfig(level=logging.DEBUG)
+
+cwd = os.getcwd()
+cwd = cwd.replace("reference", "datasets")
+cwd += "/"
+
+print(cwd)
+# print(type(options.corpus))
 options = parse_args()
 setup(options.corpus)
 
 (vectorizer, counter_matrix, records) = load_all(
-    os.path.join(options.working_dir, config.TFIDF_FILE),
-    os.path.join(options.working_dir, config.FEATURES_FILE),
+    os.path.join(cwd+options.working_dir, config.TFIDF_FILE),
+    os.path.join(cwd+options.working_dir, config.FEATURES_FILE),
 )
 
 output_file = options.output_file
 
+
 if options.index_query is not None:
-    test_record_at_index(options.index_query)
+    test_record_at_index(cwd+options.index_query)
 elif len(options.file_query) > 0 or len(options.keywords) > 0:
+    options.file_query[0] = cwd+options.file_query[0]
     featurize_and_test_record(
         options.file_query, options.keywords, output_file)
 elif options.testall:
