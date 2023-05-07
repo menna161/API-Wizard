@@ -1,0 +1,155 @@
+examples  ||  representativeness  ||  number of lines  || number of comments 
+
+avg       ||          0           ||        0         ||         0        
+
+idx = 0:------------------- similar code ------------------ index = 3, score = 7.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser(description='Normalise')
+    parser.add_argument('-d', '--val_data', type=str, help='the directory of val images', default='/home/wanghuan/Dataset/ImageNet_Dataset/val_subset_1000')
+    parser.add_argument('-l', '--val_lmdb', type=str, default='')
+    parser.add_argument('-g', '--gpu', type=int)
+    parser.add_argument('-m', '--model', type=str)
+    parser.add_argument('-w', '--weights', type=str)
+    parser.add_argument('-b', '--batch_size', type=int, default=64)
+    parser.add_argument('--scale_factor_dir', type=str, help='the directory of scale_factor npy for each layer', default=None)
+    parser.add_argument('--use_lmdb', type=int, default=False)
+    parser.add_argument('-p', '--project', type=str, help='project name to save results')
+    args = parser.parse_args()
+    if (not os.path.exists(args.project)):
+        os.makedirs(args.project)
+    if args.gpu:
+        caffe.set_device(args.gpu)
+        caffe.set_mode_gpu()
+    net = caffe.Net(args.model, args.weights, caffe.TEST)
+    mu = np.load(pjoin(CAFFE_ROOT, 'python/caffe/imagenet/ilsvrc_2012_mean.npy'))
+    mu = mu.mean(1).mean(1)
+    print('mean-subtracted values:', zip('BGR', mu))
+    transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+    transformer.set_transpose('data', (2, 0, 1))
+    transformer.set_mean('data', mu)
+    transformer.set_raw_scale('data', 255)
+    transformer.set_channel_swap('data', (2, 1, 0))
+    net.blobs['data'].reshape(1, 3, 224, 224)
+    if args.scale_factor_dir:
+        for (layer_name, param) in net.params.iteritems():
+            if (len(param[0].data.shape) != 4):
+                continue
+            scale_factor = np.load(pjoin(args.scale_factor_dir, (layer_name + '_scale_factor.npy')))
+            print(scale_factor)
+            net.params[layer_name][0].data[:] = (net.params[layer_name][0].data[:] * scale_factor)
+            net.params[layer_name][1].data[:] = (net.params[layer_name][1].data[:] * scale_factor)
+    elif (not args.use_lmdb):
+        imgs = [pjoin(args.val_data, i) for i in os.listdir(args.val_data) if is_img(i)]
+        num_img = len(imgs)
+        print(('number of image: %s' % num_img))
+        for (layer_name, param) in net.params.iteritems():
+            if (len(param[0].data.shape) != 4):
+                continue
+            filter_ix = 0
+            feat = 0
+            cnt = 0
+            for img_path in imgs:
+                time_id = time.strftime((('[%s' % os.getpid()) + '-%Y/%m/%d-%H:%M] '))
+                print((time_id + ("%s-%s-current processing image '%s'" % (layer_name, cnt, img_path))))
+                img = caffe.io.load_image(img_path)
+                transformed_image = transformer.preprocess('data', img)
+                net.blobs['data'].data[...] = transformed_image
+                net.forward()
+                feat += np.average(net.blobs[layer_name].data[0])
+                cnt += 1
+            scale_factor = (1.0 / (feat / num_img))
+            np.save(pjoin(args.project, ('%s_scale_factor.npy' % layer_name)), scale_factor)
+            net.params[layer_name][0].data[:] = (net.params[layer_name][0].data[:] * scale_factor)
+            net.params[layer_name][1].data[:] = (net.params[layer_name][1].data[:] * scale_factor)
+    else:
+        lmdb_env = lmdb.open(args.val_lmdb)
+        lmdb_txn = lmdb_env.begin()
+        lmdb_cursor = lmdb_txn.cursor()
+        datum = caffe_pb2.Datum()
+        for (key, value) in lmdb_cursor:
+            datum.ParseFromString(value)
+            label = datum.label
+            data = caffe.io.datum_to_array(datum)
+            print(data.shape)
+            image = np.transpose(data, (1, 2, 0))
+            cv2.imshow('cv2', image)
+            cv2.waitKey(1)
+            print('{},{}'.format(key, label))
+    net.save(pjoin(args.project, 'normalised.caffemodel'))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    if:    else:
+        for in  ... :
+            cv2.imshow
+
+idx = 1:------------------- similar code ------------------ index = 2, score = 7.0 
+def video_on_sync(self):
+    cost = Cost('video display')
+    (im, bboxes, tracks) = self.box_queue.get()
+    for bbox in bboxes:
+        cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 1)
+    cost.record('draw detect')
+    if self.conf.track_on:
+        for track in tracks:
+            color = create_unique_color_uchar(track[1])
+            (x1, y1, x2, y2) = self.tlwh2rec(track[2])
+            cv2.rectangle(im, (x1, y1), (x2, y2), color, 2)
+    cost.record('draw track')
+    if (max(im.shape[:2]) > 1440):
+        scale = (1440 / max(im.shape[:2]))
+        im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+    cv2.putText(im, (str(format(self.fps, '.2f')) + ' fps'), (500, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2, lineType=2)
+    cv2.imshow('detect', im)
+    cv2.waitKey(1)
+    cost.end(func=logger.info, show=True)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    cv2.imshow
+
+idx = 2:------------------- similar code ------------------ index = 1, score = 7.0 
+def test(self):
+    for i in range(1, 9):
+        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
+        now = datetime.now()
+        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
+        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
+        for bbox in bboxes:
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        if (max(im.shape[:2]) > 1440):
+            scale = (1440 / max(im.shape[:2]))
+            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+        cv2.imshow('im', im)
+        cv2.waitKey(5000)
+        cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    for  ...  in:
+        cv2.imshow
+
+idx = 3:------------------- similar code ------------------ index = 0, score = 7.0 
+if (__name__ == '__main__'):
+    isp = ISP()
+    path = './figs/01_gt.png'
+    img = cv2.imread(path)
+    np.array(img, dtype='uint8')
+    img = (img.astype('double') / 255.0)
+    img_rgb = isp.BGR2RGB(img)
+    "\n    print('ISP test 1:')\n    # -------- INVERSE ISP PROCESS -------------------\n    # Step 1 : inverse tone mapping\n    img_L = isp.ICRF_Map(img_rgb, index=10)\n    # Step 2 : from RGB to XYZ\n    img_XYZ = isp.RGB2XYZ(img_L)\n    # Step 3: from XYZ to Cam\n    xyz2cam = np.array([1.0234, -0.2969, -0.2266, -0.5625, 1.6328, -0.0469, -0.0703, 0.2188, 0.6406])\n    img_Cam = isp.XYZ2CAM(img_XYZ, xyz2cam)\n    # Step 4: Mosaic\n    img_mosaic = isp.mosaic_bayer(img_Cam)\n\n    # -------- ADDING POISSON-GAUSSIAN NOISE ON RAW -\n    # Mode1: set sigma_s and sigma_c\n    # img_mosaic_noise = isp.add_PG_noise(img_mosaic, sigma_s=0.01, sigma_c=0.02)\n    # Mode2: set random sigma_s and sigma_c\n    img_mosaic_noise = isp.add_PG_noise(img_mosaic)\n\n    # -------- ISP PROCESS --------------------------\n    # Step 4 : Demosaic\n    img_demosaic = isp.Demosaic(img_mosaic_noise)\n    # Step 3 : from Cam to XYZ\n    img_IXYZ = isp.CAM2XYZ(img_demosaic, xyz2cam)\n    # Step 2 : frome XYZ to RGB\n    img_IL = isp.XYZ2RGB(img_IXYZ)\n    # Step 1 : tone mapping\n    img_Irgb = isp.CRF_Map(img_IL, index=10)\n    "
+    "\n    # Observe the images\n    show_img = np.concatenate((img,\n                               isp.RGB2BGR(img_Irgb),\n                               cv2.merge([img_mosaic, img_mosaic, img_mosaic]),\n                               isp.RGB2BGR(img_demosaic)\n                               ), axis=1)\n    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)\n    cv2.imshow('Image', show_img)\n    cv2.waitKey(0)\n    "
+    "\n    print('ISP test 2:')\n    gt, noise = isp.cbdnet_noise_generate_srgb(img_rgb)\n\n    # Observe the images\n    show_img = np.concatenate((img,\n                               isp.RGB2BGR(gt),\n                               isp.RGB2BGR(noise)\n                               ), axis=1)\n    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)\n    cv2.imshow('Image', show_img)\n    cv2.waitKey(0)\n    "
+    print('ISP test 3:')
+    (gt, noise) = isp.cbdnet_noise_generate_raw(img_rgb)
+    print(noise_map)
+    show_img = np.concatenate((img, cv2.merge([(noise_map / 255), (noise_map / 255), (noise_map / 255)]), cv2.merge([noise, noise, noise])), axis=1)
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    cv2.imshow('Image', show_img)
+    cv2.waitKey(0)
+    "\n    img_Ibgr = isp.RGB2BGR(img_Irgb)\n    cv2.imwrite('./figs/01_inverse.png', img_Ibgr*255)\n    "
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    cv2.imshow
+

@@ -1,0 +1,285 @@
+------------------------- example 1 ------------------------ 
+def Print_Every_class_Eval(self, out_16_13=False):
+    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+    MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
+    Precision = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=0))
+    Class_ratio = (np.sum(self.confusion_matrix, axis=1) / np.sum(self.confusion_matrix))
+    Pred_retio = (np.sum(self.confusion_matrix, axis=0) / np.sum(self.confusion_matrix))
+    print(((((('===>Everyclass:\t' + 'MPA\t') + 'MIoU\t') + 'PC\t') + 'Ratio\t') + 'Pred_Retio'))
+    if out_16_13:
+        MIoU = MIoU[synthia_set_16]
+    for ind_class in range(len(MIoU)):
+// your code ...
+
+
+------------------------- example 2 ------------------------ 
+def add_batch(self, gt_image, pre_image):
+    assert (gt_image.shape == pre_image.shape)
+    self.confusion_matrix += self.__generate_matrix(gt_image, pre_image)
+
+------------------------- example 3 ------------------------ 
+def calc_performance_statistics(all_scores, y):
+    statistics = {}
+    y_pred_all = np.argmax(all_scores, axis=2)
+    statistics = defaultdict(list)
+    for y_pred in y_pred_all:
+        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
+        N = (((TN + TP) + FN) + FP)
+// your code ...
+
+        sen = (TP / (TP + FN))
+        spc = (TN / (TN + FP))
+        prc = (TP / (TP + FP))
+        f1s = ((2 * (prc * sen)) / (prc + sen))
+        mcc = (((TP / N) - (S * P)) / np.sqrt((((P * S) * (1 - S)) * (1 - P))))
+        statistics['confusion_matrix'].append(confusion_matrix(y, y_pred))
+        statistics['accuracy'].append(acc)
+        statistics['sensitivity'].append(sen)
+        statistics['specificity'].append(spc)
+// your code ...
+
+    return statistics
+
+------------------------- example 4 ------------------------ 
+def Pixel_Accuracy(self):
+    if (np.sum(self.confusion_matrix) == 0):
+// your code ...
+
+    else:
+        PA = (np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum())
+    return PA
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          4           ||        11         ||         1        
+example2  ||          3           ||        3         ||         0        
+example3  ||          2           ||        19         ||         2        
+example4  ||          2           ||        6         ||         1        
+
+avg       ||          2.75           ||        9.75         ||         1.0        
+
+idx = 0:------------------- similar code ------------------ index = 21, score = 2.0 
+def confusion_matrix(labels, scores):
+    matrix = [[0, 0], [0, 0]]
+    for (label, pred) in zip(labels, scores):
+        if (pred < 0.5):
+            if (label == 0):
+                matrix[0][0] += 1
+            if (label == 1):
+                matrix[0][1] += 1
+        else:
+            if (label == 0):
+                matrix[1][0] += 1
+            if (label == 1):
+                matrix[1][1] += 1
+    return matrix
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def confusion_matrix():
+idx = 1:------------------- similar code ------------------ index = 15, score = 2.0 
+def __generate_matrix(self, gt_image, pre_image):
+    mask = ((gt_image >= 0) & (gt_image < self.num_class))
+    label = ((self.num_class * gt_image[mask].astype('int')) + pre_image[mask])
+    count = np.bincount(label, minlength=(self.num_class ** 2))
+    confusion_matrix = count.reshape(self.num_class, self.num_class)
+    return confusion_matrix
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return confusion_matrix
+
+idx = 2:------------------- similar code ------------------ index = 26, score = 1.0 
+def Print_Every_class_Eval(self, out_16_13=False):
+    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+    MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
+    Precision = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=0))
+    Class_ratio = (np.sum(self.confusion_matrix, axis=1) / np.sum(self.confusion_matrix))
+    Pred_retio = (np.sum(self.confusion_matrix, axis=0) / np.sum(self.confusion_matrix))
+    print(((((('===>Everyclass:\t' + 'MPA\t') + 'MIoU\t') + 'PC\t') + 'Ratio\t') + 'Pred_Retio'))
+    if out_16_13:
+        MIoU = MIoU[synthia_set_16]
+    for ind_class in range(len(MIoU)):
+        pa = (str(round((MPA[ind_class] * 100), 2)) if (not np.isnan(MPA[ind_class])) else 'nan')
+        iou = (str(round((MIoU[ind_class] * 100), 2)) if (not np.isnan(MIoU[ind_class])) else 'nan')
+        pc = (str(round((Precision[ind_class] * 100), 2)) if (not np.isnan(Precision[ind_class])) else 'nan')
+        cr = (str(round((Class_ratio[ind_class] * 100), 2)) if (not np.isnan(Class_ratio[ind_class])) else 'nan')
+        pr = (str(round((Pred_retio[ind_class] * 100), 2)) if (not np.isnan(Pred_retio[ind_class])) else 'nan')
+        print(((((((((((('===>' + name_classes[ind_class]) + ':\t') + pa) + '\t') + iou) + '\t') + pc) + '\t') + cr) + '\t') + pr))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = ( ... . ... ( ... .confusion_matrix) /)
+
+idx = 3:------------------- similar code ------------------ index = 16, score = 1.0 
+def Mean_Intersection_over_Union(self, out_16_13=False):
+    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+    if self.synthia:
+        MIoU_16 = np.nanmean(MIoU[:self.ignore_index])
+        MIoU_13 = np.nanmean(MIoU[synthia_set_16_to_13])
+        return (MIoU_16, MIoU_13)
+    if out_16_13:
+        MIoU_16 = np.nanmean(MIoU[synthia_set_16])
+        MIoU_13 = np.nanmean(MIoU[synthia_set_13])
+        return (MIoU_16, MIoU_13)
+    MIoU = np.nanmean(MIoU[:self.ignore_index])
+    return MIoU
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = ( ... . ... ( ... .confusion_matrix) /)
+
+idx = 4:------------------- similar code ------------------ index = 2, score = 1.0 
+def add_batch(self, gt_image, pre_image):
+    assert (gt_image.shape == pre_image.shape)
+    self.confusion_matrix += self.__generate_matrix(gt_image, pre_image)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 5:------------------- similar code ------------------ index = 4, score = 1.0 
+def Mean_Pixel_Accuracy(self, out_16_13=False):
+    MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
+    if self.synthia:
+        MPA_16 = np.nanmean(MPA[:self.ignore_index])
+        MPA_13 = np.nanmean(MPA[synthia_set_16_to_13])
+        return (MPA_16, MPA_13)
+    if out_16_13:
+        MPA_16 = np.nanmean(MPA[synthia_set_16])
+        MPA_13 = np.nanmean(MPA[synthia_set_13])
+        return (MPA_16, MPA_13)
+    MPA = np.nanmean(MPA[:self.ignore_index])
+    return MPA
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = ( ... . ... ( ... .confusion_matrix) /)
+
+idx = 6:------------------- similar code ------------------ index = 5, score = 1.0 
+def calc_performance_statistics(all_scores, y):
+    statistics = {}
+    y_pred_all = np.argmax(all_scores, axis=2)
+    statistics = defaultdict(list)
+    for y_pred in y_pred_all:
+        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
+        N = (((TN + TP) + FN) + FP)
+        S = ((TP + FN) / N)
+        P = ((TP + FP) / N)
+        acc = ((TN + TP) / N)
+        sen = (TP / (TP + FN))
+        spc = (TN / (TN + FP))
+        prc = (TP / (TP + FP))
+        f1s = ((2 * (prc * sen)) / (prc + sen))
+        mcc = (((TP / N) - (S * P)) / np.sqrt((((P * S) * (1 - S)) * (1 - P))))
+        statistics['confusion_matrix'].append(confusion_matrix(y, y_pred))
+        statistics['accuracy'].append(acc)
+        statistics['sensitivity'].append(sen)
+        statistics['specificity'].append(spc)
+        statistics['precision'].append(prc)
+        statistics['f1_score'].append(f1s)
+        statistics['MCC'].append(mcc)
+    return statistics
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... :
+ = confusion_matrix
+
+idx = 7:------------------- similar code ------------------ index = 7, score = 1.0 
+def Frequency_Weighted_Intersection_over_Union(self, out_16_13=False):
+    FWIoU = np.multiply(np.sum(self.confusion_matrix, axis=1), np.diag(self.confusion_matrix))
+    FWIoU = (FWIoU / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+    if self.synthia:
+        FWIoU_16 = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_16_to_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        return (FWIoU_16, FWIoU_13)
+    if out_16_13:
+        FWIoU_16 = (np.sum((i for i in FWIoU[synthia_set_16] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        return (FWIoU_16, FWIoU_13)
+    FWIoU = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+    return FWIoU
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... . ... ( ... .confusion_matrix,),)
+
+idx = 8:------------------- similar code ------------------ index = 8, score = 1.0 
+def calc_neurologist_statistics(y, y_pred_list):
+    (rslt, sens, spcs, prcs) = ({}, [], [], [])
+    for (i, y_pred) in enumerate(y_pred_list):
+        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
+        sens.append((TP / (TP + FN)))
+        spcs.append((TN / (TN + FP)))
+        prcs.append((TP / (TP + FP)))
+        rslt['neorologist_{}'.format(i)] = {'sensitivity': sens[(- 1)], 'specificity': spcs[(- 1)], 'precision': prcs[(- 1)]}
+    rslt['mean'] = {'sensitivity': np.mean(sens), 'specificity': np.mean(spcs), 'precision': np.mean(prcs)}
+    rslt['std'] = {'sensitivity': np.std(sens), 'specificity': np.std(spcs), 'precision': np.std(prcs)}
+    return rslt
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+ = confusion_matrix
+
+idx = 9:------------------- similar code ------------------ index = 14, score = 1.0 
+def __init__(self, num_class):
+    self.num_class = num_class
+    self.confusion_matrix = np.zeros(((self.num_class,) * 2))
+    self.ignore_index = None
+    self.synthia = (True if (num_class == 16) else False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 10:------------------- similar code ------------------ index = 13, score = 1.0 
+if (__name__ == '__main__'):
+    Matrix = []
+    for i in range(10):
+        (labels, scores) = read_raw_score('../checkpoint_dir/Vol_RF/raw_score_{}.txt'.format(i))
+        Matrix.append(confusion_matrix(labels, scores))
+    stat_metric(Matrix)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+    for  ...  in:
+         ... . ... (confusion_matrix)
+
+idx = 11:------------------- similar code ------------------ index = 20, score = 1.0 
+def reset(self):
+    self.confusion_matrix = np.zeros(((self.num_class,) * 2))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... .confusion_matrix
+
+idx = 12:------------------- similar code ------------------ index = 22, score = 1.0 
+def Pixel_Accuracy(self):
+    if (np.sum(self.confusion_matrix) == 0):
+        print('Attention: pixel_total is zero!!!')
+        PA = 0
+    else:
+        PA = (np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum())
+    return PA
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if ( ... . ... ( ... .confusion_matrix) ==  ... ):
+idx = 13:------------------- similar code ------------------ index = 0, score = 1.0 
+def Mean_Precision(self, out_16_13=False):
+    Precision = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=0))
+    if self.synthia:
+        Precision_16 = np.nanmean(Precision[:self.ignore_index])
+        Precision_13 = np.nanmean(Precision[synthia_set_16_to_13])
+        return (Precision_16, Precision_13)
+    if out_16_13:
+        Precision_16 = np.nanmean(Precision[synthia_set_16])
+        Precision_13 = np.nanmean(Precision[synthia_set_13])
+        return (Precision_16, Precision_13)
+    Precision = np.nanmean(Precision[:self.ignore_index])
+    return Precision
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = ( ... . ... ( ... .confusion_matrix) /)
+

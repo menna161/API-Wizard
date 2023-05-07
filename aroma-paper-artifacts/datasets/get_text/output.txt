@@ -1,0 +1,918 @@
+------------------------- example 1 ------------------------ 
+def get_text(self):
+    "Returns the string representation of this area's text"
+    return self._text.get_text()
+
+------------------------- example 2 ------------------------ 
+def get_text(self, lev, fmt):
+//
+------------------------- example 3 ------------------------ 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------------- example 4 ------------------------ 
+def get_zlabel(self):
+    '\n        Get the z-label text string.\n\n        .. versionadded :: 1.1.0\n            This function was added, but not tested. Please report any bugs.\n        '
+    label = self.zaxis.get_label()
+    return label.get_text()
+
+------------------------- example 5 ------------------------ 
+def parse_citation(self, single_citation):
+    'Parses patent citation, returning results as a dictionary\n\n\n        Returns (variables returned in dictionary, following are key names):  \n            - patent_number (str)  : patent number\n            - priority_date (str)  : priority date of patent\n            - pub_date      (str)  : publication date of patent\n\n        Inputs:\n            - single_citation (str) : html string from citation section in google patent html\n\n        '
+    try:
+        patent_number = single_citation.find('span', itemprop='publicationNumber').get_text()
+    except:
+        patent_number = ''
+    try:
+        priority_date = single_citation.find('td', itemprop='priorityDate').get_text()
+    except:
+        priority_date = ''
+    try:
+        pub_date = single_citation.find('td', itemprop='publicationDate').get_text()
+    except:
+        pub_date
+    return {'patent_number': patent_number, 'priority_date': priority_date, 'pub_date': pub_date}
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          3           ||        3         ||         0        
+example2  ||          4           ||        1         ||         0        
+example3  ||          2           ||        67         ||         0        
+example4  ||          4           ||        4         ||         0        
+example5  ||          2           ||        15         ||         0        
+
+avg       ||          3.0           ||        18.0         ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 20, score = 2.0 
+def get_text(self):
+    "Returns the string representation of this area's text"
+    return self._text.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def get_text( ... ):
+idx = 1:------------------- similar code ------------------ index = 68, score = 2.0 
+def get_text(self, lev, fmt):
+    'Get the text of the label.'
+    if isinstance(lev, str):
+        return lev
+    elif isinstance(fmt, dict):
+        return fmt.get(lev, '%1.3f')
+    elif callable(fmt):
+        return fmt(lev)
+    else:
+        return (fmt % lev)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def get_text():
+idx = 2:------------------- similar code ------------------ index = 12, score = 2.0 
+def get_text(self):
+    'Get the text as string'
+    return self._text
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def get_text( ... ):
+idx = 3:------------------- similar code ------------------ index = 56, score = 2.0 
+def get_text(self):
+    t = super().get_text()
+    if (t == '__from_axes__'):
+        return self._axis.get_label().get_text()
+    return self._text
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def get_text( ... ):
+idx = 4:------------------- similar code ------------------ index = 17, score = 2.0 
+def get_text(self):
+    'Return the cell `.Text` instance.'
+    return self._text
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def get_text( ... ):
+idx = 5:------------------- similar code ------------------ index = 33, score = 1.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [{ ... :  ... .get_text()}]
+
+idx = 6:------------------- similar code ------------------ index = 94, score = 1.0 
+def get_prop_tup(self, renderer=None):
+    '\n        Return a hashable tuple of properties.\n\n        Not intended to be human readable, but useful for backends who\n        want to cache derived information about text (e.g., layouts) and\n        need to know if the text has changed.\n        '
+    (x, y) = self.get_unitless_position()
+    renderer = (renderer or self._renderer)
+    return (x, y, self.get_text(), self._color, self._verticalalignment, self._horizontalalignment, hash(self._fontproperties), self._rotation, self._rotation_mode, self.figure.dpi, weakref.ref(renderer), self._linespacing)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return ( ... ,  ... ,  ... .get_text(),,,,,,,,,)
+
+idx = 7:------------------- similar code ------------------ index = 51, score = 1.0 
+def get_zlabel(self):
+    '\n        Get the z-label text string.\n\n        .. versionadded :: 1.1.0\n            This function was added, but not tested. Please report any bugs.\n        '
+    label = self.zaxis.get_label()
+    return label.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .get_text()
+
+idx = 8:------------------- similar code ------------------ index = 52, score = 1.0 
+def parse_citation(self, single_citation):
+    'Parses patent citation, returning results as a dictionary\n\n\n        Returns (variables returned in dictionary, following are key names):  \n            - patent_number (str)  : patent number\n            - priority_date (str)  : priority date of patent\n            - pub_date      (str)  : publication date of patent\n\n        Inputs:\n            - single_citation (str) : html string from citation section in google patent html\n\n        '
+    try:
+        patent_number = single_citation.find('span', itemprop='publicationNumber').get_text()
+    except:
+        patent_number = ''
+    try:
+        priority_date = single_citation.find('td', itemprop='priorityDate').get_text()
+    except:
+        priority_date = ''
+    try:
+        pub_date = single_citation.find('td', itemprop='publicationDate').get_text()
+    except:
+        pub_date
+    return {'patent_number': patent_number, 'priority_date': priority_date, 'pub_date': pub_date}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  =  ... .get_text()
+
+idx = 9:------------------- similar code ------------------ index = 28, score = 1.0 
+def input_changed(self, *args):
+    email = self.login_window.email_field.get_text()
+    password = self.login_window.password_field.get_text()
+    result = re.match('^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$', email)
+    if ((result is not None) and (password is not '')):
+        self.login_window.sign_in_button.set_sensitive(True)
+    else:
+        self.login_window.sign_in_button.set_sensitive(False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .get_text()
+
+idx = 10:------------------- similar code ------------------ index = 27, score = 1.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [{ ... :  ... .get_text()}]
+
+idx = 11:------------------- similar code ------------------ index = 16, score = 1.0 
+def get_ylabel(self):
+    '\n        Get the ylabel text string.\n        '
+    label = self.yaxis.get_label()
+    return label.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .get_text()
+
+idx = 12:------------------- similar code ------------------ index = 60, score = 1.0 
+def signInButtonClicked(self, *args):
+    COLOR_INVALID = Color(50000, 10000, 10000)
+    email = self.login_window.email_field.get_text()
+    password = self.login_window.password_field.get_text()
+    result = re.match('^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$', email)
+    if (result is None):
+        self.login_window.email_field.modify_fg(Gtk.StateFlags.NORMAL, COLOR_INVALID)
+        return
+    else:
+        self.login_window.email_field.modify_fg(Gtk.StateFlags.NORMAL, None)
+    self.login_window.spinner.start()
+    try:
+        result = is_valid(email, password)
+        if result:
+            self.login_window.spinner.stop()
+            self.login_window.show_successful_login_dialog()
+            config['usage_mode'] = 'authenticated'
+            config['login_credentials']['email'] = email
+            config['login_credentials']['password'] = password
+        else:
+            self.login_window.spinner.stop()
+            self.login_window.show_failed_login_dialog()
+            config['usage_mode'] = 'anonymous'
+    except ConnectionError:
+        self.login_window.spinner.stop()
+        self.login_window.show_connection_error_dialog()
+    finally:
+        self.login_window.spinner.stop()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .get_text()
+
+idx = 13:------------------- similar code ------------------ index = 63, score = 1.0 
+def get_label_text(self):
+    'Get the text of the label'
+    return self.label.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .get_text()
+
+idx = 14:------------------- similar code ------------------ index = 64, score = 1.0 
+def __init__(self, targetfig, toolfig):
+    '\n        *targetfig*\n            The figure instance to adjust.\n\n        *toolfig*\n            The figure instance to embed the subplot tool into. If\n            *None*, a default figure will be created. If you are using\n            this from the GUI\n        '
+    self.targetfig = targetfig
+    toolfig.subplots_adjust(left=0.2, right=0.9)
+
+    class toolbarfmt():
+
+        def __init__(self, slider):
+            self.slider = slider
+
+        def __call__(self, x, y):
+            fmt = ('%s=%s' % (self.slider.label.get_text(), self.slider.valfmt))
+            return (fmt % x)
+    self.axleft = toolfig.add_subplot(711)
+    self.axleft.set_title('Click on slider to adjust subplot param')
+    self.axleft.set_navigate(False)
+    self.sliderleft = Slider(self.axleft, 'left', 0, 1, targetfig.subplotpars.left, closedmax=False)
+    self.sliderleft.on_changed(self.funcleft)
+    self.axbottom = toolfig.add_subplot(712)
+    self.axbottom.set_navigate(False)
+    self.sliderbottom = Slider(self.axbottom, 'bottom', 0, 1, targetfig.subplotpars.bottom, closedmax=False)
+    self.sliderbottom.on_changed(self.funcbottom)
+    self.axright = toolfig.add_subplot(713)
+    self.axright.set_navigate(False)
+    self.sliderright = Slider(self.axright, 'right', 0, 1, targetfig.subplotpars.right, closedmin=False)
+    self.sliderright.on_changed(self.funcright)
+    self.axtop = toolfig.add_subplot(714)
+    self.axtop.set_navigate(False)
+    self.slidertop = Slider(self.axtop, 'top', 0, 1, targetfig.subplotpars.top, closedmin=False)
+    self.slidertop.on_changed(self.functop)
+    self.axwspace = toolfig.add_subplot(715)
+    self.axwspace.set_navigate(False)
+    self.sliderwspace = Slider(self.axwspace, 'wspace', 0, 1, targetfig.subplotpars.wspace, closedmax=False)
+    self.sliderwspace.on_changed(self.funcwspace)
+    self.axhspace = toolfig.add_subplot(716)
+    self.axhspace.set_navigate(False)
+    self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace, closedmax=False)
+    self.sliderhspace.on_changed(self.funchspace)
+    self.sliderleft.slidermax = self.sliderright
+    self.sliderright.slidermin = self.sliderleft
+    self.sliderbottom.slidermax = self.slidertop
+    self.slidertop.slidermin = self.sliderbottom
+    bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
+    self.buttonreset = Button(bax, 'Reset')
+    sliders = (self.sliderleft, self.sliderbottom, self.sliderright, self.slidertop, self.sliderwspace, self.sliderhspace)
+
+    def func(event):
+        thisdrawon = self.drawon
+        self.drawon = False
+        bs = []
+        for slider in sliders:
+            bs.append(slider.drawon)
+            slider.drawon = False
+        for slider in sliders:
+            slider.reset()
+        for (slider, b) in zip(sliders, bs):
+            slider.drawon = b
+        self.drawon = thisdrawon
+        if self.drawon:
+            toolfig.canvas.draw()
+            self.targetfig.canvas.draw()
+    validate = toolfig.subplotpars.validate
+    toolfig.subplotpars.validate = False
+    self.buttonreset.on_clicked(func)
+    toolfig.subplotpars.validate = validate
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    class  ... ():
+
+        def  ... ():
+             ...  = ( ...  % ( ... .get_text(),))
+
+idx = 15:------------------- similar code ------------------ index = 66, score = 1.0 
+def parseObj(newScript, lt_objs, pageHeight):
+    for obj in lt_objs:
+        if isinstance(obj, pdfminer.layout.LTTextLine):
+            newScript['pdf'][(- 1)]['content'].append({'x': round(obj.bbox[0]), 'y': round((pageHeight - obj.bbox[1])), 'text': obj.get_text().replace('\n', '').strip()})
+        if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
+            parseObj(newScript, obj._objs, pageHeight)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... :
+        if:
+             ... . ... ({ ... :,  ... :,  ... :  ... .get_text()})
+
+idx = 16:------------------- similar code ------------------ index = 45, score = 1.0 
+def get_label_width(self, lev, fmt, fsize):
+    '\n        Return the width of the label in points.\n        '
+    if (not isinstance(lev, str)):
+        lev = self.get_text(lev, fmt)
+    (lev, ismath) = text.Text.is_math_text(lev)
+    if (ismath == 'TeX'):
+        if (not hasattr(self, '_TeX_manager')):
+            self._TeX_manager = texmanager.TexManager()
+        (lw, _, _) = self._TeX_manager.get_text_width_height_descent(lev, fsize)
+    elif ismath:
+        if (not hasattr(self, '_mathtext_parser')):
+            self._mathtext_parser = mathtext.MathTextParser('bitmap')
+        (img, _) = self._mathtext_parser.parse(lev, dpi=72, prop=self.labelFontProps)
+        lw = img.get_width()
+    else:
+        lw = ((len(lev) * fsize) * 0.6)
+    return lw
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .get_text
+
+idx = 17:------------------- similar code ------------------ index = 70, score = 1.0 
+def get_xlabel(self):
+    '\n        Get the xlabel text string.\n        '
+    label = self.xaxis.get_label()
+    return label.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .get_text()
+
+idx = 18:------------------- similar code ------------------ index = 37, score = 1.0 
+def _add_label(self, t, x, y, lev, cvalue):
+    color = self.labelMappable.to_rgba(cvalue, alpha=self.alpha)
+    _text = self.get_text(lev, self.labelFmt)
+    self.set_label_props(t, _text, color)
+    self.labelTexts.append(t)
+    self.labelCValues.append(cvalue)
+    self.labelXYs.append((x, y))
+    self.ax.add_artist(t)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .get_text
+
+idx = 19:------------------- similar code ------------------ index = 71, score = 1.0 
+def get_window_extent(self, renderer=None, dpi=None):
+    '\n        Return the `Bbox` bounding the text, in display units.\n\n        In addition to being used internally, this is useful for specifying\n        clickable regions in a png file on a web page.\n\n        Parameters\n        ----------\n        renderer : Renderer, optional\n            A renderer is needed to compute the bounding box.  If the artist\n            has already been drawn, the renderer is cached; thus, it is only\n            necessary to pass this argument when calling `get_window_extent`\n            before the first `draw`.  In practice, it is usually easier to\n            trigger a draw first (e.g. by saving the figure).\n\n        dpi : float, optional\n            The dpi value for computing the bbox, defaults to\n            ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if\n            to match regions with a figure saved with a custom dpi value.\n        '
+    if (not self.get_visible()):
+        return Bbox.unit()
+    if (dpi is not None):
+        dpi_orig = self.figure.dpi
+        self.figure.dpi = dpi
+    if (self.get_text() == ''):
+        (tx, ty) = self._get_xy_display()
+        return Bbox.from_bounds(tx, ty, 0, 0)
+    if (renderer is not None):
+        self._renderer = renderer
+    if (self._renderer is None):
+        self._renderer = self.figure._cachedRenderer
+    if (self._renderer is None):
+        raise RuntimeError('Cannot get window extent w/o renderer')
+    (bbox, info, descent) = self._get_layout(self._renderer)
+    (x, y) = self.get_unitless_position()
+    (x, y) = self.get_transform().transform_point((x, y))
+    bbox = bbox.translated(x, y)
+    if (dpi is not None):
+        self.figure.dpi = dpi_orig
+    return bbox
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if ( ... .get_text() ==  ... ):
+idx = 20:------------------- similar code ------------------ index = 47, score = 1.0 
+def _update_position_xytext(self, renderer, xy_pixel):
+    '\n        Update the pixel positions of the annotation text and the arrow patch.\n        '
+    self.set_transform(self._get_xy_transform(renderer, self.anncoords))
+    (ox0, oy0) = self._get_xy_display()
+    (ox1, oy1) = xy_pixel
+    if (self.arrowprops is not None):
+        (x0, y0) = xy_pixel
+        (l, b, w, h) = Text.get_window_extent(self, renderer).bounds
+        r = (l + w)
+        t = (b + h)
+        xc = (0.5 * (l + r))
+        yc = (0.5 * (b + t))
+        d = self.arrowprops.copy()
+        ms = d.pop('mutation_scale', self.get_size())
+        self.arrow_patch.set_mutation_scale(ms)
+        if ('arrowstyle' not in d):
+            shrink = d.pop('shrink', 0.0)
+            width = d.pop('width', 4)
+            headwidth = d.pop('headwidth', 12)
+            frac = d.pop('frac', None)
+            if (frac is not None):
+                warnings.warn("'frac' option in 'arrowprops' is no longer supported; use 'headlength' to set the head length in points.")
+            headlength = d.pop('headlength', 12)
+            stylekw = dict(head_length=(headlength / ms), head_width=(headwidth / ms), tail_width=(width / ms))
+            self.arrow_patch.set_arrowstyle('simple', **stylekw)
+            xpos = ((l, 0), (xc, 0.5), (r, 1))
+            ypos = ((b, 0), (yc, 0.5), (t, 1))
+            (_, (x, relposx)) = min(((abs((val[0] - x0)), val) for val in xpos))
+            (_, (y, relposy)) = min(((abs((val[0] - y0)), val) for val in ypos))
+            self._arrow_relpos = (relposx, relposy)
+            r = np.hypot((y - y0), (x - x0))
+            shrink_pts = ((shrink * r) / renderer.points_to_pixels(1))
+            self.arrow_patch.shrinkA = shrink_pts
+            self.arrow_patch.shrinkB = shrink_pts
+        relpos = self._arrow_relpos
+        bbox = Text.get_window_extent(self, renderer)
+        ox0 = (bbox.x0 + (bbox.width * relpos[0]))
+        oy0 = (bbox.y0 + (bbox.height * relpos[1]))
+        self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
+        if ('patchA' in d):
+            self.arrow_patch.set_patchA(d.pop('patchA'))
+        elif self._bbox_patch:
+            self.arrow_patch.set_patchA(self._bbox_patch)
+        else:
+            pad = renderer.points_to_pixels(4)
+            if (self.get_text() == ''):
+                self.arrow_patch.set_patchA(None)
+                return
+            bbox = Text.get_window_extent(self, renderer)
+            (l, b, w, h) = bbox.bounds
+            l -= (pad / 2.0)
+            b -= (pad / 2.0)
+            w += pad
+            h += pad
+            r = Rectangle(xy=(l, b), width=w, height=h)
+            r.set_transform(IdentityTransform())
+            r.set_clip_on(False)
+            self.arrow_patch.set_patchA(r)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        if:        else:
+            if ( ... .get_text() ==  ... ):
+idx = 21:------------------- similar code ------------------ index = 15, score = 1.0 
+def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
+    '\n        Set the text values of the tick labels. Return a list of Text\n        instances.  Use *kwarg* *minor=True* to select minor ticks.\n        All other kwargs are used to update the text object properties.\n        As for get_ticklabels, label1 (left or bottom) is\n        affected for a given tick only if its label1On attribute\n        is True, and similarly for label2.  The list of returned\n        label text objects consists of all such label1 objects followed\n        by all such label2 objects.\n\n        The input *ticklabels* is assumed to match the set of\n        tick locations, regardless of the state of label1On and\n        label2On.\n\n        ACCEPTS: sequence of strings or Text objects\n        '
+    get_labels = []
+    for t in ticklabels:
+        try:
+            get_labels.append(t.get_text())
+        except AttributeError:
+            get_labels.append(t)
+    ticklabels = get_labels
+    if minor:
+        self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
+        ticks = self.get_minor_ticks()
+    else:
+        self.set_major_formatter(mticker.FixedFormatter(ticklabels))
+        ticks = self.get_major_ticks()
+    ret = []
+    for (tick_label, tick) in zip(ticklabels, ticks):
+        tick.label1.set_text(tick_label)
+        tick.label1.update(kwargs)
+        tick.label2.set_text(tick_label)
+        tick.label2.update(kwargs)
+        if tick.label1On:
+            ret.append(tick.label1)
+        if tick.label2On:
+            ret.append(tick.label2)
+    self.stale = True
+    return ret
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... :
+        try:
+             ... . ... ( ... .get_text())
+
+idx = 22:------------------- similar code ------------------ index = 9, score = 1.0 
+def set_active(self, index):
+    '\n        Directly (de)activate a check button by index.\n\n        *index* is an index into the original label list\n            that this object was constructed with.\n            Raises ValueError if *index* is invalid.\n\n        Callbacks will be triggered if :attr:`eventson` is True.\n\n        '
+    if (0 > index >= len(self.labels)):
+        raise ValueError(('Invalid CheckButton index: %d' % index))
+    (l1, l2) = self.lines[index]
+    l1.set_visible((not l1.get_visible()))
+    l2.set_visible((not l2.get_visible()))
+    if self.drawon:
+        self.ax.figure.canvas.draw()
+    if (not self.eventson):
+        return
+    for (cid, func) in self.observers.items():
+        func(self.labels[index].get_text())
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+         ... ( ... .get_text())
+
+idx = 23:------------------- similar code ------------------ index = 85, score = 1.0 
+def get_title(self, loc='center'):
+    "\n        Get an axes title.\n\n        Get one of the three available axes titles. The available titles\n        are positioned above the axes in the center, flush with the left\n        edge, and flush with the right edge.\n\n        Parameters\n        ----------\n        loc : {'center', 'left', 'right'}, str, optional\n            Which title to get, defaults to 'center'.\n\n        Returns\n        -------\n        title : str\n            The title text string.\n\n        "
+    try:
+        title = {'left': self._left_title, 'center': self.title, 'right': self._right_title}[loc.lower()]
+    except KeyError:
+        raise ValueError(("'%s' is not a valid location" % loc))
+    return title.get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .get_text()
+
+idx = 24:------------------- similar code ------------------ index = 5, score = 1.0 
+def set_active(self, index):
+    '\n        Trigger which radio button to make active.\n\n        *index* is an index into the original label list\n            that this object was constructed with.\n            Raise ValueError if the index is invalid.\n\n        Callbacks will be triggered if :attr:`eventson` is True.\n\n        '
+    if (0 > index >= len(self.labels)):
+        raise ValueError(('Invalid RadioButton index: %d' % index))
+    self.value_selected = self.labels[index].get_text()
+    for (i, p) in enumerate(self.circles):
+        if (i == index):
+            color = self.activecolor
+        else:
+            color = self.ax.get_facecolor()
+        p.set_facecolor(color)
+    if self.drawon:
+        self.ax.figure.canvas.draw()
+    if (not self.eventson):
+        return
+    for (cid, func) in self.observers.items():
+        func(self.labels[index].get_text())
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+         ... ( ... .get_text())
+
+idx = 25:------------------- similar code ------------------ index = 4, score = 1.0 
+def _get_wrapped_text(self):
+    '\n        Return a copy of the text with new lines added, so that\n        the text is wrapped relative to the parent figure.\n        '
+    if self.get_usetex():
+        return self.get_text()
+    line_width = self._get_wrap_line_width()
+    wrapped_str = ''
+    line = ''
+    for word in self.get_text().split(' '):
+        sub_words = word.split('\n')
+        for i in range(len(sub_words)):
+            current_width = self._get_rendered_text_width(((line + ' ') + sub_words[i]))
+            if ((current_width > line_width) or (i > 0)):
+                wrapped_str += (line + '\n')
+                line = ''
+            if (line == ''):
+                line = sub_words[i]
+            else:
+                line += (' ' + sub_words[i])
+    return (wrapped_str + line)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
+        return  ... .get_text()
+
+idx = 26:------------------- similar code ------------------ index = 8, score = 1.0 
+@artist.allow_rasterization
+def draw(self, renderer):
+    '\n        Draws the `.Text` object to the given *renderer*.\n        '
+    if (renderer is not None):
+        self._renderer = renderer
+    if (not self.get_visible()):
+        return
+    if (self.get_text() == ''):
+        return
+    renderer.open_group('text', self.get_gid())
+    with _wrap_text(self) as textobj:
+        (bbox, info, descent) = textobj._get_layout(renderer)
+        trans = textobj.get_transform()
+        posx = float(textobj.convert_xunits(textobj._x))
+        posy = float(textobj.convert_yunits(textobj._y))
+        (posx, posy) = trans.transform_point((posx, posy))
+        if ((not np.isfinite(posx)) or (not np.isfinite(posy))):
+            _log.warning('posx and posy should be finite values')
+            return
+        (canvasw, canvash) = renderer.get_canvas_width_height()
+        if textobj._bbox_patch:
+            textobj._draw_bbox(renderer, posx, posy)
+        gc = renderer.new_gc()
+        gc.set_foreground(textobj.get_color())
+        gc.set_alpha(textobj.get_alpha())
+        gc.set_url(textobj._url)
+        textobj._set_gc_clip(gc)
+        angle = textobj.get_rotation()
+        for (line, wh, x, y) in info:
+            mtext = (textobj if (len(info) == 1) else None)
+            x = (x + posx)
+            y = (y + posy)
+            if renderer.flipy():
+                y = (canvash - y)
+            (clean_line, ismath) = textobj.is_math_text(line, self.get_usetex())
+            if textobj.get_path_effects():
+                from matplotlib.patheffects import PathEffectRenderer
+                textrenderer = PathEffectRenderer(textobj.get_path_effects(), renderer)
+            else:
+                textrenderer = renderer
+            if textobj.get_usetex():
+                textrenderer.draw_tex(gc, x, y, clean_line, textobj._fontproperties, angle, mtext=mtext)
+            else:
+                textrenderer.draw_text(gc, x, y, clean_line, textobj._fontproperties, angle, ismath=ismath, mtext=mtext)
+    gc.restore()
+    renderer.close_group('text')
+    self.stale = False
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if ( ... .get_text() ==  ... ):
+        return
+
+idx = 27:------------------- similar code ------------------ index = 83, score = 1.0 
+def on_stt_combobox_changed(self, combo: Gtk.ComboBox):
+    selection = combo.get_active()
+    if (selection == STT_DEEPSPEECH):
+        susicfg.set('stt', 'deepspeech_local')
+    elif (selection == STT_VOSK):
+        susicfg.set('stt', 'vosk')
+    elif (selection == STT_GOOGLE):
+        susicfg.set('stt', 'google')
+    elif (selection == STT_WATSON):
+        credential_dialog = WatsonCredentialsDialog(self.config_window.window)
+        response = credential_dialog.run()
+        if (response == Gtk.ResponseType.OK):
+            username = credential_dialog.username_field.get_text()
+            password = credential_dialog.password_field.get_text()
+            susicfg.set('stt', 'watson')
+            susicfg.set('watson.stt.user', username)
+            susicfg.set('watson.stt.pass', password)
+        else:
+            self.config_window.init_stt_combobox()
+        credential_dialog.destroy()
+    elif (selection == STT_BING):
+        credential_dialog = BingCredentialDialog(self.config_window.window)
+        response = credential_dialog.run()
+        if (response == Gtk.ResponseType.OK):
+            api_key = credential_dialog.api_key_field.get_text()
+            susicfg.set('stt', 'bing')
+            susicfg.set('bing.api', api_key)
+        else:
+            self.config_window.init_stt_combobox()
+        credential_dialog.destroy()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    elif:
+        if:
+             ...  =  ... .get_text()
+
+idx = 28:------------------- similar code ------------------ index = 90, score = 1.0 
+@contextlib.contextmanager
+def _wrap_text(textobj):
+    'Temporarily inserts newlines to the text if the wrap option is enabled.\n    '
+    if textobj.get_wrap():
+        old_text = textobj.get_text()
+        try:
+            textobj.set_text(textobj._get_wrapped_text())
+            (yield textobj)
+        finally:
+            textobj.set_text(old_text)
+    else:
+        (yield textobj)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
+         ...  =  ... .get_text()
+
+idx = 29:------------------- similar code ------------------ index = 82, score = 1.0 
+def on_tts_combobox_changed(self, combo):
+    selection = combo.get_active()
+    if (selection == TTS_GOOGLE):
+        susicfg.set('tts', 'google')
+    elif (selection == TTS_FLITE):
+        susicfg.set('tts', 'flite')
+    elif (selection == TTS_WATSON):
+        credential_dialog = WatsonCredentialsDialog(self.config_window.window)
+        response = credential_dialog.run()
+        if (response == Gtk.ResponseType.OK):
+            username = credential_dialog.username_field.get_text()
+            password = credential_dialog.password_field.get_text()
+            susicfg.set('tts', 'watson')
+            susicfg.set('watson.tts.user', username)
+            susicfg.set('watson.tts.pass', password)
+            susicfg.set('watson.tts.voice', 'en-US_AllisonVoice')
+        else:
+            self.config_window.init_tts_combobox()
+        credential_dialog.destroy()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    elif:
+        if:
+             ...  =  ... .get_text()
+
+idx = 30:------------------- similar code ------------------ index = 3, score = 1.0 
+def parse_citation(self, single_citation):
+    'Parses patent citation, returning results as a dictionary\n\n\n        Returns (variables returned in dictionary, following are key names):  \n            - patent_number (str)  : patent number\n            - priority_date (str)  : priority date of patent\n            - pub_date      (str)  : publication date of patent\n\n        Inputs:\n            - single_citation (str) : html string from citation section in google patent html\n\n        '
+    try:
+        patent_number = single_citation.find('span', itemprop='publicationNumber').get_text()
+    except:
+        patent_number = ''
+    try:
+        priority_date = single_citation.find('td', itemprop='priorityDate').get_text()
+    except:
+        priority_date = ''
+    try:
+        pub_date = single_citation.find('td', itemprop='publicationDate').get_text()
+    except:
+        pub_date
+    return {'patent_number': patent_number, 'priority_date': priority_date, 'pub_date': pub_date}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  =  ... .get_text()
+

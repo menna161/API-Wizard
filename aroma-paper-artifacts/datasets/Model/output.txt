@@ -1,16 +1,92 @@
 ------------------------- example 1 ------------------------ 
+def tiny_yolo_body(inputs, num_anchors, num_classes):
+    'Create Tiny YOLO_v3 model CNN body in keras.'
+    x1 = compose(DarknetConv2D_BN_Leaky(16, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(32, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(64, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(128, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(256, (3, 3)))(inputs)
+    x2 = compose(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(512, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding='same'), DarknetConv2D_BN_Leaky(1024, (3, 3)), DarknetConv2D_BN_Leaky(256, (1, 1)))(x1)
+    y1 = compose(DarknetConv2D_BN_Leaky(512, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))(x2)
+    x2 = compose(DarknetConv2D_BN_Leaky(128, (1, 1)), UpSampling2D(2))(x2)
+    y2 = compose(Concatenate(), DarknetConv2D_BN_Leaky(256, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))([x2, x1])
+    return Model(inputs, [y1, y2])
+
+------------------------- example 2 ------------------------ 
 def load_model(self, model, **model_args):
     Model = import_class(model)
     model = Model(**model_args)
     self.model_text += ('\n\n' + str(model))
     return model
 
+------------------------- example 3 ------------------------ 
+def pretrained_embedding():
+    '\n    :return: A Model with an embeddings layer\n    '
+    inputs = Input(shape=(None,), dtype='int32')
+    embeddings = KeyedVectors.load_word2vec_format(EMBEDDINGS_PATH, binary=False)
+    word_encodings_weights = np.concatenate((np.zeros((1, embeddings.syn0.shape[(- 1)]), dtype=np.float32), embeddings.syn0), axis=0)
+    embeds = Embedding(len(word_encodings_weights), word_encodings_weights.shape[(- 1)], weights=[word_encodings_weights], trainable=False)(inputs)
+    return Model(inputs=inputs, outputs=embeds, name='embedding')
+
+------------------------- example 4 ------------------------ 
+def darknet19(inputs):
+    'Generate Darknet-19 model for Imagenet classification.'
+    body = darknet_body()(inputs)
+    logits = DarknetConv2D(1000, (1, 1), activation='softmax')(body)
+    return Model(inputs, logits)
+
+------------------------- example 5 ------------------------ 
+def build_model(char_size=27, dim=64, training=True, **kwargs):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([(- 1), K.prod(K.shape(x)[1:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+// your code ...
+
+    model = Model([context, query], out)
+    if training:
+// your code ...
+
+    return model
+
 examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        5         ||         0        
+example1  ||          3           ||        8         ||         0        
+example2  ||          2           ||        5         ||         0        
+example3  ||          2           ||        7         ||         0        
+example4  ||          2           ||        5         ||         0        
+example5  ||          6           ||        11         ||         2        
 
-avg       ||          2.0           ||        5.0         ||         0.0        
+avg       ||          3.0           ||        7.2         ||         0.4        
 
-idx = 0:------------------- similar code ------------------ index = 63, score = 2.0 
+idx = 0:------------------- similar code ------------------ index = 50, score = 2.0 
+def tiny_yolo_body(inputs, num_anchors, num_classes):
+    'Create Tiny YOLO_v3 model CNN body in keras.'
+    x1 = compose(DarknetConv2D_BN_Leaky(16, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(32, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(64, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(128, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(256, (3, 3)))(inputs)
+    x2 = compose(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(512, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding='same'), DarknetConv2D_BN_Leaky(1024, (3, 3)), DarknetConv2D_BN_Leaky(256, (1, 1)))(x1)
+    y1 = compose(DarknetConv2D_BN_Leaky(512, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))(x2)
+    x2 = compose(DarknetConv2D_BN_Leaky(128, (1, 1)), UpSampling2D(2))(x2)
+    y2 = compose(Concatenate(), DarknetConv2D_BN_Leaky(256, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))([x2, x1])
+    return Model(inputs, [y1, y2])
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return Model
+
+idx = 1:------------------- similar code ------------------ index = 61, score = 2.0 
+def yolo_body(inputs, num_anchors, num_classes):
+    'Create YOLO_V3 model CNN body in Keras.'
+    darknet = Model(inputs, darknet_body(inputs))
+    (x, y1) = make_last_layers(darknet.output, 512, (num_anchors * (num_classes + 5)))
+    x = compose(DarknetConv2D_BN_Leaky(256, (1, 1)), UpSampling2D(2))(x)
+    x = Concatenate()([x, darknet.layers[152].output])
+    (x, y2) = make_last_layers(x, 256, (num_anchors * (num_classes + 5)))
+    x = compose(DarknetConv2D_BN_Leaky(128, (1, 1)), UpSampling2D(2))(x)
+    x = Concatenate()([x, darknet.layers[92].output])
+    (x, y3) = make_last_layers(x, 128, (num_anchors * (num_classes + 5)))
+    return Model(inputs, [y1, y2, y3])
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return Model
+
+idx = 2:------------------- similar code ------------------ index = 161, score = 2.0 
 def load_model(self, model, **model_args):
     Model = import_class(model)
     model = Model(**model_args)
@@ -21,7 +97,20 @@ def load_model(self, model, **model_args):
 def  ... ():
     Model
 
-idx = 1:------------------- similar code ------------------ index = 111, score = 2.0 
+idx = 3:------------------- similar code ------------------ index = 316, score = 2.0 
+@pytest.mark.parametrize('Model', (models.Scale, models.Multiply))
+def test_Scale_model_set_linear_fit(Model):
+    'Test linear fitting of Scale model (#6103).'
+    init_model = Model(factor=[0, 0], n_models=2)
+    x = np.arange((- 3), 7)
+    yy = np.array([(1.15 * x), (0.96 * x)])
+    fitter = fitting.LinearLSQFitter()
+    fitted_model = fitter(init_model, x, yy)
+    assert_allclose(fitted_model.parameters, [1.15, 0.96], atol=1e-15)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... (Model):
+idx = 4:------------------- similar code ------------------ index = 385, score = 2.0 
 def pretrained_embedding():
     '\n    :return: A Model with an embeddings layer\n    '
     inputs = Input(shape=(None,), dtype='int32')
@@ -34,7 +123,47 @@ def pretrained_embedding():
 def  ... ():
     return Model
 
-idx = 2:------------------- similar code ------------------ index = 23, score = 2.0 
+idx = 5:------------------- similar code ------------------ index = 108, score = 2.0 
+def model_factory(schema, base_class=model.Model, name=None, resolver=None):
+    'Generate a model class based on the provided JSON Schema\n\n    :param schema: dict representing valid JSON schema\n    :param name: A name to give the class, if `name` is not in `schema`\n    '
+    schema = copy.deepcopy(schema)
+    resolver = resolver
+
+    class Model(base_class):
+
+        def __init__(self, *args, **kwargs):
+            self.__dict__['schema'] = schema
+            self.__dict__['resolver'] = resolver
+            cls = validator_for(self.schema)
+            if (resolver is not None):
+                self.__dict__['validator_instance'] = cls(schema, resolver=resolver)
+            else:
+                self.__dict__['validator_instance'] = cls(schema)
+            base_class.__init__(self, *args, **kwargs)
+    if (resolver is not None):
+        Model.resolver = resolver
+    if (name is not None):
+        Model.__name__ = name
+    elif ('name' in schema):
+        Model.__name__ = str(schema['name'])
+    return Model
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return Model
+
+idx = 6:------------------- similar code ------------------ index = 356, score = 2.0 
+def darknet19(inputs):
+    'Generate Darknet-19 model for Imagenet classification.'
+    body = darknet_body()(inputs)
+    logits = DarknetConv2D(1000, (1, 1), activation='softmax')(body)
+    return Model(inputs, logits)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    return Model
+
+idx = 7:------------------- similar code ------------------ index = 217, score = 2.0 
 def load_model(self, model, **model_args):
     Model = import_class(model)
     model = Model(**model_args)
@@ -45,3 +174,2861 @@ def load_model(self, model, **model_args):
 def  ... ():
     Model
 
+idx = 8:------------------- similar code ------------------ index = 186, score = 2.0 
+def yolo_body(inputs, num_anchors, num_classes):
+    'Create YOLO_V2 model CNN body in Keras.'
+    darknet = Model(inputs, darknet_body()(inputs))
+    conv13 = darknet.get_layer('batchnormalization_13').output
+    conv20 = compose(DarknetConv2D_BN_Leaky(1024, 3, 3), DarknetConv2D_BN_Leaky(1024, 3, 3))(darknet.output)
+    conv13_reshaped = Lambda(space_to_depth_x2, output_shape=space_to_depth_x2_output_shape, name='space_to_depth')(conv13)
+    x = merge([conv13_reshaped, conv20], mode='concat')
+    x = DarknetConv2D_BN_Leaky(1024, 3, 3)(x)
+    x = DarknetConv2D((num_anchors * (num_classes + 5)), 1, 1)(x)
+    return Model(inputs, x)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return Model
+
+idx = 9:------------------- similar code ------------------ index = 57, score = 1.0 
+def build_model(char_size=27, dim=64, training=True, **kwargs):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([(- 1), K.prod(K.shape(x)[1:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+    onehot = L.Embedding(char_size, char_size, embeddings_initializer='identity', trainable=False, mask_zero=True, name='onehot')
+    embedded_ctx = onehot(flat_ctx)
+    embedded_q = onehot(query)
+    (_, *states) = L.LSTM(dim, return_state=True, name='query_lstm')(embedded_q)
+    (out, *states) = L.LSTM(dim, return_state=True, name='ctx_lstm')(embedded_ctx, initial_state=states)
+    out = L.concatenate(([out] + states), name='final_states')
+    out = L.Dense(1, activation='sigmoid', name='out')(out)
+    model = Model([context, query], out)
+    if training:
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 10:------------------- similar code ------------------ index = 347, score = 1.0 
+def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2, weights_path='model_data/yolo_weights.h5'):
+    'create the training model'
+    K.clear_session()
+    image_input = Input(shape=(None, None, 3))
+    (h, w) = input_shape
+    num_anchors = len(anchors)
+    y_true = [Input(shape=((h // {0: 32, 1: 16, 2: 8}[l]), (w // {0: 32, 1: 16, 2: 8}[l]), (num_anchors // 3), (num_classes + 5))) for l in range(3)]
+    model_body = yolo4_body(image_input, (num_anchors // 3), num_classes)
+    print('Create YOLOv4 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+    if load_pretrained:
+        model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        print('Load weights {}.'.format(weights_path))
+        if (freeze_body in [1, 2]):
+            num = (250, (len(model_body.layers) - 3))[(freeze_body - 1)]
+            for i in range(num):
+                model_body.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+    label_smoothing = 0
+    use_focal_obj_loss = False
+    use_focal_loss = False
+    use_diou_loss = True
+    use_softmax_loss = False
+    model_loss = Lambda(yolo4_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5, 'label_smoothing': label_smoothing, 'use_focal_obj_loss': use_focal_obj_loss, 'use_focal_loss': use_focal_loss, 'use_diou_loss': use_diou_loss, 'use_softmax_loss': use_softmax_loss})([*model_body.output, *y_true])
+    model = Model([model_body.input, *y_true], model_loss)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 11:------------------- similar code ------------------ index = 160, score = 1.0 
+def _overwrite_flatbuffers_buffer(self, buffer_idx, new_contents):
+    model = Model.Model.GetRootAsModel(self.model_bytes, 0)
+    orig_buffer = model.Buffers(buffer_idx)
+    orig_buffer.DataAsNumpy()[:] = new_contents.astype(np.uint8).flatten()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 12:------------------- similar code ------------------ index = 144, score = 1.0 
+def retinanet_bbox(model=None, nms=True, class_specific_filter=True, name='retinanet-bbox', anchor_params=None, **kwargs):
+    ' Construct a RetinaNet model on top of a backbone and adds convenience functions to output boxes directly.\n\n\tThis model uses the minimum retinanet model and appends a few layers to compute boxes within the graph.\n\tThese layers include applying the regression values to the anchors and performing NMS.\n\n\tArgs\n\t\tmodel                 : RetinaNet model to append bbox layers to. If None, it will create a RetinaNet model using **kwargs.\n\t\tnms                   : Whether to use non-maximum suppression for the filtering step.\n\t\tclass_specific_filter : Whether to use class specific filtering or filter for the best scoring class only.\n\t\tname                  : Name of the model.\n\t\tanchor_params         : Struct containing anchor parameters. If None, default values are used.\n\t\t*kwargs               : Additional kwargs to pass to the minimal retinanet model.\n\n\tReturns\n\t\tA keras.models.Model which takes an image as input and outputs the detections on the image.\n\n\t\tThe order is defined as follows:\n\t\t```\n\t\t[\n\t\t\tboxes, scores, labels, other[0], other[1], ...\n\t\t]\n\t\t```\n\t'
+    if (anchor_params is None):
+        anchor_params = AnchorParameters.default
+    if (model is None):
+        model = retinanet(num_anchors=anchor_params.num_anchors(), **kwargs)
+    else:
+        assert_training_model(model)
+    features = [model.get_layer(p_name).output for p_name in ['P3', 'P4', 'P5', 'P6', 'P7']]
+    anchors = build_anchors(anchor_params, model.inputs[0], features)
+    regression = model.outputs[0]
+    classification = model.outputs[1]
+    other = model.outputs[2:]
+    boxes = layers.RegressBoxes(name='boxes')([anchors, regression])
+    boxes = layers.ClipBoxes(name='clipped_boxes')([model.inputs[0], boxes])
+    detections = layers.FilterDetections(nms=nms, class_specific_filter=class_specific_filter, name='filtered_detections')(([boxes, classification] + other))
+    return tf.keras.models.Model(inputs=model.inputs, outputs=detections, name=name)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .Model
+
+idx = 13:------------------- similar code ------------------ index = 246, score = 1.0 
+def test_sample(self):
+    encoder_input_layer = keras.layers.Input(shape=(512, 768), name='Encoder-Input')
+    decoder_input_layer = keras.layers.Input(shape=(512, 768), name='Decoder-Input')
+    encoded_layer = get_encoders(encoder_num=2, input_layer=encoder_input_layer, head_num=12, hidden_dim=3072, dropout_rate=0.0)
+    output_layer = get_decoders(decoder_num=2, input_layer=decoder_input_layer, encoded_layer=encoded_layer, head_num=12, hidden_dim=3072, dropout_rate=0.0)
+    model = keras.models.Model(inputs=[encoder_input_layer, decoder_input_layer], outputs=output_layer)
+    model.compile(optimizer='adam', loss='mse', metrics={})
+    model.summary(line_length=160)
+    output_layer = get_decoders(decoder_num=2, input_layer=decoder_input_layer, encoded_layer=encoded_layer, head_num=12, hidden_dim=3072, dropout_rate=0.1)
+    model = keras.models.Model(inputs=[encoder_input_layer, decoder_input_layer], outputs=output_layer)
+    model.compile(optimizer='adam', loss='mse', metrics={})
+    model.summary(line_length=160)
+    self.assertIsNotNone(model)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .Model
+
+idx = 14:------------------- similar code ------------------ index = 145, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([K.shape(x)[0], (- 1), K.prod(K.shape(x)[2:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(flat_ctx)
+    embedded_q = onehot(query)
+    embed_pred = ZeroGRU(dim, go_backwards=True, return_sequences=True, return_state=True, name='embed_pred')
+    (embedded_predqs, embedded_predq) = embed_pred(embedded_q)
+    embed_pred.return_sequences = False
+    embed_pred.return_state = False
+    embedded_rules = L.TimeDistributed(embed_pred, name='rule_embed')(embedded_ctx)
+    concatm1 = L.Concatenate(name='concatm1')
+    repeat_toqlen = L.RepeatVector(K.shape(embedded_q)[1], name='repeat_toqlen')
+    mult_cqi = L.Multiply(name='mult_cqi')
+    dense_cqi = L.Dense(dim, name='dense_cqi')
+    dense_cais = L.Dense(1, name='dense_cais')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1, name='softmax1')
+    dot11 = L.Dot((1, 1), name='dot11')
+    repeat_toctx = L.RepeatVector(K.shape(context)[1], name='repeat_toctx')
+    memory_dense = L.Dense(dim, name='memory_dense')
+    kb_dense = L.Dense(dim, name='kb_dense')
+    mult_info = L.Multiply(name='mult_info')
+    info_dense = L.Dense(dim, name='info_dense')
+    mult_att_dense = L.Multiply(name='mult_att_dense')
+    read_att_dense = L.Dense(1, name='read_att_dense')
+    mem_info_dense = L.Dense(dim, name='mem_info_dense')
+    stack1 = L.Lambda((lambda xs: K.stack(xs, 1)), output_shape=(None, dim), name='stack1')
+    mult_self_att = L.Multiply(name='mult_self_att')
+    self_att_dense = L.Dense(1, name='self_att_dense')
+    misa_dense = L.Dense(dim, use_bias=False, name='misa_dense')
+    mi_info_dense = L.Dense(dim, name='mi_info_dense')
+    add_mip = L.Lambda((lambda xy: (xy[0] + xy[1])), name='add_mip')
+    control_gate = L.Dense(1, activation='sigmoid', name='control_gate')
+    gate2 = L.Lambda((lambda xyg: ((xyg[2] * xyg[0]) + ((1 - xyg[2]) * xyg[1]))), name='gate')
+    zeros_like = L.Lambda(K.zeros_like, name='zeros_like')
+    memory = embedded_predq
+    control = zeros_like(memory)
+    (pmemories, pcontrols) = ([memory], [control])
+    outs = list()
+    for i in range(iterations):
+        qi = L.Dense(dim, name=('qi' + str(i)))(embedded_predq)
+        cqi = dense_cqi(concatm1([control, qi]))
+        cais = dense_cais(mult_cqi([repeat_toqlen(cqi), embedded_predqs]))
+        cais = squeeze2(cais)
+        cais = softmax1(cais)
+        outs.append(cais)
+        new_control = dot11([cais, embedded_predqs])
+        info = mult_info([repeat_toctx(memory_dense(memory)), kb_dense(embedded_rules)])
+        infop = info_dense(concatm1([info, embedded_rules]))
+        rai = read_att_dense(mult_att_dense([repeat_toctx(new_control), infop]))
+        rai = squeeze2(rai)
+        rai = softmax1(rai)
+        outs.append(rai)
+        read = dot11([rai, embedded_rules])
+        mi_info = mem_info_dense(concatm1([read, memory]))
+        past_ctrls = stack1(pcontrols)
+        sai = self_att_dense(mult_self_att([L.RepeatVector((i + 1))(new_control), past_ctrls]))
+        sai = squeeze2(sai)
+        sai = softmax1(sai)
+        outs.append(sai)
+        past_mems = stack1(pmemories)
+        misa = L.dot([sai, past_mems], (1, 1), name=('misa_' + str(i)))
+        mip = add_mip([misa_dense(misa), mi_info_dense(mi_info)])
+        cip = control_gate(new_control)
+        outs.append(cip)
+        new_memory = gate2([mip, memory, cip])
+        pcontrols.append(new_control)
+        pmemories.append(new_memory)
+        (memory, control) = (new_memory, new_control)
+    out = L.Dense(1, activation='sigmoid', name='out')(concatm1([embedded_predq, memory]))
+    if training:
+        model = Model([context, query], out)
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :
+         ...  = Model
+
+idx = 15:------------------- similar code ------------------ index = 336, score = 1.0 
+def make_model(game):
+    if game.experimental_mode:
+        model = CustomModel(game)
+    else:
+        model = Model(game)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:    else:
+         ...  = Model
+
+idx = 16:------------------- similar code ------------------ index = 337, score = 1.0 
+def test_canonicalize_role(self, mini_amr):
+    m = Model()
+    assert (m.canonicalize_role(':ARG0') == ':ARG0')
+    assert (m.canonicalize_role(':ARG0-of') == ':ARG0-of')
+    assert (m.canonicalize_role(':ARG0-of-of') == ':ARG0')
+    assert (m.canonicalize_role(':consist') == ':consist')
+    assert (m.canonicalize_role(':consist-of') == ':consist-of')
+    assert (m.canonicalize_role(':consist-of-of') == ':consist')
+    assert (m.canonicalize_role(':mod') == ':mod')
+    assert (m.canonicalize_role(':mod-of') == ':mod-of')
+    assert (m.canonicalize_role(':domain') == ':domain')
+    assert (m.canonicalize_role(':domain-of') == ':domain-of')
+    assert (m.canonicalize_role('ARG0') == ':ARG0')
+    assert (m.canonicalize_role('ARG0-of') == ':ARG0-of')
+    assert (m.canonicalize_role('ARG0-of-of') == ':ARG0')
+    m = Model.from_dict(mini_amr)
+    assert (m.canonicalize_role(':ARG0') == ':ARG0')
+    assert (m.canonicalize_role(':ARG0-of') == ':ARG0-of')
+    assert (m.canonicalize_role(':ARG0-of-of') == ':ARG0')
+    assert (m.canonicalize_role(':consist') == ':consist-of-of')
+    assert (m.canonicalize_role(':consist-of') == ':consist-of')
+    assert (m.canonicalize_role(':consist-of-of') == ':consist-of-of')
+    assert (m.canonicalize_role(':mod') == ':mod')
+    assert (m.canonicalize_role(':mod-of') == ':domain')
+    assert (m.canonicalize_role(':domain') == ':domain')
+    assert (m.canonicalize_role(':domain-of') == ':mod')
+    assert (m.canonicalize_role('consist') == ':consist-of-of')
+    assert (m.canonicalize_role('consist-of') == ':consist-of')
+    assert (m.canonicalize_role('consist-of-of') == ':consist-of-of')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 17:------------------- similar code ------------------ index = 244, score = 1.0 
+def make_model(game, peak=1.0):
+    if game.experimental_mode:
+        model = CustomModel(game, peak=peak)
+    else:
+        model = Model(game)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    else:
+         ...  = Model
+
+idx = 18:------------------- similar code ------------------ index = 73, score = 1.0 
+def reify_edges(g: Graph, model: Model) -> Graph:
+    "\n    Reify all edges in *g* that have reifications in *model*.\n\n    Args:\n        g: a :class:`~penman.graph.Graph` object\n        model: a model defining reifications\n    Returns:\n        A new :class:`~penman.graph.Graph` object with reified edges.\n    Example:\n        >>> from penman.codec import PENMANCodec\n        >>> from penman.models.amr import model\n        >>> from penman.transform import reify_edges\n        >>> codec = PENMANCodec(model=model)\n        >>> g = codec.decode('(c / chapter :mod 7)')\n        >>> g = reify_edges(g, model)\n        >>> print(codec.encode(g))\n        (c / chapter\n           :ARG1-of (_ / have-mod-91\n                       :ARG2 7))\n    "
+    vars = g.variables()
+    if (model is None):
+        model = Model()
+    new_epidata = dict(g.epidata)
+    new_triples: List[BasicTriple] = []
+    for triple in g.triples:
+        if model.is_role_reifiable(triple[1]):
+            (in_triple, node_triple, out_triple) = model.reify(triple, vars)
+            if appears_inverted(g, triple):
+                (in_triple, out_triple) = (out_triple, in_triple)
+            new_triples.extend((in_triple, node_triple, out_triple))
+            var = node_triple[0]
+            vars.add(var)
+            new_epidata[in_triple] = [Push(var)]
+            old_epis = (new_epidata.pop(triple) if (triple in new_epidata) else [])
+            (node_epis, out_epis) = _edge_markers(old_epis)
+            new_epidata[node_triple] = node_epis
+            new_epidata[out_triple] = out_epis
+        else:
+            new_triples.append(triple)
+    g = Graph(new_triples, epidata=new_epidata, metadata=g.metadata)
+    logger.info('Reified edges: %s', g)
+    return g
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,  ... : Model) ->  ... :
+idx = 19:------------------- similar code ------------------ index = 342, score = 1.0 
+def build_model(char_size=27, training=True, goals=None, num_preds=2, pred_len=6):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='subcontext', dtype='int32')
+    query = L.Input(shape=(None,), name='outer_query', dtype='int32')
+    goals = (goals or list())
+    templates = list()
+    for (i, g) in enumerate(goals):
+        t = RuleTemplate(g, num_preds, pred_len, char_size, name=('trule' + str(i)))(context)
+        templates.append(t)
+    if (len(templates) >= 2):
+        templates = L.concatenate(templates, axis=1)
+    else:
+        templates = templates[0]
+    (auxs, out) = ima.build_model(char_size, ilp=[context, query, templates])
+    if training:
+        model = Model([context, query], [out])
+    else:
+        model = Model([context, query], (([templates] + auxs) + [out]))
+    for l in model.layers:
+        if (not isinstance(l, RuleTemplate)):
+            l.trainable = False
+    if training:
+        model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['acc'])
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :
+         ...  = Model
+
+idx = 20:------------------- similar code ------------------ index = 69, score = 1.0 
+def canonicalize_roles(t: Tree, model: Model) -> Tree:
+    "\n    Normalize roles in *t* so they are canonical according to *model*.\n\n    This is a tree transformation instead of a graph transformation\n    because the orientation of the pure graph's triples is not decided\n    until the graph is configured into a tree.\n\n    Args:\n        t: a :class:`~penman.tree.Tree` object\n        model: a model defining role normalizations\n    Returns:\n        A new :class:`~penman.tree.Tree` object with canonicalized\n        roles.\n    Example:\n        >>> from penman.codec import PENMANCodec\n        >>> from penman.models.amr import model\n        >>> from penman.transform import canonicalize_roles\n        >>> codec = PENMANCodec()\n        >>> t = codec.parse('(c / chapter :domain-of 7)')\n        >>> t = canonicalize_roles(t, model)\n        >>> print(codec.format(t))\n        (c / chapter\n           :mod 7)\n    "
+    if (model is None):
+        model = Model()
+    tree = Tree(_canonicalize_node(t.node, model), metadata=t.metadata)
+    logger.info('Canonicalized roles: %s', tree)
+    return tree
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,  ... : Model) ->  ... :
+idx = 21:------------------- similar code ------------------ index = 52, score = 1.0 
+def _build_graph(self):
+    model = Model.Model.GetRootAsModel(self.model_bytes, 0)
+    subgraph = model.Subgraphs(0)
+    tensors = []
+    operators = []
+    for i in range(subgraph.TensorsLength()):
+        t = subgraph.Tensors(i)
+        tensors.append(TFLiteTensor(id=i, shape=t.ShapeAsNumpy(), name=t.Name().decode('ascii'), producer=None, consumers=[], type=t.Type()))
+    for i in range(subgraph.OperatorsLength()):
+        op = subgraph.Operators(i)
+        assert (op.OutputsLength() <= 1)
+        has_output = (op.OutputsLength() == 1)
+        inputs = [(tensors[j] if (j != (- 1)) else None) for j in op.InputsAsNumpy()]
+        assert (len(inputs) > 0)
+        opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        tflite_op = TFLiteOperator(id=i, output=(tensors[op.Outputs(0)] if has_output else None), inputs=inputs, opcode=opcode, options=op.BuiltinOptions())
+        tflite_op.output.producer = tflite_op
+        for t in tflite_op.non_empty_inputs:
+            t.consumers.append(tflite_op)
+        operators.append(tflite_op)
+    inputs = [tensors[j] for j in subgraph.InputsAsNumpy()]
+    outputs = [tensors[j] for j in subgraph.OutputsAsNumpy()]
+    for t in tensors:
+        t.is_constant = ((t.producer is None) and (t not in inputs))
+
+    def _compute_predecessors(tensor):
+        if (tensor.predecessors is not None):
+            return tensor.predecessors
+        if (tensor.producer is None):
+            tensor.predecessors = set()
+        else:
+            op_inputs = tensor.producer.non_empty_inputs
+            tensor.predecessors = set(op_inputs)
+            for i in op_inputs:
+                tensor.predecessors |= _compute_predecessors(i)
+        return tensor.predecessors
+    for o in outputs:
+        _compute_predecessors(o)
+    self.model_graph = TFLiteGraph(tensors, operators, inputs, outputs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 22:------------------- similar code ------------------ index = 348, score = 1.0 
+def make_model(game, peak=1.0):
+    if game.experimental_mode:
+        model = CustomModel(game, peak=peak)
+    else:
+        model = Model(game)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    else:
+         ...  = Model
+
+idx = 23:------------------- similar code ------------------ index = 154, score = 1.0 
+def get_small_unet_no_pool():
+    input_layer = Input(shape=x_train.shape[1:])
+    c1 = Conv2D(filters=8, kernel_size=(3, 3), activation='relu', padding='same')(input_layer)
+    l = Conv2D(filters=8, kernel_size=(2, 2), strides=(2, 2), activation='relu', padding='same')(c1)
+    c2 = Conv2D(filters=16, kernel_size=(3, 3), activation='relu', padding='same')(l)
+    l = Conv2D(filters=16, kernel_size=(2, 2), strides=(2, 2), activation='relu', padding='same')(c2)
+    c3 = Conv2D(filters=32, kernel_size=(3, 3), activation='relu', padding='same')(l)
+    l = Conv2D(filters=32, kernel_size=(2, 2), strides=(2, 2), activation='relu', padding='same')(c3)
+    c4 = Conv2D(filters=32, kernel_size=(1, 1), activation='relu', padding='same')(l)
+    l = concatenate([UpSampling2D(size=(2, 2))(c4), c3], axis=(- 1))
+    l = Conv2D(filters=32, kernel_size=(2, 2), activation='relu', padding='same')(l)
+    l = concatenate([UpSampling2D(size=(2, 2))(l), c2], axis=(- 1))
+    l = Conv2D(filters=24, kernel_size=(2, 2), activation='relu', padding='same')(l)
+    l = concatenate([UpSampling2D(size=(2, 2))(l), c1], axis=(- 1))
+    l = Conv2D(filters=16, kernel_size=(2, 2), activation='relu', padding='same')(l)
+    l = Conv2D(filters=64, kernel_size=(1, 1), activation='relu')(l)
+    l = Dropout(0.5)(l)
+    output_layer = Conv2D(filters=1, kernel_size=(1, 1), activation='sigmoid')(l)
+    model = Model(input_layer, output_layer)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 24:------------------- similar code ------------------ index = 151, score = 1.0 
+def test_sample(self):
+    input_layer = keras.layers.Input(shape=(512, 768), name='Input')
+    output_layer = get_encoders(encoder_num=2, input_layer=input_layer, head_num=12, hidden_dim=3072, dropout_rate=0.0)
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+    model.compile(optimizer='adam', loss='mse', metrics={})
+    model.summary(line_length=160)
+    output_layer = get_encoders(encoder_num=2, input_layer=input_layer, head_num=12, hidden_dim=3072, dropout_rate=0.1)
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+    model.compile(optimizer='adam', loss='mse', metrics={})
+    model.summary(line_length=160)
+    self.assertIsNotNone(model)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .Model
+
+idx = 25:------------------- similar code ------------------ index = 66, score = 1.0 
+def _get_model(amr, noop, model_file):
+    if amr:
+        from penman.models.amr import model
+    elif noop:
+        from penman.models.noop import model
+    elif model_file:
+        model = Model(**json.load(model_file))
+    else:
+        model = Model()
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :    elif  ... :
+         ...  = Model
+
+idx = 26:------------------- similar code ------------------ index = 65, score = 1.0 
+def mfnn(data):
+    (x_dim, y_dim) = (3, 1)
+    activation = 'selu'
+    initializer = 'LeCun normal'
+    regularization = ['l2', 0.01]
+    net = dde.maps.MfNN((([x_dim] + ([128] * 2)) + [y_dim]), (([8] * 2) + [y_dim]), activation, initializer, regularization=regularization, residue=True, trainable_low_fidelity=True, trainable_high_fidelity=True)
+    model = dde.Model(data, net)
+    model.compile('adam', lr=0.0001, loss='MAPE', metrics=['MAPE', 'APE SD'])
+    (losshistory, train_state) = model.train(epochs=30000)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=False)
+    return (train_state.best_metrics[1], train_state.best_metrics[3], train_state.best_y[1])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .Model
+
+idx = 27:------------------- similar code ------------------ index = 330, score = 1.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 1000
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.5
+    EPSLILON_COUNT = 6000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 25
+    TRAINING_SAMPLE_SIZE = 256
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 2
+    RENDER_ENV = False
+    LOAD_MODEL = False
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 25
+    epsilon = EPSILON_START
+    env = gym.make('LunarLander-v2')
+    observation = env.reset()
+    rb = ReplayBuffer(30000)
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=0.01), Model(env.observation_space.shape, env.action_space.n, lr=0.01))
+    if LOAD_MODEL:
+        agent.model.load_state_dict(torch.load((('' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        if ((game % TARGET_MODEL_UPDATE_INTERVAL) == 0):
+            print('game', game, ' updating target model')
+            agent.update_target_model()
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            if ((step_counter < 2000) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > 3000) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                for s in range(TRAINING_ITTERATIONS):
+                    dick = rb.sample(TRAINING_SAMPLE_SIZE, step)
+                    train_step(agent.model, dick, agent.targetModel, env.action_space.n)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                if (SAVE_MODEL and ((game % SAVE_MODEL_EVERY) == 0) and (game > 50)):
+                    torch.save(agent.model, (('' + MODEL_ID) + MODEL_FILE_NAME))
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'last score', reward, 'episode_len', len(episode_sars), 'buffer', len(rb.buffer), 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... (Model,)
+
+idx = 28:------------------- similar code ------------------ index = 237, score = 1.0 
+def get_model(n_vocab, n_ctx=1024, n_embd=768, n_head=12, n_layer=12, batch_size=None, fixed_input_shape=False):
+    'Get basic GPT-2 model.\n\n    :param n_vocab: Number of vocabulary tokens.\n    :param n_ctx: The length of each input.\n    :param n_embd: The dimension of embeddings.\n    :param n_head: Number of heads in transformer.\n    :param n_layer: Number of transformer blocks.\n    :param batch_size: Batch size of the model.\n    :param fixed_input_shape: Whether the length of input is fixed. (Needed for TPU training)\n    :return: The model.\n    '
+    if fixed_input_shape:
+        input_layer_shape = (batch_size, n_ctx)
+    else:
+        input_layer_shape = (batch_size, None)
+    input_layer = keras.layers.Input(batch_shape=input_layer_shape, name='Input')
+    (embed_token, embeddings) = EmbeddingRet(input_dim=n_vocab, output_dim=n_embd, mask_zero=False, name='Embed-Token')(input_layer)
+    embed_token_pos = PositionEmbedding(input_dim=n_ctx, output_dim=n_embd, mode=PositionEmbedding.MODE_ADD, name='Embed-Token-Pos')(embed_token)
+    last_layer = embed_token_pos
+    for i in range(n_layer):
+        last_layer = _get_encoder_component(name=('Encode-%d' % i), input_layer=last_layer, head_num=n_head, hidden_dim=(n_embd * 4), attention_activation=None, feed_forward_activation=gelu)
+    norm_layer = LayerNormalization(name='Norm')(last_layer)
+    output_layer = EmbeddingSim(use_bias=False, name='Output')([norm_layer, embeddings])
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+    model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.sparse_categorical_crossentropy)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Model
+
+idx = 29:------------------- similar code ------------------ index = 353, score = 1.0 
+def setup_model_loss_criterion(args, rank, is_cuda):
+    '\n    setup model, criterion and optimizer based on input args\n    '
+    args.distributed_rank = rank
+    if (args.distributed_world_size > 1):
+        distributed_utils.distributed_init(args)
+    torch.manual_seed(1)
+    model = Model(args.input_size, args.nb_classes)
+    loss_fn = nn.CrossEntropyLoss()
+    if is_cuda:
+        model = model.cuda()
+        loss_fn = loss_fn.cuda()
+    optimizer = optim.sgd.SGD(args, model.parameters())
+    optimizer = optim.FairseqBMUF(args, optimizer)
+    return (model, loss_fn, optimizer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 30:------------------- similar code ------------------ index = 368, score = 1.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 1490
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.5
+    EPSLILON_COUNT = 6000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 25
+    TRAINING_SAMPLE_SIZE = 256
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 1
+    RENDER_ENV = True
+    LOAD_MODEL = True
+    SAVE_MODEL = False
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 25
+    epsilon = EPSILON_START
+    env = gym.make('LunarLander-v2')
+    observation = env.reset()
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=0.0001), Model(env.observation_space.shape, env.action_space.n, lr=0.0001))
+    if LOAD_MODEL:
+        print('Loading Model ', (('' + MODEL_ID) + MODEL_FILE_NAME))
+        agent.model = torch.load((('' + MODEL_ID) + MODEL_FILE_NAME))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    last_step_count = 0
+    for game in range(NUM_GAMES):
+        score = 0
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            score += reward
+            observation = observation_next
+            step_counter += 1
+            last_step_count = step
+            if done:
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'last score', reward, 'game score ', score, 'episode_len', last_step_count, 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... (Model,)
+
+idx = 31:------------------- similar code ------------------ index = 355, score = 1.0 
+def generator(inp_shape, trainable=True):
+    gamma_init = tf.random_normal_initializer(1.0, 0.02)
+    fd = 512
+    gr = 32
+    nb = 12
+    betad = 0.2
+    betar = 0.2
+    inp_real_imag = Input(inp_shape)
+    lay_128dn = Conv2D(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(inp_real_imag)
+    lay_128dn = LeakyReLU(alpha=0.2)(lay_128dn)
+    lay_64dn = Conv2D(128, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_128dn)
+    lay_64dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_64dn)
+    lay_64dn = LeakyReLU(alpha=0.2)(lay_64dn)
+    lay_32dn = Conv2D(256, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_64dn)
+    lay_32dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_32dn)
+    lay_32dn = LeakyReLU(alpha=0.2)(lay_32dn)
+    lay_16dn = Conv2D(512, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_32dn)
+    lay_16dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_16dn)
+    lay_16dn = LeakyReLU(alpha=0.2)(lay_16dn)
+    lay_8dn = Conv2D(512, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_16dn)
+    lay_8dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_8dn)
+    lay_8dn = LeakyReLU(alpha=0.2)(lay_8dn)
+    xc1 = Conv2D(filters=fd, kernel_size=3, strides=1, padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_8dn)
+    xrrd = xc1
+    for m in range(nb):
+        xrrd = resresden(xrrd, fd, gr, betad, betar, gamma_init, trainable)
+    xc2 = Conv2D(filters=fd, kernel_size=3, strides=1, padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(xrrd)
+    lay_8upc = Add()([xc1, xc2])
+    lay_16up = Conv2DTranspose(1024, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_8upc)
+    lay_16up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_16up)
+    lay_16up = Activation('relu')(lay_16up)
+    lay_16upc = Concatenate(axis=(- 1))([lay_16up, lay_16dn])
+    lay_32up = Conv2DTranspose(256, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_16upc)
+    lay_32up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_32up)
+    lay_32up = Activation('relu')(lay_32up)
+    lay_32upc = Concatenate(axis=(- 1))([lay_32up, lay_32dn])
+    lay_64up = Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_32upc)
+    lay_64up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_64up)
+    lay_64up = Activation('relu')(lay_64up)
+    lay_64upc = Concatenate(axis=(- 1))([lay_64up, lay_64dn])
+    lay_128up = Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_64upc)
+    lay_128up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_128up)
+    lay_128up = Activation('relu')(lay_128up)
+    lay_128upc = Concatenate(axis=(- 1))([lay_128up, lay_128dn])
+    lay_256up = Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_128upc)
+    lay_256up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_256up)
+    lay_256up = Activation('relu')(lay_256up)
+    out = Conv2D(1, (1, 1), strides=(1, 1), activation='tanh', padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_256up)
+    model = Model(inputs=inp_real_imag, outputs=out)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 32:------------------- similar code ------------------ index = 228, score = 1.0 
+def make_model(game):
+    model = Model(game)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 33:------------------- similar code ------------------ index = 364, score = 1.0 
+def retinanet(inputs, backbone_layers, submodels, num_anchors=None, create_pyramid_features=fpn.create_pyramid_features, name='retinanet'):
+    ' Construct a RetinaNet model on top of a backbone.\n\tThis model is the minimum model necessary for training (with the unfortunate exception of anchors as output).\n\tArgs\n\t\tinputs                  : keras.layers.Input (or list of) for the input to the model.\n\t\tnum_anchors             : Number of base anchors.\n\t\tcreate_pyramid_features : Functor for creating pyramid features given the features C3, C4, C5 from the backbone.\n\t\tsubmodels               : Submodels to run on each feature map (default is regression and classification submodels).\n\t\tname                    : Name of the model.\n\tReturns\n\t\tA keras.models.Model which takes an image as input and outputs generated anchors and the result from each submodel on every pyramid level.\n\t\tThe order of the outputs is as defined in submodels:\n\t\t```\n\t\t[\n\t\t\tregression, classification, other[0], other[1], ...\n\t\t]\n\t\t```\n\t'
+    if (num_anchors is None):
+        num_anchors = AnchorParameters.default.num_anchors()
+    retinanet_submodels = []
+    for submodel in submodels:
+        retinanet_submodels.append((submodel.get_name(), submodel.create(num_anchors=num_anchors, name='{}_submodel'.format(submodel.get_name()))))
+    (C3, C4, C5) = backbone_layers
+    features = create_pyramid_features(C3, C4, C5)
+    pyramids = fpn.build_pyramid(retinanet_submodels, features)
+    return tf.keras.models.Model(inputs=inputs, outputs=pyramids, name=name)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .Model
+
+idx = 34:------------------- similar code ------------------ index = 142, score = 1.0 
+def test_save_load(trained_model, mcqa_dataset, tmpdir):
+    model_path = str(tmpdir)
+    trained_model.save_model(model_path)
+    mdl_clone = Model(bert_model='bert-base-uncased', device='cpu')
+    config = BertConfig.from_pretrained(model_path, num_labels=4)
+    mdl_clone.model = BertForMultipleChoice.from_pretrained(model_path, config=config)
+    for (param1, param2) in zip(mdl_clone.model.parameters(), trained_model.model.parameters()):
+        assert param1.data.allclose(param2.data)
+    mdl_clone.fit(mcqa_dataset.get_dataset(), train_batch_size=1, num_train_epochs=1)
+    _ = mdl_clone.predict_proba(mcqa_dataset.get_dataset(), eval_batch_size=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 35:------------------- similar code ------------------ index = 314, score = 1.0 
+def test_fit(mcqa_dataset):
+    mdl = Model(bert_model='bert-base-uncased', device='cpu')
+    mdl.fit(mcqa_dataset.get_dataset(), train_batch_size=1, num_train_epochs=1)
+    assert isinstance(mdl.model, BertForMultipleChoice)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 36:------------------- similar code ------------------ index = 329, score = 1.0 
+if (__name__ == '__main__'):
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 600
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.01
+    EPSILON_START = 0.3
+    EPSLILON_COUNT = 2000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 15
+    PRINT_EVERY = 10
+    epsilon = EPSILON_START
+    env = gym.make('CartPole-v1')
+    observation = env.reset()
+    m = Model(env.observation_space.shape, env.action_space.n, lr=0.01)
+    rb = ReplayBuffer(3000)
+    agent = DQNAgent(m, Model(env.observation_space.shape, env.action_space.n, lr=0.01))
+    step_counter = 0
+    avg_reward = []
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        for step in range(MAX_EPISODE_STEPS):
+            env.render()
+            action = 0
+            if ((step_counter < 1000) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            if done:
+                reward = (- 100)
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > 3000) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                train_step(agent.model, rb.sample(1, step), agent.targetModel, env.action_space.n)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                rb.episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model
+
+idx = 37:------------------- similar code ------------------ index = 252, score = 1.0 
+if (__name__ == '__main__'):
+    dataset_train = get_data()
+    config = TrainConfig(model=Model(), data=StagingInput(QueueInput(dataset_train)), callbacks=[], extra_callbacks=[ProgressBar(['cost'])], max_epoch=200, steps_per_epoch=50)
+    if (NUM_GPU == 1):
+        trainer = SimpleTrainer()
+    else:
+        trainer = SyncMultiGPUTrainerReplicated(NUM_GPU, mode='nccl')
+    launch_train_with_config(config, trainer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... ( ... =Model(),,,,,)
+
+idx = 38:------------------- similar code ------------------ index = 118, score = 1.0 
+def test__init__(self, mini_amr):
+    m = Model()
+    assert (len(m.roles) == 0)
+    m = Model(roles=mini_amr['roles'])
+    assert (len(m.roles) == 7)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 39:------------------- similar code ------------------ index = 120, score = 1.0 
+def test_fit_reproducibility(trained_model, mcqa_dataset):
+    mdl1 = trained_model
+    mdl2 = Model(bert_model='bert-base-uncased', device='cpu')
+    mdl2.fit(mcqa_dataset.get_dataset(), train_batch_size=1, num_train_epochs=1)
+    for (param1, param2) in zip(mdl1.model.parameters(), mdl2.model.parameters()):
+        assert param1.data.allclose(param2.data)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 40:------------------- similar code ------------------ index = 285, score = 1.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 1000
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.5
+    EPSLILON_COUNT = 6000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 25
+    TRAINING_SAMPLE_SIZE = 256
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 2
+    RENDER_ENV = False
+    LOAD_MODEL = False
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 25
+    epsilon = EPSILON_START
+    env = gym.make('LunarLander-v2')
+    observation = env.reset()
+    rb = ReplayBuffer(30000)
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=0.01), Model(env.observation_space.shape, env.action_space.n, lr=0.01))
+    if LOAD_MODEL:
+        agent.model.load_state_dict(torch.load((('' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        if ((game % TARGET_MODEL_UPDATE_INTERVAL) == 0):
+            print('game', game, ' updating target model')
+            agent.update_target_model()
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            if ((step_counter < 2000) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > 3000) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                for s in range(TRAINING_ITTERATIONS):
+                    dick = rb.sample(TRAINING_SAMPLE_SIZE, step)
+                    train_step(agent.model, dick, agent.targetModel, env.action_space.n)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                if (SAVE_MODEL and ((game % SAVE_MODEL_EVERY) == 0) and (game > 50)):
+                    torch.save(agent.model, (('' + MODEL_ID) + MODEL_FILE_NAME))
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'last score', reward, 'episode_len', len(episode_sars), 'buffer', len(rb.buffer), 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... (Model,)
+
+idx = 41:------------------- similar code ------------------ index = 278, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    if ilp:
+        (context, query, templates) = ilp
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(context)
+    embedded_q = onehot(query)
+    if ilp:
+        embedded_ctx = L.Lambda((lambda xs: K.concatenate(xs, axis=1)), name='template_concat')([templates, embedded_ctx])
+    embed_pred = ZeroGRU(dim, go_backwards=True, name='embed_pred')
+    embedded_predq = embed_pred(embedded_q)
+    embedded_ctx_preds = NestedTimeDist(NestedTimeDist(embed_pred, name='nest1'), name='nest2')(embedded_ctx)
+    embed_rule = ZeroGRU(dim, name='embed_rule')
+    embedded_rules = NestedTimeDist(embed_rule, name='d_embed_rule')(embedded_ctx_preds)
+    repeat_toctx = L.RepeatVector(K.shape(embedded_ctx)[1], name='repeat_to_ctx')
+    diff_sq = L.Lambda((lambda xy: K.square((xy[0] - xy[1]))), output_shape=(None, dim), name='diff_sq')
+    mult = L.Multiply()
+    concat = L.Lambda((lambda xs: K.concatenate(xs, axis=2)), output_shape=(None, (dim * 5)), name='concat')
+    att_dense = L.Dense(1, name='d_att_dense')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1)
+    unifier = NestedTimeDist(ZeroGRU(dim, go_backwards=True, name='unifier'), name='dist_unifier')
+    dot11 = L.Dot((1, 1))
+    state = embedded_predq
+    repeated_q = repeat_toctx(embedded_predq)
+    outs = list()
+    for _ in range(iterations):
+        ctx_state = repeat_toctx(state)
+        s_s_c = diff_sq([ctx_state, embedded_rules])
+        s_m_c = mult([embedded_rules, state])
+        sim_vec = concat([s_s_c, s_m_c, ctx_state, embedded_rules, repeated_q])
+        sim_vec = att_dense(sim_vec)
+        sim_vec = squeeze2(sim_vec)
+        sim_vec = softmax1(sim_vec)
+        outs.append(sim_vec)
+        new_states = unifier(embedded_ctx_preds, initial_state=[state])
+        state = dot11([sim_vec, new_states])
+    out = L.Dense(1, activation='sigmoid', name='out')(state)
+    if ilp:
+        return (outs, out)
+    elif pca:
+        model = Model([context, query], [embedded_rules])
+    elif training:
+        model = Model([context, query], [out])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :    elif  ... :
+         ...  = Model
+
+idx = 42:------------------- similar code ------------------ index = 112, score = 1.0 
+def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2, weights_path='model_data/yolo_weights.h5'):
+    'create the training model'
+    K.clear_session()
+    image_input = Input(shape=(None, None, 3))
+    (h, w) = input_shape
+    num_anchors = len(anchors)
+    y_true = [Input(shape=((h // {0: 32, 1: 16, 2: 8}[l]), (w // {0: 32, 1: 16, 2: 8}[l]), (num_anchors // 3), (num_classes + 5))) for l in range(3)]
+    model_body = yolo_body(image_input, (num_anchors // 3), num_classes)
+    print('Create YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+    if load_pretrained:
+        model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        print('Load weights {}.'.format(weights_path))
+        if (freeze_body in [1, 2]):
+            num = (185, (len(model_body.layers) - 3))[(freeze_body - 1)]
+            for i in range(num):
+                model_body.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+    out1 = model_body.layers[246].output
+    out2 = model_body.layers[247].output
+    out3 = model_body.layers[248].output
+    bottleneck_model = Model([model_body.input, *y_true], [out1, out2, out3])
+    in0 = Input(shape=bottleneck_model.output[0].shape[1:].as_list())
+    in1 = Input(shape=bottleneck_model.output[1].shape[1:].as_list())
+    in2 = Input(shape=bottleneck_model.output[2].shape[1:].as_list())
+    last_out0 = model_body.layers[249](in0)
+    last_out1 = model_body.layers[250](in1)
+    last_out2 = model_body.layers[251](in2)
+    model_last = Model(inputs=[in0, in1, in2], outputs=[last_out0, last_out1, last_out2])
+    model_loss_last = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})([*model_last.output, *y_true])
+    last_layer_model = Model([in0, in1, in2, *y_true], model_loss_last)
+    model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})([*model_body.output, *y_true])
+    model = Model([model_body.input, *y_true], model_loss)
+    return (model, bottleneck_model, last_layer_model)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 43:------------------- similar code ------------------ index = 291, score = 1.0 
+def __init__(self, config):
+    super(PreTraining, self).__init__()
+    self.bert = Model(config)
+    self.cls = PreTrainingHeads(config, self.bert.embeddings.word_embeddings.weight)
+    self.vocab_size = config.vocab_size
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = Model
+
+idx = 44:------------------- similar code ------------------ index = 275, score = 1.0 
+def _main(args):
+    config_path = os.path.expanduser(args.config_path)
+    weights_path = os.path.expanduser(args.weights_path)
+    assert config_path.endswith('.cfg'), '{} is not a .cfg file'.format(config_path)
+    assert weights_path.endswith('.weights'), '{} is not a .weights file'.format(weights_path)
+    output_path = os.path.expanduser(args.output_path)
+    assert output_path.endswith('.h5'), 'output path {} is not a .h5 file'.format(output_path)
+    output_root = os.path.splitext(output_path)[0]
+    print('Loading weights.')
+    weights_file = open(weights_path, 'rb')
+    weights_header = np.ndarray(shape=(4,), dtype='int32', buffer=weights_file.read(16))
+    print('Weights Header: ', weights_header)
+    print('Parsing Darknet config.')
+    unique_config_file = unique_config_sections(config_path)
+    cfg_parser = configparser.ConfigParser()
+    cfg_parser.read_file(unique_config_file)
+    print('Creating Keras model.')
+    if args.fully_convolutional:
+        (image_height, image_width) = (None, None)
+    else:
+        image_height = int(cfg_parser['net_0']['height'])
+        image_width = int(cfg_parser['net_0']['width'])
+    prev_layer = Input(shape=(image_height, image_width, 3))
+    all_layers = [prev_layer]
+    weight_decay = (float(cfg_parser['net_0']['decay']) if ('net_0' in cfg_parser.sections()) else 0.0005)
+    count = 0
+    for section in cfg_parser.sections():
+        print('Parsing section {}'.format(section))
+        if section.startswith('convolutional'):
+            filters = int(cfg_parser[section]['filters'])
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            pad = int(cfg_parser[section]['pad'])
+            activation = cfg_parser[section]['activation']
+            batch_normalize = ('batch_normalize' in cfg_parser[section])
+            border_mode = ('same' if (pad == 1) else 'valid')
+            prev_layer_shape = K.int_shape(prev_layer)
+            weights_shape = (size, size, prev_layer_shape[(- 1)], filters)
+            darknet_w_shape = (filters, weights_shape[2], size, size)
+            weights_size = np.product(weights_shape)
+            print('conv2d', ('bn' if batch_normalize else '  '), activation, weights_shape)
+            conv_bias = np.ndarray(shape=(filters,), dtype='float32', buffer=weights_file.read((filters * 4)))
+            count += filters
+            if batch_normalize:
+                bn_weights = np.ndarray(shape=(3, filters), dtype='float32', buffer=weights_file.read((filters * 12)))
+                count += (3 * filters)
+                bn_weight_list = [bn_weights[0], conv_bias, bn_weights[1], bn_weights[2]]
+            conv_weights = np.ndarray(shape=darknet_w_shape, dtype='float32', buffer=weights_file.read((weights_size * 4)))
+            count += weights_size
+            conv_weights = np.transpose(conv_weights, [2, 3, 1, 0])
+            conv_weights = ([conv_weights] if batch_normalize else [conv_weights, conv_bias])
+            act_fn = None
+            if (activation == 'leaky'):
+                pass
+            elif (activation != 'linear'):
+                raise ValueError('Unknown activation function `{}` in section {}'.format(activation, section))
+            conv_layer = Convolution2D(filters, size, size, border_mode=border_mode, subsample=(stride, stride), bias=(not batch_normalize), weights=conv_weights, activation=act_fn, W_regularizer=l2(weight_decay))(prev_layer)
+            if batch_normalize:
+                conv_layer = BatchNormalization(weights=bn_weight_list)(conv_layer)
+            prev_layer = conv_layer
+            if (activation == 'linear'):
+                all_layers.append(prev_layer)
+            elif (activation == 'leaky'):
+                act_layer = LeakyReLU(alpha=0.1)(prev_layer)
+                prev_layer = act_layer
+                all_layers.append(act_layer)
+        elif section.startswith('maxpool'):
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            all_layers.append(MaxPooling2D(pool_size=(size, size), strides=(stride, stride), border_mode='same')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('avgpool'):
+            if (cfg_parser.items(section) != []):
+                raise ValueError('{} with params unsupported.'.format(section))
+            all_layers.append(GlobalAveragePooling2D()(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('route'):
+            ids = [int(i) for i in cfg_parser[section]['layers'].split(',')]
+            layers = [all_layers[i] for i in ids]
+            if (len(layers) > 1):
+                print('Merging layers:', layers)
+                merge_layer = merge(layers, mode='concat')
+                all_layers.append(merge_layer)
+                prev_layer = merge_layer
+            else:
+                skip_layer = layers[0]
+                all_layers.append(skip_layer)
+                prev_layer = skip_layer
+        elif section.startswith('reorg'):
+            block_size = int(cfg_parser[section]['stride'])
+            assert (block_size == 2), 'Only reorg with stride 2 supported.'
+            all_layers.append(Lambda(space_to_depth_x2, output_shape=space_to_depth_x2_output_shape, name='space_to_depth_x2')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('region'):
+            with open('{}_anchors.txt'.format(output_root), 'w') as f:
+                print(cfg_parser[section]['anchors'], file=f)
+        elif (section.startswith('net') or section.startswith('cost') or section.startswith('softmax')):
+            pass
+        else:
+            raise ValueError('Unsupported section header type: {}'.format(section))
+    model = Model(input=all_layers[0], output=all_layers[(- 1)])
+    print(model.summary())
+    model.save('{}'.format(output_path))
+    print('Saved Keras model to {}'.format(output_path))
+    remaining_weights = (len(weights_file.read()) / 4)
+    weights_file.close()
+    print('Read {} of {} from Darknet weights.'.format(count, (count + remaining_weights)))
+    if (remaining_weights > 0):
+        print('Warning: {} unused weights'.format(len(remaining_weights)))
+    if args.plot_model:
+        plot(model, to_file='{}.png'.format(output_root), show_shapes=True)
+        print('Saved model plot to {}.png'.format(output_root))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 45:------------------- similar code ------------------ index = 274, score = 1.0 
+def test_unfitted_error(mcqa_dataset):
+    mdl = Model(bert_model='bert-base-uncased', device='cpu')
+    with pytest.raises(Exception):
+        mdl.predict_proba(mcqa_dataset.get_dataset(), eval_batch_size=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 46:------------------- similar code ------------------ index = 273, score = 1.0 
+def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2, weights_path='model_data/yolo_weights.h5'):
+    'create the training model'
+    K.clear_session()
+    image_input = Input(shape=(None, None, 3))
+    (h, w) = input_shape
+    num_anchors = len(anchors)
+    y_true = [Input(shape=((h // {0: 32, 1: 16, 2: 8}[l]), (w // {0: 32, 1: 16, 2: 8}[l]), (num_anchors // 3), (num_classes + 5))) for l in range(3)]
+    model_body = yolo_body(image_input, (num_anchors // 3), num_classes)
+    print('Create YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+    if load_pretrained:
+        model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        print('Load weights {}.'.format(weights_path))
+        if (freeze_body in [1, 2]):
+            num = (185, (len(model_body.layers) - 3))[(freeze_body - 1)]
+            for i in range(num):
+                model_body.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+    model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})([*model_body.output, *y_true])
+    model = Model([model_body.input, *y_true], model_loss)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 47:------------------- similar code ------------------ index = 297, score = 1.0 
+if (__name__ == '__main__'):
+    streamer = Streamer(ManagedBertModel, batch_size=64, max_latency=0.1, worker_num=4, cuda_devices=(0, 1, 2, 3))
+    model = Model()
+    WSGIServer(('0.0.0.0', 5005), app).serve_forever()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model()
+
+idx = 48:------------------- similar code ------------------ index = 298, score = 1.0 
+def test_dereify(self, mini_amr):
+    t1 = ('_', ':instance', 'have-mod-91')
+    t1b = ('_', ':instance', 'chase-01')
+    t2 = ('_', ':ARG1', 'a')
+    t3 = ('_', ':ARG2', 'b')
+    m = Model()
+    with pytest.raises(TypeError):
+        m.dereify(t1)
+    with pytest.raises(TypeError):
+        m.dereify(t1, t2)
+    with pytest.raises(ModelError):
+        m.dereify(t1, t2, t3)
+    m = Model.from_dict(mini_amr)
+    assert (m.dereify(t1, t2, t3) == ('a', ':mod', 'b'))
+    assert (m.dereify(t1, t3, t2) == ('a', ':mod', 'b'))
+    with pytest.raises(ModelError):
+        m.dereify(t1b, t2, t3)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 49:------------------- similar code ------------------ index = 302, score = 1.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    INITIAL_RANDOM_STEPS = 5000
+    MAX_EPISODE_STEPS = 4000
+    LEARNING_RATE = 0.001
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    GAMMA_DISCOUNT_FACTOR = 0.991
+    EPSILON_MIN = 0.02
+    EPSILON_START = 0.3
+    EPSLILON_COUNT = 500
+    RANDOM_GAME_EVERY = 5
+    TRAIN_EVERY_N_STEPS = 60
+    TRAINING_SAMPLE_SIZE = 32
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 1
+    RENDER_ENV = True
+    LOAD_MODEL = False
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 5
+    epsilon = EPSILON_START
+    env = gym.make('Pong-v0')
+    observation = env.reset()
+    rb = ReplayBuffer(20000)
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=LEARNING_RATE), Model(env.observation_space.shape, env.action_space.n, lr=LEARNING_RATE))
+    frame1 = []
+    frame2 = []
+    frame3 = []
+    frame1 = agent.process_frame(observation)
+    frame2 = agent.process_frame(observation)
+    frame3 = agent.process_frame(observation)
+    observation = np.concatenate((frame1, frame2, frame3), axis=1)
+    observation = observation.reshape((1, 3, 160, (140 * 3)))
+    if LOAD_MODEL:
+        agent.model.load_state_dict(torch.load((('' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    all_scores = []
+    rolling_average = 0
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        score = 0.0
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            if ((step_counter < INITIAL_RANDOM_STEPS) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            frame3 = frame2
+            frame2 = frame1
+            (frame1, reward, done, info) = env.step(action)
+            score += reward
+            frame1 = agent.process_frame(frame1)
+            observation_next = np.concatenate((frame1, frame2, frame3), axis=1)
+            observation_next = observation_next.reshape((1, 3, 160, (140 * 3)))
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > INITIAL_RANDOM_STEPS) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                for s in range(TRAINING_ITTERATIONS):
+                    dick = rb.sample(TRAINING_SAMPLE_SIZE, step)
+                    train_step2(agent.model, dick, agent.targetModel, env.action_space.n, GAMMA_DISCOUNT_FACTOR)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                if (SAVE_MODEL and ((game % SAVE_MODEL_EVERY) == 0) and (game > 10)):
+                    torch.save(agent.model, (('' + MODEL_ID) + MODEL_FILE_NAME))
+                observation = env.reset()
+                frame1 = agent.process_frame(observation)
+                frame2 = agent.process_frame(observation)
+                frame3 = agent.process_frame(observation)
+                observation = np.concatenate((frame1, frame2, frame3), axis=1)
+                observation = observation.reshape((1, 3, 160, (140 * 3)))
+                break
+        all_scores.append(score)
+        rolling_average = ((score * 0.05) + ((1 - 0.05) * rolling_average))
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            plot_score(all_scores)
+            print('episide ', game, 'game score', score, 'rolling score', rolling_average, 'episode_len', len(episode_sars), 'buffer', min(rb.index, rb.buffer_size), 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... (Model,)
+
+idx = 50:------------------- similar code ------------------ index = 103, score = 1.0 
+def test_is_role_inverted(self, mini_amr):
+    m = Model()
+    assert m.is_role_inverted(':ARG0-of')
+    assert m.is_role_inverted(':-of')
+    assert (not m.is_role_inverted(':ARG0'))
+    assert (not m.is_role_inverted(':'))
+    assert m.is_role_inverted(':consist-of')
+    m = Model.from_dict(mini_amr)
+    assert m.is_role_inverted(':mod-of')
+    assert m.is_role_inverted(':domain-of')
+    assert (not m.is_role_inverted(':mod'))
+    assert (not m.is_role_inverted(':domain'))
+    assert m.is_role_inverted(':consist-of-of')
+    assert (not m.is_role_inverted(':consist-of'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 51:------------------- similar code ------------------ index = 266, score = 1.0 
+def make_model(game):
+    if game.rnn_mode:
+        model = RNNModel(game)
+    elif game.experimental_mode:
+        model = CustomModel(game)
+    else:
+        model = Model(game)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:    else:
+         ...  = Model
+
+idx = 52:------------------- similar code ------------------ index = 99, score = 1.0 
+def test_compound_return_units():
+    '\n    Test that return_units on the first model in the chain is respected for the\n    input to the second.\n    '
+
+    class PassModel(Model):
+        n_inputs = 2
+        n_outputs = 2
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+        @property
+        def input_units(self):
+            ' Input units. '
+            return {'x0': u.deg, 'x1': u.deg}
+
+        @property
+        def return_units(self):
+            ' Output units. '
+            return {'x0': u.deg, 'x1': u.deg}
+
+        def evaluate(self, x, y):
+            return (x.value, y.value)
+    cs = (Pix2Sky_TAN() | PassModel())
+    assert_quantity_allclose(cs((0 * u.deg), (0 * u.deg)), ((0, 90) * u.deg))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    class  ... (Model):
+idx = 53:------------------- similar code ------------------ index = 131, score = 1.0 
+def test_is_concept_dereifiable(self, mini_amr):
+    m = Model()
+    assert (not m.is_concept_dereifiable('chase-01'))
+    assert (not m.is_concept_dereifiable(':mod'))
+    assert (not m.is_concept_dereifiable('have-mod-91'))
+    m = Model.from_dict(mini_amr)
+    assert (not m.is_concept_dereifiable('chase-01'))
+    assert (not m.is_concept_dereifiable(':mod'))
+    assert m.is_concept_dereifiable('have-mod-91')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 54:------------------- similar code ------------------ index = 94, score = 1.0 
+def main():
+    args = parser.parse_args()
+    args.train_meta = './meta/CARS196/train.txt'
+    args.test_meta = './meta/CARS196/test.txt'
+    args.lr_decay_epochs = [int(epoch) for epoch in args.lr_decay_epochs.split(',')]
+    args.recallk = [int(k) for k in args.recallk.split(',')]
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_idx)
+    args.ctx = [mx.gpu(0)]
+    print(args)
+    mx.random.seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    (train_transform, test_transform) = T.get_transform(image_size=args.image_size)
+    (train_loader, test_loader) = D.get_data_loader(args.data_dir, args.train_meta, args.test_meta, train_transform, test_transform, args.batch_size, args.num_instances, args.num_workers)
+    model = Model(args.embed_dim, args.ctx)
+    model.hybridize()
+    loss = HPHNTripletLoss(margin=args.margin, soft_margin=False, num_instances=args.num_instances, n_inner_pts=args.n_inner_pts, l2_norm=args.ee_l2norm)
+    summary_writer = SummaryWriter(os.path.join(args.save_dir, 'tensorboard_log'))
+    print('steps in epoch:', args.lr_decay_epochs)
+    steps = list(map((lambda x: (x * len(train_loader))), args.lr_decay_epochs))
+    print('steps in iter:', steps)
+    lr_schedule = mx.lr_scheduler.MultiFactorScheduler(step=steps, factor=args.lr_decay_factor)
+    lr_schedule.base_lr = args.lr
+    optimizer = mx.gluon.Trainer(model.collect_params(), 'adam', {'learning_rate': args.lr, 'wd': args.wd}, kvstore=args.kvstore)
+    trainer = Trainer(model, loss, optimizer, train_loader, summary_writer, args.ctx, summary_step=args.summary_step, lr_schedule=lr_schedule)
+    evaluator = Evaluator(model, test_loader, args.ctx)
+    best_metrics = [0.0]
+    global_step = (args.start_epoch * len(train_loader))
+    print('base lr mult:', args.base_lr_mult)
+    for epoch in range(args.start_epoch, args.epochs):
+        model.backbone.collect_params().setattr('lr_mult', args.base_lr_mult)
+        trainer.train(epoch)
+        global_step = ((epoch + 1) * len(train_loader))
+        if (((epoch + 1) % args.eval_epoch_term) == 0):
+            old_best_metric = best_metrics[0]
+            best_metrics = evaluate_and_log(summary_writer, evaluator, args.recallk, global_step, (epoch + 1), best_metrics=best_metrics)
+            if (best_metrics[0] != old_best_metric):
+                save_path = os.path.join(args.save_dir, ('model_epoch_%05d.params' % (epoch + 1)))
+                model.save_parameters(save_path)
+        sys.stdout.flush()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 55:------------------- similar code ------------------ index = 134, score = 1.0 
+def Perceptor():
+    'Use a pretrained model to use in calculating a perceptual loss score\n  '
+    (ModelFunc, PerceptorLayerName) = get_pretrained_info()
+    Perceptor = ModelFunc(include_top=False, weights='imagenet', input_shape=(CFG['y_dim'], CFG['x_dim'], 3))
+    PerceptorLayer = Perceptor.get_layer(PerceptorLayerName)
+    Perceptor = tf.keras.Model(inputs=Perceptor.inputs, outputs=[PerceptorLayer.output])
+    print(f'Perceptor output: {Perceptor.layers[(- 1)].output}')
+    return Perceptor
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Model
+
+idx = 56:------------------- similar code ------------------ index = 315, score = 1.0 
+if (__name__ == '__main__'):
+    num_classes = 28
+    input_size = 1
+    model_path = 'model/Adam_batch_size=2048_epoch=300.pt'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-num_layers', default=2, type=int)
+    parser.add_argument('-hidden_size', default=64, type=int)
+    parser.add_argument('-window_size', default=10, type=int)
+    parser.add_argument('-num_candidates', default=9, type=int)
+    args = parser.parse_args()
+    num_layers = args.num_layers
+    hidden_size = args.hidden_size
+    window_size = args.window_size
+    num_candidates = args.num_candidates
+    model = Model(input_size, hidden_size, num_layers, num_classes).to(device)
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    print('model_path: {}'.format(model_path))
+    test_normal_loader = generate('hdfs_test_normal')
+    test_abnormal_loader = generate('hdfs_test_abnormal')
+    TP = 0
+    FP = 0
+    start_time = time.time()
+    with torch.no_grad():
+        for line in test_normal_loader:
+            for i in range((len(line) - window_size)):
+                seq = line[i:(i + window_size)]
+                label = line[(i + window_size)]
+                seq = torch.tensor(seq, dtype=torch.float).view((- 1), window_size, input_size).to(device)
+                label = torch.tensor(label).view((- 1)).to(device)
+                output = model(seq)
+                predicted = torch.argsort(output, 1)[0][(- num_candidates):]
+                if (label not in predicted):
+                    FP += 1
+                    break
+    with torch.no_grad():
+        for line in test_abnormal_loader:
+            for i in range((len(line) - window_size)):
+                seq = line[i:(i + window_size)]
+                label = line[(i + window_size)]
+                seq = torch.tensor(seq, dtype=torch.float).view((- 1), window_size, input_size).to(device)
+                label = torch.tensor(label).view((- 1)).to(device)
+                output = model(seq)
+                predicted = torch.argsort(output, 1)[0][(- num_candidates):]
+                if (label not in predicted):
+                    TP += 1
+                    break
+    elapsed_time = (time.time() - start_time)
+    print('elapsed_time: {:.3f}s'.format(elapsed_time))
+    FN = (len(test_abnormal_loader) - TP)
+    P = ((100 * TP) / (TP + FP))
+    R = ((100 * TP) / (TP + FN))
+    F1 = (((2 * P) * R) / (P + R))
+    print('false positive (FP): {}, false negative (FN): {}, Precision: {:.3f}%, Recall: {:.3f}%, F1-measure: {:.3f}%'.format(FP, FN, P, R, F1))
+    print('Finished Predicting')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model
+
+idx = 57:------------------- similar code ------------------ index = 136, score = 1.0 
+def test_from_dict(self, mini_amr):
+    assert (Model.from_dict(mini_amr) == Model(roles=mini_amr['roles'], normalizations=mini_amr['normalizations'], reifications=mini_amr['reifications']))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    assert (Model ==)
+
+idx = 58:------------------- similar code ------------------ index = 257, score = 1.0 
+def optimize_memory(self):
+    (_, op_order) = self.compute_best_peak_memory_usage()
+    num_operators = len(self.model_graph.operators)
+    correctly_ordered = all(((i == op_order[i].id) for i in range(num_operators)))
+    if correctly_ordered:
+        print('The model already has optimal operator order.')
+        return
+    model = Model.Model.GetRootAsModel(self.model_bytes, 0)
+    subgraph = model.Subgraphs(0)
+    indirection_table_offset = UOffsetTFlags.py_type(subgraph._tab.Offset(10))
+    indirection_table = subgraph._tab.GetVectorAsNumpy(UOffsetTFlags, indirection_table_offset)
+    old_indirection_table = indirection_table.copy()
+    for i in range(num_operators):
+        op_id = op_order[i].id
+        indirection_table[i] = (old_indirection_table[op_id] + (4 * (op_id - i)))
+        op_order[i].id = i
+    self.model_graph.operators.sort(key=(lambda op: op.id))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 59:------------------- similar code ------------------ index = 138, score = 1.0 
+def __init__(self, list_of_models=[], identifier=None, name=None):
+    Object.__init__(self, identifier, name)
+    if (len(list_of_models) > 1):
+        if (not all((isinstance(x, Model) for x in list_of_models))):
+            raise AttributeError('list_of_models may only contain cobra.core.Model objects')
+        if (len([model.id for model in list_of_models]) > len(set([model.id for model in list_of_models]))):
+            raise AssertionError('Ensemble members cannot have duplicate model ids.')
+        self.features = DictList()
+        self._populate_features_base(list_of_models)
+        self.members = DictList()
+        self._populate_members(list_of_models)
+    elif (len(list_of_models) == 0):
+        self.base_model = Model(id_or_model=(identifier + '_base_model'), name=name)
+    else:
+        if (not isinstance(list_of_models[0], Model)):
+            raise AttributeError('list_of_models may only contain cobra.core.Model objects')
+        self.base_model = list_of_models[0]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        if (not  ... (( ... ( ... , Model)))):
+idx = 60:------------------- similar code ------------------ index = 139, score = 1.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 1000
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.5
+    EPSLILON_COUNT = 6000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 25
+    TRAINING_SAMPLE_SIZE = 256
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 2
+    RENDER_ENV = False
+    LOAD_MODEL = False
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 25
+    epsilon = EPSILON_START
+    env = gym.make('LunarLander-v2')
+    observation = env.reset()
+    rb = ReplayBuffer(30000)
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=0.01), Model(env.observation_space.shape, env.action_space.n, lr=0.01))
+    if LOAD_MODEL:
+        agent.model.load_state_dict(torch.load((('' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        if ((game % TARGET_MODEL_UPDATE_INTERVAL) == 0):
+            print('game', game, ' updating target model')
+            agent.update_target_model()
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            if ((step_counter < 2000) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > 3000) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                for s in range(TRAINING_ITTERATIONS):
+                    dick = rb.sample(TRAINING_SAMPLE_SIZE, step)
+                    train_step(agent.model, dick, agent.targetModel, env.action_space.n)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                if (SAVE_MODEL and ((game % SAVE_MODEL_EVERY) == 0) and (game > 50)):
+                    torch.save(agent.model, (('' + MODEL_ID) + MODEL_FILE_NAME))
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'last score', reward, 'episode_len', len(episode_sars), 'buffer', len(rb.buffer), 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... (Model,)
+
+idx = 61:------------------- similar code ------------------ index = 254, score = 1.0 
+def segment_noise(dataset, summary):
+    chunk_dict = {}
+    grammar_set = []
+    rands = np.random.rand(10000)
+    rand_idx = 0
+    gidx = 0
+    batch_size = 128
+    file_dir = (('data/' + dataset) + '/')
+    model_file = ('model/%s/lm.model' % dataset)
+    dict_file = ('model/%s/lm.dict.p' % dataset)
+    train_file = ('data/%s/train.json' % dataset)
+    (tokens_list, tags_list) = chunk_text(train_file)
+    token_dict = pickle.load(open(dict_file, 'rb'))
+    word_size = len(token_dict)
+    word_dim = 256
+    hidden_dim = 512
+    model = Model(word_size, word_dim, hidden_dim)
+    model.cuda()
+    if os.path.exists(model_file):
+        best_point = torch.load(model_file)
+        state_dict = best_point['state_dict']
+        new_state_dict = OrderedDict()
+        for (k, v) in state_dict.items():
+            temp = state_dict[k]
+            if k.startswith('module.'):
+                k = k[7:]
+                new_state_dict[k] = temp
+        model.load_state_dict(new_state_dict)
+    model.eval()
+    shuffle_indices = np.random.permutation(np.arange(len(tokens_list)))
+    tokens_list = np.array(tokens_list)[shuffle_indices]
+    tags_list = np.array(tags_list)[shuffle_indices]
+    noised_data = []
+    rev_token_dict = {token_dict[token]: token for token in token_dict}
+    for _ in range(1):
+        for idx in tqdm(range(0, len(tokens_list), batch_size)):
+            tokens_batch = tokens_list[idx:(idx + batch_size)]
+            tags_batch = tags_list[idx:(idx + batch_size)]
+            probs_batch = []
+            probs_indices_batch = []
+            for tokens in tqdm(tokens_batch):
+                if (not check_sentence([rev_token_dict[token] for token in tokens])):
+                    continue
+                (x_batch, x_mask) = utils.pad([tokens])
+                x_batch = to_tensor(x_batch)
+                x_mask = to_tensor(x_mask).float()
+                ps_batch = model(x_batch, x_mask, ps_only=True)
+                ps_batch = F.softmax(ps_batch, dim=(- 1))
+                ps_batch = list(ps_batch.cpu().detach().numpy())
+                probs_sequence = []
+                probs_indices_sequence = []
+                for ps in ps_batch[0]:
+                    (probs, probs_indices) = nuclear_filter(ps)
+                    probs_sequence.append(probs)
+                    probs_indices_sequence.append(probs_indices)
+                probs_batch.append(probs_sequence)
+                probs_indices_batch.append(probs_indices_sequence)
+            chunk_dict = {}
+            grammar_set = []
+            chunks_batch = []
+            ctags_batch = []
+            for (tokens, tags) in zip(tokens_batch, tags_batch):
+                (chunks, ctags) = split_to_chunks(tokens[1:(- 1)], tags, chunk_dict, grammar_set)
+                chunks_batch.append(chunks)
+                ctags_batch.append(ctags)
+            for chunk in chunk_dict:
+                chunk_dict[chunk] = list(set(chunk_dict[chunk]))
+            grammar_set = list(set(grammar_set))
+            np.random.shuffle(grammar_set)
+            ps_idx = 0
+            for (j, (tokens, chunks, ctags)) in enumerate(tqdm(zip(tokens_batch, chunks_batch, ctags_batch), total=len(chunks_batch))):
+                if (not check_sentence([rev_token_dict[token] for token in tokens])):
+                    continue
+                lm_chunk_inputs = []
+                probs = probs_batch[ps_idx]
+                probs_indices = probs_indices_batch[ps_idx]
+                ps_idx += 1
+                if (dataset == 'rotten'):
+                    N = 20
+                else:
+                    N = 8
+                for _ in tqdm(range(N)):
+                    try:
+                        new_chunks = replace_tokens(chunks, probs, probs_indices)
+                        (new_chunks, new_ctags) = remove_chunks(new_chunks, ctags)
+                        lm_chunk_input = insert_chunks(new_chunks, new_ctags, chunk_dict, grammar_set, rands, rand_idx, gidx)
+                        lm_chunk_input = ' '.join([rev_token_dict[token] for token in lm_chunk_input])
+                        lm_chunk_inputs.append(lm_chunk_input)
+                    except:
+                        pass
+                inst = {}
+                inst['summary'] = ' '.join([rev_token_dict[token] for token in tokens[1:(- 1)]])
+                inst['segment_reviews'] = lm_chunk_inputs
+                noised_data.append(inst)
+    return noised_data
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 62:------------------- similar code ------------------ index = 253, score = 1.0 
+def test_invert_role(self, mini_amr):
+    m = Model()
+    assert (m.invert_role(':ARG0') == ':ARG0-of')
+    assert (m.invert_role(':ARG0-of') == ':ARG0')
+    assert (m.invert_role(':consist-of') == ':consist')
+    assert (m.invert_role(':mod') == ':mod-of')
+    assert (m.invert_role(':domain') == ':domain-of')
+    m = Model.from_dict(mini_amr)
+    assert (m.invert_role(':ARG0') == ':ARG0-of')
+    assert (m.invert_role(':ARG0-of') == ':ARG0')
+    assert (m.invert_role(':consist-of') == ':consist-of-of')
+    assert (m.invert_role(':mod') == ':mod-of')
+    assert (m.invert_role(':domain') == ':domain-of')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 63:------------------- similar code ------------------ index = 85, score = 1.0 
+if (__name__ == '__main__'):
+    dataset_train = get_data()
+    config = TrainConfig(model=Model(), dataflow=dataset_train, callbacks=[], max_epoch=100, steps_per_epoch=50)
+    trainer = SyncMultiGPUTrainerReplicated(NUM_GPU, mode=('hierarchical' if (NUM_GPU == 8) else 'cpu'))
+    launch_train_with_config(config, trainer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... ( ... =Model(),,,,)
+
+idx = 64:------------------- similar code ------------------ index = 84, score = 1.0 
+def __init__(self, config):
+    super(QuestionAnswering, self).__init__()
+    self.bert = Model(config)
+    self.qa_outputs = Linear(config.hidden_size, 2)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = Model
+
+idx = 65:------------------- similar code ------------------ index = 140, score = 1.0 
+def generator(inp_shape, trainable=True):
+    gamma_init = tf.random_normal_initializer(1.0, 0.02)
+    fd = 512
+    gr = 32
+    nb = 12
+    betad = 0.2
+    betar = 0.2
+    inp_real_imag = Input(inp_shape)
+    lay_128dn = Conv2D(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(inp_real_imag)
+    lay_128dn = LeakyReLU(alpha=0.2)(lay_128dn)
+    lay_64dn = Conv2D(128, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_128dn)
+    lay_64dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_64dn)
+    lay_64dn = LeakyReLU(alpha=0.2)(lay_64dn)
+    lay_32dn = Conv2D(256, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_64dn)
+    lay_32dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_32dn)
+    lay_32dn = LeakyReLU(alpha=0.2)(lay_32dn)
+    lay_16dn = Conv2D(512, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_32dn)
+    lay_16dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_16dn)
+    lay_16dn = LeakyReLU(alpha=0.2)(lay_16dn)
+    lay_8dn = Conv2D(512, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_16dn)
+    lay_8dn = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_8dn)
+    lay_8dn = LeakyReLU(alpha=0.2)(lay_8dn)
+    xc1 = Conv2D(filters=fd, kernel_size=3, strides=1, padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_8dn)
+    xrrd = xc1
+    for m in range(nb):
+        xrrd = resresden(xrrd, fd, gr, betad, betar, gamma_init, trainable)
+    xc2 = Conv2D(filters=fd, kernel_size=3, strides=1, padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(xrrd)
+    lay_8upc = Add()([xc1, xc2])
+    lay_16up = Conv2DTranspose(1024, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_8upc)
+    lay_16up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_16up)
+    lay_16up = Activation('relu')(lay_16up)
+    lay_16upc = Concatenate(axis=(- 1))([lay_16up, lay_16dn])
+    lay_32up = Conv2DTranspose(256, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_16upc)
+    lay_32up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_32up)
+    lay_32up = Activation('relu')(lay_32up)
+    lay_32upc = Concatenate(axis=(- 1))([lay_32up, lay_32dn])
+    lay_64up = Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_32upc)
+    lay_64up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_64up)
+    lay_64up = Activation('relu')(lay_64up)
+    lay_64upc = Concatenate(axis=(- 1))([lay_64up, lay_64dn])
+    lay_128up = Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_64upc)
+    lay_128up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_128up)
+    lay_128up = Activation('relu')(lay_128up)
+    lay_128upc = Concatenate(axis=(- 1))([lay_128up, lay_128dn])
+    lay_256up = Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_128upc)
+    lay_256up = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(lay_256up)
+    lay_256up = Activation('relu')(lay_256up)
+    out = Conv2D(1, (1, 1), strides=(1, 1), activation='tanh', padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(lay_256up)
+    model = Model(inputs=inp_real_imag, outputs=out)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 66:------------------- similar code ------------------ index = 155, score = 1.0 
+def test_invert(self, mini_amr):
+    m = Model()
+    assert (m.invert(('a', ':ARG0', 'b')) == ('b', ':ARG0-of', 'a'))
+    assert (m.invert(('a', ':ARG0-of', 'b')) == ('b', ':ARG0', 'a'))
+    assert (m.invert(('a', ':consist-of', 'b')) == ('b', ':consist', 'a'))
+    assert (m.invert(('a', ':mod', 'b')) == ('b', ':mod-of', 'a'))
+    assert (m.invert(('a', ':domain', 'b')) == ('b', ':domain-of', 'a'))
+    m = Model.from_dict(mini_amr)
+    assert (m.invert(('a', ':ARG0', 'b')) == ('b', ':ARG0-of', 'a'))
+    assert (m.invert(('a', ':ARG0-of', 'b')) == ('b', ':ARG0', 'a'))
+    assert (m.invert(('a', ':consist-of', 'b')) == ('b', ':consist-of-of', 'a'))
+    assert (m.invert(('a', ':mod', 'b')) == ('b', ':mod-of', 'a'))
+    assert (m.invert(('a', ':domain', 'b')) == ('b', ':domain-of', 'a'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 67:------------------- similar code ------------------ index = 205, score = 1.0 
+def test_is_role_reifiable(self, mini_amr):
+    m = Model()
+    assert (not m.is_role_reifiable(':ARG0'))
+    assert (not m.is_role_reifiable(':accompanier'))
+    assert (not m.is_role_reifiable(':domain'))
+    assert (not m.is_role_reifiable(':mod'))
+    m = Model.from_dict(mini_amr)
+    assert (not m.is_role_reifiable(':ARG0'))
+    assert m.is_role_reifiable(':accompanier')
+    assert (not m.is_role_reifiable(':domain'))
+    assert m.is_role_reifiable(':mod')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 68:------------------- similar code ------------------ index = 27, score = 1.0 
+def dereify_edges(g: Graph, model: Model) -> Graph:
+    "\n    Dereify edges in *g* that have reifications in *model*.\n\n    Args:\n        g: a :class:`~penman.graph.Graph` object\n    Returns:\n        A new :class:`~penman.graph.Graph` object with dereified\n        edges.\n    Example:\n        >>> from penman.codec import PENMANCodec\n        >>> from penman.models.amr import model\n        >>> from penman.transform import dereify_edges\n        >>> codec = PENMANCodec(model=model)\n        >>> g = codec.decode(\n        ...   '(c / chapter'\n        ...   '   :ARG1-of (_ / have-mod-91'\n        ...   '               :ARG2 7))')\n        >>> g = dereify_edges(g, model)\n        >>> print(codec.encode(g))\n        (c / chapter\n           :mod 7)\n    "
+    if (model is None):
+        model = Model()
+    agenda = _dereify_agenda(g, model)
+    new_epidata = dict(g.epidata)
+    new_triples: List[BasicTriple] = []
+    for triple in g.triples:
+        var = triple[0]
+        if (var in agenda):
+            (first, dereified, epidata) = agenda[var]
+            if (triple == first):
+                new_triples.append(dereified)
+                new_epidata[dereified] = epidata
+            if (triple in new_epidata):
+                del new_epidata[triple]
+        else:
+            new_triples.append(triple)
+    g = Graph(new_triples, epidata=new_epidata, metadata=g.metadata)
+    logger.info('Dereified edges: %s', g)
+    return g
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,  ... : Model) ->  ... :
+idx = 69:------------------- similar code ------------------ index = 403, score = 1.0 
+def test_errors(self, mini_amr):
+    m = Model()
+    a = Model.from_dict(mini_amr)
+    g = Graph([('a', ':instance', 'alpha')])
+    assert (m.errors(g) == {})
+    g = Graph([('a', ':instance', 'alpha'), ('a', ':mod', '1')])
+    assert (m.errors(g) == {('a', ':mod', '1'): ['invalid role']})
+    assert (a.errors(g) == {})
+    g = Graph([('n', ':instance', 'name'), ('n', ':op1', 'Foo'), ('n', ':op2', 'Bar')])
+    assert (a.errors(g) == {})
+    g = Graph([('a', ':instance', 'alpha'), ('b', ':instance', 'beta')])
+    assert (m.errors(g) == {('b', ':instance', 'beta'): ['unreachable']})
+    assert (a.errors(g) == {('b', ':instance', 'beta'): ['unreachable']})
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 70:------------------- similar code ------------------ index = 21, score = 1.0 
+if (__name__ == '__main__'):
+    dataset_train = get_data()
+    config = TrainConfig(model=Model(), data=StagingInput(QueueInput(dataset_train)), callbacks=[], max_epoch=100, steps_per_epoch=200)
+    launch_train_with_config(config, SimpleTrainer())
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... ( ... =Model(),,,,)
+
+idx = 71:------------------- similar code ------------------ index = 405, score = 1.0 
+def __new__(self, input_shapes, optimizer, loss, weights=None):
+    x1 = Input(input_shapes[0])
+    x2 = Input(input_shapes[1])
+    y1 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(x1)
+    y1 = LeakyReLU(alpha=0.2)(y1)
+    y1 = BatchNormalization()(y1)
+    y2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(x2)
+    y2 = LeakyReLU(alpha=0.2)(y2)
+    y2 = BatchNormalization()(y2)
+    y = Concatenate()([y1, y2])
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = MaxPooling2D(pool_size=(2, 2))(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = MaxPooling2D(pool_size=(2, 2))(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=3, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    model = Model(inputs=[x1, x2], outputs=y)
+    model.compile(optimizer=optimizer, loss=loss)
+    try:
+        if (not (weights is None)):
+            model.load_weights(weights)
+    except:
+        pass
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 72:------------------- similar code ------------------ index = 374, score = 1.0 
+def test_inputless_model():
+    '\n    Regression test for\n    https://github.com/astropy/astropy/pull/3772#issuecomment-101821641\n    '
+
+    class TestModel(Model):
+        n_outputs = 1
+        a = Parameter()
+
+        @staticmethod
+        def evaluate(a):
+            return a
+    m = TestModel(1)
+    assert (m.a == 1)
+    assert (m() == 1)
+    m = TestModel([1, 2, 3], model_set_axis=False)
+    assert (len(m) == 1)
+    assert np.all((m() == [1, 2, 3]))
+    m = TestModel(a=[1, 2, 3], model_set_axis=0)
+    assert (len(m) == 3)
+    assert np.all((m() == [1, 2, 3]))
+    m = TestModel(a=[[1, 2, 3], [4, 5, 6]], model_set_axis=0)
+    assert (len(m) == 2)
+    assert np.all((m() == [[1, 2, 3], [4, 5, 6]]))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    class  ... (Model):
+idx = 73:------------------- similar code ------------------ index = 407, score = 1.0 
+def default_classification_model(num_classes, num_anchors, pyramid_feature_size=256, prior_probability=0.01, classification_feature_size=256, name='classification_submodel'):
+    ' Creates the default regression submodel.\n\tArgs\n\t\tnum_classes                 : Number of classes to predict a score for at each feature level.\n\t\tnum_anchors                 : Number of anchors to predict classification scores for at each feature level.\n\t\tpyramid_feature_size        : The number of filters to expect from the feature pyramid levels.\n\t\tprior_probability           : Probability for the bias initializer of the last convolutional layer.\n\t\tclassification_feature_size : The number of filters to use in the layers in the classification submodel.\n\t\tname                        : The name of the submodel.\n\tReturns\n\t\tA tensorflow.keras.models.Model that predicts classes for each anchor.\n\t'
+    options = {'kernel_size': 3, 'strides': 1, 'padding': 'same'}
+    if (tf.keras.backend.image_data_format() == 'channels_first'):
+        inputs = tf.keras.layers.Input(shape=(pyramid_feature_size, None, None))
+    else:
+        inputs = tf.keras.layers.Input(shape=(None, None, pyramid_feature_size))
+    outputs = inputs
+    for i in range(4):
+        outputs = tf.keras.layers.Conv2D(filters=classification_feature_size, activation='relu', name='pyramid_classification_{}'.format(i), kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None), bias_initializer='zeros', **options)(outputs)
+    outputs = tf.keras.layers.Conv2D(filters=(num_classes * num_anchors), kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None), bias_initializer=initializers.PriorProbability(probability=prior_probability), name='pyramid_classification', **options)(outputs)
+    if (tf.keras.backend.image_data_format() == 'channels_first'):
+        outputs = tf.keras.layers.Permute((2, 3, 1), name='pyramid_classification_permute')(outputs)
+    outputs = tf.keras.layers.Reshape(((- 1), num_classes), name='pyramid_classification_reshape')(outputs)
+    outputs = tf.keras.layers.Activation('sigmoid', name='pyramid_classification_sigmoid')(outputs)
+    return tf.keras.models.Model(inputs=inputs, outputs=outputs, name=name)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .Model
+
+idx = 74:------------------- similar code ------------------ index = 408, score = 1.0 
+def get_model(token_num, embed_dim, encoder_num, decoder_num, head_num, hidden_dim, attention_activation=None, feed_forward_activation=gelu, dropout_rate=0.0, use_same_embed=True, embed_weights=None, embed_trainable=None, trainable=True):
+    'Get full model without compilation.\n\n    :param token_num: Number of distinct tokens.\n    :param embed_dim: Dimension of token embedding.\n    :param encoder_num: Number of encoder components.\n    :param decoder_num: Number of decoder components.\n    :param head_num: Number of heads in multi-head self-attention.\n    :param hidden_dim: Hidden dimension of feed forward layer.\n    :param attention_activation: Activation for multi-head self-attention.\n    :param feed_forward_activation: Activation for feed-forward layer.\n    :param dropout_rate: Dropout rate.\n    :param use_same_embed: Whether to use the same token embedding layer. `token_num`, `embed_weights` and\n                           `embed_trainable` should be lists of two elements if it is False.\n    :param embed_weights: Initial weights of token embedding.\n    :param embed_trainable: Whether the token embedding is trainable. It will automatically set to False if the given\n                            value is None when embedding weights has been provided.\n    :param trainable: Whether the layers are trainable.\n    :return: Keras model.\n    '
+    if (not isinstance(token_num, list)):
+        token_num = [token_num, token_num]
+    (encoder_token_num, decoder_token_num) = token_num
+    if (not isinstance(embed_weights, list)):
+        embed_weights = [embed_weights, embed_weights]
+    (encoder_embed_weights, decoder_embed_weights) = embed_weights
+    if (encoder_embed_weights is not None):
+        encoder_embed_weights = [encoder_embed_weights]
+    if (decoder_embed_weights is not None):
+        decoder_embed_weights = [decoder_embed_weights]
+    if (not isinstance(embed_trainable, list)):
+        embed_trainable = [embed_trainable, embed_trainable]
+    (encoder_embed_trainable, decoder_embed_trainable) = embed_trainable
+    if (encoder_embed_trainable is None):
+        encoder_embed_trainable = (encoder_embed_weights is None)
+    if (decoder_embed_trainable is None):
+        decoder_embed_trainable = (decoder_embed_weights is None)
+    if use_same_embed:
+        encoder_embed_layer = decoder_embed_layer = EmbeddingRet(input_dim=encoder_token_num, output_dim=embed_dim, mask_zero=True, weights=encoder_embed_weights, trainable=encoder_embed_trainable, name='Token-Embedding')
+    else:
+        encoder_embed_layer = EmbeddingRet(input_dim=encoder_token_num, output_dim=embed_dim, mask_zero=True, weights=encoder_embed_weights, trainable=encoder_embed_trainable, name='Encoder-Token-Embedding')
+        decoder_embed_layer = EmbeddingRet(input_dim=decoder_token_num, output_dim=embed_dim, mask_zero=True, weights=decoder_embed_weights, trainable=decoder_embed_trainable, name='Decoder-Token-Embedding')
+    encoder_input = keras.layers.Input(shape=(None,), name='Encoder-Input')
+    encoder_embed = TrigPosEmbedding(mode=TrigPosEmbedding.MODE_ADD, name='Encoder-Embedding')(encoder_embed_layer(encoder_input)[0])
+    encoded_layer = get_encoders(encoder_num=encoder_num, input_layer=encoder_embed, head_num=head_num, hidden_dim=hidden_dim, attention_activation=attention_activation, feed_forward_activation=feed_forward_activation, dropout_rate=dropout_rate, trainable=trainable)
+    decoder_input = keras.layers.Input(shape=(None,), name='Decoder-Input')
+    (decoder_embed, decoder_embed_weights) = decoder_embed_layer(decoder_input)
+    decoder_embed = TrigPosEmbedding(mode=TrigPosEmbedding.MODE_ADD, name='Decoder-Embedding')(decoder_embed)
+    decoded_layer = get_decoders(decoder_num=decoder_num, input_layer=decoder_embed, encoded_layer=encoded_layer, head_num=head_num, hidden_dim=hidden_dim, attention_activation=attention_activation, feed_forward_activation=feed_forward_activation, dropout_rate=dropout_rate, trainable=trainable)
+    output_layer = EmbeddingSim(trainable=trainable, name='Decoder-Output')([decoded_layer, decoder_embed_weights])
+    return keras.models.Model(inputs=[encoder_input, decoder_input], outputs=output_layer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .Model
+
+idx = 75:------------------- similar code ------------------ index = 411, score = 1.0 
+def test_customize_v_model(selenium):
+
+    def app(el):
+
+        class CustomVModel(VueComponent):
+            model = Model(prop='checked', event='change')
+            checked: bool
+            template = '\n            <div>\n                <p id="component">{{ checked }}</p>\n                <input\n                    id="c"\n                    type="checkbox"\n                    :checked="checked"\n                    @change="$emit(\'change\', $event.target.checked)"\n                >\n            </div>\n            '
+        CustomVModel.register('custom-vmodel')
+
+        class App(VueComponent):
+            clicked = False
+            template = '\n            <div>\n                <p id=\'instance\'>{{ clicked }}</p>\n                <custom-vmodel v-model="clicked"></custom-vmodel>\n            </div>\n            '
+        return App(el)
+    with selenium.app(app):
+        assert selenium.element_has_text('instance', 'false')
+        assert selenium.element_has_text('component', 'false')
+        selenium.find_element(by=By.ID, value='c').click()
+        assert selenium.element_has_text('component', 'true')
+        assert selenium.element_has_text('instance', 'true')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+
+    def  ... ( ... ):
+
+        class  ... ( ... ):
+             ...  = Model
+
+idx = 76:------------------- similar code ------------------ index = 413, score = 1.0 
+def app(el):
+
+    class CustomVModel(VueComponent):
+        model = Model(prop='checked', event='change')
+        checked: bool
+        template = '\n            <div>\n                <p id="component">{{ checked }}</p>\n                <input\n                    id="c"\n                    type="checkbox"\n                    :checked="checked"\n                    @change="$emit(\'change\', $event.target.checked)"\n                >\n            </div>\n            '
+    CustomVModel.register('custom-vmodel')
+
+    class App(VueComponent):
+        clicked = False
+        template = '\n            <div>\n                <p id=\'instance\'>{{ clicked }}</p>\n                <custom-vmodel v-model="clicked"></custom-vmodel>\n            </div>\n            '
+    return App(el)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+
+    class  ... ( ... ):
+         ...  = Model
+
+idx = 77:------------------- similar code ------------------ index = 414, score = 1.0 
+def _discover_tflite_weights(self):
+    model = Model.Model.GetRootAsModel(self.model_bytes, 0)
+    subgraph = model.Subgraphs(0)
+    weights = []
+    for o in range(subgraph.OperatorsLength()):
+        op = subgraph.Operators(o)
+        opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        inputs = op.InputsAsNumpy()
+        parametrised_opcodes = [BuiltinOperator.CONV_2D, BuiltinOperator.FULLY_CONNECTED, BuiltinOperator.DEPTHWISE_CONV_2D]
+        if (opcode not in parametrised_opcodes):
+            continue
+        weight_tensor = subgraph.Tensors(inputs[1])
+        buffer_idx = weight_tensor.Buffer()
+        buffer = model.Buffers(buffer_idx)
+        weights.append((buffer_idx, get_buffer_as_numpy(weight_tensor, buffer)))
+    return weights
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 78:------------------- similar code ------------------ index = 415, score = 1.0 
+def define_gan_model(gen_model, dis_model, inp_shape):
+    dis_model.trainable = False
+    inp = Input(shape=inp_shape)
+    out_g = gen_model(inp)
+    out_dis = dis_model(out_g)
+    out_g1 = out_g
+    model = Model(inputs=inp, outputs=[out_dis, out_g, out_g1])
+    model.summary()
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 79:------------------- similar code ------------------ index = 181, score = 1.0 
+def test_deinvert(self, mini_amr):
+    m = Model()
+    assert (m.deinvert(('a', ':ARG0', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.deinvert(('a', ':ARG0-of', 'b')) == ('b', ':ARG0', 'a'))
+    assert (m.deinvert(('a', ':consist-of', 'b')) == ('b', ':consist', 'a'))
+    assert (m.deinvert(('a', ':mod', 'b')) == ('a', ':mod', 'b'))
+    assert (m.deinvert(('a', ':domain', 'b')) == ('a', ':domain', 'b'))
+    m = Model.from_dict(mini_amr)
+    assert (m.deinvert(('a', ':ARG0', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.deinvert(('a', ':ARG0-of', 'b')) == ('b', ':ARG0', 'a'))
+    assert (m.deinvert(('a', ':consist-of', 'b')) == ('a', ':consist-of', 'b'))
+    assert (m.deinvert(('a', ':mod', 'b')) == ('a', ':mod', 'b'))
+    assert (m.deinvert(('a', ':domain', 'b')) == ('a', ':domain', 'b'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 80:------------------- similar code ------------------ index = 417, score = 1.0 
+@pytest.fixture()
+def trained_model(mcqa_dataset):
+    mdl = Model(bert_model='bert-base-uncased', device='cpu')
+    mdl.fit(mcqa_dataset.get_dataset(), train_batch_size=1, num_train_epochs=1)
+    (yield mdl)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 81:------------------- similar code ------------------ index = 198, score = 1.0 
+def test_custom_inverse_reset():
+    "Test resetting a custom inverse to the model's default inverse."
+
+    class TestModel(Model):
+        n_inputs = 0
+        outputs = ('y',)
+
+        @property
+        def inverse(self):
+            return models.Shift()
+
+        @staticmethod
+        def evaluate():
+            return 0
+    m = TestModel()
+    assert isinstance(m.inverse, models.Shift)
+    m.inverse = models.Scale()
+    assert isinstance(m.inverse, models.Scale)
+    del m.inverse
+    assert isinstance(m.inverse, models.Shift)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    class  ... (Model):
+idx = 82:------------------- similar code ------------------ index = 421, score = 1.0 
+@classmethod
+def GetRootAsModel(cls, buf, offset):
+    n = flatbuffers.encode.Get(flatbuffers.packer.uoffset, buf, offset)
+    x = Model()
+    x.Init(buf, (n + offset))
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 83:------------------- similar code ------------------ index = 422, score = 1.0 
+if (__name__ == '__main__'):
+    num_classes = 28
+    num_epochs = 300
+    batch_size = 2048
+    input_size = 1
+    model_dir = 'model'
+    log = 'Adam_batch_size={}_epoch={}'.format(str(batch_size), str(num_epochs))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-num_layers', default=2, type=int)
+    parser.add_argument('-hidden_size', default=64, type=int)
+    parser.add_argument('-window_size', default=10, type=int)
+    args = parser.parse_args()
+    num_layers = args.num_layers
+    hidden_size = args.hidden_size
+    window_size = args.window_size
+    model = Model(input_size, hidden_size, num_layers, num_classes).to(device)
+    seq_dataset = generate('hdfs_train')
+    dataloader = DataLoader(seq_dataset, batch_size=batch_size, shuffle=True, pin_memory=True)
+    writer = SummaryWriter(log_dir=('log/' + log))
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters())
+    start_time = time.time()
+    total_step = len(dataloader)
+    for epoch in range(num_epochs):
+        train_loss = 0
+        for (step, (seq, label)) in enumerate(dataloader):
+            seq = seq.clone().detach().view((- 1), window_size, input_size).to(device)
+            output = model(seq)
+            loss = criterion(output, label.to(device))
+            optimizer.zero_grad()
+            loss.backward()
+            train_loss += loss.item()
+            optimizer.step()
+            writer.add_graph(model, seq)
+        print('Epoch [{}/{}], train_loss: {:.4f}'.format((epoch + 1), num_epochs, (train_loss / total_step)))
+        writer.add_scalar('train_loss', (train_loss / total_step), (epoch + 1))
+    elapsed_time = (time.time() - start_time)
+    print('elapsed_time: {:.3f}s'.format(elapsed_time))
+    if (not os.path.isdir(model_dir)):
+        os.makedirs(model_dir)
+    torch.save(model.state_dict(), (((model_dir + '/') + log) + '.pt'))
+    writer.close()
+    print('Finished Training')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model
+
+idx = 84:------------------- similar code ------------------ index = 184, score = 1.0 
+if (__name__ == '__main__'):
+    model = Model()
+    streamer = ThreadedStreamer(model.predict, batch_size=64, max_latency=0.1)
+    app.run(port=5005, debug=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model()
+
+idx = 85:------------------- similar code ------------------ index = 185, score = 1.0 
+def show_corruption_error_by_distortion(distortion_name, current_ckpt, gpu_id):
+    synsets2idx = get_synsets2idx(FLAGS.label_file)
+    distortion_dir = os.path.join(FLAGS.data_dir, distortion_name)
+    with tf.device(('/gpu:%d' % gpu_id)):
+        model = model_fns.Model(resnet_size=FLAGS.resnet_size, num_classes=FLAGS.num_classes, resnet_version=FLAGS.resnet_version, use_se_block=FLAGS.use_se_block, use_sk_block=FLAGS.use_sk_block, zero_gamma=FLAGS.zero_gamma, data_format=FLAGS.data_format, no_downsample=FLAGS.no_downsample, anti_alias_filter_size=FLAGS.anti_alias_filter_size, anti_alias_type=FLAGS.anti_alias_type, embedding_size=FLAGS.embedding_size, pool_type=FLAGS.pool_type, bl_alpha=FLAGS.bl_alpha, bl_beta=FLAGS.bl_beta, dtype=tf.float32)
+        images = tf.placeholder(tf.float32, [None, FLAGS.image_size, FLAGS.image_size, 3])
+        logits = model(inputs=images, training=False, use_resnet_d=FLAGS.use_resnet_d, reuse=tf.AUTO_REUSE)
+        softmax = tf.nn.softmax(logits)
+        sm_top1 = tf.nn.top_k(softmax, 1)
+    saver = tf.train.Saver()
+    image_files = []
+    for severity in range(1, 6):
+        severity_dir = os.path.join(distortion_dir, str(severity))
+        for d in os.listdir(severity_dir):
+            for f in glob.glob((os.path.join(severity_dir, d) + '/*')):
+                image_files.append(f)
+    dataset = input_fn_imagenet_c(image_files, FLAGS.batch_size)
+    iterator = dataset.make_one_shot_iterator()
+    next_element = iterator.get_next()
+    with tf.Session() as sess:
+        saver.restore(sess, current_ckpt)
+        num_of_images = 0
+        correct = 0
+        while True:
+            try:
+                (images_tensor, image_files) = next_element
+                (images_input, image_files) = sess.run([images_tensor, image_files])
+                result = sess.run(sm_top1, feed_dict={images: images_input})
+                for i in range(len(result.indices)):
+                    fn = os.path.splitext(image_files[i].decode('utf-8'))[0]
+                    synset = os.path.basename(os.path.dirname(fn))
+                    gt = (synsets2idx[synset] + FLAGS.label_offset)
+                    pred = result.indices[i][0]
+                    num_of_images += 1
+                    if (pred == gt):
+                        correct += 1
+            except tf.errors.OutOfRangeError:
+                break
+    assert (num_of_images > 0)
+    err = (1 - ((1.0 * correct) / num_of_images))
+    return err
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+         ...  =  ... .Model
+
+idx = 86:------------------- similar code ------------------ index = 195, score = 1.0 
+def test_customize_model():
+
+    class Component(VueComponent):
+        model = Model(prop='prop', event='event')
+    init_dict = Component.init_dict()
+    assert ({'prop': 'prop', 'event': 'event'} == init_dict['model'])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    class  ... ( ... ):
+         ...  = Model
+
+idx = 87:------------------- similar code ------------------ index = 9, score = 1.0 
+def test_model_1():
+
+    class NotModelClass():
+        pass
+
+    class Foo(models.Model):
+        foo_id = models.IntField(pk=True)
+        content = models.TextField()
+    assert (Foo._meta != None)
+    assert (len(Foo._meta.fields_map) == 2)
+
+    class FooBar(Foo):
+        bar_content = models.TextField()
+    assert (len(FooBar._meta.fields_map) == 3)
+
+    class ModelClassFromNotModel(NotModelClass, models.Model):
+        id = models.AutoField()
+        name = models.TextField()
+    assert (ModelClassFromNotModel._meta != None)
+    with pytest.raises(Exception):
+
+        class DuplicatePKModel(ModelClassFromNotModel):
+            dp_id = models.IntField(pk=True)
+    with pytest.raises(Exception):
+
+        class DuplicatedPrimaryKeyModel(models.Model):
+            dp_id = models.IntField(pk=True)
+            dp_no = models.AutoField()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    class  ... ( ... .Model):
+idx = 88:------------------- similar code ------------------ index = 427, score = 1.0 
+def discriminator(inp_shape=(256, 256, 1), trainable=True):
+    gamma_init = tf.random_normal_initializer(1.0, 0.02)
+    inp = Input(shape=(256, 256, 1))
+    l0 = Conv2D(64, (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(inp)
+    l0 = LeakyReLU(alpha=0.2)(l0)
+    l1 = Conv2D((64 * 2), (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l0)
+    l1 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l1)
+    l1 = LeakyReLU(alpha=0.2)(l1)
+    l2 = Conv2D((64 * 4), (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l1)
+    l2 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l2)
+    l2 = LeakyReLU(alpha=0.2)(l2)
+    l3 = Conv2D((64 * 8), (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l2)
+    l3 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l3)
+    l3 = LeakyReLU(alpha=0.2)(l3)
+    l4 = Conv2D((64 * 16), (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l3)
+    l4 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l4)
+    l4 = LeakyReLU(alpha=0.2)(l4)
+    l5 = Conv2D((64 * 32), (4, 4), strides=(2, 2), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l4)
+    l5 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l5)
+    l5 = LeakyReLU(alpha=0.2)(l5)
+    l6 = Conv2D((64 * 16), (1, 1), strides=(1, 1), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l5)
+    l6 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l6)
+    l6 = LeakyReLU(alpha=0.2)(l6)
+    l7 = Conv2D((64 * 8), (1, 1), strides=(1, 1), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l6)
+    l7 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l7)
+    l7 = LeakyReLU(alpha=0.2)(l7)
+    l8 = Conv2D((64 * 2), (1, 1), strides=(1, 1), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l7)
+    l8 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l8)
+    l8 = LeakyReLU(alpha=0.2)(l8)
+    l9 = Conv2D((64 * 2), (3, 3), strides=(1, 1), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l8)
+    l9 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l9)
+    l9 = LeakyReLU(alpha=0.2)(l9)
+    l10 = Conv2D((64 * 8), (3, 3), strides=(1, 1), padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l9)
+    l10 = BatchNormalization(gamma_initializer=gamma_init, trainable=trainable)(l10)
+    l10 = LeakyReLU(alpha=0.2)(l10)
+    l11 = Add()([l7, l10])
+    l11 = LeakyReLU(alpha=0.2)(l11)
+    out = Conv2D(filters=1, kernel_size=3, strides=1, padding='same', use_bias=True, kernel_initializer='he_normal', bias_initializer='zeros')(l11)
+    model = Model(inputs=inp, outputs=out)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 89:------------------- similar code ------------------ index = 8, score = 1.0 
+def __new__(self, input_shapes, optimizer, loss, weights=None):
+    x1 = Input(input_shapes[0])
+    x2 = Input(input_shapes[1])
+    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(x1)
+    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y1)
+    y1 = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y1)
+    y1 = Flatten()(y1)
+    y1 = Dense(units=512, activation='relu')(y1)
+    y2 = Flatten()(x2)
+    y2 = Dense(units=512, activation='relu')(y2)
+    y = Concatenate()([y1, y2])
+    y = Dense(units=1024, activation='relu')(y)
+    y = Dropout(0.5)(y)
+    y = Dense(units=1024, activation='relu')(y)
+    y = Reshape(target_shape=(8, 8, 16))(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    model = Model(inputs=[x1, x2], outputs=y)
+    model.compile(optimizer=optimizer, loss=loss)
+    try:
+        if (not (weights is None)):
+            model.load_weights(weights)
+    except:
+        pass
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 90:------------------- similar code ------------------ index = 429, score = 1.0 
+def default_regression_model(num_values, num_anchors, pyramid_feature_size=256, regression_feature_size=256, name='regression_submodel'):
+    ' Creates the default regression submodel.\n\tArgs\n\t\tnum_values              : Number of values to regress.\n\t\tnum_anchors             : Number of anchors to regress for each feature level.\n\t\tpyramid_feature_size    : The number of filters to expect from the feature pyramid levels.\n\t\tregression_feature_size : The number of filters to use in the layers in the regression submodel.\n\t\tname                    : The name of the submodel.\n\tReturns\n\t\tA tf.keras.models.Model that predicts regression values for each anchor.\n\t'
+    options = {'kernel_size': 3, 'strides': 1, 'padding': 'same', 'kernel_initializer': tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None), 'bias_initializer': 'zeros'}
+    if (tf.keras.backend.image_data_format() == 'channels_first'):
+        inputs = tf.keras.layers.Input(shape=(pyramid_feature_size, None, None))
+    else:
+        inputs = tf.keras.layers.Input(shape=(None, None, pyramid_feature_size))
+    outputs = inputs
+    for i in range(4):
+        outputs = tf.keras.layers.Conv2D(filters=regression_feature_size, activation='relu', name='pyramid_regression_{}'.format(i), **options)(outputs)
+    outputs = tf.keras.layers.Conv2D((num_anchors * num_values), name='pyramid_regression', **options)(outputs)
+    if (tf.keras.backend.image_data_format() == 'channels_first'):
+        outputs = tf.keras.layers.Permute((2, 3, 1), name='pyramid_regression_permute')(outputs)
+    outputs = tf.keras.layers.Reshape(((- 1), num_values), name='pyramid_regression_reshape')(outputs)
+    return tf.keras.models.Model(inputs=inputs, outputs=outputs, name=name)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .Model
+
+idx = 91:------------------- similar code ------------------ index = 194, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    if ilp:
+        (context, query, templates) = ilp
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(context)
+    embedded_q = onehot(query)
+    if ilp:
+        embedded_ctx = L.Lambda((lambda xs: K.concatenate(xs, axis=1)), name='template_concat')([templates, embedded_ctx])
+    embed_pred = ZeroGRU(dim, go_backwards=True, name='embed_pred')
+    embedded_predq = embed_pred(embedded_q)
+    embedded_ctx_preds = NestedTimeDist(NestedTimeDist(embed_pred, name='nest1'), name='nest2')(embedded_ctx)
+    embed_rule = ZeroGRU(dim, name='embed_rule')
+    embedded_rules = NestedTimeDist(embed_rule, name='d_embed_rule')(embedded_ctx_preds)
+    repeat_toctx = L.RepeatVector(K.shape(embedded_ctx)[1], name='repeat_to_ctx')
+    diff_sq = L.Lambda((lambda xy: K.square((xy[0] - xy[1]))), output_shape=(None, dim), name='diff_sq')
+    mult = L.Multiply()
+    concat = L.Lambda((lambda xs: K.concatenate(xs, axis=2)), output_shape=(None, (dim * 5)), name='concat')
+    att_densel = L.Dense((dim // 2), activation='tanh', name='att_densel')
+    att_dense = L.Dense(1, name='att_dense')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1)
+    unifier = NestedTimeDist(ZeroGRU(dim, go_backwards=False, name='unifier'), name='dist_unifier')
+    dot11 = L.Dot((1, 1))
+    state = embedded_predq
+    repeated_q = repeat_toctx(embedded_predq)
+    outs = list()
+    for _ in range(iterations):
+        ctx_state = repeat_toctx(state)
+        s_s_c = diff_sq([ctx_state, embedded_rules])
+        s_m_c = mult([embedded_rules, state])
+        sim_vec = concat([s_s_c, s_m_c, ctx_state, embedded_rules, repeated_q])
+        sim_vec = att_densel(sim_vec)
+        sim_vec = att_dense(sim_vec)
+        sim_vec = squeeze2(sim_vec)
+        sim_vec = softmax1(sim_vec)
+        outs.append(sim_vec)
+        new_states = unifier(embedded_ctx_preds, initial_state=[state])
+        state = dot11([sim_vec, new_states])
+    out = L.Dense(1, activation='sigmoid', name='out')(state)
+    if ilp:
+        return (outs, out)
+    elif pca:
+        model = Model([context, query], [embedded_rules])
+    elif training:
+        model = Model([context, query], [out])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :    elif  ... :
+         ...  = Model
+
+idx = 92:------------------- similar code ------------------ index = 193, score = 1.0 
+def create_tiny_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2, weights_path='model_data/tiny_yolo_weights.h5'):
+    'create the training model, for Tiny YOLOv3'
+    K.clear_session()
+    image_input = Input(shape=(None, None, 3))
+    (h, w) = input_shape
+    num_anchors = len(anchors)
+    y_true = [Input(shape=((h // {0: 32, 1: 16}[l]), (w // {0: 32, 1: 16}[l]), (num_anchors // 2), (num_classes + 5))) for l in range(2)]
+    model_body = tiny_yolo_body(image_input, (num_anchors // 2), num_classes)
+    print('Create Tiny YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+    if load_pretrained:
+        model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        print('Load weights {}.'.format(weights_path))
+        if (freeze_body in [1, 2]):
+            num = (20, (len(model_body.layers) - 2))[(freeze_body - 1)]
+            for i in range(num):
+                model_body.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+    model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.7})([*model_body.output, *y_true])
+    model = Model([model_body.input, *y_true], model_loss)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 93:------------------- similar code ------------------ index = 5, score = 1.0 
+def _main(args):
+    config_path = os.path.expanduser(args.config_path)
+    weights_path = os.path.expanduser(args.weights_path)
+    assert config_path.endswith('.cfg'), '{} is not a .cfg file'.format(config_path)
+    assert weights_path.endswith('.weights'), '{} is not a .weights file'.format(weights_path)
+    output_path = os.path.expanduser(args.output_path)
+    assert output_path.endswith('.h5'), 'output path {} is not a .h5 file'.format(output_path)
+    output_root = os.path.splitext(output_path)[0]
+    print('Loading weights.')
+    weights_file = open(weights_path, 'rb')
+    (major, minor, revision) = np.ndarray(shape=(3,), dtype='int32', buffer=weights_file.read(12))
+    if ((((major * 10) + minor) >= 2) and (major < 1000) and (minor < 1000)):
+        seen = np.ndarray(shape=(1,), dtype='int64', buffer=weights_file.read(8))
+    else:
+        seen = np.ndarray(shape=(1,), dtype='int32', buffer=weights_file.read(4))
+    print('Weights Header: ', major, minor, revision, seen)
+    print('Parsing Darknet config.')
+    unique_config_file = unique_config_sections(config_path)
+    cfg_parser = configparser.ConfigParser()
+    cfg_parser.read_file(unique_config_file)
+    print('Creating Keras model.')
+    input_layer = Input(shape=(None, None, 3))
+    prev_layer = input_layer
+    all_layers = []
+    weight_decay = (float(cfg_parser['net_0']['decay']) if ('net_0' in cfg_parser.sections()) else 0.0005)
+    count = 0
+    out_index = []
+    for section in cfg_parser.sections():
+        print('Parsing section {}'.format(section))
+        if section.startswith('convolutional'):
+            filters = int(cfg_parser[section]['filters'])
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            pad = int(cfg_parser[section]['pad'])
+            activation = cfg_parser[section]['activation']
+            batch_normalize = ('batch_normalize' in cfg_parser[section])
+            padding = ('same' if ((pad == 1) and (stride == 1)) else 'valid')
+            prev_layer_shape = K.int_shape(prev_layer)
+            weights_shape = (size, size, prev_layer_shape[(- 1)], filters)
+            darknet_w_shape = (filters, weights_shape[2], size, size)
+            weights_size = np.product(weights_shape)
+            print('conv2d', ('bn' if batch_normalize else '  '), activation, weights_shape)
+            conv_bias = np.ndarray(shape=(filters,), dtype='float32', buffer=weights_file.read((filters * 4)))
+            count += filters
+            if batch_normalize:
+                bn_weights = np.ndarray(shape=(3, filters), dtype='float32', buffer=weights_file.read((filters * 12)))
+                count += (3 * filters)
+                bn_weight_list = [bn_weights[0], conv_bias, bn_weights[1], bn_weights[2]]
+            conv_weights = np.ndarray(shape=darknet_w_shape, dtype='float32', buffer=weights_file.read((weights_size * 4)))
+            count += weights_size
+            conv_weights = np.transpose(conv_weights, [2, 3, 1, 0])
+            conv_weights = ([conv_weights] if batch_normalize else [conv_weights, conv_bias])
+            act_fn = None
+            if (activation == 'leaky'):
+                pass
+            elif (activation != 'linear'):
+                raise ValueError('Unknown activation function `{}` in section {}'.format(activation, section))
+            if (stride > 1):
+                prev_layer = ZeroPadding2D(((1, 0), (1, 0)))(prev_layer)
+            conv_layer = Conv2D(filters, (size, size), strides=(stride, stride), kernel_regularizer=l2(weight_decay), use_bias=(not batch_normalize), weights=conv_weights, activation=act_fn, padding=padding)(prev_layer)
+            if batch_normalize:
+                conv_layer = BatchNormalization(weights=bn_weight_list)(conv_layer)
+            prev_layer = conv_layer
+            if (activation == 'linear'):
+                all_layers.append(prev_layer)
+            elif (activation == 'leaky'):
+                act_layer = LeakyReLU(alpha=0.1)(prev_layer)
+                prev_layer = act_layer
+                all_layers.append(act_layer)
+        elif section.startswith('route'):
+            ids = [int(i) for i in cfg_parser[section]['layers'].split(',')]
+            layers = [all_layers[i] for i in ids]
+            if (len(layers) > 1):
+                print('Concatenating route layers:', layers)
+                concatenate_layer = Concatenate()(layers)
+                all_layers.append(concatenate_layer)
+                prev_layer = concatenate_layer
+            else:
+                skip_layer = layers[0]
+                all_layers.append(skip_layer)
+                prev_layer = skip_layer
+        elif section.startswith('maxpool'):
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            all_layers.append(MaxPooling2D(pool_size=(size, size), strides=(stride, stride), padding='same')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('shortcut'):
+            index = int(cfg_parser[section]['from'])
+            activation = cfg_parser[section]['activation']
+            assert (activation == 'linear'), 'Only linear activation supported.'
+            all_layers.append(Add()([all_layers[index], prev_layer]))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('upsample'):
+            stride = int(cfg_parser[section]['stride'])
+            assert (stride == 2), 'Only stride=2 supported.'
+            all_layers.append(UpSampling2D(stride)(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('yolo'):
+            out_index.append((len(all_layers) - 1))
+            all_layers.append(None)
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('net'):
+            pass
+        else:
+            raise ValueError('Unsupported section header type: {}'.format(section))
+    if (len(out_index) == 0):
+        out_index.append((len(all_layers) - 1))
+    model = Model(inputs=input_layer, outputs=[all_layers[i] for i in out_index])
+    print(model.summary())
+    if args.weights_only:
+        model.save_weights('{}'.format(output_path))
+        print('Saved Keras weights to {}'.format(output_path))
+    else:
+        model.save('{}'.format(output_path))
+        print('Saved Keras model to {}'.format(output_path))
+    remaining_weights = (len(weights_file.read()) / 4)
+    weights_file.close()
+    print('Read {} of {} from Darknet weights.'.format(count, (count + remaining_weights)))
+    if (remaining_weights > 0):
+        print('Warning: {} unused weights'.format(remaining_weights))
+    if args.plot_model:
+        plot(model, to_file='{}.png'.format(output_root), show_shapes=True)
+        print('Saved model plot to {}.png'.format(output_root))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Model
+
+idx = 94:------------------- similar code ------------------ index = 3, score = 1.0 
+def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2, weights_path='model_data/yolo_weights.h5'):
+    'create the training model'
+    K.clear_session()
+    image_input = Input(shape=(None, None, 3))
+    (h, w) = input_shape
+    num_anchors = len(anchors)
+    y_true = [Input(shape=((h // {0: 32, 1: 16, 2: 8}[l]), (w // {0: 32, 1: 16, 2: 8}[l]), (num_anchors // 3), (num_classes + 5))) for l in range(3)]
+    model_body = yolo_body(image_input, (num_anchors // 3), num_classes)
+    print('Create YOLOv3 model with {} anchors and {} classes.'.format(num_anchors, num_classes))
+    if load_pretrained:
+        model_body.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        print('Load weights {}.'.format(weights_path))
+        if (freeze_body in [1, 2]):
+            num = (185, (len(model_body.layers) - 3))[(freeze_body - 1)]
+            for i in range(num):
+                model_body.layers[i].trainable = False
+            print('Freeze the first {} layers of total {} layers.'.format(num, len(model_body.layers)))
+    out1 = model_body.layers[246].output
+    out2 = model_body.layers[247].output
+    out3 = model_body.layers[248].output
+    bottleneck_model = Model([model_body.input, *y_true], [out1, out2, out3])
+    in0 = Input(shape=bottleneck_model.output[0].shape[1:].as_list())
+    in1 = Input(shape=bottleneck_model.output[1].shape[1:].as_list())
+    in2 = Input(shape=bottleneck_model.output[2].shape[1:].as_list())
+    last_out0 = model_body.layers[249](in0)
+    last_out1 = model_body.layers[250](in1)
+    last_out2 = model_body.layers[251](in2)
+    model_last = Model(inputs=[in0, in1, in2], outputs=[last_out0, last_out1, last_out2])
+    model_loss_last = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})([*model_last.output, *y_true])
+    last_layer_model = Model([in0, in1, in2, *y_true], model_loss_last)
+    model_loss = Lambda(yolo_loss, output_shape=(1,), name='yolo_loss', arguments={'anchors': anchors, 'num_classes': num_classes, 'ignore_thresh': 0.5})([*model_body.output, *y_true])
+    model = Model([model_body.input, *y_true], model_loss)
+    return (model, bottleneck_model, last_layer_model)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model
+
+idx = 95:------------------- similar code ------------------ index = 2, score = 1.0 
+if (__name__ == '__main__'):
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 600
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.01
+    EPSILON_START = 0.3
+    EPSLILON_COUNT = 2000
+    RANDOM_GAME_EVERY = 20
+    TRAIN_EVERY_N_STEPS = 8
+    TRAINING_SAMPLE_SIZE = 2
+    PRINT_EVERY = 10
+    epsilon = EPSILON_START
+    env = gym.make('LunarLander-v2')
+    observation = env.reset()
+    m = Model(env.observation_space.shape, env.action_space.n, lr=0.01)
+    rb = ReplayBuffer(4000)
+    agent = DQNAgent(m, Model(env.observation_space.shape, env.action_space.n, lr=0.01))
+    step_counter = 0
+    avg_reward = []
+    for game in range(NUM_GAMES):
+        episode_sars = []
+        for step in range(MAX_EPISODE_STEPS):
+            env.render()
+            action = 0
+            if ((step_counter < 2000) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            else:
+                action = agent.get_actions(observation).item()
+            (observation_next, reward, done, info) = env.step(action)
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            if ((rb.index > 3000) and ((step_counter % TRAIN_EVERY_N_STEPS) == 0)):
+                train_step(agent.model, rb.sample(TRAINING_SAMPLE_SIZE, step), agent.targetModel, env.action_space.n)
+            observation = observation_next
+            step_counter += 1
+            if done:
+                rb.episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                observation = env.reset()
+                break
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        if ((game % PRINT_EVERY) == 0):
+            print('episide ', game, 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  = Model
+
+idx = 96:------------------- similar code ------------------ index = 187, score = 1.0 
+def __init__(self, model: Model=None):
+    if (model is None):
+        model = Model()
+    self.model = model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,  ... : Model=None):
+idx = 97:------------------- similar code ------------------ index = 437, score = 1.0 
+def test_canonicalize(self, mini_amr):
+    m = Model()
+    assert (m.canonicalize(('a', ':ARG0', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.canonicalize(('a', ':ARG0-of', 'b')) == ('a', ':ARG0-of', 'b'))
+    assert (m.canonicalize(('a', ':ARG0-of-of', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.canonicalize(('a', ':consist', 'b')) == ('a', ':consist', 'b'))
+    assert (m.canonicalize(('a', ':consist-of', 'b')) == ('a', ':consist-of', 'b'))
+    assert (m.canonicalize(('a', ':consist-of-of', 'b')) == ('a', ':consist', 'b'))
+    assert (m.canonicalize(('a', ':mod', 'b')) == ('a', ':mod', 'b'))
+    assert (m.canonicalize(('a', ':mod-of', 'b')) == ('a', ':mod-of', 'b'))
+    assert (m.canonicalize(('a', ':domain', 'b')) == ('a', ':domain', 'b'))
+    assert (m.canonicalize(('a', ':domain-of', 'b')) == ('a', ':domain-of', 'b'))
+    assert (m.canonicalize(('a', 'ARG0', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.canonicalize(('a', 'ARG0-of', 'b')) == ('a', ':ARG0-of', 'b'))
+    assert (m.canonicalize(('a', 'ARG0-of-of', 'b')) == ('a', ':ARG0', 'b'))
+    m = Model.from_dict(mini_amr)
+    assert (m.canonicalize(('a', ':ARG0', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.canonicalize(('a', ':ARG0-of', 'b')) == ('a', ':ARG0-of', 'b'))
+    assert (m.canonicalize(('a', ':ARG0-of-of', 'b')) == ('a', ':ARG0', 'b'))
+    assert (m.canonicalize(('a', ':consist', 'b')) == ('a', ':consist-of-of', 'b'))
+    assert (m.canonicalize(('a', ':consist-of', 'b')) == ('a', ':consist-of', 'b'))
+    assert (m.canonicalize(('a', ':consist-of-of', 'b')) == ('a', ':consist-of-of', 'b'))
+    assert (m.canonicalize(('a', ':mod', 'b')) == ('a', ':mod', 'b'))
+    assert (m.canonicalize(('a', ':mod-of', 'b')) == ('a', ':domain', 'b'))
+    assert (m.canonicalize(('a', ':domain', 'b')) == ('a', ':domain', 'b'))
+    assert (m.canonicalize(('a', ':domain-of', 'b')) == ('a', ':mod', 'b'))
+    assert (m.canonicalize(('a', 'consist', 'b')) == ('a', ':consist-of-of', 'b'))
+    assert (m.canonicalize(('a', 'consist-of', 'b')) == ('a', ':consist-of', 'b'))
+    assert (m.canonicalize(('a', 'consist-of-of', 'b')) == ('a', ':consist-of-of', 'b'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Model()
+
+idx = 98:------------------- similar code ------------------ index = 26, score = 1.0 
+def nn(data):
+    layer_size = (([data.train_x.shape[1]] + ([32] * 2)) + [1])
+    activation = 'selu'
+    initializer = 'LeCun normal'
+    regularization = ['l2', 0.01]
+    loss = 'MAPE'
+    optimizer = 'adam'
+    if (data.train_x.shape[1] == 3):
+        lr = 0.0001
+    else:
+        lr = 0.001
+    epochs = 30000
+    net = dde.maps.FNN(layer_size, activation, initializer, regularization=regularization)
+    model = dde.Model(data, net)
+    model.compile(optimizer, lr=lr, loss=loss, metrics=['MAPE'])
+    (losshistory, train_state) = model.train(epochs=epochs)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=False)
+    return train_state.best_metrics[0]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .Model
+
+idx = 99:------------------- similar code ------------------ index = 282, score = 1.0 
+def test_non_broadcasting_parameters():
+    '\n    Tests that in a model with 3 parameters that do not all mutually broadcast,\n    this is determined correctly regardless of what order the parameters are\n    in.\n    '
+    a = 3
+    b = np.array([[1, 2, 3], [4, 5, 6]])
+    c = np.array([[1, 2, 3, 4], [1, 2, 3, 4]])
+
+    class TestModel(Model):
+        p1 = Parameter()
+        p2 = Parameter()
+        p3 = Parameter()
+
+        def evaluate(self, *args):
+            return
+    for args in itertools.permutations((a, b, c)):
+        with pytest.raises(InputParameterError):
+            TestModel(*args)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    class  ... (Model):

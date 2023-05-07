@@ -1,0 +1,843 @@
+------------------------- example 1 ------------------------ 
+def find_all(self):
+    for row in self.jsondata:
+// your code ...
+
+
+------------------------- example 2 ------------------------ 
+@homely.command()
+@option('--pause', is_flag=True, help='Pause automatic updates. This can be useful while you are working on your HOMELY.py script')
+@option('--unpause', is_flag=True, help='Un-pause automatic updates')
+@option('--outfile', is_flag=True, help="Prints the _path_ of the file containing the output of the previous 'homely update' run that was initiated by autoupdate.")
+@option('--daemon', is_flag=True, help="Starts a 'homely update' daemon process, as long as it hasn't been run too recently")
+// your code ...
+
+@_globals
+def autoupdate(**kwargs):
+    options = ('pause', 'unpause', 'outfile', 'daemon', 'clear')
+// your code ...
+
+    mkcfgdir()
+    if (action == 'pause'):
+// your code ...
+
+    if (status == UpdateStatus.FAILED):
+        print("Can't start daemon - previous update failed")
+        sys.exit(1)
+    if (status == UpdateStatus.PAUSED):
+        print("Can't start daemon - updates are paused")
+        sys.exit(1)
+    if (status == UpdateStatus.RUNNING):
+// your code ...
+
+    with daemon.DaemonContext(), open(OUTFILE, 'w') as f:
+        try:
+            from homely._ui import setstreams
+// your code ...
+
+            cfg = RepoListConfig()
+            run_update(list(cfg.find_all()), pullfirst=True, quick=False, cancleanup=True)
+        except Exception:
+// your code ...
+
+
+------------------------- example 3 ------------------------ 
+def _parse_tbody_tr(self, table):
+    from_tbody = table.select('tbody tr')
+    from_root = table.find_all('tr', recursive=False)
+    return (from_tbody + from_root)
+
+------------------------- example 4 ------------------------ 
+def test_new(self):
+    RSVP = rsvp.RSVP
+// your code ...
+
+    assert (len(RSVP.find_all()) == 1)
+
+------------------------- example 5 ------------------------ 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        3         ||         1        
+example2  ||          2           ||        29         ||         6        
+example3  ||          2           ||        4         ||         0        
+example4  ||          2           ||        4         ||         1        
+example5  ||          2           ||        67         ||         0        
+
+avg       ||          2.0           ||        21.4         ||         1.6        
+
+idx = 0:------------------- similar code ------------------ index = 35, score = 2.0 
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if (start == (- 1)):
+            return
+        (yield start)
+        start += len(sub)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 1:------------------- similar code ------------------ index = 34, score = 2.0 
+def find_all(self):
+    for row in self.jsondata:
+        (yield self._infofromdict(row))
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all( ... ):
+idx = 2:------------------- similar code ------------------ index = 6, score = 2.0 
+def find_all(self, pattern):
+    '\n        Return the subset of this RcParams dictionary whose keys match,\n        using :func:`re.search`, the given ``pattern``.\n\n        .. note::\n\n            Changes to the returned dictionary are *not* propagated to\n            the parent RcParams dictionary.\n\n        '
+    pattern_re = re.compile(pattern)
+    return RcParams(((key, value) for (key, value) in self.items() if pattern_re.search(key)))
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 3:------------------- similar code ------------------ index = 13, score = 2.0 
+@staticmethod
+def find_all():
+    return [RSVP(**doc) for doc in db.rsvpdata.find()]
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def find_all():
+idx = 4:------------------- similar code ------------------ index = 14, score = 2.0 
+@classmethod
+def find_all(cls):
+    for v1 in cls.namespace.values():
+        for v2 in v1.values():
+            (yield v2)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def find_all( ... ):
+idx = 5:------------------- similar code ------------------ index = 19, score = 1.0 
+@classmethod
+def find(cls, node1, node2=None):
+    if ((node1 is None) and (node2 is None)):
+        return cls.find_all()
+    elif isinstance(node1, NodeGroup):
+        edges = cls.find(None, node2)
+        edges = (e for e in edges if e.node1.group.is_parent(node1))
+        return [e for e in edges if (not e.node2.group.is_parent(node1))]
+    elif isinstance(node2, NodeGroup):
+        edges = cls.find(node1, None)
+        edges = (e for e in edges if e.node2.group.is_parent(node2))
+        return [e for e in edges if (not e.node1.group.is_parent(node2))]
+    elif (node1 is None):
+        return [e for e in cls.find_all() if (e.node2 == node2)]
+    else:
+        if (node1 not in cls.namespace):
+            return []
+        if (node2 is None):
+            return cls.namespace[node1].values()
+        if (node2 not in cls.namespace[node1]):
+            return []
+    return cls.namespace[node1][node2]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        return  ... .find_all()
+
+idx = 6:------------------- similar code ------------------ index = 18, score = 1.0 
+@homely.command()
+@option('--pause', is_flag=True, help='Pause automatic updates. This can be useful while you are working on your HOMELY.py script')
+@option('--unpause', is_flag=True, help='Un-pause automatic updates')
+@option('--outfile', is_flag=True, help="Prints the _path_ of the file containing the output of the previous 'homely update' run that was initiated by autoupdate.")
+@option('--daemon', is_flag=True, help="Starts a 'homely update' daemon process, as long as it hasn't been run too recently")
+@option('--clear', is_flag=True, help='Clear any previous update error so that autoupdate can initiate updates again.')
+@_globals
+def autoupdate(**kwargs):
+    options = ('pause', 'unpause', 'outfile', 'daemon', 'clear')
+    action = None
+    for name in options:
+        if kwargs[name]:
+            if (action is not None):
+                raise UsageError(('--%s and --%s options cannot be combined' % (action, name)))
+            action = name
+    if (action is None):
+        raise UsageError(('Either %s must be used' % ' or '.join(('--{}'.format(o) for o in options))))
+    mkcfgdir()
+    if (action == 'pause'):
+        with open(PAUSEFILE, 'w'):
+            pass
+        return
+    if (action == 'unpause'):
+        if os.path.exists(PAUSEFILE):
+            os.unlink(PAUSEFILE)
+        return
+    if (action == 'clear'):
+        if os.path.exists(FAILFILE):
+            os.unlink(FAILFILE)
+        return
+    if (action == 'outfile'):
+        print(OUTFILE)
+        return
+    assert (action == 'daemon')
+    (status, mtime, _) = getstatus()
+    if (status == UpdateStatus.FAILED):
+        print("Can't start daemon - previous update failed")
+        sys.exit(1)
+    if (status == UpdateStatus.PAUSED):
+        print("Can't start daemon - updates are paused")
+        sys.exit(1)
+    if (status == UpdateStatus.RUNNING):
+        print("Can't start daemon - an update is already running")
+        sys.exit(1)
+    interval = ((20 * 60) * 60)
+    if ((mtime is not None) and ((time.time() - mtime) < interval)):
+        print("Can't start daemon - too soon to start another update")
+        sys.exit(1)
+    assert (status in (UpdateStatus.OK, UpdateStatus.NEVER, UpdateStatus.NOCONN))
+    oldcwd = os.getcwd()
+    import daemon
+    with daemon.DaemonContext(), open(OUTFILE, 'w') as f:
+        try:
+            from homely._ui import setstreams
+            setstreams(f, f)
+            if (sys.version_info[0] < 3):
+                os.chdir(oldcwd)
+            cfg = RepoListConfig()
+            run_update(list(cfg.find_all()), pullfirst=True, quick=False, cancleanup=True)
+        except Exception:
+            import traceback
+            f.write(traceback.format_exc())
+            raise
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with,:
+        try:
+             ... ( ... ( ... .find_all()),,,)
+
+idx = 7:------------------- similar code ------------------ index = 17, score = 1.0 
+def _parse_tbody_tr(self, table):
+    from_tbody = table.select('tbody tr')
+    from_root = table.find_all('tr', recursive=False)
+    return (from_tbody + from_root)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 8:------------------- similar code ------------------ index = 16, score = 1.0 
+def test_new(self):
+    RSVP = rsvp.RSVP
+    doc = RSVP.new('test name', 'test@example.com')
+    assert (doc.name == 'test name')
+    assert (doc.email == 'test@example.com')
+    assert (doc._id is not None)
+    assert (RSVP.find_one(doc._id) is not None)
+    assert (len(RSVP.find_all()) == 1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    assert ( ... ( ... .find_all()) ==  ... )
+
+idx = 9:------------------- similar code ------------------ index = 15, score = 1.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [ for  ...  in  ... .find_all]
+
+idx = 10:------------------- similar code ------------------ index = 44, score = 1.0 
+def _parse_td(self, row):
+    return row.find_all(('td', 'th'), recursive=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .find_all
+
+idx = 11:------------------- similar code ------------------ index = 25, score = 1.0 
+def _rescale(self, xscalefactor, yscalefactor):
+    items = self.cv.find_all()
+    for item in items:
+        coordinates = list(self.cv.coords(item))
+        newcoordlist = []
+        while coordinates:
+            (x, y) = coordinates[:2]
+            newcoordlist.append((x * xscalefactor))
+            newcoordlist.append((y * yscalefactor))
+            coordinates = coordinates[2:]
+        self.cv.coords(item, *newcoordlist)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all()
+
+idx = 12:------------------- similar code ------------------ index = 11, score = 1.0 
+@homely.command()
+@option('--format', '-f', default='%(repoid)s: %(localpath)s', help='Format string for the output, which will be passed through str.format(). You may use the following named replacements:\n%(repoid)s\n%(localpath)s\n%(canonical)s')
+@_globals
+def repolist(format):
+    cfg = RepoListConfig()
+    for info in cfg.find_all():
+        vars_ = dict(repoid=info.repoid, localpath=info.localrepo.repo_path, canonical=(info.canonicalrepo.repo_path if info.canonicalrepo else ''))
+        print((format % vars_))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all():
+idx = 13:------------------- similar code ------------------ index = 10, score = 1.0 
+def recipeToJSON(browser, recipeID):
+    html = browser.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    recipe = {}
+    recipe['id'] = recipeID
+    recipe['language'] = soup.select_one('html').attrs['lang']
+    recipe['title'] = soup.select_one('.recipe-card__title').text
+    recipe['rating_count'] = re.sub('\\D', '', soup.select_one('.core-rating__label').text, flags=re.IGNORECASE)
+    recipe['rating_score'] = soup.select_one('.core-rating__counter').text
+    recipe['tm-versions'] = [v.text.replace('\n', '').strip().lower() for v in soup.select('.recipe-card__tm-version core-badge')]
+    recipe.update({l.text: l.next_sibling.strip() for l in soup.select('core-feature-icons label span')})
+    recipe['ingredients'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#ingredients li')]
+    recipe['nutritions'] = {}
+    for item in list(zip(soup.select('.nutritions dl')[0].find_all('dt'), soup.select('.nutritions dl')[0].find_all('dd'))):
+        (dt, dl) = item
+        recipe['nutritions'].update({dt.string.replace('\n', '').strip().lower(): re.sub('\\s{2,}', ' ', dl.string.replace('\n', '').strip().lower())})
+    recipe['steps'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#preparation-steps li')]
+    recipe['tags'] = [a.text.replace('#', '').replace('\n', '').strip().lower() for a in soup.select('.core-tags-wrapper__tags-container a')]
+    return recipe
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... ( ... ( ... .find_all,)):
+idx = 14:------------------- similar code ------------------ index = 8, score = 1.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [ for  ...  in  ... .find_all]
+
+idx = 15:------------------- similar code ------------------ index = 5, score = 1.0 
+def run_update_all(pullfirst=False, cancleanup=False, quick=False) -> None:
+    from homely._ui import run_update
+    from homely._utils import RepoListConfig
+    cfg = RepoListConfig()
+    success = run_update(list(cfg.find_all()), pullfirst=pullfirst, only=None, cancleanup=cancleanup, quick=quick)
+    assert success, 'run_update() encountered errors or warnings'
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () -> None:
+     ...  =  ... ( ... ( ... .find_all()),,,,)
+
+idx = 16:------------------- similar code ------------------ index = 1, score = 1.0 
+@homely.command()
+@argument('identifiers', nargs=(- 1), metavar='REPO')
+@option('--nopull', is_flag=True, help='Do not use `git pull` or other things that require internet access')
+@option('--only', '-o', multiple=True, help='Only process the named sections (whole names only)')
+@option('--quick', is_flag=True, help='Skip every @section except those marked with quick=True')
+@_globals
+def update(identifiers, nopull, only, quick):
+    "\n    Performs a `git pull` in each of the repositories registered with\n    `homely add`, runs all of their HOMELY.py scripts, and then performs\n    automatic cleanup as necessary.\n\n    REPO\n        This should be the path to a local dotfiles repository that has already\n        been registered using `homely add`. If you specify one or more `REPO`s\n        then only the HOMELY.py scripts from those repositories will be run,\n        and automatic cleanup will not be performed (automatic cleanup is only\n        possible when homely has done an update of all repositories in one go).\n        If you do not specify a REPO, all repositories' HOMELY.py scripts will\n        be run.\n\n    The --nopull and --only options are useful when you are working on your\n    HOMELY.py script - the --nopull option stops you from wasting time checking\n    the internet for the same updates on every run, and the --only option\n    allows you to execute only the section you are working on.\n    "
+    mkcfgdir()
+    setallowpull((not nopull))
+    cfg = RepoListConfig()
+    if len(identifiers):
+        updatedict = {}
+        for identifier in identifiers:
+            repo = cfg.find_by_any(identifier, 'ilc')
+            if (repo is None):
+                hint = ('Try running %s add /path/to/this/repo first' % CMD)
+                raise Fatal(('Unrecognised repo %s (%s)' % (identifier, hint)))
+            updatedict[repo.repoid] = repo
+        updatelist = updatedict.values()
+        cleanup = (len(updatelist) == cfg.repo_count())
+    else:
+        updatelist = list(cfg.find_all())
+        cleanup = True
+    success = run_update(updatelist, pullfirst=(not nopull), only=only, quick=quick, cancleanup=(cleanup and (not quick)))
+    if (not success):
+        sys.exit(1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    else:
+         ...  =  ... ( ... .find_all())
+
+idx = 17:------------------- similar code ------------------ index = 21, score = 1.0 
+@property
+def _groups(self):
+    nodes = {self.diagram: self.diagram.nodes}
+    edges = {self.diagram: self.diagram.edges}
+    levels = {self.diagram: self.diagram.level}
+    for group in self.diagram.traverse_groups():
+        nodes[group] = group.nodes
+        edges[group] = group.edges
+        levels[group] = group.level
+    groups = {}
+    orders = {}
+    for node in self.diagram.traverse_nodes():
+        groups[node] = node.group
+        orders[node] = node.order
+    for group in self.diagram.traverse_groups():
+        (yield group)
+        for g in nodes:
+            g.nodes = nodes[g]
+            g.edges = edges[g]
+            g.level = levels[g]
+        for n in groups:
+            n.group = groups[n]
+            n.order = orders[n]
+            n.xy = XY(0, 0)
+            n.colwidth = 1
+            n.colheight = 1
+            n.separated = False
+        for edge in DiagramEdge.find_all():
+            edge.skipped = False
+            edge.crosspoints = []
+    (yield self.diagram)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+        for  ...  in  ... .find_all():
+idx = 18:------------------- similar code ------------------ index = 0, score = 1.0 
+@app.route('/api/rsvps', methods=['GET', 'POST'])
+def api_rsvps():
+    if (request.method == 'GET'):
+        docs = [rsvp.dict() for rsvp in RSVP.find_all()]
+        return json.dumps(docs, indent=True)
+    else:
+        try:
+            doc = json.loads(request.data)
+        except ValueError:
+            return ('{"error": "expecting JSON payload"}', 400)
+        if ('name' not in doc):
+            return ('{"error": "name field is missing"}', 400)
+        if ('email' not in doc):
+            return ('{"error": "email field is missing"}', 400)
+        rsvp = RSVP.new(name=doc['name'], email=doc['email'])
+        return json.dumps(rsvp.dict(), indent=True)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = [ for  ...  in  ... .find_all()]
+
+idx = 19:------------------- similar code ------------------ index = 26, score = 1.0 
+def _parse_tables(self, doc, match, attrs):
+    element_name = self._strainer.name
+    tables = doc.find_all(element_name, attrs=attrs)
+    if (not tables):
+        raise ValueError('No tables found')
+    result = []
+    unique_tables = set()
+    tables = self._handle_hidden_tables(tables, 'attrs')
+    for table in tables:
+        if self.displayed_only:
+            for elem in table.find_all(style=re.compile('display:\\s*none')):
+                elem.decompose()
+        if ((table not in unique_tables) and (table.find(text=match) is not None)):
+            result.append(table)
+        unique_tables.add(table)
+    if (not result):
+        raise ValueError('No tables found matching pattern {patt!r}'.format(patt=match.pattern))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 20:------------------- similar code ------------------ index = 42, score = 1.0 
+def get_dce_daily(date=None, type='future', retries=0):
+    "\n        获取大连商品交易所日交易数据\n    Parameters\n    ------\n        date: 日期 format：YYYY-MM-DD 或 YYYYMMDD 或 datetime.date对象 为空时为当天\n        type: 数据类型, 为'future'期货 或 'option'期权二者之一\n        retries: int, 当前重试次数，达到3次则获取数据失败\n    Return\n    -------\n        DataFrame\n            大商所日交易数据(DataFrame):\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                volume        成交量\n                open_interest   持仓量\n                turnover       成交额\n                settle        结算价\n                pre_settle    前结算价\n                variety       合约类别\n        或 \n        DataFrame\n           郑商所每日期权交易数据\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                pre_settle      前结算价\n                settle         结算价\n                delta          对冲值  \n                volume         成交量\n                open_interest     持仓量\n                oi_change       持仓变化\n                turnover        成交额\n                implied_volatility 隐含波动率\n                exercise_volume   行权量\n                variety        合约类别\n        或 None(给定日期没有交易数据)\n    "
+    day = (ct.convert_date(date) if (date is not None) else datetime.date.today())
+    if (retries > 3):
+        print('maximum retires for DCE market data: ', day.strftime('%Y%m%d'))
+        return
+    if (type == 'future'):
+        url = ((ct.DCE_DAILY_URL + '?') + urlencode({'currDate': day.strftime('%Y%m%d'), 'year': day.strftime('%Y'), 'month': str((int(day.strftime('%m')) - 1)), 'day': day.strftime('%d')}))
+        listed_columns = ct.DCE_COLUMNS
+        output_columns = ct.OUTPUT_COLUMNS
+    elif (type == 'option'):
+        url = ((ct.DCE_DAILY_URL + '?') + urlencode({'currDate': day.strftime('%Y%m%d'), 'year': day.strftime('%Y'), 'month': str((int(day.strftime('%m')) - 1)), 'day': day.strftime('%d'), 'dayQuotes.trade_type': '1'}))
+        listed_columns = ct.DCE_OPTION_COLUMNS
+        output_columns = ct.OPTION_OUTPUT_COLUMNS
+    else:
+        print((('invalid type :' + type) + ', should be one of "future" or "option"'))
+        return
+    try:
+        response = urlopen(Request(url, method='POST', headers=ct.DCE_HEADERS)).read().decode('utf8')
+    except IncompleteRead as reason:
+        return get_dce_daily(day, retries=(retries + 1))
+    except HTTPError as reason:
+        if (reason.code == 504):
+            return get_dce_daily(day, retries=(retries + 1))
+        elif (reason.code != 404):
+            print(ct.DCE_DAILY_URL, reason)
+        return
+    if (u'错误：您所请求的网址（URL）无法获取' in response):
+        return get_dce_daily(day, retries=(retries + 1))
+    elif (u'暂无数据' in response):
+        return
+    data = BeautifulSoup(response, 'html.parser').find_all('tr')
+    if (len(data) == 0):
+        return
+    dict_data = list()
+    implied_data = list()
+    for idata in data[1:]:
+        if ((u'小计' in idata.text) or (u'总计' in idata.text)):
+            continue
+        x = idata.find_all('td')
+        if (type == 'future'):
+            row_dict = {'variety': ct.DCE_MAP[x[0].text.strip()]}
+            row_dict['symbol'] = (row_dict['variety'] + x[1].text.strip())
+            for (i, field) in enumerate(listed_columns):
+                field_content = x[(i + 2)].text.strip()
+                if ('-' in field_content):
+                    row_dict[field] = 0
+                elif (field in ['volume', 'open_interest']):
+                    row_dict[field] = int(field_content.replace(',', ''))
+                else:
+                    row_dict[field] = float(field_content.replace(',', ''))
+            dict_data.append(row_dict)
+        elif (len(x) == 16):
+            m = ct.FUTURE_SYMBOL_PATTERN.match(x[1].text.strip())
+            if (not m):
+                continue
+            row_dict = {'symbol': x[1].text.strip(), 'variety': m.group(1).upper(), 'contract_id': m.group(0)}
+            for (i, field) in enumerate(listed_columns):
+                field_content = x[(i + 2)].text.strip()
+                if ('-' in field_content):
+                    row_dict[field] = 0
+                elif (field in ['volume', 'open_interest']):
+                    row_dict[field] = int(field_content.replace(',', ''))
+                else:
+                    row_dict[field] = float(field_content.replace(',', ''))
+            dict_data.append(row_dict)
+        elif (len(x) == 2):
+            implied_data.append({'contract_id': x[0].text.strip(), 'implied_volatility': float(x[1].text.strip())})
+    df = pd.DataFrame(dict_data)
+    df['date'] = day.strftime('%Y%m%d')
+    if (type == 'future'):
+        return df[output_columns]
+    else:
+        return pd.merge(df, pd.DataFrame(implied_data), on='contract_id', how='left', indicator=False)[output_columns]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 21:------------------- similar code ------------------ index = 27, score = 1.0 
+def get_network(self, networks, find_all=False):
+    search_networks = {Network.get(n) for n in networks.split(',')}
+    current_regions = self.view.sel()
+    logger.debug('Searching for network(s) {}'.format(networks))
+    for network in search_networks:
+        if (not network):
+            message = 'Invalid network {}'.format(network)
+            logger.debug(message)
+            self.view.show_popup_menu(message)
+            return
+    else:
+        self.view.sel().clear()
+        self.view.sel().add(sublime.Region(0, 0))
+        found_regions = self.view.find_all(sublime_ip.v4.any, sublime.IGNORECASE)
+        matching_networks = set()
+        found_networks = {self.view.substr(r) for r in found_regions}
+        logger.debug('Found {} IP like objects'.format(len(found_networks)))
+        for found_network in found_networks:
+            if (found_network in matching_networks):
+                continue
+            logger.debug('Getting network "{}"'.format(found_network))
+            for search_network in search_networks:
+                network_object = Network.get(found_network)
+                if (network_object and Network.contains(search_network, network_object)):
+                    matching_networks.add(found_network)
+                    break
+        self.view.sel().clear()
+        if matching_networks:
+            moved_view = False
+            for region in found_regions:
+                cleaned_region = Network.clean_region(self.view, region)
+                if (self.view.substr(cleaned_region) in matching_networks):
+                    self.view.sel().add(cleaned_region)
+                    if (not moved_view):
+                        self.view.show_at_center(cleaned_region.begin())
+                        moved_view = True
+        else:
+            logger.debug('No matches')
+            self.view.sel().add_all(current_regions)
+            self.view.show_at_center(current_regions[0].begin())
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,  ... , find_all=False):
+idx = 22:------------------- similar code ------------------ index = 29, score = 1.0 
+@classmethod
+def find_by_level(cls, level):
+    edges = []
+    for e in cls.find_all():
+        edge = e.duplicate()
+        skips = 0
+        if (edge.node1.group.level < level):
+            skips += 1
+        else:
+            while (edge.node1.group.level != level):
+                edge.node1 = edge.node1.group
+        if (edge.node2.group.level < level):
+            skips += 1
+        else:
+            while (edge.node2.group.level != level):
+                edge.node2 = edge.node2.group
+        if (skips == 2):
+            continue
+        edges.append(edge)
+    return edges
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all():
+idx = 23:------------------- similar code ------------------ index = 36, score = 1.0 
+def test_body(self):
+    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
+    res = self.app.get('/.html')
+    soup = BeautifulSoup(res.text, 'html.parser')
+    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
+    self.assertEqual(soup.form['action'], 'http://localhost/.html')
+    self.assertEqual(soup.form['method'], 'POST')
+    ids = [var.id for var in walk(VerySimpleSequence)]
+    for (h2, id_) in zip(soup.find_all('h2'), ids):
+        self.assertEqual(h2.string, id_)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for in  ... ( ... .find_all,  ... ):
+idx = 24:------------------- similar code ------------------ index = 37, score = 1.0 
+def get_network(self, network, find_all=False):
+    search_network = Network.get(network)
+    current_regions = self.view.sel()
+    logger.debug('Searching for network {}'.format(search_network))
+    if (not search_network):
+        logger.debug('Invalid network {}'.format(network))
+    else:
+        for region in self.view.sel():
+            cursor = region.end()
+            searched_from_start = (cursor is 0)
+            while True:
+                found_region = self.view.find(sublime_ip.v4.any, cursor, sublime.IGNORECASE)
+                if (not found_region):
+                    self.view.sel().clear()
+                    if (not searched_from_start):
+                        self.view.sel().add(sublime.Region(0, 0))
+                        searched_from_start = True
+                        cursor = 0
+                        continue
+                    self.view.sel().add_all(current_regions)
+                    break
+                cleaned_region = Network.clean_region(self.view, found_region)
+                network_re_match = self.view.substr(cleaned_region)
+                logger.debug('Network RE match {}'.format(network_re_match))
+                found_network = Network.get(network_re_match)
+                logger.debug('Network Object {} generated'.format(found_network))
+                if (found_network and Network.contains(search_network, found_network)):
+                    self.view.sel().clear()
+                    self.view.show_at_center(cleaned_region.begin())
+                    logger.debug('Network found in {} {}'.format(cleaned_region.begin(), cleaned_region.end()))
+                    self.view.sel().add(sublime.Region(cleaned_region.begin(), cleaned_region.end()))
+                    break
+                cursor = cleaned_region.end()
+    self._find_input_panel(network)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,  ... , find_all=False):

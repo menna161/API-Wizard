@@ -1,0 +1,495 @@
+------------------------- example 1 ------------------------ 
+def pull_image(self, index):
+    'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
+    img_id = self.ids[index]
+    return cv2.imread((self._imgpath % img_id), cv2.IMREAD_COLOR)
+
+------------------------- example 2 ------------------------ 
+def create_mask(img_id, data_dir):
+    labels_dir = os.path.join(data_dir, 'labels')
+// your code ...
+
+    labels = cv2.imread(path.join(labels_dir, '{0}.tif'.format(img_id)), cv2.IMREAD_UNCHANGED)
+    final_mask = np.zeros((labels.shape[0], labels.shape[1], 3))
+    if (np.sum(labels) == 0):
+// your code ...
+
+    if (ships_num > 0):
+        for i in range(1, (ships_num + 1)):
+// your code ...
+
+    final_mask[(..., 2)] = create_separation(labels)
+// your code ...
+
+
+------------------------- example 3 ------------------------ 
+def test(self):
+    for i in range(1, 9):
+        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
+        now = datetime.now()
+// your code ...
+
+        for bbox in bboxes:
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        if (max(im.shape[:2]) > 1440):
+// your code ...
+
+
+------------------------- example 4 ------------------------ 
+def save_mask_and_label(image_name):
+    mask_path = os.path.join('train_labels', 'masks', image_name)
+    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+    (labeled_array, _) = label(mask)
+    label_path = os.path.join('train_labels', 'labels', image_name)
+    os.makedirs(os.path.join('train_labels', 'labels'), exist_ok=True)
+    cv2.imwrite(label_path, labeled_array)
+// your code ...
+
+
+------------------------- example 5 ------------------------ 
+if (__name__ == '__main__'):
+    isp = ISP()
+    path = './figs/01_gt.png'
+    img = cv2.imread(path)
+    np.array(img, dtype='uint8')
+    img = (img.astype('double') / 255.0)
+    img_rgb = isp.BGR2RGB(img)
+// your code ...
+
+    show_img = np.concatenate((img, cv2.merge([(noise_map / 255), (noise_map / 255), (noise_map / 255)]), cv2.merge([noise, noise, noise])), axis=1)
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+// your code ...
+
+    cv2.waitKey(0)
+    "\n    img_Ibgr = isp.RGB2BGR(img_Irgb)\n    cv2.imwrite('./figs/01_inverse.png', img_Ibgr*255)\n    "
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          3           ||        4         ||         0        
+example2  ||          5           ||        12         ||         4        
+example3  ||          3           ||        9         ||         2        
+example4  ||          4           ||        8         ||         1        
+example5  ||          4           ||        13         ||         2        
+
+avg       ||          3.8           ||        9.2         ||         1.8        
+
+idx = 0:------------------- similar code ------------------ index = 20, score = 6.0 
+def pull_image(self, index):
+    'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
+    img_id = self.ids[index]
+    return cv2.imread((self._imgpath % img_id), cv2.IMREAD_COLOR)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return cv2.imread
+
+idx = 1:------------------- similar code ------------------ index = 14, score = 6.0 
+def pull_image(self, index):
+    'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            cv2 img\n        '
+    img_id = self.ids[index]
+    path = self.coco.loadImgs(img_id)[0]['file_name']
+    return cv2.imread(osp.join(self.root, path), cv2.IMREAD_COLOR)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return cv2.imread
+
+idx = 2:------------------- similar code ------------------ index = 16, score = 6.0 
+def pull_image(self, index):
+    'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
+    return cv2.imread(self.img_ids[index], cv2.IMREAD_COLOR)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return cv2.imread
+
+idx = 3:------------------- similar code ------------------ index = 13, score = 6.0 
+def create_mask(img_id, data_dir):
+    labels_dir = os.path.join(data_dir, 'labels')
+    masks_dir = os.path.join(data_dir, 'masks_all')
+    os.makedirs(labels_dir, exist_ok=True)
+    os.makedirs(masks_dir, exist_ok=True)
+    labels = cv2.imread(path.join(labels_dir, '{0}.tif'.format(img_id)), cv2.IMREAD_UNCHANGED)
+    final_mask = np.zeros((labels.shape[0], labels.shape[1], 3))
+    if (np.sum(labels) == 0):
+        cv2.imwrite(path.join(masks_dir, '{0}.png'.format(img_id)), final_mask, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+        return final_mask
+    ships_num = np.max(labels)
+    if (ships_num > 0):
+        for i in range(1, (ships_num + 1)):
+            ship_mask = np.zeros_like(labels, dtype='bool')
+            ship_mask[(labels == i)] = 1
+            area = np.sum(ship_mask)
+            if (area < 200):
+                contour_size = 1
+            elif (area < 500):
+                contour_size = 2
+            else:
+                contour_size = 3
+            eroded = binary_erosion(ship_mask, iterations=contour_size)
+            countour_mask = (ship_mask ^ eroded)
+            final_mask[(..., 0)] += ship_mask
+            final_mask[(..., 1)] += countour_mask
+    final_mask[(..., 2)] = create_separation(labels)
+    msk = np.clip((final_mask * 255), 0, 255)
+    cv2.imwrite(path.join(masks_dir, '{0}.png'.format(img_id)), msk, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 4:------------------- similar code ------------------ index = 3, score = 6.0 
+if (__name__ == '__main__'):
+    t0 = timeit.default_timer()
+    makedirs('/wdata/merged_pred', exist_ok=True)
+    for fid in tqdm(listdir(path.join('/wdata', pred_folders[0]))):
+        used_msks = []
+        for pr_f in pred_folders:
+            msk1 = cv2.imread(path.join('/wdata', pr_f, '{0}.png'.format(fid.split('.')[0])), cv2.IMREAD_UNCHANGED)
+            used_msks.append(msk1)
+        msk = np.zeros_like(used_msks[0], dtype='float')
+        for i in range(len(pred_folders)):
+            p = used_msks[i]
+            msk += p.astype('float')
+        msk /= len(used_msks)
+        cv2.imwrite(path.join('/wdata/merged_pred', fid), msk.astype('uint8'), [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    elapsed = (timeit.default_timer() - t0)
+    print('Time: {:.3f} min'.format((elapsed / 60)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    for  ...  in:
+        for  ...  in  ... :
+             ...  = cv2.imread
+
+idx = 5:------------------- similar code ------------------ index = 5, score = 6.0 
+def test(self):
+    for i in range(1, 9):
+        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
+        now = datetime.now()
+        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
+        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
+        for bbox in bboxes:
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        if (max(im.shape[:2]) > 1440):
+            scale = (1440 / max(im.shape[:2]))
+            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+        cv2.imshow('im', im)
+        cv2.waitKey(5000)
+        cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 6:------------------- similar code ------------------ index = 19, score = 6.0 
+def process_image(fid):
+    fid = (fid + '.png')
+    used_msks = []
+    for pr_f in pred_folders:
+        msk1 = cv2.imread(path.join('/wdata/', pr_f, '{0}.png'.format(fid.split('.')[0])), cv2.IMREAD_UNCHANGED)
+        used_msks.append(msk1)
+    msk = np.zeros_like(used_msks[0], dtype='float')
+    for i in range(len(pred_folders)):
+        p = used_msks[i]
+        msk += (coefs[i] * p.astype('float'))
+    msk /= np.sum(coefs)
+    cv2.imwrite(path.join('/wdata/merged_oof', fid), msk.astype('uint8'), [cv2.IMWRITE_PNG_COMPRESSION, 9])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in  ... :
+         ...  = cv2.imread
+
+idx = 7:------------------- similar code ------------------ index = 12, score = 6.0 
+def save_mask_and_label(image_name):
+    mask_path = os.path.join('train_labels', 'masks', image_name)
+    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+    (labeled_array, _) = label(mask)
+    label_path = os.path.join('train_labels', 'labels', image_name)
+    os.makedirs(os.path.join('train_labels', 'labels'), exist_ok=True)
+    cv2.imwrite(label_path, labeled_array)
+    create_mask(image_name[:(- 4)], 'train_labels')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 8:------------------- similar code ------------------ index = 0, score = 6.0 
+if (__name__ == '__main__'):
+    isp = ISP()
+    path = './figs/01_gt.png'
+    img = cv2.imread(path)
+    np.array(img, dtype='uint8')
+    img = (img.astype('double') / 255.0)
+    img_rgb = isp.BGR2RGB(img)
+    "\n    print('ISP test 1:')\n    # -------- INVERSE ISP PROCESS -------------------\n    # Step 1 : inverse tone mapping\n    img_L = isp.ICRF_Map(img_rgb, index=10)\n    # Step 2 : from RGB to XYZ\n    img_XYZ = isp.RGB2XYZ(img_L)\n    # Step 3: from XYZ to Cam\n    xyz2cam = np.array([1.0234, -0.2969, -0.2266, -0.5625, 1.6328, -0.0469, -0.0703, 0.2188, 0.6406])\n    img_Cam = isp.XYZ2CAM(img_XYZ, xyz2cam)\n    # Step 4: Mosaic\n    img_mosaic = isp.mosaic_bayer(img_Cam)\n\n    # -------- ADDING POISSON-GAUSSIAN NOISE ON RAW -\n    # Mode1: set sigma_s and sigma_c\n    # img_mosaic_noise = isp.add_PG_noise(img_mosaic, sigma_s=0.01, sigma_c=0.02)\n    # Mode2: set random sigma_s and sigma_c\n    img_mosaic_noise = isp.add_PG_noise(img_mosaic)\n\n    # -------- ISP PROCESS --------------------------\n    # Step 4 : Demosaic\n    img_demosaic = isp.Demosaic(img_mosaic_noise)\n    # Step 3 : from Cam to XYZ\n    img_IXYZ = isp.CAM2XYZ(img_demosaic, xyz2cam)\n    # Step 2 : frome XYZ to RGB\n    img_IL = isp.XYZ2RGB(img_IXYZ)\n    # Step 1 : tone mapping\n    img_Irgb = isp.CRF_Map(img_IL, index=10)\n    "
+    "\n    # Observe the images\n    show_img = np.concatenate((img,\n                               isp.RGB2BGR(img_Irgb),\n                               cv2.merge([img_mosaic, img_mosaic, img_mosaic]),\n                               isp.RGB2BGR(img_demosaic)\n                               ), axis=1)\n    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)\n    cv2.imshow('Image', show_img)\n    cv2.waitKey(0)\n    "
+    "\n    print('ISP test 2:')\n    gt, noise = isp.cbdnet_noise_generate_srgb(img_rgb)\n\n    # Observe the images\n    show_img = np.concatenate((img,\n                               isp.RGB2BGR(gt),\n                               isp.RGB2BGR(noise)\n                               ), axis=1)\n    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)\n    cv2.imshow('Image', show_img)\n    cv2.waitKey(0)\n    "
+    print('ISP test 3:')
+    (gt, noise) = isp.cbdnet_noise_generate_raw(img_rgb)
+    print(noise_map)
+    show_img = np.concatenate((img, cv2.merge([(noise_map / 255), (noise_map / 255), (noise_map / 255)]), cv2.merge([noise, noise, noise])), axis=1)
+    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
+    cv2.imshow('Image', show_img)
+    cv2.waitKey(0)
+    "\n    img_Ibgr = isp.RGB2BGR(img_Irgb)\n    cv2.imwrite('./figs/01_inverse.png', img_Ibgr*255)\n    "
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = cv2.imread
+
+idx = 9:------------------- similar code ------------------ index = 18, score = 6.0 
+def ensemble_image(params):
+    (file, dirs, ensembling_dir, strategy) = params
+    images = []
+    for dir in dirs:
+        file_path = os.path.join(dir, file)
+        images.append(cv2.imread(file_path, cv2.IMREAD_COLOR))
+    images = np.array(images)
+    if (strategy == 'average'):
+        ensembled = average_strategy(images)
+    elif (strategy == 'hard_voting'):
+        ensembled = hard_voting(images)
+    else:
+        raise ValueError('Unknown ensembling strategy')
+    cv2.imwrite(os.path.join(ensembling_dir, file), ensembled)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in  ... :
+         ... . ... (cv2.imread)
+
+idx = 10:------------------- similar code ------------------ index = 15, score = 5.0 
+def calc(f):
+    label = cv2.imread(os.path.join(preds_dir, f), cv2.IMREAD_UNCHANGED)
+    label_file = (('mask_' + '_'.join(f[:(- 4)].split('_')[(- 2):])) + '.tif')
+    gt_label = cv2.imread(os.path.join(labels_dir, label_file), cv2.IMREAD_UNCHANGED)
+    res = calc_score(gt_label, label)
+    nadir = int(f.split('_')[2].lstrip('nadir'))
+    return (nadir, res)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 11:------------------- similar code ------------------ index = 11, score = 5.0 
+def check_id(id: str):
+    labels = cv2.imread(path.join(masks_folder, (('mask_' + '_'.join(id[:(- 4)].split('_')[(- 2):])) + '.tif')), cv2.IMREAD_UNCHANGED)
+    if (np.max(labels) > 255):
+        print('FUCK', str(np.max(labels)))
+    mask = cv2.imread(os.path.join(train_pred_folder, id), cv2.IMREAD_COLOR)[(..., 0)]
+    return (id if ((np.max(labels) > 1) and (np.sum(mask) > (200 * 255))) else None)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 12:------------------- similar code ------------------ index = 9, score = 5.0 
+def __getitem__(self, idx):
+    imageid = self.image_ids[idx]
+    im = get_image(imageid, basepath=self.basepath, rgbdir='train_rgb')
+    assert (im is not None)
+    locid = '_'.join(imageid.split('_')[(- 2):])
+    mask = cv2.imread(f'{self.basepath}/masks/mask_{locid}.tif', cv2.IMREAD_GRAYSCALE)
+    assert (mask is not None)
+    augmented = self.aug(image=im, mask=mask)
+    mask_ = (augmented['mask'] > 0).astype(np.uint8)
+    mask_ = torch.from_numpy(np.expand_dims(mask_, 0)).float()
+    label_ = torch.from_numpy(np.expand_dims(augmented['mask'], 0)).float()
+    return (img_to_tensor(augmented['image']), mask_, label_, imageid)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 13:------------------- similar code ------------------ index = 8, score = 5.0 
+def __getitem__(self, idx):
+    try:
+        img = tifffile.imread(os.path.join(self.data_path, self.names[idx]))
+    except Exception as e:
+        print(os.path.join(self.data_path, self.names[idx]))
+        raise e
+    if (np.shape(img)[0] == 4):
+        img = np.moveaxis(img, 0, (- 1))
+    img = stretch_8bit(img)
+    mask = cv2.imread(os.path.join('train_labels', 'masks_all', (('mask_' + '_'.join(self.names[idx][:(- 4)].split('_')[(- 2):])) + '.png')), cv2.IMREAD_COLOR)
+    if (mask is None):
+        mask = []
+    else:
+        mask = (mask / 255.0)
+    nadir = nadirs['all'].index(self.names[idx].split('/')[0])
+    angle = np.zeros((1, 1, 27))
+    angle[(0, 0, nadir)] = 1
+    sample = {'img': img, 'mask': mask, 'img_name': self.names[idx], 'angle': angle}
+    if self.transform:
+        sample = self.transform(sample)
+    return sample
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 14:------------------- similar code ------------------ index = 7, score = 5.0 
+def get_image(imageid, basepath='/wdata/dataset', rgbdir='train_rgb'):
+    fn = f'{basepath}/{rgbdir}/Pan-Sharpen_{imageid}.tif'
+    img = cv2.imread(fn, cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 15:------------------- similar code ------------------ index = 6, score = 5.0 
+if (__name__ == '__main__'):
+    t0 = timeit.default_timer()
+    sub_name = 'submission.csv'
+    if (len(sys.argv) > 1):
+        sub_name = sys.argv[2]
+    df = []
+    for fid in tqdm(listdir(lgbm_pred)):
+        y_pred = cv2.imread(path.join(lgbm_pred, fid), cv2.IMREAD_UNCHANGED)
+        if (y_pred.max() > 0):
+            for i in range(1, (y_pred.max() + 1)):
+                mask = (255 * (y_pred == i))
+                mask = mask.astype('uint8')
+                wkt = mask_to_polygons(mask)
+                df.append({'ImageId': fid.split('.tif')[0], 'BuildingId': i, 'PolygonWKT_Pix': wkt, 'Confidence': 1})
+        else:
+            df.append({'ImageId': fid.split('.tif')[0], 'BuildingId': (- 1), 'PolygonWKT_Pix': 'POLYGON EMPTY', 'Confidence': 1})
+    df = pd.DataFrame(df, columns=['ImageId', 'BuildingId', 'PolygonWKT_Pix', 'Confidence'])
+    df.to_csv(('/wdata/' + sub_name), index=False)
+    elapsed = (timeit.default_timer() - t0)
+    print('Time: {:.3f} min'.format((elapsed / 60)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 16:------------------- similar code ------------------ index = 4, score = 5.0 
+def light_test_oneimage():
+    cfg = widerface_640
+    num_classes = (len(WIDERFace_CLASSES) + 1)
+    net = build_ssd('test', cfg['min_dim'], num_classes)
+    net.load_state_dict(torch.load(args.trained_model))
+    net.cuda()
+    net.eval()
+    print('Finished loading model!')
+    cuda = args.cuda
+    transform = TestBaseTransform((104, 117, 123))
+    thresh = cfg['conf_thresh']
+    path = './data/yuebing.jpg'
+    img_id = 'result'
+    img = cv2.imread(path, cv2.IMREAD_COLOR)
+    shrink = 1
+    det = infer(net, img, transform, thresh, cuda, shrink)
+    vis_detections(img, det, img_id, 0.6)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 17:------------------- similar code ------------------ index = 2, score = 5.0 
+def demo(args, num, savename):
+    palette = np.random.randint(0, 256, (1000, 3)).astype(np.uint8)
+    with open(args.data_list) as f:
+        names = [x.strip() for x in f.readlines()]
+    demo_images = []
+    for name in names[:num]:
+        img = cv2.imread(os.path.join(args.image_root, (name + '.jpg')))
+        sp0 = cv2.imread(os.path.join(args.superpixel_root, (name + '.png'))).astype(np.int32)
+        sp1 = cv2.imread(os.path.join(args.save_superpixel_root, (name + '.png'))).astype(np.int32)
+        sp0 = ((sp0[(..., 0)] + (sp0[(..., 1)] * 256)) + (sp0[(..., 2)] * 65536))
+        sp1 = ((sp1[(..., 0)] + (sp1[(..., 1)] * 256)) + (sp1[(..., 2)] * 65536))
+        sp0 = palette[sp0.ravel()].reshape(img.shape)
+        sp1 = palette[sp1.ravel()].reshape(img.shape)
+        demo_images.append(imhstack([img, sp0, sp1], height=240))
+    demo_images = imvstack(demo_images)
+    imwrite(savename, demo_images)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 18:------------------- similar code ------------------ index = 1, score = 5.0 
+def _internal_test(mask_dir, out_file):
+    fn_out = out_file
+    with open(fn_out, 'w') as f:
+        f.write('ImageId,BuildingId,PolygonWKT_Pix,Confidence\n')
+        test_image_list = os.listdir(os.path.join(mask_dir))
+        for (idx, image_id) in tqdm(enumerate(test_image_list), total=len(test_image_list)):
+            img1 = cv2.imread(os.path.join(mask_dir, image_id), cv2.IMREAD_UNCHANGED)
+            labels = img1.astype(np.uint16)
+            df_poly = mask_to_poly(labels, min_polygon_area_th=MIN_AREA)
+            if (len(df_poly) > 0):
+                for (i, row) in df_poly.iterrows():
+                    line = '{},{},"{}",{:.6f}\n'.format(image_id.lstrip('Pan-Sharpen_').rstrip('.tif'), row.bid, row.wkt, row.area_ratio)
+                    line = _remove_interiors(line)
+                    f.write(line)
+            else:
+                f.write('{},{},{},0\n'.format(image_id, (- 1), 'POLYGON EMPTY'))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        for in:
+             ...  = cv2.imread
+
+idx = 19:------------------- similar code ------------------ index = 10, score = 5.0 
+def _image(self, path):
+    image = {}
+    print(path)
+    img = cv2.imread((self.image_dir + path))
+    image['height'] = img.shape[0]
+    image['width'] = img.shape[1]
+    image['id'] = self.img_id
+    image['file_name'] = path
+    return image
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 20:------------------- similar code ------------------ index = 17, score = 3.0 
+def compute_iou(names, num_cls, target_root, gt_root, num_threads=16, arr_=None):
+    _compute_iou = (lambda x: (np.diag(x) / (((x.sum(axis=0) + x.sum(axis=1)) - np.diag(x)) + 1e-10)))
+    if isinstance(names, str):
+        with open(names) as f:
+            names = [name.strip() for name in f.readlines()]
+    if (num_threads == 1):
+        mat = np.zeros((num_cls, num_cls), np.float32)
+        for name in names:
+            gt = cv2.imread(os.path.join(gt_root, (name + '.png')), 0).astype(np.int32)
+            pred = cv2.imread(os.path.join(target_root, (name + '.png')), 0).astype(np.int32)
+            if (gt.shape != pred.shape):
+                info(None, 'Name {}, gt.shape != pred.shape: [{} vs. {}]'.format(name, gt.shape, pred.shape))
+                continue
+            valid = ((gt < num_cls) & (pred < num_cls))
+            mat += np.bincount(((gt[valid] * num_cls) + pred[valid]), minlength=(num_cls ** 2)).reshape(num_cls, (- 1))
+        if (arr_ is not None):
+            arr_mat = np.frombuffer(arr_.get_obj(), np.float32)
+            arr_mat += mat.ravel()
+        else:
+            return _compute_iou(mat.copy())
+    else:
+        workload = np.full((num_threads,), (len(names) // num_threads), np.int32)
+        if (workload.sum() < len(names)):
+            workload[:(len(names) - workload.sum())] += 1
+        workload = np.cumsum(np.hstack([0, workload]))
+        names_split = [names[i:j] for (i, j) in zip(workload[:(- 1)], workload[1:])]
+        arr_ = mp.Array('f', np.zeros(((num_cls * num_cls),), np.float32))
+        mat = np.frombuffer(arr_.get_obj(), np.float32).reshape(num_cls, (- 1))
+        jobs = [mp.Process(target=compute_iou, args=(_names, num_cls, target_root, gt_root, 1, arr_)) for _names in names_split]
+        [job.start() for job in jobs]
+        [job.join() for job in jobs]
+        return _compute_iou(mat.copy())
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    if:
+        for  ...  in  ... :
+             ...  = cv2.imread
+

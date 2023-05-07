@@ -2,9 +2,8 @@
 def train_models(self, y_train):
     self.models = []
     if (self.experiment.multinomial_type == 'manual'):
-        for i in range(0, self.c):
-            (m, r) = self.get_mdl(get_class_column(y_train, i))
-            self.models.append((m, r))
+// your code ...
+
     elif ((self.experiment.multinomial_type == 'multinomial') or (self.experiment.multinomial_type == 'ovr')):
         m = LogisticRegression(C=self.experiment.C, penalty=self.experiment.penalty, dual=self.experiment.dual, solver=self.experiment.solver, max_iter=self.experiment.max_iter, multi_class=self.experiment.multinomial_type, class_weight=self.experiment.class_weight)
         x_nb = self.trn_term_doc
@@ -14,11 +13,59 @@ def train_models(self, y_train):
 
 
 examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        12         ||         1        
+example1  ||          3           ||        10         ||         2        
 
-avg       ||          2.0           ||        12.0         ||         1.0        
+avg       ||          3.0           ||        10.0         ||         2.0        
 
-idx = 0:------------------- similar code ------------------ index = 2, score = 1.0 
+idx = 0:------------------- similar code ------------------ index = 4, score = 1.0 
+def train(plasfile, chromfile, outdir, num_procs, ks=[3, 4, 5, 6, 7], lens=[1000, 10000, 100000, 500000]):
+    ' Train PlasClass models\n    '
+    print('Starting PlasClass training')
+    print('Getting reference lengths')
+    (chrom_names, chrom_lengths) = get_seq_lengths(chromfile)
+    (plas_names, plas_lengths) = get_seq_lengths(plasfile)
+    for l in lens:
+        coverage = 5
+        num_frags = get_num_frags(plas_lengths, l, coverage)
+        print('Sampling {} fragments for length {}'.format(num_frags, l))
+        plas_start_inds = get_start_inds(plas_names, plas_lengths, num_frags, l)
+        chrom_start_inds = get_start_inds(chrom_names, chrom_lengths, num_frags, l)
+        plas_seqs = get_seqs(plasfile, plas_start_inds, l)
+        chrom_seqs = get_seqs(chromfile, chrom_start_inds, l)
+        print('Getting k-mer frequencies')
+        (kmer_inds, kmer_count_lens) = utils.compute_kmer_inds(ks)
+        pool = mp.Pool(num_procs)
+        plas_list = Manager().list()
+        for cur in np.arange(len(plas_seqs)):
+            plas_list.append(0)
+        pool.map(utils.count_kmers, [[ind, s, ks, kmer_inds, kmer_count_lens, plas_list] for (ind, s) in enumerate(plas_seqs)])
+        plas_freqs = np.array(plas_list)
+        chrom_list = Manager().list()
+        for cur in np.arange(len(chrom_seqs)):
+            chrom_list.append(0)
+        pool.map(utils.count_kmers, [[ind, s, ks, kmer_inds, kmer_count_lens, chrom_list] for (ind, s) in enumerate(chrom_seqs)])
+        chrom_freqs = np.array(chrom_list)
+        pool.close()
+        print('Learning classifier')
+        plas_labels = np.ones(plas_freqs.shape[0])
+        chrom_labels = np.zeros(chrom_freqs.shape[0])
+        data = np.concatenate((plas_freqs, chrom_freqs))
+        labels = np.concatenate((plas_labels, chrom_labels))
+        scaler = StandardScaler().fit(data)
+        scaled = scaler.transform(data)
+        clf = LogisticRegression(solver='liblinear').fit(scaled, labels)
+        print('Saving classifier')
+        clf_name = ('m' + str(l))
+        scaler_name = ('s' + str(l))
+        dump(clf, os.path.join(outdir, clf_name))
+        dump(scaler, os.path.join(outdir, scaler_name))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... :
+         ...  = LogisticRegression
+
+idx = 1:------------------- similar code ------------------ index = 3, score = 1.0 
 def train_models(self, y_train):
     self.models = []
     if (self.experiment.multinomial_type == 'manual'):
@@ -37,7 +84,7 @@ def  ... ():
     if:    elif:
          ...  = LogisticRegression
 
-idx = 1:------------------- similar code ------------------ index = 1, score = 1.0 
+idx = 2:------------------- similar code ------------------ index = 2, score = 1.0 
 def get_mdl(self, y):
     y = y.values
     r = np.log((self.pr(1, y) / self.pr(0, y)))
@@ -48,4 +95,13 @@ def get_mdl(self, y):
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  = LogisticRegression
+
+idx = 3:------------------- similar code ------------------ index = 1, score = 1.0 
+def __init__(self, penalty='l2', C=100, tol=0.01, class_weight=None, max_iter=100):
+    ' The Invariants Mining model for anomaly detection\n\n        Attributes\n        ----------\n            classifier: object, the classifier for anomaly detection\n        '
+    self.classifier = LogisticRegression(penalty=penalty, C=C, tol=tol, class_weight=class_weight, max_iter=max_iter)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = LogisticRegression
 

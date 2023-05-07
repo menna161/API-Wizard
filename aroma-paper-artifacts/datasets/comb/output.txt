@@ -1,0 +1,22 @@
+examples  ||  representativeness  ||  number of lines  || number of comments 
+
+avg       ||          0           ||        0         ||         0        
+
+idx = 0:------------------- similar code ------------------ index = 1, score = 1.0 
+def get_n_boards_LUT(self):
+    _c = self.get_n_cards_dealt_in_transition_to_LUT()
+    return {r: comb(N=(self.rules.N_RANKS * self.rules.N_SUITS), k=_c[r], exact=True, repetition=False) for r in self.rules.ALL_ROUNDS_LIST}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return { ... : comb}
+
+idx = 1:------------------- similar code ------------------ index = 0, score = 1.0 
+def bernstein_poly(i, n, t):
+    '\n     The Bernstein polynomial of n, i as a function of t\n    '
+    return ((comb(n, i) * (t ** (n - i))) * ((1 - t) ** i))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return ((comb *) *)
+

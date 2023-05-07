@@ -1,11 +1,234 @@
 ------------------------- example 1 ------------------------ 
+def collision(path1, path2, n_predictions=12, person_radius=0.1, inter_parts=2):
+    'Check if there is collision or not'
+// your code ...
+
+
+    def getinsidepoints(p1, p2, parts=2):
+        'return: equally distanced points between starting and ending "control" points'
+        return np.array((np.linspace(p1[0], p2[0], (parts + 1)), np.linspace(p1[1], p2[1], (parts + 1))))
+    for i in range((len(path1) - 1)):
+// your code ...
+
+    return False
+
+------------------------- example 2 ------------------------ 
+def cLinspace(start, end, N):
+    if (N == 1):
+        return np.mean([start, end])
+    else:
+        return np.linspace(start, end, N)
+
+------------------------- example 3 ------------------------ 
+def convert_trans_patterns(trans_segments):
+    'Convert translation patterns from lists of start-end-steps to one single array'
+    return np.concatenate(list((np.linspace(start=start, stop=stop, num=num) for (start, stop, num) in trans_segments)))
+
+------------------------- example 4 ------------------------ 
+@parameter(name='treatment_bias', default=0.8, values=np.linspace(0.5, 1.0, 5), description='Treatment probability bias between low and high pollution runs.')
+def pollution_confounded_propensity(intervention, untreated_runs, treatment_bias):
+//
+------------------------- example 5 ------------------------ 
+def test_nondefault_nbins(self):
+    '\n        Testing correct generation of hist_bins with a non-default nbins\n        '
+    for nbins in [128, 256, 512]:
+        bd = (np.arange(1025) - 0.5)
+        xd = np.linspace(0, 1, len(bd))
+        xs = np.linspace(0, 1, (nbins + 1))
+// your code ...
+
+        np.testing.assert_array_equal(self.d[0].hist_bins('FSC-H', nbins=nbins, scale='linear'), bins)
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        8         ||         2        
+example2  ||          2           ||        5         ||         0        
+example3  ||          2           ||        3         ||         0        
+example4  ||          3           ||        2         ||         0        
+example5  ||          5           ||        8         ||         1        
+
+avg       ||          2.8           ||        5.2         ||         0.6        
+
+idx = 0:------------------- similar code ------------------ index = 86, score = 6.0 
+def collision(path1, path2, n_predictions=12, person_radius=0.1, inter_parts=2):
+    'Check if there is collision or not'
+    assert (len(path1) >= n_predictions)
+    path1 = path1[(- n_predictions):]
+    frames1 = set((f1.frame for f1 in path1))
+    frames2 = set((f2.frame for f2 in path2))
+    common_frames = frames1.intersection(frames2)
+    if (not common_frames):
+        return False
+    path1 = [path1[i] for i in range(len(path1)) if (path1[i].frame in common_frames)]
+    path2 = [path2[i] for i in range(len(path2)) if (path2[i].frame in common_frames)]
+
+    def getinsidepoints(p1, p2, parts=2):
+        'return: equally distanced points between starting and ending "control" points'
+        return np.array((np.linspace(p1[0], p2[0], (parts + 1)), np.linspace(p1[1], p2[1], (parts + 1))))
+    for i in range((len(path1) - 1)):
+        (p1, p2) = ([path1[i].x, path1[i].y], [path1[(i + 1)].x, path1[(i + 1)].y])
+        (p3, p4) = ([path2[i].x, path2[i].y], [path2[(i + 1)].x, path2[(i + 1)].y])
+        if (np.min(np.linalg.norm((getinsidepoints(p1, p2, inter_parts) - getinsidepoints(p3, p4, inter_parts)), axis=0)) <= (2 * person_radius)):
+            return True
+    return False
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    def  ... ():
+        return np. ... (( ... .linspace,))
+    return False
+
+idx = 1:------------------- similar code ------------------ index = 89, score = 6.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_custom_model(amplitude=4, frequency=1):
+
+    def sine_model(x, amplitude=4, frequency=1):
+        '\n        Model function\n        '
+        return (amplitude * np.sin((((2 * np.pi) * frequency) * x)))
+
+    def sine_deriv(x, amplitude=4, frequency=1):
+        '\n        Jacobian of model function, e.g. derivative of the function with\n        respect to the *parameters*\n        '
+        da = np.sin((((2 * np.pi) * frequency) * x))
+        df = ((((2 * np.pi) * x) * amplitude) * np.cos((((2 * np.pi) * frequency) * x)))
+        return np.vstack((da, df))
+    SineModel = models.custom_model(sine_model, fit_deriv=sine_deriv)
+    x = np.linspace(0, 4, 50)
+    sin_model = SineModel()
+    sin_model.evaluate(x, 5.0, 2.0)
+    sin_model.fit_deriv(x, 5.0, 2.0)
+    np.random.seed(0)
+    data = ((sin_model(x) + np.random.rand(len(x))) - 0.5)
+    fitter = fitting.LevMarLSQFitter()
+    model = fitter(sin_model, x, data)
+    assert np.all(((np.array([model.amplitude.value, model.frequency.value]) - np.array([amplitude, frequency])) < 0.001))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+
+    def  ... ():
+        return np
+     ...  =  ... .linspace
+
+idx = 2:------------------- similar code ------------------ index = 121, score = 6.0 
+def cLinspace(start, end, N):
+    if (N == 1):
+        return np.mean([start, end])
+    else:
+        return np.linspace(start, end, N)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:    else:
+        return np.linspace
+
+idx = 3:------------------- similar code ------------------ index = 96, score = 6.0 
+def convert_trans_patterns(trans_segments):
+    'Convert translation patterns from lists of start-end-steps to one single array'
+    return np.concatenate(list((np.linspace(start=start, stop=stop, num=num) for (start, stop, num) in trans_segments)))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return np. ... ( ... (( ... .linspace)))
+
+idx = 4:------------------- similar code ------------------ index = 105, score = 6.0 
+def cLinspace(start, end, N):
+    if (N == 1):
+        return np.mean([start, end])
+    else:
+        return np.linspace(start, end, N)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:    else:
+        return np.linspace
+
+idx = 5:------------------- similar code ------------------ index = 15, score = 6.0 
+def getinsidepoints(p1, p2, parts=2):
+    'return: equally distanced points between starting and ending "control" points'
+    return np.array((np.linspace(p1[0], p2[0], (parts + 1)), np.linspace(p1[1], p2[1], (parts + 1))))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return np. ... (( ... .linspace,))
+
+idx = 6:------------------- similar code ------------------ index = 74, score = 6.0 
+def convert_rot_patterns(rot_segments):
+    'Convert rotation patterns from lists of start-end-steps to one single array'
+    return np.concatenate(list((np.linspace(start=deg2rad(start), stop=deg2rad(stop), num=num) for (start, stop, num) in rot_segments)))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return np. ... ( ... (( ... .linspace)))
+
+idx = 7:------------------- similar code ------------------ index = 33, score = 6.0 
+@parameter(name='treatment_bias', default=0.8, values=np.linspace(0.5, 1.0, 5), description='Treatment probability bias between low and high pollution runs.')
+def pollution_confounded_propensity(intervention, untreated_runs, treatment_bias):
+    'Probability of treating each unit.\n\n    To generate confounding, we are more likely to treat worlds with high pollution.\n    '
+
+    def persistent_pollution(run):
+        return run[intervention.time].persistent_pollution
+    pollution = [persistent_pollution(run) for run in untreated_runs]
+    upper_quantile = np.quantile(pollution, 0.9)
+
+    def treatment_prob(idx):
+        if (pollution[idx] > upper_quantile):
+            return treatment_bias
+        return (1.0 - treatment_bias)
+    return np.array([treatment_prob(idx) for idx in range(len(untreated_runs))])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+@ ... (,,  ... =np.linspace,)
+
+idx = 8:------------------- similar code ------------------ index = 25, score = 6.0 
+def test_nondefault_nbins(self):
+    '\n        Testing correct generation of hist_bins with a non-default nbins\n        '
+    for nbins in [128, 256, 512]:
+        bd = (np.arange(1025) - 0.5)
+        xd = np.linspace(0, 1, len(bd))
+        xs = np.linspace(0, 1, (nbins + 1))
+        bins = np.interp(xs, xd, bd)
+        np.testing.assert_array_equal(self.d[0].hist_bins('FSC-H', nbins=nbins, scale='linear'), bins)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in:
+         ...  = np.linspace
+
+idx = 9:------------------- similar code ------------------ index = 56, score = 6.0 
+def smooth_lsf_fft(wave, spec, outwave, sigma=None, lsf=None, pix_per_sigma=2, eps=0.25, preserve_all_input_frequencies=False, **kwargs):
+    'Smooth a spectrum by a wavelength dependent line-spread function, using\n    FFTs.\n\n    Parameters\n    ----------\n    wavelength : ndarray of shape ``(N_pix,)``\n        Wavelength vector of the input spectrum.\n\n    spectrum : ndarray of shape ``(N_pix,)``\n        Flux vector of the input spectrum.\n\n    outwave : ndarray of shape ``(N_pix_out,)``\n        Desired output wavelength vector.\n\n    sigma : ndarray of shape ``(N_pix,)`` (optional)\n        Dispersion (in same units as ``wave``) as a function `wave`.  If not\n        given, sigma will be computed from the function provided by the ``lsf``\n        keyword.\n\n    lsf : callable (optional)\n        Function used to calculate the dispersion as a function of wavelength.\n        Must be able to take as an argument the ``wave`` vector and any extra\n        keyword arguments and return the dispersion (in the same units as the\n        input wavelength vector) at every value of ``wave``.  If not provided\n        then ``sigma`` must be specified.\n\n    pix_per_sigma : float (optional, default: 2)\n        Number of pixels per sigma of the smoothed spectrum to use in\n        intermediate interpolation and FFT steps. Increasing this number will\n        increase the accuracy of the output (to a point), and the run-time, by\n        preserving all high-frequency information in the input spectrum.\n\n    preserve_all_input_frequencies : bool (default: False)\n        This is a switch to use a very dense sampling of the input spectrum that\n        preserves all input frequencies.  It can significantly increase the call\n        time for often modest gains...\n\n    eps : float (optional)\n        Deprecated.\n\n    Extra Parameters\n    ----------------\n    kwargs:\n        All additional keywords are passed to the function supplied to the\n        ``lsf`` keyword, if present.\n\n    Returns\n    -------\n    smoothed_spec : ndarray of shape ``(N_pix_out,)``\n        The smoothed spectrum.\n    '
+    if (sigma is None):
+        sigma = lsf(wave, **kwargs)
+    dw = np.gradient(wave)
+    cdf = np.cumsum((dw / sigma))
+    cdf /= cdf.max()
+    sigma_per_pixel = (dw / sigma)
+    x_per_pixel = np.gradient(cdf)
+    x_per_sigma = np.nanmedian((x_per_pixel / sigma_per_pixel))
+    N = (pix_per_sigma / x_per_sigma)
+    if preserve_all_input_frequencies:
+        N = max(N, (1.0 / np.nanmin(x_per_pixel)))
+    nx = int((2 ** np.ceil(np.log2(N))))
+    x = np.linspace(0, 1, nx)
+    dx = (1.0 / nx)
+    lam = np.interp(x, cdf, wave)
+    newspec = np.interp(lam, wave, spec)
+    spec_conv = smooth_fft(dx, newspec, x_per_sigma)
+    return np.interp(outwave, lam, spec_conv)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 10:------------------- similar code ------------------ index = 22, score = 6.0 
 def test_simple_diffusion(self):
     expected = self._convert_to_list_of_lists('simple_diffusion.ca', dtype=float)
     space = np.linspace(25, (- 25), 120)
     initial_conditions = [np.exp((- (x ** 2))) for x in space]
     network = ntm.topology.cellular_automaton(120)
-// your code ...
-
+    a = 0.25
+    dt = 0.5
+    dx = 0.5
+    F = ((a * dt) / (dx ** 2))
 
     def activity_rule(ctx):
         current = ctx.current_activity
@@ -13,14 +236,192 @@ def test_simple_diffusion(self):
         right = ctx.neighbourhood_activities[2]
         return (current + (F * ((right - (2 * current)) + left)))
     trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
-// your code ...
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    np.testing.assert_equal(expected, activities)
 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
 
-------------------------- example 2 ------------------------ 
+idx = 11:------------------- similar code ------------------ index = 126, score = 6.0 
+def irregular_sampling(T, N, rseed=None):
+    '\n    Generates an irregularly sampled time vector by perturbating a \n    linearly spaced vector and latter deleting a certain number of \n    points\n    \n    Parameters\n    ----------\n    T: float\n        Time span of the vector, i.e. how long it is in time\n    N: positive integer\n        Number of samples of the resulting time vector\n    rseed: \n        Random seed to feed the random number generator\n        \n    Returns\n    -------\n    t_irr: ndarray\n        An irregulary sampled time vector\n        \n    '
+    sampling_period = (T / float(N))
+    N = int(N)
+    np.random.seed(rseed)
+    t = np.linspace(0, T, num=(5 * N))
+    t[1:(- 1)] += ((sampling_period * 0.5) * np.random.randn(((5 * N) - 2)))
+    P = np.random.permutation((5 * N))
+    t_irr = np.sort(t[P[:N]])
+    return t_irr
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 12:------------------- similar code ------------------ index = 125, score = 6.0 
+def test_gridded_filters():
+    allfilters = np.array(_get_all_filters())
+    w = np.array([f.wave_effective for f in allfilters])
+    fnames = np.array([f.name for f in allfilters])
+    good = (w < 100000.0)
+    obs = {}
+    obs['filters'] = allfilters[good][0:40]
+    spec = np.random.uniform(0, 1.0, 5996)
+    wave = np.exp(np.linspace(np.log(90), np.log(1000000.0), len(spec)))
+    m_default = observate.getSED(wave, spec, obs['filters'])
+    (wlo, whi, dlo) = ([], [], [])
+    for f in obs['filters']:
+        dlnlam = (np.gradient(f.wavelength) / f.wavelength)
+        wlo.append(f.wavelength.min())
+        dlo.append(dlnlam.min())
+        whi.append(f.wavelength.max())
+    wmin = np.min(wlo)
+    wmax = np.max(whi)
+    dlnlam = np.min(dlo)
+    obs['filters'] = observate.load_filters(fnames[good][0:40], dlnlam=dlnlam, wmin=wmin)
+    lnlam = np.exp(np.arange(np.log(wmin), np.log(wmax), dlnlam))
+    lnspec = np.interp(lnlam, wave, spec)
+    m_grid = observate.getSED(lnlam, lnspec, obs['filters'], gridded=True)
+    assert np.allclose(m_grid, m_default, atol=0.05)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... (np.linspace)
+
+idx = 13:------------------- similar code ------------------ index = 134, score = 6.0 
+def test_RadialDistributionFunction_init(self):
+    mock_structures = [Mock(spec=Structure), Mock(spec=Structure)]
+    for s in mock_structures:
+        s.lattice = Mock(spec=Lattice)
+        s.lattice.volume = 1.0
+    indices_i = [0, 1]
+    with patch('vasppy.rdf.dr_ij') as mock_dr_ij:
+        mock_dr_ij.side_effect = [np.array([5.0, 6.0]), np.array([6.0, 7.0])]
+        with patch('vasppy.rdf.shell_volumes') as mock_shell_volumes:
+            mock_shell_volumes.return_value = np.ones(500)
+            rdf = RadialDistributionFunction(structures=mock_structures, indices_i=indices_i)
+    self.assertEqual(rdf.indices_i, [0, 1])
+    self.assertEqual(rdf.indices_j, [0, 1])
+    self.assertEqual(rdf.nbins, 500)
+    self.assertEqual(rdf.range, (0.0, 10.0))
+    np.testing.assert_array_equal(rdf.intervals, np.linspace(0, 10, 501))
+    self.assertEqual(rdf.dr, 0.02)
+    np.testing.assert_array_equal(rdf.r, np.linspace(0.01, 9.99, 500))
+    expected_rdf = np.zeros_like(rdf.r)
+    expected_rdf[250] = 0.125
+    expected_rdf[300] = 0.25
+    expected_rdf[350] = 0.125
+    expected_coordination_number = (np.cumsum(expected_rdf) * 2.0)
+    np.testing.assert_array_almost_equal(rdf.rdf, expected_rdf)
+    np.testing.assert_array_almost_equal(rdf.coordination_number, expected_coordination_number)
+    expected_calls = [call(structure=mock_structures[0], indices_i=[0, 1], indices_j=[0, 1], self_reference=False), call(structure=mock_structures[1], indices_i=[0, 1], indices_j=[0, 1], self_reference=False)]
+    mock_dr_ij.assert_has_calls(expected_calls)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ... . ... (, np.linspace)
+
+idx = 14:------------------- similar code ------------------ index = 26, score = 6.0 
+def __init__(self, structures: List[Structure], indices: List[int], d_steps: int, nbins: int=500, r_min: float=0.0, r_max: float=10.0):
+    '\n        Initialise a VanHoveCorrelationFunction instance.\n\n        Args:\n            structures (list(pymatgen.Structure)): List of pymatgen Structure objects.\n            indices (list(int)): List of indices for species to consider.\n            d_steps (int): number of steps between structures at dt=0 and dt=t.\n            nbins (:obj:`int`, optional): Number of bins used for the RDF. Optional, default is 500.\n            rmin (:obj:`float`, optional): Minimum r value. Optional, default is 0.0.\n            rmax (:obj:`float`, optional): Maximum r value. Optional, default is 10.0.\n\n        Returns:\n             None\n\n        '
+    self.nbins = nbins
+    self.range = (r_min, r_max)
+    self.intervals = np.linspace(r_min, r_max, (nbins + 1))
+    self.dr = ((r_max - r_min) / nbins)
+    self.r = (self.intervals[:(- 1)] + (self.dr / 2.0))
+    self.gdrt = np.zeros(nbins, dtype=np.double)
+    self.gsrt = np.zeros(nbins, dtype=np.double)
+    rho = (len(indices) / structures[0].lattice.volume)
+    lattice = structures[0].lattice
+    ff = shell_volumes(self.intervals)
+    rho = (len(indices) / lattice.volume)
+    for (struc_i, struc_j) in zip(structures[:(len(structures) - d_steps)], structures[d_steps:]):
+        i_frac_coords = struc_i.frac_coords[indices]
+        j_frac_coords = struc_j.frac_coords[indices]
+        dr_ij = lattice.get_all_distances(i_frac_coords, j_frac_coords)
+        mask = np.ones(dr_ij.shape, dtype=bool)
+        np.fill_diagonal(mask, 0)
+        distinct_dr_ij = np.ndarray.flatten(dr_ij[mask])
+        hist = np.histogram(distinct_dr_ij, bins=nbins, range=(0.0, r_max), density=False)[0]
+        self.gdrt += (hist / rho)
+        self_dr_ij = np.ndarray.flatten(dr_ij[np.invert(mask)])
+        hist = np.histogram(self_dr_ij, bins=nbins, range=(0.0, r_max), density=False)[0]
+        self.gsrt += (hist / rho)
+    self.gdrt = (((self.gdrt / ff) / (len(structures) - d_steps)) / float(len(indices)))
+    self.gsrt = ((self.gsrt / (len(structures) - d_steps)) / float(len(indices)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = np.linspace
+
+idx = 15:------------------- similar code ------------------ index = 118, score = 6.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_fitter2D(self, model_class, test_parameters):
+    'Test if the parametric model works with the fitter.'
+    x_lim = test_parameters['x_lim']
+    y_lim = test_parameters['y_lim']
+    parameters = test_parameters['parameters']
+    model = create_model(model_class, test_parameters)
+    if isinstance(parameters, dict):
+        parameters = [parameters[name] for name in model.param_names]
+    if ('log_fit' in test_parameters):
+        if test_parameters['log_fit']:
+            x = np.logspace(x_lim[0], x_lim[1], self.N)
+            y = np.logspace(y_lim[0], y_lim[1], self.N)
+    else:
+        x = np.linspace(x_lim[0], x_lim[1], self.N)
+        y = np.linspace(y_lim[0], y_lim[1], self.N)
+    (xv, yv) = np.meshgrid(x, y)
+    np.random.seed(0)
+    noise = (np.random.rand(self.N, self.N) - 0.5)
+    data = (model(xv, yv) + ((0.1 * parameters[0]) * noise))
+    fitter = fitting.LevMarLSQFitter()
+    new_model = fitter(model, xv, yv, data)
+    params = [getattr(new_model, name) for name in new_model.param_names]
+    fixed = [param.fixed for param in params]
+    expected = np.array([val for (val, fixed) in zip(parameters, fixed) if (not fixed)])
+    fitted = np.array([param.value for param in params if (not param.fixed)])
+    assert_allclose(fitted, expected, atol=self.fit_error)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = np.linspace
+
+idx = 16:------------------- similar code ------------------ index = 117, score = 6.0 
+def getDistFitness(self, wVec, aVec, hyp, seed=(- 1), nRep=False, nVals=6, view=False, returnVals=False):
+    "Get fitness of a single individual with distribution of weights\n  \n    Args:\n      wVec    - (np_array) - weight matrix as a flattened vector\n                [N**2 X 1]\n      aVec    - (np_array) - activation function of each node \n                [N X 1]    - stored as ints (see applyAct in ann.py)\n      hyp     - (dict)     - hyperparameters\n        ['alg_wDist']        - weight distribution  [standard;fixed;linspace]\n        ['alg_absWCap']      - absolute value of highest weight for linspace\n  \n    Optional:\n      seed    - (int)      - starting random seed for trials\n      nReps   - (int)      - number of trials to get average fitness\n      nVals   - (int)      - number of weight values to test\n\n  \n    Returns:\n      fitness - (float)    - mean reward over all trials\n    "
+    if (nRep is False):
+        nRep = hyp['alg_nReps']
+    if ((hyp['alg_wDist'] == 'standard') and (nVals == 6)):
+        wVals = np.array(((- 2), (- 1.0), (- 0.5), 0.5, 1.0, 2))
+    else:
+        wVals = np.linspace((- self.absWCap), self.absWCap, nVals)
+    reward = np.empty((nRep, nVals))
+    for iRep in range(nRep):
+        for iVal in range(nVals):
+            wMat = self.setWeights(wVec, wVals[iVal])
+            if (seed == (- 1)):
+                reward[(iRep, iVal)] = self.testInd(wMat, aVec, seed=seed, view=view)
+            else:
+                reward[(iRep, iVal)] = self.testInd(wMat, aVec, seed=(seed + iRep), view=view)
+    if (returnVals is True):
+        return (np.mean(reward, axis=0), wVals)
+    return np.mean(reward, axis=0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = np.linspace
+
+idx = 17:------------------- similar code ------------------ index = 46, score = 6.0 
 def test_wave_equation(self):
     expected = self._convert_to_list_of_lists('wave_equation.ca', dtype=float)
-// your code ...
-
+    nx = 401
+    nt = 255
+    dx = 0.1
+    dt = 0.05
     space = np.linspace(20, (- 20), nx)
     initial_conditions = [np.exp((- (x ** 2))) for x in space]
     network = ntm.topology.cellular_automaton(nx)
@@ -31,31 +432,35 @@ def test_wave_equation(self):
         un_i_m1 = ctx.activity_of(left_label)
         right_label = ((ctx.node_label + 1) % nx)
         un_i_p1 = ctx.activity_of(right_label)
-// your code ...
-
+        un_m1_i = ctx.past_activity_of(ctx.node_label)
         return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
     trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
-// your code ...
+    activities = ntm.get_activities_over_time_as_list(trajectory)
+    np.testing.assert_equal(expected, activities)
 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
 
-------------------------- example 3 ------------------------ 
-def _create_data_for_splitting_tests(n):
-    x = np.linspace((- 1), 1, num=n)
-    np.random.seed(2)
-    t = np.array(np.random.binomial(1, 0.5, n), dtype=bool)
-    y = np.repeat([(- 1), 1], int((n / 2)))
-    y = np.insert(y, int((n / 2)), (- 1))
-    y = (y + ((2 * y) * t))
-// your code ...
+idx = 18:------------------- similar code ------------------ index = 101, score = 6.0 
+def test_weninger_sx_sdx():
+    x = np.linspace(0, 10, 10)
+    actual = _weninger.sx_sdx(x)
+    expected = np.array([[0.47448994, 2.22222222], [1.18661763, 2.22222222], [2.22759261, 2.22222222], [3.33348203, 2.22214787], [4.44444444, 2.21961138], [5.55555556, 2.18707981], [6.66651797, 2.02019401], [7.77240739, 1.63420945], [8.81338237, 1.14625352], [9.52551006, 0.79272618]])
+    assert np.allclose(actual, expected)
+    assert (actual.shape == (10, 2))
 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
 
-------------------------- example 4 ------------------------ 
+idx = 19:------------------- similar code ------------------ index = 133, score = 6.0 
 def porosity(depth_profile):
     import numpy as np
     z = np.linspace(0, depth_profile, num=100)
     ps = 2650.0
-// your code ...
-
+    pw = 1000.0
+    g = 9.8
     phi = np.zeros(len(z))
     phi_0 = 0.95
     k1 = ((1 - phi_0) / phi_0)
@@ -64,36 +469,271 @@ def porosity(depth_profile):
         phi[i] = (np.exp(((((- c) * g) * (ps - pw)) * z[i])) / (np.exp(((((- c) * g) * (ps - pw)) * z[i])) + k1))
     return (phi, z)
 
-------------------------- example 5 ------------------------ 
-if (__name__ == '__main__'):
-    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + k ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
-    nx = 41
-    nt = 59
-    dt = 0.025
-    dx = (2 / (nx - 1))
-    k = 1
-    network = ntm.topology.cellular_automaton(nx)
-    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
 
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        return (un_i - (((k * dt) / dx) * (un_i - un_i_m1)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
-    ntm.plot_activities(trajectory)
-    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
+idx = 20:------------------- similar code ------------------ index = 80, score = 6.0 
+def main():
+    parser = argparse.ArgumentParser()
+    add_ppo_args(parser)
+    add_env_args(parser)
+    add_common_args(parser)
+    args = parser.parse_args()
+    (ckpt_folder, ckpt_path, start_epoch, start_env_step, summary_folder, log_file) = set_up_experiment_folder(args.experiment_folder, args.checkpoint_index)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    device = torch.device('cuda:{}'.format(args.pth_gpu_id))
+    logger.add_filehandler(log_file)
+    if (not args.eval_only):
+        writer = SummaryWriter(log_dir=summary_folder)
+    else:
+        writer = None
+    for p in sorted(list(vars(args))):
+        logger.info('{}: {}'.format(p, getattr(args, p)))
+    if ((args.env_type == 'gibson') or (args.env_type == 'interactive_gibson')):
+        config_file = os.path.join(os.path.dirname(gibson2.__file__), '../examples/configs', args.config_file)
+    elif (args.env_type == 'toy'):
+        config_file = os.path.join(os.path.dirname(hrl4in.__file__), 'envs/toy_env', args.config_file)
+    assert os.path.isfile(config_file), 'config file does not exist: {}'.format(config_file)
+    for (k, v) in parse_config(config_file).items():
+        logger.info('{}: {}'.format(k, v))
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          4           ||        12         ||         2        
-example2  ||          3           ||        15         ||         3        
-example3  ||          3           ||        8         ||         1        
-example4  ||          3           ||        12         ||         1        
-example5  ||          4           ||        16         ||         0        
+    def load_env(env_mode, device_idx):
+        if (args.env_type == 'gibson'):
+            if args.random_position:
+                return NavigateRandomEnv(config_file=config_file, mode=env_mode, action_timestep=args.action_timestep, physics_timestep=args.physics_timestep, random_height=args.random_height, automatic_reset=True, device_idx=device_idx)
+            else:
+                return NavigateEnv(config_file=config_file, mode=env_mode, action_timestep=args.action_timestep, physics_timestep=args.physics_timestep, automatic_reset=True, device_idx=device_idx)
+        elif (args.env_type == 'interactive_gibson'):
+            return InteractiveNavigateEnv(config_file=config_file, mode=env_mode, action_timestep=args.action_timestep, physics_timestep=args.physics_timestep, automatic_reset=True, random_position=args.random_position, device_idx=device_idx)
+        elif (args.env_type == 'toy'):
+            return ToyEnv(config_file=config_file, should_normalize_state=True, automatic_reset=True, visualize=False)
+    sim_gpu_id = [int(gpu_id) for gpu_id in args.sim_gpu_id.split(',')]
+    env_id_to_which_gpu = np.linspace(0, len(sim_gpu_id), num=(args.num_train_processes + args.num_eval_processes), dtype=np.int, endpoint=False)
+    train_envs = [(lambda device_idx=sim_gpu_id[env_id_to_which_gpu[env_id]]: load_env('headless', device_idx)) for env_id in range(args.num_train_processes)]
+    train_envs = ParallelNavEnvironment(train_envs, blocking=False)
+    eval_envs = [(lambda device_idx=sim_gpu_id[env_id_to_which_gpu[env_id]]: load_env('headless', device_idx)) for env_id in range(args.num_train_processes, ((args.num_train_processes + args.num_eval_processes) - 1))]
+    eval_envs += [(lambda : load_env(args.env_mode, sim_gpu_id[env_id_to_which_gpu[(- 1)]]))]
+    eval_envs = ParallelNavEnvironment(eval_envs, blocking=False)
+    print(train_envs.observation_space, train_envs.action_space)
+    if ((args.env_type == 'gibson') or (args.env_type == 'interactive_gibson')):
+        cnn_layers_params = [(32, 8, 4, 0), (64, 4, 2, 0), (64, 3, 1, 0)]
+    elif (args.env_type == 'toy'):
+        cnn_layers_params = [(32, 3, 1, 1), (32, 3, 1, 1), (32, 3, 1, 1)]
+    actor_critic = Policy(observation_space=train_envs.observation_space, action_space=train_envs.action_space, hidden_size=args.hidden_size, cnn_layers_params=cnn_layers_params, initial_stddev=args.action_init_std_dev, min_stddev=args.action_min_std_dev, stddev_anneal_schedule=args.action_std_dev_anneal_schedule, stddev_transform=torch.nn.functional.softplus)
+    actor_critic.to(device)
+    agent = PPO(actor_critic, args.clip_param, args.ppo_epoch, args.num_mini_batch, args.value_loss_coef, args.entropy_coef, lr=args.lr, eps=args.eps, max_grad_norm=args.max_grad_norm, use_clipped_value_loss=True)
+    if (ckpt_path is not None):
+        ckpt = torch.load(ckpt_path, map_location=device)
+        agent.load_state_dict(ckpt['state_dict'])
+        logger.info('loaded checkpoing: {}'.format(ckpt_path))
+    logger.info('agent number of parameters: {}'.format(sum((param.numel() for param in agent.parameters()))))
+    if args.eval_only:
+        evaluate(eval_envs, actor_critic, args.hidden_size, args.num_eval_episodes, device, writer, update=0, count_steps=0, eval_only=True)
+        return
+    observations = train_envs.reset()
+    batch = batch_obs(observations)
+    rollouts = RolloutStorage(args.num_steps, train_envs._num_envs, train_envs.observation_space, train_envs.action_space, args.hidden_size)
+    for sensor in rollouts.observations:
+        rollouts.observations[sensor][0].copy_(batch[sensor])
+    rollouts.to(device)
+    episode_rewards = torch.zeros(train_envs._num_envs, 1)
+    episode_success_rates = torch.zeros(train_envs._num_envs, 1)
+    episode_lengths = torch.zeros(train_envs._num_envs, 1)
+    episode_collision_steps = torch.zeros(train_envs._num_envs, 1)
+    episode_total_energy_costs = torch.zeros(train_envs._num_envs, 1, device=device)
+    episode_avg_energy_costs = torch.zeros(train_envs._num_envs, 1, device=device)
+    episode_stage_open_doors = torch.zeros(train_envs._num_envs, 1, device=device)
+    episode_stage_to_targets = torch.zeros(train_envs._num_envs, 1, device=device)
+    episode_counts = torch.zeros(train_envs._num_envs, 1)
+    current_episode_reward = torch.zeros(train_envs._num_envs, 1)
+    window_episode_reward = deque()
+    window_episode_success_rates = deque()
+    window_episode_lengths = deque()
+    window_episode_collision_steps = deque()
+    window_episode_total_energy_costs = deque()
+    window_episode_avg_energy_costs = deque()
+    window_episode_stage_open_doors = deque()
+    window_episode_stage_to_targets = deque()
+    window_episode_counts = deque()
+    t_start = time()
+    env_time = 0
+    pth_time = 0
+    count_steps = start_env_step
+    for update in range(start_epoch, args.num_updates):
+        update_lr(agent.optimizer, args.lr, update, args.num_updates, args.use_linear_lr_decay, 0)
+        agent.clip_param = (args.clip_param * (1 - (update / args.num_updates)))
+        for step in range(args.num_steps):
+            t_sample_action = time()
+            with torch.no_grad():
+                step_observation = {k: v[step] for (k, v) in rollouts.observations.items()}
+                (values, actions, actions_log_probs, recurrent_hidden_states) = actor_critic.act(step_observation, rollouts.recurrent_hidden_states[step], rollouts.masks[step], update=update)
+            pth_time += (time() - t_sample_action)
+            t_step_env = time()
+            actions_np = actions.cpu().numpy()
+            outputs = train_envs.step(actions_np)
+            (observations, rewards, dones, infos) = [list(x) for x in zip(*outputs)]
+            env_time += (time() - t_step_env)
+            t_update_stats = time()
+            batch = batch_obs(observations)
+            rewards = torch.tensor(rewards, dtype=torch.float)
+            rewards = rewards.unsqueeze(1)
+            masks = torch.tensor([([0.0] if done else [1.0]) for done in dones], dtype=torch.float)
+            success_masks = torch.tensor([([1.0] if (done and ('success' in info) and info['success']) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float)
+            lengths = torch.tensor([([float(info['episode_length'])] if (done and ('episode_length' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float)
+            collision_steps = torch.tensor([([float(info['collision_step'])] if (done and ('collision_step' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float)
+            total_energy_cost = torch.tensor([([float(info['energy_cost'])] if (done and ('energy_cost' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float, device=device)
+            avg_energy_cost = torch.tensor([([(float(info['energy_cost']) / float(info['episode_length']))] if (done and ('energy_cost' in info) and ('episode_length' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float, device=device)
+            stage_open_door = torch.tensor([([float((info['stage'] >= 1))] if (done and ('stage' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float, device=device)
+            stage_to_target = torch.tensor([([float((info['stage'] >= 2))] if (done and ('stage' in info)) else [0.0]) for (done, info) in zip(dones, infos)], dtype=torch.float, device=device)
+            current_episode_reward += rewards
+            episode_rewards += ((1 - masks) * current_episode_reward)
+            episode_success_rates += success_masks
+            episode_lengths += lengths
+            episode_collision_steps += collision_steps
+            episode_total_energy_costs += total_energy_cost
+            episode_avg_energy_costs += avg_energy_cost
+            episode_stage_open_doors += stage_open_door
+            episode_stage_to_targets += stage_to_target
+            episode_counts += (1 - masks)
+            current_episode_reward *= masks
+            rollouts.insert(batch, recurrent_hidden_states, actions, actions_log_probs, values, rewards, masks)
+            count_steps += train_envs._num_envs
+            pth_time += (time() - t_update_stats)
+        if (len(window_episode_reward) == args.perf_window_size):
+            window_episode_reward.popleft()
+            window_episode_success_rates.popleft()
+            window_episode_lengths.popleft()
+            window_episode_collision_steps.popleft()
+            window_episode_total_energy_costs.popleft()
+            window_episode_avg_energy_costs.popleft()
+            window_episode_stage_open_doors.popleft()
+            window_episode_stage_to_targets.popleft()
+            window_episode_counts.popleft()
+        window_episode_reward.append(episode_rewards.clone())
+        window_episode_success_rates.append(episode_success_rates.clone())
+        window_episode_lengths.append(episode_lengths.clone())
+        window_episode_collision_steps.append(episode_collision_steps.clone())
+        window_episode_total_energy_costs.append(episode_total_energy_costs.clone())
+        window_episode_avg_energy_costs.append(episode_avg_energy_costs.clone())
+        window_episode_stage_open_doors.append(episode_stage_open_doors.clone())
+        window_episode_stage_to_targets.append(episode_stage_to_targets.clone())
+        window_episode_counts.append(episode_counts.clone())
+        t_update_model = time()
+        with torch.no_grad():
+            last_observation = {k: v[(- 1)] for (k, v) in rollouts.observations.items()}
+            next_value = actor_critic.get_value(last_observation, rollouts.recurrent_hidden_states[(- 1)], rollouts.masks[(- 1)]).detach()
+        rollouts.compute_returns(next_value, args.use_gae, args.gamma, args.tau)
+        (value_loss, action_loss, dist_entropy) = agent.update(rollouts, update=update)
+        rollouts.after_update()
+        pth_time += (time() - t_update_model)
+        if ((update > 0) and ((update % args.log_interval) == 0)):
+            logger.info('update: {}\tenv_steps: {}\tenv_steps_per_sec: {:.3f}\tenv-time: {:.3f}s\tpth-time: {:.3f}s'.format(update, count_steps, (count_steps / (time() - t_start)), env_time, pth_time))
+            logger.info('update: {}\tenv_steps: {}\tvalue_loss: {:.3f}\taction_loss: {:.3f}\tdist_entropy: {:.3f}'.format(update, count_steps, value_loss, action_loss, dist_entropy))
+            writer.add_scalar('time/env_step_per_second', (count_steps / (time() - t_start)), global_step=update)
+            writer.add_scalar('time/env_time_per_update', (env_time / update), global_step=update)
+            writer.add_scalar('time/pth_time_per_update', (pth_time / update), global_step=update)
+            writer.add_scalar('time/env_steps_per_update', (count_steps / update), global_step=update)
+            writer.add_scalar('losses/value_loss', value_loss, global_step=update)
+            writer.add_scalar('losses/action_loss', action_loss, global_step=update)
+            writer.add_scalar('losses/dist_entropy', dist_entropy, global_step=update)
+            window_rewards = (window_episode_reward[(- 1)] - window_episode_reward[0]).sum()
+            window_success_rates = (window_episode_success_rates[(- 1)] - window_episode_success_rates[0]).sum()
+            window_lengths = (window_episode_lengths[(- 1)] - window_episode_lengths[0]).sum()
+            window_collision_steps = (window_episode_collision_steps[(- 1)] - window_episode_collision_steps[0]).sum()
+            window_total_energy_costs = (window_episode_total_energy_costs[(- 1)] - window_episode_total_energy_costs[0]).sum()
+            window_avg_energy_costs = (window_episode_avg_energy_costs[(- 1)] - window_episode_avg_energy_costs[0]).sum()
+            window_stage_open_doors = (window_episode_stage_open_doors[(- 1)] - window_episode_stage_open_doors[0]).sum()
+            window_stage_to_targets = (window_episode_stage_to_targets[(- 1)] - window_episode_stage_to_targets[0]).sum()
+            window_counts = (window_episode_counts[(- 1)] - window_episode_counts[0]).sum()
+            if (window_counts > 0):
+                reward_mean = (window_rewards / window_counts).item()
+                success_rate_mean = (window_success_rates / window_counts).item()
+                lengths_mean = (window_lengths / window_counts).item()
+                collision_steps_mean = (window_collision_steps / window_counts).item()
+                total_energy_costs_mean = (window_total_energy_costs / window_counts).item()
+                avg_energy_costs_mean = (window_avg_energy_costs / window_counts).item()
+                stage_open_doors_mean = (window_stage_open_doors / window_counts).item()
+                stage_to_targets_mean = (window_stage_to_targets / window_counts).item()
+                logger.info('average window size {}\treward: {:.3f}\tsuccess_rate: {:.3f}\tepisode length: {:.3f}\tcollision_step: {:.3f}\ttotal_energy_cost: {:.3f}\tavg_energy_cost: {:.3f}\tstage_open_door: {:.3f}\tstage_to_target: {:.3f}'.format(len(window_episode_reward), reward_mean, success_rate_mean, lengths_mean, collision_steps_mean, total_energy_costs_mean, avg_energy_costs_mean, stage_open_doors_mean, stage_to_targets_mean))
+                writer.add_scalar('train/updates/reward', reward_mean, global_step=update)
+                writer.add_scalar('train/updates/success_rate', success_rate_mean, global_step=update)
+                writer.add_scalar('train/updates/episode_length', lengths_mean, global_step=update)
+                writer.add_scalar('train/updates/collision_step', collision_steps_mean, global_step=update)
+                writer.add_scalar('train/updates/total_energy_cost', total_energy_costs_mean, global_step=update)
+                writer.add_scalar('train/updates/avg_energy_cost', avg_energy_costs_mean, global_step=update)
+                writer.add_scalar('train/updates/stage_open_door', stage_open_doors_mean, global_step=update)
+                writer.add_scalar('train/updates/stage_to_target', stage_to_targets_mean, global_step=update)
+                writer.add_scalar('train/env_steps/reward', reward_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/success_rate', success_rate_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/episode_length', lengths_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/collision_step', collision_steps_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/total_energy_cost', total_energy_costs_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/avg_energy_cost', avg_energy_costs_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/stage_open_door', stage_open_doors_mean, global_step=count_steps)
+                writer.add_scalar('train/env_steps/stage_to_target', stage_to_targets_mean, global_step=count_steps)
+            else:
+                logger.info('No episodes finish in current window')
+        if ((update > 0) and ((update % args.checkpoint_interval) == 0)):
+            checkpoint = {'state_dict': agent.state_dict()}
+            torch.save(checkpoint, os.path.join(ckpt_folder, 'ckpt.{}.pth'.format(update)))
+        if ((update > 0) and ((update % args.eval_interval) == 0)):
+            evaluate(eval_envs, actor_critic, args.hidden_size, args.num_eval_episodes, device, writer, update=update, count_steps=count_steps, eval_only=False)
 
-avg       ||          3.4           ||        12.6         ||         1.4        
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
 
-idx = 0:------------------- similar code ------------------ index = 35, score = 6.0 
+idx = 21:------------------- similar code ------------------ index = 138, score = 6.0 
+def test_fit():
+    np.random.seed(3939)
+    n_samples = 50
+    x = np.linspace(0, 20, n_samples)
+    X = np.column_stack((x, ((x - 5) ** 2)))
+    X = np.hstack((np.ones((n_samples, 1)), X))
+    params_true = [5, 0.5, (- 1.4)]
+    y_true = np.dot(params_true, X.T).T
+    y = (y_true + np.random.normal(size=n_samples, scale=0.3))
+    y[[39, 41, 43, 45, 48]] -= 5.0
+    params_pred = fit(X, y)
+    assert (relative_error(params_true, params_pred) < 0.02)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 22:------------------- similar code ------------------ index = 136, score = 6.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_fitter1D(self, model_class, test_parameters):
+    '\n        Test if the parametric model works with the fitter.\n        '
+    x_lim = test_parameters['x_lim']
+    parameters = test_parameters['parameters']
+    model = create_model(model_class, test_parameters)
+    if isinstance(parameters, dict):
+        parameters = [parameters[name] for name in model.param_names]
+    if ('log_fit' in test_parameters):
+        if test_parameters['log_fit']:
+            x = np.logspace(x_lim[0], x_lim[1], self.N)
+    else:
+        x = np.linspace(x_lim[0], x_lim[1], self.N)
+    np.random.seed(0)
+    relative_noise_amplitude = 0.01
+    data = ((1 + (relative_noise_amplitude * np.random.randn(len(x)))) * model(x))
+    fitter = fitting.LevMarLSQFitter()
+    new_model = fitter(model, x, data)
+    params = [getattr(new_model, name) for name in new_model.param_names]
+    fixed = [param.fixed for param in params]
+    expected = np.array([val for (val, fixed) in zip(parameters, fixed) if (not fixed)])
+    fitted = np.array([param.value for param in params if (not param.fixed)])
+    assert_allclose(fitted, expected, atol=self.fit_error)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = np.linspace
+
+idx = 23:------------------- similar code ------------------ index = 62, score = 6.0 
 def plot_kinematics(signal, background, nbins=100, mass_range=(50.0, 110.0), pt_range=(200.0, 500.0), mass_pad=10, pt_pad=50, linewidth=1, title=None):
     import numpy as np
     from matplotlib import pyplot as plt
@@ -170,58 +810,7 @@ def plot_kinematics(signal, background, nbins=100, mass_range=(50.0, 110.0), pt_
 def  ... ():
  =  ... . ... (,  ... =np.linspace,,,,,,,)
 
-idx = 1:------------------- similar code ------------------ index = 4, score = 6.0 
-def test_simple_diffusion(self):
-    expected = self._convert_to_list_of_lists('simple_diffusion.ca', dtype=float)
-    space = np.linspace(25, (- 25), 120)
-    initial_conditions = [np.exp((- (x ** 2))) for x in space]
-    network = ntm.topology.cellular_automaton(120)
-    a = 0.25
-    dt = 0.5
-    dx = 0.5
-    F = ((a * dt) / (dx ** 2))
-
-    def activity_rule(ctx):
-        current = ctx.current_activity
-        left = ctx.neighbourhood_activities[0]
-        right = ctx.neighbourhood_activities[2]
-        return (current + (F * ((right - (2 * current)) + left)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
-    activities = ntm.get_activities_over_time_as_list(trajectory)
-    np.testing.assert_equal(expected, activities)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  = np.linspace
-
-idx = 2:------------------- similar code ------------------ index = 26, score = 6.0 
-def test_wave_equation(self):
-    expected = self._convert_to_list_of_lists('wave_equation.ca', dtype=float)
-    nx = 401
-    nt = 255
-    dx = 0.1
-    dt = 0.05
-    space = np.linspace(20, (- 20), nx)
-    initial_conditions = [np.exp((- (x ** 2))) for x in space]
-    network = ntm.topology.cellular_automaton(nx)
-
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        right_label = ((ctx.node_label + 1) % nx)
-        un_i_p1 = ctx.activity_of(right_label)
-        un_m1_i = ctx.past_activity_of(ctx.node_label)
-        return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
-    activities = ntm.get_activities_over_time_as_list(trajectory)
-    np.testing.assert_equal(expected, activities)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  = np.linspace
-
-idx = 3:------------------- similar code ------------------ index = 34, score = 6.0 
+idx = 24:------------------- similar code ------------------ index = 150, score = 6.0 
 def _create_data_for_splitting_tests(n):
     x = np.linspace((- 1), 1, num=n)
     np.random.seed(2)
@@ -235,183 +824,38 @@ def _create_data_for_splitting_tests(n):
 def  ... ( ... ):
      ...  = np.linspace
 
-idx = 4:------------------- similar code ------------------ index = 16, score = 6.0 
-def porosity(depth_profile):
-    import numpy as np
-    z = np.linspace(0, depth_profile, num=100)
-    ps = 2650.0
-    pw = 1000.0
-    g = 9.8
-    phi = np.zeros(len(z))
-    phi_0 = 0.95
-    k1 = ((1 - phi_0) / phi_0)
-    c = 3.68e-08
-    for i in range(len(phi)):
-        phi[i] = (np.exp(((((- c) * g) * (ps - pw)) * z[i])) / (np.exp(((((- c) * g) * (ps - pw)) * z[i])) + k1))
-    return (phi, z)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  = np.linspace
-
-idx = 5:------------------- similar code ------------------ index = 5, score = 5.0 
-def visualize_dataset_in_2d_embedding(writer, encoding_list, dataset_name, save_path, task=1):
-    '\n    Visualization of 2-D latent embedding. Is saved to both hard-disc as well as TensorBoard.\n\n    Parameters:\n        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.\n        encoding_list (list): List of Tensors containing encoding values\n        dataset_name (str): Dataset name.\n        save_path (str): Path used for saving.\n        task (int): task counter. Used for naming.\n    '
-    num_classes = len(encoding_list)
-    encoded_classes = []
-    for i in range(len(encoding_list)):
-        if isinstance(encoding_list[i], torch.Tensor):
-            encoded_classes.append(([i] * encoding_list[i].size(0)))
-        else:
-            device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
-            encoding_list[i] = torch.Tensor(encoding_list[i]).to(device)
-            encoded_classes.append(([i] * 0))
-    encoded_classes = np.concatenate(np.asarray(encoded_classes), axis=0)
-    encoding = torch.cat(encoding_list, dim=0)
-    if (encoding.size(1) != 2):
-        print('Skipping visualization of latent space because it is not 2-D')
-        return
-    encoded_dim1 = np.squeeze(encoding.narrow(1, 0, 1).cpu().numpy())
-    encoded_dim2 = np.squeeze(encoding.narrow(1, 1, 1).cpu().numpy())
-    xlabel = 'z dimension 1'
-    ylabel = 'z dimension 2'
-    my_cmap = ListedColormap(sns.color_palette('Paired', num_classes).as_hex())
-    fig = plt.figure(figsize=(20, 20))
-    plt.scatter(encoded_dim1, encoded_dim2, c=encoded_classes, cmap=my_cmap)
-    plt.xlabel(xlabel, fontsize=axes_font_size)
-    plt.ylabel(ylabel, fontsize=axes_font_size)
-    plt.xticks(fontsize=ticks_font_size)
-    plt.yticks(fontsize=ticks_font_size)
-    cbar = plt.colorbar(ticks=np.linspace(0, (num_classes - 1), num_classes))
-    cbar.ax.set_yticklabels([str(i) for i in range(num_classes)])
-    cbar.ax.tick_params(labelsize=legend_font_size)
-    plt.tight_layout()
-    writer.add_figure('latent_embedding', fig, global_step=task)
-    plt.savefig(os.path.join(save_path, (((dataset_name + '_latent_2d_embedding_task_') + str(task)) + '.png')), bbox_inches='tight')
+idx = 25:------------------- similar code ------------------ index = 47, score = 5.0 
+def get_intro_camera(rendering, n):
+    nn = int((n / 8))
+    phi_s = np.concatenate([np.linspace(rendering.camera_phi, (rendering.camera_phi + 10), nn), np.linspace((rendering.camera_phi + 10), rendering.camera_phi, nn), np.linspace(rendering.camera_phi, (rendering.camera_phi - 10), nn), np.linspace((rendering.camera_phi - 10), rendering.camera_phi, nn), np.linspace(rendering.camera_phi, rendering.camera_phi, (nn * 4))])
+    theta_s = np.concatenate([np.linspace(rendering.camera_theta, rendering.camera_theta, (nn * 4)), np.linspace(rendering.camera_theta, (rendering.camera_theta - 10), nn), np.linspace((rendering.camera_theta - 10), rendering.camera_theta, nn), np.linspace(rendering.camera_theta, (rendering.camera_theta + 10), nn), np.linspace((rendering.camera_theta + 10), rendering.camera_theta, nn)])
+    return (phi_s, theta_s)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-     ...  =  ... . ... ( ... =np.linspace)
+     ...  =  ... . ... ([np.linspace,,,,])
 
-idx = 6:------------------- similar code ------------------ index = 6, score = 5.0 
-if (__name__ == '__main__'):
-    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + k ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
-    nx = 41
-    nt = 59
-    dt = 0.025
-    dx = (2 / (nx - 1))
-    k = 1
-    network = ntm.topology.cellular_automaton(nx)
-    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
-
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        return (un_i - (((k * dt) / dx) * (un_i - un_i_m1)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
-    ntm.plot_activities(trajectory)
-    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-if:
-     ... . ... (np.linspace,  ... )
-
-idx = 7:------------------- similar code ------------------ index = 7, score = 5.0 
-def append_multiple_new_old_arrays(self):
-    df1 = self.df.append({'a': 10, 'b': np.arange(10, 15), 'h': np.arange(5), 'i': np.linspace(2.4, 20.9, 5)}, axis='columns')
-    data2 = {'a': array([10, 10, 10, 10, 10]), 'b': array([10, 11, 12, 13, 14]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([2.4, 7.025, 11.65, 16.275, 20.9]), 'h': array([0, 1, 2, 3, 4]), 'i': array([2.4, 7.025, 11.65, 16.275, 20.9])}
-    df2 = dx.DataFrame(data2)
-    assert_frame_equal(df1, df2)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  =  ... . ... ({ ... :  ... ,  ... :,  ... :,  ... : np.linspace},)
-
-idx = 8:------------------- similar code ------------------ index = 3, score = 5.0 
-def plot_schedules(self):
-    x = np.linspace(0, self.n_epochs, self.n_iter)
-    (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
-    ax[0].set_title('LR Schedule')
-    ax[0].set_ylabel('lr')
-    ax[0].set_xlabel('epoch')
-    ax[0].plot(x, self.lrs)
-    ax[1].set_title('Momentum Schedule')
-    ax[1].set_ylabel('momentum')
-    ax[1].set_xlabel('epoch')
-    ax[1].plot(x, self.moms)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  = np.linspace
-
-idx = 9:------------------- similar code ------------------ index = 1, score = 5.0 
-def gaussian_kernel(kernel_size=5, sigma=1.0):
-    'Returns a Gaussian filter kernel.'
-    kernel_range = ((kernel_size - 1) / 2.0)
-    distance = np.linspace((- kernel_range), kernel_range, kernel_size)
-    (distance_x, distance_y) = np.meshgrid(distance, distance)
-    squared_distance = ((distance_x ** 2) + (distance_y ** 2))
-    gauss_kernel = np.exp((((- 0.5) * squared_distance) / np.square(sigma)))
-    gauss_kernel = (gauss_kernel / np.sum(gauss_kernel))
-    return torch.tensor(gauss_kernel).float().unsqueeze(0).unsqueeze(0).cuda()
+idx = 26:------------------- similar code ------------------ index = 49, score = 5.0 
+def test():
+    from sedpy import observate
+    import fsps
+    import matplotlib.pyplot as pl
+    filters = ['galex_NUV', 'sdss_u0', 'sdss_r0', 'sdss_r0', 'sdss_i0', 'sdss_z0', 'bessell_U', 'bessell_B', 'bessell_V', 'bessell_R', 'bessell_I', 'twomass_J', 'twomass_H']
+    flist = observate.load_filters(filters)
+    sps = fsps.StellarPopulation(compute_vega_mags=False)
+    (wave, spec) = sps.get_spectrum(tage=1.0, zmet=2, peraa=True)
+    sed = observate.getSED(wave, spec, flist)
+    sed_unc = np.abs(np.random.normal(1, 0.3, len(sed)))
+    wgrid = np.linspace(2000.0, 13000.0, 1000)
+    fgrid = np.linspace((- 13), (- 9), 100)
+    (psed, sedpoints) = sed_to_psed(flist, sed, sed_unc, wgrid, fgrid)
+    pl.imshow(np.exp(psed).T, cmap='Greys_r', interpolation='nearest', origin='upper', aspect='auto')
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.linspace
 
-idx = 10:------------------- similar code ------------------ index = 10, score = 5.0 
-def generate_trajectory(self):
-    'Generate a variable speed target trajectory for the episode.'
-    direction = self._rand_obj_.choice([(- 1), 1])
-    if (direction == 1):
-        start_pos = self._rand_obj_.uniform(low=self.angle_low, high=self.reset_pos_center)
-        self.trajectory = np.linspace(start_pos, self.angle_high, self.comm_episode_length_step)
-    else:
-        start_pos = self._rand_obj_.uniform(low=self.reset_pos_center, high=self.angle_high)
-        self.trajectory = np.linspace(start_pos, self.angle_low, self.comm_episode_length_step)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-    if:
- = np.linspace
-
-idx = 11:------------------- similar code ------------------ index = 11, score = 5.0 
-def get_flat_weights(pt, pt_min, pt_max, pt_bins):
-    (pt_hist, edges) = np.histogram(pt, bins=np.linspace(pt_min, pt_max, (pt_bins + 1)))
-    pt_hist = np.true_divide(pt_hist, pt_hist.sum())
-    image_weights = np.true_divide(1.0, np.take(pt_hist, (np.searchsorted(edges, pt) - 1)))
-    image_weights = np.true_divide(image_weights, image_weights.mean())
-    return image_weights
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- =  ... . ... ( ... ,  ... =np.linspace)
-
-idx = 12:------------------- similar code ------------------ index = 12, score = 5.0 
-if (__name__ == '__main__'):
-    "\n    Simulates the 1D Diffusion Equation (also known as the heat equation):\n\n    ∂u/∂t = α ∂²u/∂x²\n\n    Each of the 120 nodes represents a body that can contain some amount of heat. Reproduces the plot at the top of \n    Wolfram's NKS, page 163. \n\n    See: https://www.wolframscience.com/nks/p163--partial-differential-equations/\n    See: http://hplgit.github.io/num-methods-for-PDEs/doc/pub/diffu/sphinx/._main_diffu001.html\n    "
-    space = np.linspace(25, (- 25), 120)
-    initial_conditions = [np.exp((- (x ** 2))) for x in space]
-    network = ntm.topology.cellular_automaton(120)
-    a = 0.25
-    dt = 0.5
-    dx = 0.5
-    F = ((a * dt) / (dx ** 2))
-
-    def activity_rule(ctx):
-        current = ctx.current_activity
-        left = ctx.neighbourhood_activities[0]
-        right = ctx.neighbourhood_activities[2]
-        return (current + (F * ((right - (2 * current)) + left)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
-    ntm.plot_activities(trajectory)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-if:
-     ...  = np.linspace
-
-idx = 13:------------------- similar code ------------------ index = 13, score = 5.0 
+idx = 27:------------------- similar code ------------------ index = 48, score = 5.0 
 def get_flat_images(generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bins=10, n_jobs=(- 1), **kwargs):
     '\n    Construct a sample of images over a pT range by combining samples\n    constructed in pT intervals in this range.\n    '
     random_state = kwargs.get('random_state', None)
@@ -432,438 +876,88 @@ def get_flat_images(generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bin
 def  ... ():
      ...  = np.linspace
 
-idx = 14:------------------- similar code ------------------ index = 14, score = 5.0 
-def gen_NACA4_airfoil(p, m, xx, n_points):
-    '\n    Generate upper and lower points for a NACA 4 airfoil\n\n    Args:\n        :p:\n        :m:\n        :xx:\n        :n_points:\n\n    Returns:\n        :upper: 2 x N array with x- and y-coordinates of the upper side\n        :lower: 2 x N array with x- and y-coordinates of the lower side\n    '
-
-    def yt(xx, xsi):
-        a0 = 1.4845
-        a1 = 0.63
-        a2 = 1.758
-        a3 = 1.4215
-        a4 = 0.5075
-        return (xx * (((((a0 * np.sqrt(xsi)) - (a1 * xsi)) - (a2 * (xsi ** 2))) + (a3 * (xsi ** 3))) - (a4 * (xsi ** 4))))
-
-    def yc(p, m, xsi):
-
-        def yc_xsi_lt_p(xsi):
-            return ((m / (p ** 2)) * (((2 * p) * xsi) - (xsi ** 2)))
-
-        def dyc_xsi_lt_p(xsi):
-            return (((2 * m) / (p ** 2)) * (p - xsi))
-
-        def yc_xsi_ge_p(xsi):
-            return ((m / ((1 - p) ** 2)) * (((1 - (2 * p)) + ((2 * p) * xsi)) - (xsi ** 2)))
-
-        def dyc_xsi_ge_p(xsi):
-            return (((2 * m) / ((1 - p) ** 2)) * (p - xsi))
-        yc = np.array([(yc_xsi_lt_p(x) if (x < p) else yc_xsi_ge_p(x)) for x in xsi])
-        dyc = np.array([(dyc_xsi_lt_p(x) if (x < p) else dyc_xsi_ge_p(x)) for x in xsi])
-        return (yc, dyc)
-    xsi = np.linspace(0, 1, n_points)
-    yt = yt(xx, xsi)
-    (yc, dyc) = yc(p, m, xsi)
-    theta = np.arctan(dyc)
-    x_upper = (xsi - (yt * np.sin(theta)))
-    y_upper = (yc + (yt * np.cos(theta)))
-    x_lower = (xsi + (yt * np.sin(theta)))
-    y_lower = (yc - (yt * np.cos(theta)))
-    upper = np.array([x_upper, y_upper])
-    lower = np.array([x_lower, y_lower])
-    return (upper, lower)
+idx = 28:------------------- similar code ------------------ index = 66, score = 5.0 
+def gridify_transmission(self, dlnlam, wmin=100.0):
+    'Place the transmission function on a regular grid in lnlam\n        (angstroms) defined by a lam_min and dlnlam.  Note that only the\n        non-zero values of the transmission on this grid stored.  The indices\n        corresponding to these values are stored as the `inds` attribute (a\n        slice object). (with possibly a zero at either end.)\n\n        Parameters\n        ----------\n        dlnlam : float\n            The spacing in ln-lambda of the regular wavelength grid onto which\n            the filter is to be placed.\n\n        wmin : float (optional, default: 100)\n            The starting wavelength (Angstroms) for the regular grid.\n        '
+    ind_min = int(np.floor(((np.log(self.wavelength.min()) - np.log(wmin)) / dlnlam)))
+    ind_max = int(np.ceil(((np.log(self.wavelength.max()) - np.log(wmin)) / dlnlam)))
+    lnlam = np.linspace(((ind_min * dlnlam) + np.log(wmin)), ((ind_max * dlnlam) + np.log(wmin)), (ind_max - ind_min))
+    lam = np.exp(lnlam)
+    trans = np.interp(lam, self.wavelength, self.transmission, left=0.0, right=0.0)
+    self.wmin = wmin
+    self.dlnlam = dlnlam
+    self.inds = slice(ind_min, ind_max)
+    self._wavelength = lam
+    self._transmission = trans
+    self.dwave = np.gradient(lam)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.linspace
 
-idx = 15:------------------- similar code ------------------ index = 15, score = 5.0 
-def test_camber_line(airfoil):
-    "\n    Test 'camber_line' method\n    "
-    for xsi in np.linspace(0, 1, num=50):
-        assert (airfoil.camber_line(xsi) == 0)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-    for  ...  in np.linspace:
-idx = 16:------------------- similar code ------------------ index = 9, score = 5.0 
-def _construct_meshgrid(left=(- 15), right=15, npoints=100):
-    x = np.linspace(left, right, npoints)
-    y = x.copy()
-    (X, Y) = np.meshgrid(x, y)
-    return (X, Y)
+idx = 29:------------------- similar code ------------------ index = 57, score = 5.0 
+def test_measures_fitness_heteroscedastic():
+    rng = np.random.RandomState(1)
+    t = np.linspace(0, 1, 11)
+    x = np.exp((((- 0.5) * ((t - 0.5) ** 2)) / (0.01 ** 2)))
+    sigma = (0.02 + (0.02 * rng.rand(len(x))))
+    x = (x + (sigma * rng.randn(len(x))))
+    bins = bayesian_blocks(t, x, sigma, fitness='measures')
+    assert_allclose(bins, [0, 0.45, 0.55, 1])
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.linspace
 
-idx = 17:------------------- similar code ------------------ index = 17, score = 5.0 
-def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font_size=20):
-
-    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
-        return new_cmap
-    fig = plt.figure(figsize=(16, 9))
-    fig.suptitle(returns.name, fontsize=16)
-    gs = gridspec.GridSpec(2, 2, wspace=0.2, hspace=0.3)
-    ax_heatmap = plt.subplot(gs[(0, 0)])
-    ax_monthly = plt.subplot(gs[(0, 1)])
-    ax_box_plot = plt.subplot(gs[(1, 0)])
-    ax_yearly = plt.subplot(gs[(1, 1)])
-    monthly_ret_table = pf.timeseries.aggregate_returns(returns, 'monthly')
-    monthly_ret_table = monthly_ret_table.unstack().round(3)
-    ax = plt.gca()
-    cmap = cm.viridis
-    new_cmap = truncate_colormap(cmap, 0.2, 0.8)
-    sns.heatmap((monthly_ret_table.fillna(0) * 100.0), annot=True, annot_kws={'size': font_size}, alpha=1.0, center=0.0, cbar=False, mask=monthly_ret_table.isna(), cmap=new_cmap, ax=ax_heatmap)
-    ax_heatmap.set_xticklabels(np.arange(0.5, 12.5, step=1))
-    ax_heatmap.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], rotation=45)
-    ylabels = ax_heatmap.get_yticklabels()
-    ax_heatmap.set_yticklabels(ylabels, rotation=45)
-    ax_heatmap.set_xlabel('')
-    ax_heatmap.set_ylabel('')
-    pf.plotting.plot_monthly_returns_dist(returns, ax=ax_monthly)
-    ax_monthly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
-    ax_monthly.set_xlabel('')
-    leg1 = ax_monthly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
-    for text in leg1.get_texts():
-        text.set_label('mean')
-    df_weekly = pf.timeseries.aggregate_returns(returns, convert_to='weekly')
-    df_monthly = pf.timeseries.aggregate_returns(returns, convert_to='monthly')
-    pf.plotting.plot_return_quantiles(returns, df_weekly, df_monthly, ax=ax_box_plot)
-    pf.plotting.plot_annual_returns(returns, ax=ax_yearly)
-    _ = ax_yearly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
-    ax_yearly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
-    plt.xticks(rotation=45)
-    ax_yearly.set_xlabel('')
-    ax_yearly.set_ylabel('')
-    for ax in [ax_box_plot, ax_heatmap, ax_monthly, ax_yearly]:
-        for item in (([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels()) + ax.get_yticklabels()):
-            item.set_fontsize(font_size)
-    for items in (ax_yearly.get_yticklabels() + ax_heatmap.get_yticklabels()):
-        items.set_fontsize((font_size - 5))
-    if (fig_path is not None):
-        if Path.is_dir(fig_path):
-            plt.savefig((fig_path / fig_name), dpi=600, bbox_inches='tight', transparent=True)
-        return fig
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-
-    def  ... ():
-         ...  =  ... . ... (,  ... (np.linspace))
-
-idx = 18:------------------- similar code ------------------ index = 18, score = 5.0 
-def plot_env_baseline(ax, env):
-    x = np.linspace(0.0, 2.0, num=100)
-    (mean, std) = BASELINE[env]
-    std_err = (std / np.sqrt(5))
-    mean = np.repeat(mean, 100)
-    std_err = np.repeat(std_err, 100)
-    ax.plot(x, mean, 'k', label='Dataset')
-    ax.fill_between(x, (mean - std_err), (mean + std_err), color='k', alpha=0.1)
+idx = 30:------------------- similar code ------------------ index = 44, score = 5.0 
+def test_Trapezoid1D():
+    'Regression test for https://github.com/astropy/astropy/issues/1721'
+    model = models.Trapezoid1D(amplitude=4.2, x_0=2.0, width=1.0, slope=3)
+    xx = np.linspace(0, 4, 8)
+    yy = model(xx)
+    yy_ref = [0.0, 1.41428571, 3.12857143, 4.2, 4.2, 3.12857143, 1.41428571, 0.0]
+    assert_allclose(yy, yy_ref, rtol=0, atol=1e-06)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.linspace
 
-idx = 19:------------------- similar code ------------------ index = 33, score = 5.0 
-def get_weights(pt, pt_min, pt_max, pt_bins):
-    (pt_hist, edges) = np.histogram(pt, bins=np.linspace(pt_min, pt_max, (pt_bins + 1)))
-    pt_hist = np.true_divide(pt_hist, pt_hist.sum())
-    image_weights = np.true_divide(1.0, np.take(pt_hist, (np.searchsorted(edges, pt) - 1)))
-    image_weights = np.true_divide(image_weights, image_weights.mean())
-    return image_weights
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- =  ... . ... ( ... ,  ... =np.linspace)
-
-idx = 20:------------------- similar code ------------------ index = 20, score = 5.0 
-if (__name__ == '__main__'):
-    '\n    A model of the 1D Linear Convection equation: ∂u/∂t + u ∂u/∂x = 0\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/01_Step_1.ipynb\n    '
-    nx = 41
-    nt = 99
-    dt = 0.025
-    dx = (2 / (nx - 1))
-    network = ntm.topology.cellular_automaton(nx)
-    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
-
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        return (un_i - (((un_i * dt) / dx) * (un_i - un_i_m1)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
-    ntm.plot_activities(trajectory)
-    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-if:
-     ... . ... (np.linspace,  ... )
-
-idx = 21:------------------- similar code ------------------ index = 21, score = 5.0 
-def test_camber_line_angle(airfoil):
-    "\n    Test 'camber_line_angle' method\n    "
-    for xsi in np.linspace(0, 1, num=50):
-        assert (airfoil.camber_line_angle(xsi) == 0)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-    for  ...  in np.linspace:
-idx = 22:------------------- similar code ------------------ index = 22, score = 5.0 
-if (__name__ == '__main__'):
-    "\n    Simulates the Wave Equation:\n\n    ∂²u/∂t² = ∂²u/∂x²\n\n    Reproduces the middle plot of Wolfram's NKS, page 163. \n\n    See: https://www.wolframscience.com/nks/p163--partial-differential-equations/\n    "
-    nx = 401
-    nt = 255
-    dx = 0.1
-    dt = 0.05
-    space = np.linspace(20, (- 20), nx)
-    initial_conditions = [np.exp((- (x ** 2))) for x in space]
-    network = ntm.topology.cellular_automaton(nx)
-
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        right_label = ((ctx.node_label + 1) % nx)
-        un_i_p1 = ctx.activity_of(right_label)
-        un_m1_i = ctx.past_activity_of(ctx.node_label)
-        return ((((dt ** 2) * ((un_i_p1 - (2 * un_i)) + un_i_m1)) / (dx ** 2)) + ((2 * un_i) - un_m1_i))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt, past_conditions=[initial_conditions])
-    ntm.plot_activities(trajectory)
-    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-if:
-     ...  = np.linspace
-
-idx = 23:------------------- similar code ------------------ index = 23, score = 5.0 
-if (__name__ == '__main__'):
-    '\n    A model of the 1D Diffusion equation: ∂u/∂t = ν ∂²u/∂x²\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/04_Step_3.ipynb\n    '
-    nx = 41
-    nt = 99
-    dx = (2 / (nx - 1))
-    nu = 0.3
-    sigma = 0.2
-    dt = ((sigma * (dx ** 2)) / nu)
-    network = ntm.topology.cellular_automaton(nx)
-    initial_conditions = ((([1.0] * 10) + ([2.0] * 11)) + ([1.0] * 20))
-
-    def activity_rule(ctx):
-        un_i = ctx.current_activity
-        left_label = ((ctx.node_label - 1) % nx)
-        un_i_m1 = ctx.activity_of(left_label)
-        right_label = ((ctx.node_label + 1) % nx)
-        un_i_p1 = ctx.activity_of(right_label)
-        return (un_i + (((nu * dt) / (dx ** 2)) * ((un_i_p1 - (2 * un_i)) + un_i_m1)))
-    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=nt)
-    ntm.plot_activities(trajectory)
-    ntm.animate_plot1D(np.linspace(0, 2, nx), trajectory)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-if:
-     ... . ... (np.linspace,  ... )
-
-idx = 24:------------------- similar code ------------------ index = 24, score = 5.0 
-def _compute_components(masker, imgs, step_size=1, confounds=None, dict_init=None, alpha=1, positive=False, reduction=1, learning_rate=1, n_components=20, batch_size=20, n_epochs=1, method='masked', verbose=0, random_state=None, callback=None, n_jobs=1):
-    methods = {'masked': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'dictionary only': {'G_agg': 'full', 'Dx_agg': 'full'}, 'gram': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'average': {'G_agg': 'average', 'Dx_agg': 'average'}, 'reducing ratio': {'G_agg': 'masked', 'Dx_agg': 'masked'}}
-    masker._check_fitted()
-    dict_init = _check_dict_init(dict_init, mask_img=masker.mask_img_, n_components=n_components)
-    if (dict_init is not None):
-        n_components = dict_init.shape[0]
-    random_state = check_random_state(random_state)
-    if (method == 'sgd'):
-        optimizer = 'sgd'
-        G_agg = 'full'
-        Dx_agg = 'full'
-        reduction = 1
-    else:
-        method = methods[method]
-        G_agg = method['G_agg']
-        Dx_agg = method['Dx_agg']
-        optimizer = 'variational'
-    if verbose:
-        print('Scanning data')
-    n_records = len(imgs)
-    if (confounds is None):
-        confounds = itertools.repeat(None)
-    data_list = list(zip(imgs, confounds))
-    (n_samples_list, dtype) = _lazy_scan(imgs)
-    indices_list = np.zeros((len(imgs) + 1), dtype='int')
-    indices_list[1:] = np.cumsum(n_samples_list)
-    n_samples = (indices_list[(- 1)] + 1)
-    n_voxels = np.sum((check_niimg(masker.mask_img_).get_data() != 0))
-    if verbose:
-        print('Learning...')
-    dict_fact = DictFact(n_components=n_components, code_alpha=alpha, code_l1_ratio=0, comp_l1_ratio=1, comp_pos=positive, reduction=reduction, Dx_agg=Dx_agg, optimizer=optimizer, step_size=step_size, G_agg=G_agg, learning_rate=learning_rate, batch_size=batch_size, random_state=random_state, n_threads=n_jobs, verbose=0)
-    dict_fact.prepare(n_samples=n_samples, n_features=n_voxels, X=dict_init, dtype=dtype)
-    cpu_time = 0
-    io_time = 0
-    if (n_records > 0):
-        if verbose:
-            verbose_iter_ = np.linspace(0, (n_records * n_epochs), verbose)
-            verbose_iter_ = verbose_iter_.tolist()
-        current_n_records = 0
-        for i in range(n_epochs):
-            if verbose:
-                print(('Epoch %i' % (i + 1)))
-            if ((method == 'gram') and (i == 5)):
-                dict_fact.set_params(G_agg='full', Dx_agg='average')
-            if (method == 'reducing ratio'):
-                reduction = (1 + ((reduction - 1) / sqrt((i + 1))))
-                dict_fact.set_params(reduction=reduction)
-            record_list = random_state.permutation(n_records)
-            for record in record_list:
-                if (verbose and verbose_iter_ and (current_n_records >= verbose_iter_[0])):
-                    print(('Record %i' % current_n_records))
-                    if (callback is not None):
-                        callback(masker, dict_fact, cpu_time, io_time)
-                    verbose_iter_ = verbose_iter_[1:]
-                t0 = time.perf_counter()
-                (img, these_confounds) = data_list[record]
-                masked_data = masker.transform(img, confounds=these_confounds)
-                masked_data = masked_data.astype(dtype)
-                io_time += (time.perf_counter() - t0)
-                t0 = time.perf_counter()
-                permutation = random_state.permutation(masked_data.shape[0])
-                if (method in ['average', 'gram']):
-                    sample_indices = np.arange(indices_list[record], indices_list[(record + 1)])
-                    sample_indices = sample_indices[permutation]
-                else:
-                    sample_indices = None
-                masked_data = masked_data[permutation]
-                dict_fact.partial_fit(masked_data, sample_indices=sample_indices)
-                current_n_records += 1
-                cpu_time += (time.perf_counter() - t0)
-    components = _flip(dict_fact.components_)
-    return components
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:
-        if  ... :
-             ...  = np.linspace
-
-idx = 25:------------------- similar code ------------------ index = 25, score = 5.0 
-def test_append_multiple_arrays(self):
-    df1 = self.df.append({'h': np.arange(5), 'i': np.linspace(2.4, 20.9, 5)}, axis='columns')
-    data2 = {'a': array([9, 10, 9, 9, 10]), 'b': array([0.0, nan, nan, 0.0, 1.0]), 'c': array([None, 'e', 'e', 'a', 'z'], dtype=object), 'd': array([False, False, True, False, True]), 'e': array([0, 20, 30, 4, 4]), 'f': array(['a', None, 'ad', None, 'ad'], dtype=object), 'g': array([nan, nan, nan, nan, nan]), 'h': array([0, 1, 2, 3, 4]), 'i': array([2.4, 7.025, 11.65, 16.275, 20.9])}
-    df2 = dx.DataFrame(data2)
-    assert_frame_equal(df1, df2)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  =  ... . ... ({ ... :,  ... : np.linspace},)
-
-idx = 26:------------------- similar code ------------------ index = 27, score = 5.0 
-@classmethod
-def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
-    '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
-    if (not (0 <= eta <= 1)):
-        raise ValueError(f"'eta' must be in range [0,1], given eta is {float(eta):.3f}")
-    x = np.linspace(0, 1, n_points)
-    y_upper_af1 = airfoil1.y_upper(x)
-    y_lower_af1 = airfoil1.y_lower(x)
-    y_upper_af2 = airfoil2.y_upper(x)
-    y_lower_af2 = airfoil2.y_lower(x)
-    y_upper_new = ((y_upper_af1 * (1 - eta)) + (y_upper_af2 * eta))
-    y_lower_new = ((y_lower_af1 * (1 - eta)) + (y_lower_af2 * eta))
-    upper = np.array([x, y_upper_new])
-    lower = np.array([x, y_lower_new])
-    return cls(upper, lower)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-     ...  = np.linspace
-
-idx = 27:------------------- similar code ------------------ index = 19, score = 5.0 
-def build_ball(ax):
-    xlm = ax.get_xlim3d()
-    ylm = ax.get_ylim3d()
-    zlm = ax.get_zlim3d()
-    ax.set_xlim3d((- 0.82), 0.82)
-    ax.set_ylim3d((- 0.82), 0.82)
-    ax.set_zlim3d((- 0.82), 0.82)
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    ax.xaxis.pane.set_edgecolor('w')
-    ax.yaxis.pane.set_edgecolor('w')
-    ax.zaxis.pane.set_edgecolor('w')
-    ax.grid(False)
-    ax.set_xticks([(- 0.5), 0, 0.5])
-    ax.set_yticks([(- 0.5), 0, 0.5])
-    ax.set_zticks([(- 1), (- 0.5), 0, 0.5, 1])
-    u = np.linspace(0, (2 * np.pi), 15)
-    v = np.linspace(0, np.pi, 20)
-    x = (1 * np.outer(np.cos(u), np.sin(v)))
-    y = (1 * np.outer(np.sin(u), np.sin(v)))
-    z = (1 * np.outer(np.ones(np.size(u)), np.cos(v)))
-    ax.plot_wireframe(x, y, z, colors='dimgray', alpha=0.6, linestyles='-', linewidths=1)
+idx = 31:------------------- similar code ------------------ index = 43, score = 5.0 
+@pytest.mark.parametrize('points', [a, b])
+def test_ripley_uniform_property(points):
+    area = 50
+    Kest = RipleysKEstimator(area=area)
+    r = np.linspace(0, 20, 5)
+    assert_allclose(area, Kest(data=points, radii=r, mode='none')[4])
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
      ...  = np.linspace
 
-idx = 28:------------------- similar code ------------------ index = 28, score = 5.0 
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-    new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
-    return new_cmap
+idx = 32:------------------- similar code ------------------ index = 67, score = 5.0 
+@parameter(name='propensity', default=0.9, values=np.linspace(0.5, 0.99, 10), description='Probability of treatment for group with low fox population.')
+def confounded_propensity_scores(untreated_run, propensity=0.9):
+    "Return confounded treatment assignment probability.\n\n    Treatment increases fox population growth. Therefore, we're assume\n    treatment is more likely for runs with low initial fox population.\n    "
+    if (untreated_run.initial_state.foxes < 20):
+        return propensity
+    return (1.0 - propensity)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-     ...  =  ... . ... (,  ... (np.linspace))
+@ ... (,,  ... =np.linspace,)
 
-idx = 29:------------------- similar code ------------------ index = 29, score = 5.0 
-def get_flat_events(h5file, generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bins=10, **kwargs):
-    '\n    Construct a sample of events over a pT range by combining samples\n    constructed in pT intervals in this range.\n    '
-    pt_bin_edges = np.linspace(pt_min, pt_max, (pt_bins + 1))
-    offset = 0
-    for (pt_lo, pt_hi) in zip(pt_bin_edges[:(- 1)], pt_bin_edges[1:]):
-        get_events(h5file, generator_params, nevents_per_pt_bin, pt_lo, pt_hi, offset=offset, **kwargs)
-        offset += nevents_per_pt_bin
-    pt = h5file['trimmed_jet']['pT']
-    event_weights = get_flat_weights(pt, pt_min, pt_max, (pt_bins * 4))
-    h5file.create_dataset('weights', data=event_weights)
+idx = 33:------------------- similar code ------------------ index = 42, score = 5.0 
+def discretize_oversample_1D(model, x_range, factor=10):
+    '\n    Discretize model by taking the average on an oversampled grid.\n    '
+    x = np.linspace((x_range[0] - (0.5 * (1 - (1 / factor)))), (x_range[1] - (0.5 * (1 + (1 / factor)))), num=((x_range[1] - x_range[0]) * factor))
+    values = model(x)
+    values = np.reshape(values, ((x.size // factor), factor))
+    return values.mean(axis=1)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = np.linspace
 
-idx = 30:------------------- similar code ------------------ index = 30, score = 5.0 
-def plot_environment_result(data, ax, env):
-    ax.set_title(ENV_NAMES[env], fontsize=fontsize)
-    pre_print = ('For env: ' + env)
-    print(pre_print)
-    plot_env_baseline(ax, env)
-    for (alg, col) in zip(algorithms, colors):
-        try:
-            metric = data[alg]
-            (x, mean, std_err, std) = process_test_data(metric)
-            if (alg == 'BC'):
-                x = np.multiply(x, np.linspace(0.0, 100.0, num=100))
-                mean = np.repeat(mean, 100)
-                std_err = np.repeat(std_err, 100)
-                std = np.repeat(std, 100)
-            x_pow = math.floor(math.log(x[(- 1)], 10))
-            x = (x / (10 ** x_pow))
-            ax.plot(x, mean, col, label=alg)
-            ax.fill_between(x, (mean - std_err), (mean + std_err), color=col, alpha=0.3)
-            result = ((((((' ' * len(pre_print)) + alg) + ', Result: ') + '{:.2f}'.format(mean[(- 1)])) + ' +/- ') + '{:.2f}'.format(std[(- 1)]))
-            print(result)
-        except Exception as e:
-            print(((('\t no ' + alg) + ' data for env:') + env))
-    plt.setp(ax.yaxis.get_majorticklabels(), rotation=40)
-    ax.margins(x=0.0, tight=True)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    for in:
-        try:
-            if:
-                 ...  =  ... . ... ( ... , np.linspace)
-
-idx = 31:------------------- similar code ------------------ index = 31, score = 5.0 
+idx = 34:------------------- similar code ------------------ index = 41, score = 5.0 
 def mission_kml(mission, kml, kml_doc):
     '\n    Appends kml nodes describing the mission.\n\n    Args:\n        mission: The mission to add to the KML.\n        kml: A simpleKML Container to which the mission data will be added\n        kml_doc: The simpleKML Document to which schemas will be added\n\n    Returns:\n        The KML folder for the mission data.\n    '
     mission_name = 'Mission {}'.format(mission.pk)
@@ -948,7 +1042,1519 @@ def mission_kml(mission, kml, kml_doc):
 def  ... ():
     for  ...  in:
         for  ...  in np.linspace:
-idx = 32:------------------- similar code ------------------ index = 32, score = 5.0 
+idx = 35:------------------- similar code ------------------ index = 50, score = 5.0 
+def test_camber_line(airfoil):
+    "\n    Test 'camber_line' method\n    "
+    for xsi in np.linspace(0, 1, num=50):
+        assert (airfoil.camber_line(xsi) == 0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in np.linspace:
+idx = 36:------------------- similar code ------------------ index = 64, score = 5.0 
+def pixel_wise_calibration_curve(true_img, mean_pred, std_pred_model, std_pred_aleatoric, mask_test, likelihood, c_threshold=None, S=50):
+    true_img = true_img.view((- 1)).cpu()
+    mean_pred = mean_pred.view((- 1)).cpu()
+    mask = mask_test.view((- 1)).cpu()
+    std_pred_model = std_pred_model.view((- 1)).cpu()
+    std_pred_aleatoric = std_pred_aleatoric.view((- 1)).cpu()
+    std_pred = (torch.pow(std_pred_model, 2) + torch.pow(std_pred_aleatoric, 2)).sqrt()
+    if (likelihood == 'gaussian'):
+        dist = torch.distributions.Normal(mean_pred, std_pred)
+        probs_img = dist.cdf(true_img).cpu().detach().numpy()
+    else:
+        probs_img = torch.zeros_like(true_img)
+        for s in range(S):
+            eps = torch.randn_like(std_pred_model)
+            f = (mean_pred + (std_pred_model * eps))
+            if (likelihood == 'laplace'):
+                scale = (std_pred_aleatoric / np.sqrt(2.0))
+                dist = torch.distributions.Laplace(f, scale)
+                probs_img += (dist.cdf(true_img) / S)
+            elif (likelihood == 'berhu'):
+                w_threshold = weight_aleatoric(c_threshold).cpu().numpy()
+                scale = (std_pred_aleatoric / np.sqrt(w_threshold))
+                probs_img += (berhu_cdf(true_img, f, scale, c_threshold.cpu()) / S)
+        probs_img = probs_img.numpy()
+    sharpness = (std_pred ** 2)[mask].mean().item()
+    n_levels = 10
+    true_freq = np.linspace(0.0, 1.0, n_levels)
+    pred_freq = np.zeros_like(true_freq)
+    probs_masked = probs_img[mask.numpy()]
+    for (i, level) in enumerate(true_freq):
+        mask_level = (probs_masked <= level).astype(np.float32)
+        if (mask_level.sum() > 0.0):
+            pred_freq[i] = mask_level.mean()
+        else:
+            pred_freq[i] = 0.0
+    calibration = (((true_freq - pred_freq) ** 2) * 1.0).sum()
+    return (pred_freq, true_freq, calibration, sharpness)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 37:------------------- similar code ------------------ index = 65, score = 5.0 
+@parameter(name='propensity', default=0.1, values=np.linspace(0.05, 0.5, 10), description='Probability of treatment')
+def rct_propensity(propensity):
+    'Return constant propensity for RCT.'
+    return propensity
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+@ ... (,,  ... =np.linspace,)
+
+idx = 38:------------------- similar code ------------------ index = 51, score = 5.0 
+def plot_env_baseline(ax, env):
+    x = np.linspace(0.0, 2.0, num=100)
+    (mean, std) = BASELINE[env]
+    std_err = (std / np.sqrt(5))
+    mean = np.repeat(mean, 100)
+    std_err = np.repeat(std_err, 100)
+    ax.plot(x, mean, 'k', label='Dataset')
+    ax.fill_between(x, (mean - std_err), (mean + std_err), color='k', alpha=0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 39:------------------- similar code ------------------ index = 63, score = 5.0 
+def test_nondefault_nbins_many_4(self):
+    '\n        Testing correct generation of hist_bins with a non-default nbins\n        '
+    bd = (np.arange(1025) - 0.5)
+    xd = np.linspace(0, 1, len(bd))
+    xs = np.linspace(0, 1, (256 + 1))
+    bins1 = np.interp(xs, xd, bd)
+    xs = np.linspace(0, 1, (512 + 1))
+    bins2 = np.interp(xs, xd, bd)
+    self.assert_list_of_arrays_equal(self.d[2].hist_bins(['FL1', 'FL2', 'FL3'], nbins=[256, None, 512], scale='linear'), [bins1, bd, bins2])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 40:------------------- similar code ------------------ index = 52, score = 5.0 
+@classmethod
+def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
+    '\n        Create an airfoil object from a linear interpolation between two\n        airfoil objects\n\n        Note:\n            * This is an alternative constructor method\n\n        Args:\n            :airfoil1: Airfoil object at eta = 0\n            :airfoil2: Airfoil object at eta = 1\n            :eta: Relative position where eta = [0, 1]\n            :n_points: Number of points for new airfoil object\n\n        Returns:\n            :airfoil: New airfoil instance\n        '
+    if (not (0 <= eta <= 1)):
+        raise ValueError(f"'eta' must be in range [0,1], given eta is {float(eta):.3f}")
+    x = np.linspace(0, 1, n_points)
+    y_upper_af1 = airfoil1.y_upper(x)
+    y_lower_af1 = airfoil1.y_lower(x)
+    y_upper_af2 = airfoil2.y_upper(x)
+    y_lower_af2 = airfoil2.y_lower(x)
+    y_upper_new = ((y_upper_af1 * (1 - eta)) + (y_upper_af2 * eta))
+    y_lower_new = ((y_lower_af1 * (1 - eta)) + (y_lower_af2 * eta))
+    upper = np.array([x, y_upper_new])
+    lower = np.array([x, y_lower_new])
+    return cls(upper, lower)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 41:------------------- similar code ------------------ index = 53, score = 5.0 
+def gauss_kernel(size=21, sigma=3):
+    interval = (((2 * sigma) + 1.0) / size)
+    x = np.linspace(((- sigma) - (interval / 2)), (sigma + (interval / 2)), (size + 1))
+    ker1d = np.diff(st.norm.cdf(x))
+    kernel_raw = np.sqrt(np.outer(ker1d, ker1d))
+    kernel = (kernel_raw / kernel_raw.sum())
+    out_filter = np.array(kernel, dtype=np.float32)
+    out_filter = out_filter.reshape((size, size, 1, 1))
+    return out_filter
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 42:------------------- similar code ------------------ index = 61, score = 5.0 
+def _construct_meshgrid(left=(- 15), right=15, npoints=100):
+    x = np.linspace(left, right, npoints)
+    y = x.copy()
+    (X, Y) = np.meshgrid(x, y)
+    return (X, Y)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 43:------------------- similar code ------------------ index = 60, score = 5.0 
+def __init__(self, dataset, sizes, num_buckets, pad_idx, left_pad):
+    super().__init__(dataset)
+    self.pad_idx = pad_idx
+    self.left_pad = left_pad
+    assert (num_buckets > 0)
+    self.buckets = np.unique(np.percentile(sizes, np.linspace(0, 100, (num_buckets + 1)), interpolation='lower')[1:])
+
+    def get_bucketed_sizes(orig_sizes, buckets):
+        sizes = np.copy(orig_sizes)
+        assert (np.min(sizes) >= 0)
+        start_val = (- 1)
+        for end_val in buckets:
+            mask = ((sizes > start_val) & (sizes <= end_val))
+            sizes[mask] = end_val
+            start_val = end_val
+        return sizes
+    self._bucketed_sizes = get_bucketed_sizes(sizes, self.buckets)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... ( ... . ... ( ... , np.linspace,))
+
+
+idx = 44:------------------- similar code ------------------ index = 59, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+@pytest.mark.filterwarnings('ignore:.*:RuntimeWarning')
+def test_deriv_1D(self, model_class, test_parameters):
+    '\n        Test the derivative of a model by comparing results with an estimated\n        derivative.\n        '
+    x_lim = test_parameters['x_lim']
+    if (model_class.fit_deriv is None):
+        pytest.skip('Derivative function is not defined for model.')
+    if issubclass(model_class, PolynomialBase):
+        pytest.skip('Skip testing derivative of polynomials.')
+    if ('log_fit' in test_parameters):
+        if test_parameters['log_fit']:
+            x = np.logspace(x_lim[0], x_lim[1], self.N)
+    else:
+        x = np.linspace(x_lim[0], x_lim[1], self.N)
+    parameters = test_parameters['parameters']
+    model_with_deriv = create_model(model_class, test_parameters, use_constraints=False)
+    model_no_deriv = create_model(model_class, test_parameters, use_constraints=False)
+    rsn = np.random.RandomState(1234567890)
+    n = ((0.1 * parameters[0]) * (rsn.rand(self.N) - 0.5))
+    data = (model_with_deriv(x) + n)
+    fitter_with_deriv = fitting.LevMarLSQFitter()
+    new_model_with_deriv = fitter_with_deriv(model_with_deriv, x, data)
+    fitter_no_deriv = fitting.LevMarLSQFitter()
+    new_model_no_deriv = fitter_no_deriv(model_no_deriv, x, data, estimate_jacobian=True)
+    assert_allclose(new_model_with_deriv.parameters, new_model_no_deriv.parameters, atol=0.15)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = np.linspace
+
+idx = 45:------------------- similar code ------------------ index = 40, score = 5.0 
+@pytest.mark.parametrize('points, low, high', [(a, 5, 10), (b, (- 10), (- 5))])
+def test_ripley_modes(points, low, high):
+    Kest = RipleysKEstimator(area=25, x_max=high, y_max=high, x_min=low, y_min=low)
+    r = np.linspace(0, 1.2, 25)
+    Kpos_mean = np.mean(Kest.poisson(r))
+    modes = ['ohser', 'translation', 'ripley']
+    for m in modes:
+        Kest_mean = np.mean(Kest(data=points, radii=r, mode=m))
+        assert_allclose(Kpos_mean, Kest_mean, atol=0.1, rtol=0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 46:------------------- similar code ------------------ index = 55, score = 5.0 
+def test_nondefault_nbins_many_3(self):
+    '\n        Testing correct generation of hist_bins with a non-default nbins\n        '
+    bd = (np.arange(1025) - 0.5)
+    xd = np.linspace(0, 1, len(bd))
+    xs = np.linspace(0, 1, (256 + 1))
+    bins1 = np.interp(xs, xd, bd)
+    self.assert_list_of_arrays_equal(self.d[0].hist_bins(['FL1-H', 'FL2-H'], nbins=[256, None], scale='linear'), [bins1, bd])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 47:------------------- similar code ------------------ index = 58, score = 5.0 
+@pytest.mark.parametrize('poly', [Chebyshev1D(5), Legendre1D(5), Polynomial1D(5)])
+def test_compound_with_polynomials_1d(poly):
+    '\n    Tests that polynomials are offset when used in compound models.\n    Issue #3699\n    '
+    poly.parameters = [1, 2, 3, 4, 1, 2]
+    shift = Shift(3)
+    model = (poly | shift)
+    x = np.linspace((- 5), 5, 10)
+    result_compound = model(x)
+    result = shift(poly(x))
+    assert_allclose(result, result_compound)
+    assert (model.param_names == ('c0_0', 'c1_0', 'c2_0', 'c3_0', 'c4_0', 'c5_0', 'offset_1'))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 48:------------------- similar code ------------------ index = 54, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_fit_with_fixed_and_bound_constraints():
+    "\n    Regression test for https://github.com/astropy/astropy/issues/2235\n\n    Currently doesn't test that the fit is any *good*--just that parameters\n    stay within their given constraints.\n    "
+    m = models.Gaussian1D(amplitude=3, mean=4, stddev=1, bounds={'mean': (4, 5)}, fixed={'amplitude': True})
+    x = np.linspace(0, 10, 10)
+    y = np.exp(((- (x ** 2)) / 2))
+    f = fitting.LevMarLSQFitter()
+    fitted_1 = f(m, x, y)
+    assert (fitted_1.mean >= 4)
+    assert (fitted_1.mean <= 5)
+    assert (fitted_1.amplitude == 3.0)
+    m.amplitude.fixed = False
+    fitted_2 = f(m, x, y)
+    assert (fitted_1.mean >= 4)
+    assert (fitted_1.mean <= 5)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 49:------------------- similar code ------------------ index = 153, score = 5.0 
+def H1(N):
+    (xmin, xmax) = ((- 1.0), 1.0)
+    xmesh = np.linspace(xmin, xmax, num=N, endpoint=False)
+    xmesh = torch.from_numpy(xmesh).to(torch.float64)
+    h = ((xmax - xmin) / N)
+    K = (((- 0.5) / (h ** 2)) * ((torch.diag(((- 2) * torch.ones(N, dtype=xmesh.dtype))) + torch.diag(torch.ones((N - 1), dtype=xmesh.dtype), diagonal=1)) + torch.diag(torch.ones((N - 1), dtype=xmesh.dtype), diagonal=(- 1))))
+    potential = (0.5 * (xmesh ** 2))
+    V = torch.diag(potential)
+    Hmatrix = (K + V)
+    return Hmatrix
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 50:------------------- similar code ------------------ index = 39, score = 5.0 
+def test_nondefault_nbins_many_2(self):
+    '\n        Testing correct generation of hist_bins with a non-default nbins\n        '
+    bd = (np.arange(1025) - 0.5)
+    xd = np.linspace(0, 1, len(bd))
+    xs = np.linspace(0, 1, (256 + 1))
+    bins1 = np.interp(xs, xd, bd)
+    xs = np.linspace(0, 1, (512 + 1))
+    bins2 = np.interp(xs, xd, bd)
+    self.assert_list_of_arrays_equal(self.d[0].hist_bins(['FL1-H', 'FL2-H'], nbins=[256, 512], scale='linear'), [bins1, bins2])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 51:------------------- similar code ------------------ index = 18, score = 5.0 
+def plot_standard_curve(fl_rfi, fl_mef, beads_model, std_crv, xscale='linear', yscale='linear', xlim=None, ylim=(1.0, 100000000.0)):
+    "\n    Plot a standard curve with fluorescence of calibration beads.\n\n    Parameters\n    ----------\n    fl_rfi : array_like\n        Fluorescence of the calibration beads' subpopulations, in RFI\n        units.\n    fl_mef : array_like\n        Fluorescence of the calibration beads' subpopulations, in MEF\n        units.\n    beads_model : function\n        Fluorescence model of the calibration beads.\n    std_crv : function\n        The standard curve, mapping relative fluorescence (RFI) units to\n        MEF units.\n\n    Other Parameters\n    ----------------\n    xscale : str, optional\n        Scale of the x axis, either ``linear`` or ``log``.\n    yscale : str, optional\n        Scale of the y axis, either ``linear`` or ``log``.\n    xlim : tuple, optional\n        Limits for the x axis.\n    ylim : tuple, optional\n        Limits for the y axis.\n\n    "
+    plt.plot(fl_rfi, fl_mef, 'o', label='Beads', color=standard_curve_colors[0])
+    if (xlim is None):
+        xlim = plt.xlim()
+    if (xscale == 'linear'):
+        xdata = np.linspace(xlim[0], xlim[1], 200)
+    elif (xscale == 'log'):
+        xdata = np.logspace(np.log10(xlim[0]), np.log10(xlim[1]), 200)
+    plt.plot(xdata, beads_model(xdata), label='Beads model', color=standard_curve_colors[1])
+    plt.plot(xdata, std_crv(xdata), label='Standard curve', color=standard_curve_colors[2])
+    plt.xscale(xscale)
+    plt.yscale(yscale)
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.grid(True)
+    plt.legend(loc='best')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = np.linspace
+
+idx = 52:------------------- similar code ------------------ index = 1, score = 5.0 
+def get_weights(pt, pt_min, pt_max, pt_bins):
+    (pt_hist, edges) = np.histogram(pt, bins=np.linspace(pt_min, pt_max, (pt_bins + 1)))
+    pt_hist = np.true_divide(pt_hist, pt_hist.sum())
+    image_weights = np.true_divide(1.0, np.take(pt_hist, (np.searchsorted(edges, pt) - 1)))
+    image_weights = np.true_divide(image_weights, image_weights.mean())
+    return image_weights
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... ( ... ,  ... =np.linspace)
+
+idx = 53:------------------- similar code ------------------ index = 3, score = 5.0 
+def spline(self, x, y, points=200, degree=2, evaluate=False):
+    'Interpolate spline through given points\n\n        Args:\n            spline (int, optional): Number of points on the spline\n            degree (int, optional): Degree of the spline\n            evaluate (bool, optional): If True, evaluate spline just at\n                                       the coordinates of the knots\n        '
+    (tck, u) = interpolate.splprep([x, y], s=0.0, k=degree)
+    t = np.linspace(0.0, 1.0, points)
+    if evaluate:
+        t = u
+    coo = interpolate.splev(t, tck, der=0)
+    der1 = interpolate.splev(t, tck, der=1)
+    der2 = interpolate.splev(t, tck, der=2)
+    spline_data = [coo, u, t, der1, der2, tck]
+    return spline_data
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 54:------------------- similar code ------------------ index = 4, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_Voigt1D():
+    voi = models.Voigt1D(amplitude_L=(- 0.5), x_0=1.0, fwhm_L=5.0, fwhm_G=5.0)
+    xarr = np.linspace((- 5.0), 5.0, num=40)
+    yarr = voi(xarr)
+    voi_init = models.Voigt1D(amplitude_L=(- 1.0), x_0=1.0, fwhm_L=5.0, fwhm_G=5.0)
+    fitter = fitting.LevMarLSQFitter()
+    voi_fit = fitter(voi_init, xarr, yarr)
+    assert_allclose(voi_fit.param_sets, voi.param_sets)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 55:------------------- similar code ------------------ index = 5, score = 5.0 
+if (__name__ == '__main__'):
+    N = 6
+    model = TFIM(N)
+    for g in np.linspace(0.0, 2.0, num=21):
+        model.g = torch.Tensor([g]).to(torch.float64)
+        model.g.requires_grad_(True)
+        model.setHmatrix()
+        (Es, psis) = torch.symeig(model.Hmatrix, eigenvectors=True)
+        E0 = Es[0]
+        (dE0,) = torch.autograd.grad(E0, model.g, create_graph=True)
+        (d2E0,) = torch.autograd.grad(dE0, model.g)
+        print(g, (E0.item() / model.N), (dE0.item() / model.N), (d2E0.item() / model.N))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    for  ...  in np.linspace:
+idx = 56:------------------- similar code ------------------ index = 6, score = 5.0 
+def make_plot(df, fit_params):
+    v_min = (df.volume.min() * 0.99)
+    v_max = (df.volume.max() * 1.01)
+    v_fitting = np.linspace(v_min, v_max, num=50)
+    e_fitting = murnaghan(v_fitting, *fit_params)
+    plt.figure(figsize=(8.0, 6.0))
+    loc = df.converged
+    plt.plot(df[loc].volume, df[loc].energy, 'o')
+    loc = [(not b) for b in df.converged]
+    plt.plot(df[loc].volume, df[loc].energy, 'o', c='grey')
+    plt.plot(v_fitting, e_fitting, '--')
+    plt.xlabel('volume [$\\mathrm{\\AA}^3$]')
+    plt.ylabel('energy [eV]')
+    plt.tight_layout()
+    plt.savefig('murn.pdf')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 57:------------------- similar code ------------------ index = 7, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+@pytest.mark.filterwarnings('ignore:.*:RuntimeWarning')
+@pytest.mark.filterwarnings('ignore:Model is linear in parameters.*')
+@pytest.mark.filterwarnings('ignore:The fit may be unsuccessful.*')
+@pytest.mark.parametrize('model', MODELS)
+def test_models_fitting(model):
+    m = model['class'](**model['parameters'])
+    if (len(model['evaluation'][0]) == 2):
+        x = (np.linspace(1, 3, 100) * model['evaluation'][0][0].unit)
+        y = (np.exp((- (x.value ** 2))) * model['evaluation'][0][1].unit)
+        args = [x, y]
+    else:
+        x = (np.linspace(1, 3, 100) * model['evaluation'][0][0].unit)
+        y = (np.linspace(1, 3, 100) * model['evaluation'][0][1].unit)
+        z = (np.exp(((- (x.value ** 2)) - (y.value ** 2))) * model['evaluation'][0][2].unit)
+        args = [x, y, z]
+    fitter = LevMarLSQFitter()
+    m_new = fitter(m, *args)
+    for param_name in m.param_names:
+        par_bef = getattr(m, param_name)
+        par_aft = getattr(m_new, param_name)
+        if (par_bef.unit is None):
+            assert ((par_aft.unit is None) or (par_aft.unit is u.rad))
+        else:
+            assert par_aft.unit.is_equivalent(par_bef.unit)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:
+         ...  = (np.linspace *)
+
+idx = 58:------------------- similar code ------------------ index = 8, score = 5.0 
+def hist_bins(self, channels=None, nbins=None, scale='logicle', **kwargs):
+    '\n        Get histogram bin edges for the specified channel(s).\n\n        These cover the range specified in ``FCSData.range(channels)`` with\n        a number of bins `nbins`, with linear, logarithmic, or logicle\n        spacing.\n\n        Parameters\n        ----------\n        channels : int, str, list of int, list of str\n            Channel(s) for which to generate histogram bins. If None,\n            return a list with bins for all channels, in the order of\n            ``FCSData.channels``.\n        nbins : int or list of ints, optional\n            The number of bins to calculate. If `channels` specifies a list\n            of channels, `nbins` should be a list of integers. If `nbins`\n            is None, use ``FCSData.resolution(channel)``.\n        scale : str, optional\n            Scale in which to generate bins. Can be either ``linear``,\n            ``log``, or ``logicle``.\n        kwargs : optional\n            Keyword arguments specific to the selected bin scaling. Linear\n            and logarithmic scaling do not use additional arguments.\n            For logicle scaling, the following parameters can be provided:\n\n            T : float, optional\n                Maximum range of data. If not provided, use ``range[1]``.\n            M : float, optional\n                (Asymptotic) number of decades in scaled units. If not\n                provided, calculate from the following::\n\n                    max(4.5, 4.5 / np.log10(262144) * np.log10(T))\n\n            W : float, optional\n                Width of linear range in scaled units. If not provided,\n                calculate using the following relationship::\n\n                    W = (M - log10(T / abs(r))) / 2\n\n                Where ``r`` is the minimum negative event. If no negative\n                events are present, W is set to zero.\n\n        Return\n        ------\n        array or list of arrays\n            Histogram bin edges for the specified channel(s).\n\n        Notes\n        -----\n        If ``range[0]`` is equal or less than zero and `scale` is  ``log``,\n        the lower limit of the range is replaced with one.\n\n        Logicle scaling uses the LogicleTransform class in the plot module.\n\n        References\n        ----------\n        .. [1] D.R. Parks, M. Roederer, W.A. Moore, "A New Logicle Display\n        Method Avoids Deceptive Effects of Logarithmic Scaling for Low\n        Signals and Compensated Data," Cytometry Part A 69A:541-551, 2006,\n        PMID 16604519.\n\n        '
+    if (channels is None):
+        channels = list(self._channels)
+    channels = self._name_to_index(channels)
+    channel_list = channels
+    if (not isinstance(channel_list, list)):
+        channel_list = [channel_list]
+    if (not isinstance(nbins, list)):
+        nbins = ([nbins] * len(channel_list))
+    if (not isinstance(scale, list)):
+        scale = ([scale] * len(channel_list))
+    bins = []
+    for (channel, nbins_channel, scale_channel) in zip(channel_list, nbins, scale):
+        res_channel = self.resolution(channel)
+        if (nbins_channel is None):
+            nbins_channel = res_channel
+        range_channel = self.range(channel)
+        if (scale_channel == 'linear'):
+            delta_res = ((range_channel[1] - range_channel[0]) / (res_channel - 1))
+            bins_channel = np.linspace((range_channel[0] - (delta_res / 2)), (range_channel[1] + (delta_res / 2)), (nbins_channel + 1))
+        elif (scale_channel == 'log'):
+            if (range_channel[0] <= 0):
+                range_channel[0] = min(1.0, (range_channel[1] / 100000.0))
+            range_channel = [np.log10(range_channel[0]), np.log10(range_channel[1])]
+            delta_res = ((range_channel[1] - range_channel[0]) / (res_channel - 1))
+            bins_channel = np.linspace((range_channel[0] - (delta_res / 2)), (range_channel[1] + (delta_res / 2)), (nbins_channel + 1))
+            bins_channel = (10 ** bins_channel)
+        elif (scale_channel == 'logicle'):
+            t = FlowCal.plot._LogicleTransform(data=self, channel=channel, **kwargs)
+            delta_res = (float(t.M) / (res_channel - 1))
+            s = np.linspace(((- delta_res) / 2.0), (t.M + (delta_res / 2.0)), (nbins_channel + 1))
+            bins_channel = t.transform_non_affine(s)
+        else:
+            raise ValueError('scale "{}" not supported'.format(scale_channel))
+        bins.append(bins_channel)
+    if (not isinstance(channels, list)):
+        bins = bins[0]
+    return bins
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+        if:
+             ...  = np.linspace
+
+idx = 59:------------------- similar code ------------------ index = 9, score = 5.0 
+def test_simplex_lsq_fitter(self):
+    'A basic test for the `SimplexLSQ` fitter.'
+
+    class Rosenbrock(Fittable2DModel):
+        a = Parameter()
+        b = Parameter()
+
+        @staticmethod
+        def evaluate(x, y, a, b):
+            return (((a - x) ** 2) + (b * ((y - (x ** 2)) ** 2)))
+    x = y = np.linspace((- 3.0), 3.0, 100)
+    with NumpyRNGContext(_RANDOM_SEED):
+        z = Rosenbrock.evaluate(x, y, 1.0, 100.0)
+        z += np.random.normal(0.0, 0.1, size=z.shape)
+    fitter = SimplexLSQFitter()
+    r_i = Rosenbrock(1, 100)
+    r_f = fitter(r_i, x, y, z)
+    assert_allclose(r_f.parameters, [1.0, 100.0], rtol=0.01)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ...  = np.linspace
+
+idx = 60:------------------- similar code ------------------ index = 10, score = 5.0 
+def E0_sum(N, g):
+    ks = (((np.linspace(((- (N - 1)) / 2), ((N - 1) / 2), num=N) / N) * 2) * np.pi)
+    epsilon_ks = (2 * np.sqrt((((g ** 2) - ((2 * g) * np.cos(ks))) + 1)))
+    E0 = (((- 0.5) * epsilon_ks.sum()) / N)
+    return E0
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = (((np.linspace /  ... ) *  ... ) *)
+
+idx = 61:------------------- similar code ------------------ index = 12, score = 5.0 
+@pytest.mark.parametrize('points, x_min, x_max', [(a, 0, 10), (b, (- 5), 5)])
+def test_ripley_K_implementation(points, x_min, x_max):
+    "\n    Test against Ripley's K function implemented in R package `spatstat`\n        +-+---------+---------+----------+---------+-+\n      6 +                                          * +\n        |                                            |\n        |                                            |\n    5.5 +                                            +\n        |                                            |\n        |                                            |\n      5 +                     *                      +\n        |                                            |\n    4.5 +                                            +\n        |                                            |\n        |                                            |\n      4 + *                                          +\n        +-+---------+---------+----------+---------+-+\n          1        1.5        2         2.5        3\n\n        +-+---------+---------+----------+---------+-+\n      3 + *                                          +\n        |                                            |\n        |                                            |\n    2.5 +                                            +\n        |                                            |\n        |                                            |\n      2 +                     *                      +\n        |                                            |\n    1.5 +                                            +\n        |                                            |\n        |                                            |\n      1 +                                          * +\n        +-+---------+---------+----------+---------+-+\n         -3       -2.5       -2        -1.5       -1\n    "
+    area = 100
+    r = np.linspace(0, 2.5, 5)
+    Kest = RipleysKEstimator(area=area, x_min=x_min, y_min=x_min, x_max=x_max, y_max=x_max)
+    ANS_NONE = np.array([0, 0, 0, 66.667, 66.667])
+    assert_allclose(ANS_NONE, Kest(data=points, radii=r, mode='none'), atol=0.001)
+    ANS_TRANS = np.array([0, 0, 0, 82.304, 82.304])
+    assert_allclose(ANS_TRANS, Kest(data=points, radii=r, mode='translation'), atol=0.001)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 62:------------------- similar code ------------------ index = 13, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+@pytest.mark.filterwarnings('ignore:Model is linear in parameters.*')
+def test_2d_model():
+    from astropy.utils import NumpyRNGContext
+    gauss2d = models.Gaussian2D(10.2, 4.3, 5, 2, 1.2, 1.4)
+    fitter = fitting.LevMarLSQFitter()
+    X = np.linspace((- 1), 7, 200)
+    Y = np.linspace((- 1), 7, 200)
+    (x, y) = np.meshgrid(X, Y)
+    z = gauss2d(x, y)
+    w = np.ones(x.size)
+    w.shape = x.shape
+    with NumpyRNGContext(1234567890):
+        n = np.random.randn(x.size)
+        n.shape = x.shape
+        m = fitter(gauss2d, x, y, (z + (2 * n)), weights=w)
+        assert_allclose(m.parameters, gauss2d.parameters, rtol=0.05)
+        m = fitter(gauss2d, x, y, (z + (2 * n)), weights=None)
+        assert_allclose(m.parameters, gauss2d.parameters, rtol=0.05)
+        gauss2d.x_stddev.fixed = True
+        m = fitter(gauss2d, x, y, (z + (2 * n)), weights=w)
+        assert_allclose(m.parameters, gauss2d.parameters, rtol=0.05)
+        m = fitter(gauss2d, x, y, (z + (2 * n)), weights=None)
+        assert_allclose(m.parameters, gauss2d.parameters, rtol=0.05)
+        p2 = models.Polynomial2D(1, c0_0=1, c1_0=1.2, c0_1=3.2)
+        z = p2(x, y)
+        m = fitter(p2, x, y, (z + (2 * n)), weights=None)
+        assert_allclose(m.parameters, p2.parameters, rtol=0.05)
+        m = fitter(p2, x, y, (z + (2 * n)), weights=w)
+        assert_allclose(m.parameters, p2.parameters, rtol=0.05)
+        p2.c1_0.fixed = True
+        m = fitter(p2, x, y, (z + (2 * n)), weights=w)
+        assert_allclose(m.parameters, p2.parameters, rtol=0.05)
+        m = fitter(p2, x, y, (z + (2 * n)), weights=None)
+        assert_allclose(m.parameters, p2.parameters, rtol=0.05)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 63:------------------- similar code ------------------ index = 14, score = 5.0 
+def generate_trajectory(self):
+    'Generate a variable speed target trajectory for the episode.'
+    direction = self._rand_obj_.choice([(- 1), 1])
+    if (direction == 1):
+        start_pos = self._rand_obj_.uniform(low=self.angle_low, high=self.reset_pos_center)
+        self.trajectory = np.linspace(start_pos, self.angle_high, self.comm_episode_length_step)
+    else:
+        start_pos = self._rand_obj_.uniform(low=self.reset_pos_center, high=self.angle_high)
+        self.trajectory = np.linspace(start_pos, self.angle_low, self.comm_episode_length_step)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:
+ = np.linspace
+
+idx = 64:------------------- similar code ------------------ index = 16, score = 5.0 
+def valuechange(self):
+    if (self.aoaf.value() >= self.aoat.value()):
+        self.aoaf.setValue((self.aoat.value() - self.aoas.value()))
+    if (self.aoat.value() <= self.aoaf.value()):
+        self.aoat.setValue((self.aoaf.value() + self.aoas.value()))
+    gas_constant = 287.14
+    temperature = (self.temperature.value() + 273.15)
+    self.density = ((self.pressure.value() / gas_constant) / temperature)
+    num = int((((self.aoat.value() - self.aoaf.value()) / self.aoas.value()) + 1))
+    self.aoa = np.linspace(self.aoaf.value(), self.aoat.value(), num=num, endpoint=True)
+
+    def dynamic_viscosity(temperature):
+        C = 120.0
+        lamb = 1.512041288e-06
+        vis = ((lamb * (temperature ** 1.5)) / (temperature + C))
+        return vis
+    self.dynamic_viscosity = dynamic_viscosity(temperature)
+    self.kinematic_viscosity = (self.dynamic_viscosity / self.density)
+    velocity = ((self.reynolds.value() / self.chord.value()) * self.kinematic_viscosity)
+    uprime = ((velocity * self.turbulence.value()) / 100.0)
+    tke = ((3.0 / 2.0) * (uprime ** 2))
+    self.u_velocity = (velocity * np.cos(((self.aoa * np.pi) / 180.0)))
+    self.v_velocity = (velocity * np.sin(((self.aoa * np.pi) / 180.0)))
+    RE = self.reynolds.value()
+    log10 = np.log10(RE)
+    logRE = np.power(log10, 2.58)
+    if (RE < 5100000.0):
+        friction_coefficient = (0.455 / logRE)
+    else:
+        friction_coefficient = ((0.455 / logRE) - (1700.0 / RE))
+    wall_shear_stress = (((friction_coefficient * 0.5) * self.density) * (velocity ** 2))
+    friction_velocity = np.sqrt((wall_shear_stress / self.density))
+    wall_distance = (((self.yplus.value() * self.dynamic_viscosity) / self.density) / friction_velocity)
+    newline = '<br>'
+    self.te_text = ('<b>CFD Boundary Conditions</b>' + newline)
+    self.te_text += (f'Reynolds (-): {self.reynolds.value()}' + newline)
+    self.te_text += (f'Pressure (Pa): {self.pressure.value()}' + newline)
+    self.te_text += (f'Temperature (C): {self.temperature.value()}' + newline)
+    self.te_text += (f'Temperature (K): {(self.temperature.value() + 273.15)}' + newline)
+    self.te_text += (f'Density (kg/(m<sup>3</sup>)): {self.density}' + newline)
+    self.te_text += (f'Dynamic viscosity (kg/(m.s)): {self.dynamic_viscosity}' + newline)
+    self.te_text += (f'Kinematic viscosity (m/s) {self.kinematic_viscosity}:' + newline)
+    self.te_text += (f'<b>1st cell layer thickness (m)</b>, for y<sup>+</sup>={self.yplus.value()}' + newline)
+    self.te_text += ('{:16.8f}'.format(wall_distance) + newline)
+    self.te_text += ('<b>TKE (m<sup>2</sup>/s<sup>2</sup>), Length-scale (m)</b>' + newline)
+    self.te_text += ('{:16.8f} {:16.8f}'.format(tke, self.length_sc.value()) + newline)
+    self.te_text += ('<b>AOA (°)   u-velocity (m/s)   v-velocity (m/s)</b>' + newline)
+    for (i, _) in enumerate(self.u_velocity):
+        self.te_text += '{: >5.2f} {: >16.8f} {: >16.8f}{}'.format(self.aoa[i], self.u_velocity[i], self.v_velocity[i], newline)
+    self.textedit.setStyleSheet('font-family: Courier; font-size: 12px; ')
+    self.textedit.setHtml(self.te_text)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+ = np.linspace
+
+
+idx = 65:------------------- similar code ------------------ index = 17, score = 5.0 
+def color(img, magnitude):
+    magnitudes = np.linspace(0.1, 1.9, 11)
+    img = ImageEnhance.Color(img).enhance(random.uniform(magnitudes[magnitude], magnitudes[(magnitude + 1)]))
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 66:------------------- similar code ------------------ index = 19, score = 5.0 
+def plot_performance_quad(returns, fig_path=None, fig_name='heat_map_quad', font_size=20):
+
+    def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+        new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
+        return new_cmap
+    fig = plt.figure(figsize=(16, 9))
+    fig.suptitle(returns.name, fontsize=16)
+    gs = gridspec.GridSpec(2, 2, wspace=0.2, hspace=0.3)
+    ax_heatmap = plt.subplot(gs[(0, 0)])
+    ax_monthly = plt.subplot(gs[(0, 1)])
+    ax_box_plot = plt.subplot(gs[(1, 0)])
+    ax_yearly = plt.subplot(gs[(1, 1)])
+    monthly_ret_table = pf.timeseries.aggregate_returns(returns, 'monthly')
+    monthly_ret_table = monthly_ret_table.unstack().round(3)
+    ax = plt.gca()
+    cmap = cm.viridis
+    new_cmap = truncate_colormap(cmap, 0.2, 0.8)
+    sns.heatmap((monthly_ret_table.fillna(0) * 100.0), annot=True, annot_kws={'size': font_size}, alpha=1.0, center=0.0, cbar=False, mask=monthly_ret_table.isna(), cmap=new_cmap, ax=ax_heatmap)
+    ax_heatmap.set_xticklabels(np.arange(0.5, 12.5, step=1))
+    ax_heatmap.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], rotation=45)
+    ylabels = ax_heatmap.get_yticklabels()
+    ax_heatmap.set_yticklabels(ylabels, rotation=45)
+    ax_heatmap.set_xlabel('')
+    ax_heatmap.set_ylabel('')
+    pf.plotting.plot_monthly_returns_dist(returns, ax=ax_monthly)
+    ax_monthly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    ax_monthly.set_xlabel('')
+    leg1 = ax_monthly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    for text in leg1.get_texts():
+        text.set_label('mean')
+    df_weekly = pf.timeseries.aggregate_returns(returns, convert_to='weekly')
+    df_monthly = pf.timeseries.aggregate_returns(returns, convert_to='monthly')
+    pf.plotting.plot_return_quantiles(returns, df_weekly, df_monthly, ax=ax_box_plot)
+    pf.plotting.plot_annual_returns(returns, ax=ax_yearly)
+    _ = ax_yearly.legend(['mean'], framealpha=0.0, prop={'size': font_size})
+    ax_yearly.xaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    plt.xticks(rotation=45)
+    ax_yearly.set_xlabel('')
+    ax_yearly.set_ylabel('')
+    for ax in [ax_box_plot, ax_heatmap, ax_monthly, ax_yearly]:
+        for item in (([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels()) + ax.get_yticklabels()):
+            item.set_fontsize(font_size)
+    for items in (ax_yearly.get_yticklabels() + ax_heatmap.get_yticklabels()):
+        items.set_fontsize((font_size - 5))
+    if (fig_path is not None):
+        if Path.is_dir(fig_path):
+            plt.savefig((fig_path / fig_name), dpi=600, bbox_inches='tight', transparent=True)
+        return fig
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+         ...  =  ... . ... (,  ... (np.linspace))
+
+idx = 67:------------------- similar code ------------------ index = 38, score = 5.0 
+def brightness(img, magnitude):
+    magnitudes = np.linspace(0.1, 1.9, 11)
+    img = ImageEnhance.Brightness(img).enhance(random.uniform(magnitudes[magnitude], magnitudes[(magnitude + 1)]))
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 68:------------------- similar code ------------------ index = 20, score = 5.0 
+@pytest.mark.parametrize('points, low, high', [(a, 0, 1), (b, (- 1), 0)])
+def test_ripley_large_density_var_width(points, low, high):
+    Kest = RipleysKEstimator(area=1, x_min=low, x_max=high, y_min=low, y_max=high)
+    r = np.linspace(0, 0.25, 25)
+    Kpos = Kest.poisson(r)
+    Kest_r = Kest(data=points, radii=r, mode='var-width')
+    assert_allclose(Kpos, Kest_r, atol=0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 69:------------------- similar code ------------------ index = 21, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+@pytest.mark.filterwarnings('ignore:The fit may be unsuccessful.*')
+@pytest.mark.parametrize('model', compound_models_no_units)
+def test_compound_without_units(model):
+    x = (np.linspace((- 5), 5, 10) * u.Angstrom)
+    with NumpyRNGContext(12345):
+        y = np.random.sample(10)
+    fitter = fitting.LevMarLSQFitter()
+    res_fit = fitter(model, x, (y * u.Hz))
+    for param_name in res_fit.param_names:
+        print(getattr(res_fit, param_name))
+    assert all([res_fit[i]._has_units for i in range(3)])
+    z = res_fit(x)
+    assert isinstance(z, u.Quantity)
+    res_fit = fitter(model, (np.arange(10) * u.Unit('Angstrom')), y)
+    assert all([res_fit[i]._has_units for i in range(3)])
+    z = res_fit(x)
+    assert isinstance(z, np.ndarray)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = (np.linspace *)
+
+idx = 70:------------------- similar code ------------------ index = 23, score = 5.0 
+def plot_learning_curve(self, estimator, title, X, y, ylim=None, cv=None, n_jobs=None, train_sizes=np.linspace(0.1, 1.0, 5)):
+    print('Drawing curve, depending on your datasets size, this may take several minutes to several hours.')
+    plt.figure()
+    plt.title(title)
+    if (ylim is not None):
+        plt.ylim(*ylim)
+    plt.xlabel('Training examples')
+    plt.ylabel('Score')
+    (train_sizes, train_scores, test_scores) = learning_curve(estimator, X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+    plt.grid()
+    plt.fill_between(train_sizes, (train_scores_mean - train_scores_std), (train_scores_mean + train_scores_std), alpha=0.1, color='r')
+    plt.fill_between(train_sizes, (test_scores_mean - test_scores_std), (test_scores_mean + test_scores_std), alpha=0.1, color='g')
+    plt.plot(train_sizes, train_scores_mean, 'o-', color='r', label='Training score')
+    plt.plot(train_sizes, test_scores_mean, 'o-', color='g', label='Cross-validation score')
+    plt.legend(loc='best')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ,  ... ,  ... ,  ... ,  ... ,,,,  ... =np.linspace):
+idx = 71:------------------- similar code ------------------ index = 24, score = 5.0 
+def plot_colored_sinusoidal_lines(ax):
+    'Plot sinusoidal lines with colors following the style color cycle.\n    '
+    L = (2 * np.pi)
+    x = np.linspace(0, L)
+    nb_colors = len(plt.rcParams['axes.prop_cycle'])
+    shift = np.linspace(0, L, nb_colors, endpoint=False)
+    for s in shift:
+        ax.plot(x, np.sin((x + s)), '-')
+    ax.set_xlim([x[0], x[(- 1)]])
+    return ax
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 72:------------------- similar code ------------------ index = 27, score = 5.0 
+def design_agent_and_env(FLAGS):
+    env_params = {}
+    if (FLAGS.env == 'reach'):
+        env_params['env_name'] = 'FetchReach-v1'
+        env_params['has_object'] = False
+        FLAGS.total_steps = 20
+    else:
+        raise TypeError('No such environment till now')
+    x = pow(FLAGS.total_steps, (1 / FLAGS.layers))
+    if ((x - int(x)) == 0):
+        FLAGS.time_scale = int(x)
+    else:
+        FLAGS.time_scale = (int(x) + 1)
+    FLAGS.num_exploration_episodes = 100
+    FLAGS.num_test_episodes = 100
+    FLAGS.num_epochs = (FLAGS.episodes // FLAGS.num_exploration_episodes)
+    env_params['obj_range'] = 0.15
+    env_params['target_range'] = 0.15
+    env_params['max_actions'] = FLAGS.total_steps
+    distance_threshold = 0.05
+    env_params['end_goal_thresholds'] = distance_threshold
+    env_params['subgoal_thresholds'] = distance_threshold
+    if (FLAGS.curriculum >= 2):
+        range_lis = list(np.linspace(0.05, 0.15, FLAGS.curriculum))
+        env_params['curriculum_list'] = range_lis
+    agent_params = {}
+    agent_params['subgoal_test_perc'] = 0.3
+    agent_params['subgoal_penalty'] = (- FLAGS.time_scale)
+    agent_params['atomic_noise'] = 0.1
+    agent_params['subgoal_noise'] = 0.03
+    agent_params['epsilon'] = 0.1
+    agent_params['episodes_to_store'] = 1000
+    agent_params['update_times'] = 40
+    agent_params['batch_size'] = 64
+    agent_params['imit_batch_size'] = 32
+    agent_params['imit_ratio'] = FLAGS.imit_ratio
+    return (agent_params, env_params)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:
+         ...  =  ... (np.linspace)
+
+idx = 73:------------------- similar code ------------------ index = 29, score = 5.0 
+def _compute_components(masker, imgs, step_size=1, confounds=None, dict_init=None, alpha=1, positive=False, reduction=1, learning_rate=1, n_components=20, batch_size=20, n_epochs=1, method='masked', verbose=0, random_state=None, callback=None, n_jobs=1):
+    methods = {'masked': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'dictionary only': {'G_agg': 'full', 'Dx_agg': 'full'}, 'gram': {'G_agg': 'masked', 'Dx_agg': 'masked'}, 'average': {'G_agg': 'average', 'Dx_agg': 'average'}, 'reducing ratio': {'G_agg': 'masked', 'Dx_agg': 'masked'}}
+    masker._check_fitted()
+    dict_init = _check_dict_init(dict_init, mask_img=masker.mask_img_, n_components=n_components)
+    if (dict_init is not None):
+        n_components = dict_init.shape[0]
+    random_state = check_random_state(random_state)
+    if (method == 'sgd'):
+        optimizer = 'sgd'
+        G_agg = 'full'
+        Dx_agg = 'full'
+        reduction = 1
+    else:
+        method = methods[method]
+        G_agg = method['G_agg']
+        Dx_agg = method['Dx_agg']
+        optimizer = 'variational'
+    if verbose:
+        print('Scanning data')
+    n_records = len(imgs)
+    if (confounds is None):
+        confounds = itertools.repeat(None)
+    data_list = list(zip(imgs, confounds))
+    (n_samples_list, dtype) = _lazy_scan(imgs)
+    indices_list = np.zeros((len(imgs) + 1), dtype='int')
+    indices_list[1:] = np.cumsum(n_samples_list)
+    n_samples = (indices_list[(- 1)] + 1)
+    n_voxels = np.sum((check_niimg(masker.mask_img_).get_data() != 0))
+    if verbose:
+        print('Learning...')
+    dict_fact = DictFact(n_components=n_components, code_alpha=alpha, code_l1_ratio=0, comp_l1_ratio=1, comp_pos=positive, reduction=reduction, Dx_agg=Dx_agg, optimizer=optimizer, step_size=step_size, G_agg=G_agg, learning_rate=learning_rate, batch_size=batch_size, random_state=random_state, n_threads=n_jobs, verbose=0)
+    dict_fact.prepare(n_samples=n_samples, n_features=n_voxels, X=dict_init, dtype=dtype)
+    cpu_time = 0
+    io_time = 0
+    if (n_records > 0):
+        if verbose:
+            verbose_iter_ = np.linspace(0, (n_records * n_epochs), verbose)
+            verbose_iter_ = verbose_iter_.tolist()
+        current_n_records = 0
+        for i in range(n_epochs):
+            if verbose:
+                print(('Epoch %i' % (i + 1)))
+            if ((method == 'gram') and (i == 5)):
+                dict_fact.set_params(G_agg='full', Dx_agg='average')
+            if (method == 'reducing ratio'):
+                reduction = (1 + ((reduction - 1) / sqrt((i + 1))))
+                dict_fact.set_params(reduction=reduction)
+            record_list = random_state.permutation(n_records)
+            for record in record_list:
+                if (verbose and verbose_iter_ and (current_n_records >= verbose_iter_[0])):
+                    print(('Record %i' % current_n_records))
+                    if (callback is not None):
+                        callback(masker, dict_fact, cpu_time, io_time)
+                    verbose_iter_ = verbose_iter_[1:]
+                t0 = time.perf_counter()
+                (img, these_confounds) = data_list[record]
+                masked_data = masker.transform(img, confounds=these_confounds)
+                masked_data = masked_data.astype(dtype)
+                io_time += (time.perf_counter() - t0)
+                t0 = time.perf_counter()
+                permutation = random_state.permutation(masked_data.shape[0])
+                if (method in ['average', 'gram']):
+                    sample_indices = np.arange(indices_list[record], indices_list[(record + 1)])
+                    sample_indices = sample_indices[permutation]
+                else:
+                    sample_indices = None
+                masked_data = masked_data[permutation]
+                dict_fact.partial_fit(masked_data, sample_indices=sample_indices)
+                current_n_records += 1
+                cpu_time += (time.perf_counter() - t0)
+    components = _flip(dict_fact.components_)
+    return components
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+        if  ... :
+             ...  = np.linspace
+
+idx = 74:------------------- similar code ------------------ index = 30, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+@pytest.mark.parametrize('model', bad_compound_models_no_units)
+def test_bad_compound_without_units(model):
+    with pytest.raises(ValueError):
+        x = (np.linspace((- 5), 5, 10) * u.Angstrom)
+        with NumpyRNGContext(12345):
+            y = np.random.sample(10)
+        fitter = fitting.LevMarLSQFitter()
+        res_fit = fitter(model, x, (y * u.Hz))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    with:
+         ...  = (np.linspace *)
+
+idx = 75:------------------- similar code ------------------ index = 31, score = 5.0 
+def TunnelMesh(self, name='', tunnel_height=2.0, divisions_height=100, ratio_height=10.0, dist='symmetric', smoothing_algorithm='simple', smoothing_iterations=10, smoothing_tolerance=0.001):
+    block_tunnel = BlockMesh(name=name)
+    self.tunnel_height = tunnel_height
+    line = self.block_te.getVLines()[(- 1)]
+    line.reverse()
+    del line[(- 1)]
+    line += self.block_airfoil.getULines()[(- 1)]
+    del line[(- 1)]
+    line += self.block_te.getVLines()[0]
+    block_tunnel.addLine(line)
+    p1 = np.array((block_tunnel.getULines()[0][0][0], tunnel_height))
+    p2 = np.array((0.0, tunnel_height))
+    p3 = np.array((0.0, (- tunnel_height)))
+    p4 = np.array((block_tunnel.getULines()[0][(- 1)][0], (- tunnel_height)))
+    line = list()
+    vec = (p2 - p1)
+    for t in np.linspace(0.0, 1.0, 10):
+        p = (p1 + (t * vec))
+        line.append(p.tolist())
+    del line[(- 1)]
+    for phi in np.linspace(90.0, 270.0, 200):
+        phir = np.radians(phi)
+        x = (tunnel_height * np.cos(phir))
+        y = (tunnel_height * np.sin(phir))
+        line.append((x, y))
+    del line[(- 1)]
+    vec = (p4 - p3)
+    for t in np.linspace(0.0, 1.0, 10):
+        p = (p3 + (t * vec))
+        line.append(p.tolist())
+    line = np.array(line)
+    (tck, _) = interpolate.splprep(line.T, s=0, k=1)
+    if (dist == 'symmetric'):
+        ld = (- 1.3)
+        ud = 1.3
+    if (dist == 'lower'):
+        ld = (- 1.2)
+        ud = 1.5
+    if (dist == 'upper'):
+        ld = (- 1.5)
+        ud = 1.2
+    xx = np.linspace(ld, ud, len(block_tunnel.getULines()[0]))
+    t = ((np.tanh(xx) + 1.0) / 2.0)
+    (xs, ys) = interpolate.splev(t, tck, der=0)
+    line = list(zip(xs.tolist(), ys.tolist()))
+    block_tunnel.addLine(line)
+    p5 = np.array(block_tunnel.getULines()[0][0])
+    p6 = np.array(block_tunnel.getULines()[0][(- 1)])
+    vline1 = BlockMesh.makeLine(p5, p1, divisions=divisions_height, ratio=ratio_height)
+    vline2 = BlockMesh.makeLine(p6, p4, divisions=divisions_height, ratio=ratio_height)
+    boundary = [block_tunnel.getULines()[0], block_tunnel.getULines()[(- 1)], vline1, vline2]
+    block_tunnel.transfinite(boundary=boundary)
+    ulines = list()
+    old_ulines = block_tunnel.getULines()
+    for (j, uline) in enumerate(block_tunnel.getULines()):
+        if ((j == 0) or (j == (len(block_tunnel.getULines()) - 1))):
+            ulines.append(uline)
+            continue
+        line = list()
+        (xo, yo) = list(zip(*old_ulines[0]))
+        xo = np.array(xo)
+        yo = np.array(yo)
+        normals = BlockMesh.curveNormals(xo, yo)
+        for (i, point) in enumerate(uline):
+            if ((i == 0) or (i == (len(uline) - 1))):
+                line.append(point)
+                continue
+            pt = np.array(old_ulines[j][i])
+            pto = np.array(old_ulines[0][i])
+            vec = (pt - pto)
+            dist = (np.dot(vec, normals[i]) / np.linalg.norm(normals[i]))
+            pn = (pto + (dist * normals[i]))
+            v = (float(j) / float(len(block_tunnel.getULines())))
+            exp = 0.6
+            pnew = (((1.0 - (v ** exp)) * pn) + ((v ** exp) * pt))
+            line.append((pnew.tolist()[0], pnew.tolist()[1]))
+        ulines.append(line)
+    block_tunnel = BlockMesh(name=name)
+    for uline in ulines:
+        block_tunnel.addLine(uline)
+    ij = [0, 30, 0, (len(block_tunnel.getULines()) - 1)]
+    block_tunnel.transfinite(ij=ij)
+    ij = [(len(block_tunnel.getVLines()) - 31), (len(block_tunnel.getVLines()) - 1), 0, (len(block_tunnel.getULines()) - 1)]
+    block_tunnel.transfinite(ij=ij)
+    if (smoothing_algorithm == 'simple'):
+        smooth = Smooth(block_tunnel)
+        nodes = smooth.selectNodes(domain='interior')
+        block_tunnel = smooth.smooth(nodes, iterations=1, algorithm='laplace')
+        ij = [1, 30, 1, (len(block_tunnel.getULines()) - 2)]
+        nodes = smooth.selectNodes(domain='ij', ij=ij)
+        block_tunnel = smooth.smooth(nodes, iterations=2, algorithm='laplace')
+        ij = [(len(block_tunnel.getVLines()) - 31), (len(block_tunnel.getVLines()) - 2), 1, (len(block_tunnel.getULines()) - 2)]
+        nodes = smooth.selectNodes(domain='ij', ij=ij)
+        block_tunnel = smooth.smooth(nodes, iterations=3, algorithm='laplace')
+    elif (smoothing_algorithm == 'elliptic'):
+        smoother = Elliptic.Elliptic(block_tunnel.getULines())
+        new_ulines = smoother.smooth(iterations=smoothing_iterations, tolerance=smoothing_tolerance, bnd_type=None, verbose=True)
+        block_tunnel.setUlines(new_ulines)
+    elif (smoothing_algorithm == 'angle_based'):
+        smoother = SmoothAngleBased(block_tunnel, data_source='block')
+        smoothed_vertices = smoother.smooth(iterations=smoothing_iterations, tolerance=smoothing_tolerance, verbose=True)
+        new_ulines = smoother.mapToUlines(smoothed_vertices)
+        block_tunnel.setUlines(new_ulines)
+    self.block_tunnel = block_tunnel
+    self.blocks.append(block_tunnel)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in np.linspace:
+idx = 76:------------------- similar code ------------------ index = 32, score = 5.0 
+if (__name__ == '__main__'):
+    N = 10
+    device = torch.device('cpu')
+    model = TFIM(N, device)
+    k = 300
+    Npoints = 100
+    gs = np.linspace(0.5, 1.5, num=Npoints)
+    E0s_analytic = np.empty(Npoints)
+    E0s_torchAD = np.empty(Npoints)
+    E0s_matrixAD = np.empty(Npoints)
+    E0s_sparseAD = np.empty(Npoints)
+    dE0s_analytic = np.empty(Npoints)
+    dE0s_torchAD = np.empty(Npoints)
+    dE0s_matrixAD = np.empty(Npoints)
+    dE0s_sparseAD = np.empty(Npoints)
+    d2E0s_analytic = np.empty(Npoints)
+    d2E0s_torchAD = np.empty(Npoints)
+    d2E0s_matrixAD = np.empty(Npoints)
+    d2E0s_sparseAD = np.empty(Npoints)
+    print('g    E0_analytic    E0_torchAD    E0_matrixAD    E0_sparseAD    dE0_analytic    dE0_torchAD    dE0_matrixAD    dE0_sparseAD    d2E0_analytic    d2E0_torchAD    d2E0_matrixAD    d2E0_sparseAD')
+    for i in range(Npoints):
+        model.g = torch.Tensor([gs[i]]).to(model.device, dtype=torch.float64)
+        model.g.requires_grad_(True)
+        (E0s_analytic[i], dE0s_analytic[i], d2E0s_analytic[i]) = E0_analytic(model)
+        model.setHmatrix()
+        (E0s_torchAD[i], dE0s_torchAD[i], d2E0s_torchAD[i]) = E0_torchAD(model)
+        (E0s_matrixAD[i], dE0s_matrixAD[i], d2E0s_matrixAD[i]) = E0_matrixAD(model, k)
+        (E0s_sparseAD[i], dE0s_sparseAD[i], d2E0s_sparseAD[i]) = E0_sparseAD(model, k)
+        print(gs[i], E0s_analytic[i], E0s_torchAD[i], E0s_matrixAD[i], E0s_sparseAD[i], dE0s_analytic[i], dE0s_torchAD[i], dE0s_matrixAD[i], dE0s_sparseAD[i], d2E0s_analytic[i], d2E0s_torchAD[i], d2E0s_matrixAD[i], d2E0s_sparseAD[i])
+    import matplotlib.pyplot as plt
+    plt.plot(gs, E0s_analytic, label='Analytic result')
+    plt.plot(gs, E0s_torchAD, label='AD: torch')
+    plt.plot(gs, E0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, E0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{E_0}{N}$')
+    plt.title(('Ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+    plt.plot(gs, dE0s_analytic, label='Analytic result')
+    plt.plot(gs, dE0s_torchAD, label='AD: torch')
+    plt.plot(gs, dE0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, dE0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{1}{N} \\frac{\\partial E_0}{\\partial g}$')
+    plt.title(('1st derivative w.r.t. $g$ of ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+    plt.plot(gs, d2E0s_analytic, label='Analytic result')
+    plt.plot(gs, d2E0s_torchAD, label='AD: torch')
+    plt.plot(gs, d2E0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, d2E0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{1}{N} \\frac{\\partial^2 E_0}{\\partial g^2}$')
+    plt.title(('2nd derivative w.r.t. $g$ of ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = np.linspace
+
+idx = 77:------------------- similar code ------------------ index = 70, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_compound_fitting_with_units():
+    x = (np.linspace((- 5), 5, 15) * u.Angstrom)
+    y = (np.linspace((- 5), 5, 15) * u.Angstrom)
+    fitter = fitting.LevMarLSQFitter()
+    m = models.Gaussian2D((10 * u.Hz), (3 * u.Angstrom), (4 * u.Angstrom), (1 * u.Angstrom), (2 * u.Angstrom))
+    p = models.Planar2D(((3 * u.Hz) / u.Angstrom), ((4 * u.Hz) / u.Angstrom), (1 * u.Hz))
+    model = (m + p)
+    z = model(x, y)
+    res = fitter(model, x, y, z)
+    assert isinstance(res(x, y), np.ndarray)
+    assert all([res[i]._has_units for i in range(2)])
+    model = (models.Gaussian2D() + models.Planar2D())
+    res = fitter(model, x, y, z)
+    assert isinstance(res(x, y), np.ndarray)
+    assert all([res[i]._has_units for i in range(2)])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = (np.linspace *)
+
+idx = 78:------------------- similar code ------------------ index = 34, score = 5.0 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval), cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... (,  ... (np.linspace))
+
+idx = 79:------------------- similar code ------------------ index = 35, score = 5.0 
+def iter_shard_dataframe(df, rows_per_core=1000):
+    'Two way shard of a dataframe.\n\n  This function evenly shards a dataframe so that it can be mapped efficiently.\n  It yields a list of dataframes with length equal to the number of CPU cores,\n  with each dataframe having rows_per_core rows. (Except for the last batch\n  which may have fewer rows in the dataframes.) Passing vectorized inputs to\n  a multiprocessing pool is much more effecient than iterating through a\n  dataframe in serial and passing a list of inputs to the pool.\n\n  Args:\n    df: Pandas dataframe to be sharded.\n    rows_per_core: Number of rows in each shard.\n\n  Returns:\n    A list of dataframe shards.\n  '
+    n = len(df)
+    num_cores = min([multiprocessing.cpu_count(), n])
+    num_blocks = int(np.ceil(((n / num_cores) / rows_per_core)))
+    max_batch_size = (num_cores * rows_per_core)
+    for i in range(num_blocks):
+        min_index = (i * max_batch_size)
+        max_index = min([((i + 1) * max_batch_size), n])
+        df_shard = df[min_index:max_index]
+        n_shard = len(df_shard)
+        boundaries = np.linspace(0, n_shard, (num_cores + 1), dtype=np.int64)
+        (yield [df_shard[boundaries[j]:boundaries[(j + 1)]] for j in range(num_cores)])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = np.linspace
+
+idx = 80:------------------- similar code ------------------ index = 36, score = 5.0 
+def contrast(img, magnitude):
+    magnitudes = np.linspace(0.1, 1.9, 11)
+    img = ImageEnhance.Contrast(img).enhance(random.uniform(magnitudes[magnitude], magnitudes[(magnitude + 1)]))
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 81:------------------- similar code ------------------ index = 37, score = 5.0 
+def assign_latent_color(model, angel, mdp):
+    angle_vels = np.linspace(start=mdp.angular_velocity_range[0], stop=mdp.angular_velocity_range[1], num=num_each_angle)
+    all_z_for_angle = []
+    for i in range(num_each_angle):
+        ang_velocity = angle_vels[i]
+        s = np.array([angel, ang_velocity])
+        x = mdp.render(s).squeeze()
+        u = mdp.sample_random_action()
+        s_next = mdp.transition_function(s, u)
+        x_next = mdp.render(s_next).squeeze()
+        x_with_history = np.vstack((x_next, x))
+        x_with_history = ToTensor()(x_with_history).double()
+        with torch.no_grad():
+            z = model.encode(x_with_history.view((- 1), (x_with_history.shape[(- 1)] * x_with_history.shape[(- 2)])))
+        all_z_for_angle.append(z.detach().squeeze().numpy())
+    return all_z_for_angle
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 82:------------------- similar code ------------------ index = 69, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_binned_binom_proportion():
+    nbins = 20
+    x = np.linspace(0.0, 10.0, 100)
+    success = np.ones(len(x), dtype=bool)
+    (bin_ctr, bin_hw, p, perr) = funcs.binned_binom_proportion(x, success, bins=nbins)
+    assert (bin_ctr.shape == (nbins,))
+    assert (bin_hw.shape == (nbins,))
+    assert (p.shape == (nbins,))
+    assert (perr.shape == (2, nbins))
+    assert (p == 1.0).all()
+    success[:] = False
+    (bin_ctr, bin_hw, p, perr) = funcs.binned_binom_proportion(x, success, bins=nbins)
+    assert (p == 0.0).all()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 83:------------------- similar code ------------------ index = 76, score = 5.0 
+def test_histogram_range_with_bins_list(N=1000, rseed=0):
+    rng = np.random.RandomState(rseed)
+    x = rng.randn(N)
+    range = (0.1, 0.8)
+    input_bins = np.linspace((- 5), 5, 31)
+    bins = calculate_bin_edges(x, input_bins, range=range)
+    assert all((bins == input_bins))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 84:------------------- similar code ------------------ index = 111, score = 5.0 
+def test_ExponentialAndLogarithmic1D_fit():
+    xarr = np.linspace(0.1, 10.0, 200)
+    em_model = models.Exponential1D(amplitude=1, tau=1)
+    log_model = models.Logarithmic1D(amplitude=1, tau=1)
+    assert_allclose(xarr, em_model.inverse(em_model(xarr)))
+    assert_allclose(xarr, log_model.inverse(log_model(xarr)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 85:------------------- similar code ------------------ index = 107, score = 5.0 
+def __init__(self, transform, smin, smax, resolution=1000):
+    matplotlib.transforms.Transform.__init__(self)
+    self._transform = transform
+    self._s_range = np.linspace(smin, smax, resolution)
+    self._x_range = transform.transform_non_affine(self._s_range)
+    self._xmin = transform.transform_non_affine(smin)
+    self._xmax = transform.transform_non_affine(smax)
+    if (self._xmin > self._xmax):
+        (self._xmax, self._xmin) = (self._xmin, self._xmax)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = np.linspace
+
+idx = 86:------------------- similar code ------------------ index = 110, score = 5.0 
+def plot_schedules(self):
+    x = np.linspace(0, self.n_epochs, self.n_iter)
+    (_, ax) = plt.subplots(1, 2, figsize=(15, 4))
+    ax[0].set_title('LR Schedule')
+    ax[0].set_ylabel('lr')
+    ax[0].set_xlabel('epoch')
+    ax[0].plot(x, self.lrs)
+    ax[1].set_title('Momentum Schedule')
+    ax[1].set_ylabel('momentum')
+    ax[1].set_xlabel('epoch')
+    ax[1].plot(x, self.moms)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = np.linspace
+
+idx = 87:------------------- similar code ------------------ index = 112, score = 5.0 
+@pytest.mark.skipif('not HAS_SCIPY')
+def test_KingProjectedAnalytic1D_fit():
+    km = models.KingProjectedAnalytic1D(amplitude=1, r_core=1, r_tide=2)
+    xarr = np.linspace(0.1, 2, 10)
+    yarr = km(xarr)
+    km_init = models.KingProjectedAnalytic1D(amplitude=1, r_core=1, r_tide=1)
+    fitter = fitting.LevMarLSQFitter()
+    km_fit = fitter(km_init, xarr, yarr)
+    assert_allclose(km_fit.param_sets, km.param_sets)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 88:------------------- similar code ------------------ index = 113, score = 5.0 
+def gen_NACA4_airfoil(p, m, xx, n_points):
+    '\n    Generate upper and lower points for a NACA 4 airfoil\n\n    Args:\n        :p:\n        :m:\n        :xx:\n        :n_points:\n\n    Returns:\n        :upper: 2 x N array with x- and y-coordinates of the upper side\n        :lower: 2 x N array with x- and y-coordinates of the lower side\n    '
+
+    def yt(xx, xsi):
+        a0 = 1.4845
+        a1 = 0.63
+        a2 = 1.758
+        a3 = 1.4215
+        a4 = 0.5075
+        return (xx * (((((a0 * np.sqrt(xsi)) - (a1 * xsi)) - (a2 * (xsi ** 2))) + (a3 * (xsi ** 3))) - (a4 * (xsi ** 4))))
+
+    def yc(p, m, xsi):
+
+        def yc_xsi_lt_p(xsi):
+            return ((m / (p ** 2)) * (((2 * p) * xsi) - (xsi ** 2)))
+
+        def dyc_xsi_lt_p(xsi):
+            return (((2 * m) / (p ** 2)) * (p - xsi))
+
+        def yc_xsi_ge_p(xsi):
+            return ((m / ((1 - p) ** 2)) * (((1 - (2 * p)) + ((2 * p) * xsi)) - (xsi ** 2)))
+
+        def dyc_xsi_ge_p(xsi):
+            return (((2 * m) / ((1 - p) ** 2)) * (p - xsi))
+        yc = np.array([(yc_xsi_lt_p(x) if (x < p) else yc_xsi_ge_p(x)) for x in xsi])
+        dyc = np.array([(dyc_xsi_lt_p(x) if (x < p) else dyc_xsi_ge_p(x)) for x in xsi])
+        return (yc, dyc)
+    xsi = np.linspace(0, 1, n_points)
+    yt = yt(xx, xsi)
+    (yc, dyc) = yc(p, m, xsi)
+    theta = np.arctan(dyc)
+    x_upper = (xsi - (yt * np.sin(theta)))
+    y_upper = (yc + (yt * np.cos(theta)))
+    x_lower = (xsi + (yt * np.sin(theta)))
+    y_lower = (yc - (yt * np.cos(theta)))
+    upper = np.array([x_upper, y_upper])
+    lower = np.array([x_lower, y_lower])
+    return (upper, lower)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+
+idx = 89:------------------- similar code ------------------ index = 114, score = 5.0 
+def visualize_dataset_in_2d_embedding(writer, encoding_list, dataset_name, save_path, task=1):
+    '\n    Visualization of 2-D latent embedding. Is saved to both hard-disc as well as TensorBoard.\n\n    Parameters:\n        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.\n        encoding_list (list): List of Tensors containing encoding values\n        dataset_name (str): Dataset name.\n        save_path (str): Path used for saving.\n        task (int): task counter. Used for naming.\n    '
+    num_classes = len(encoding_list)
+    encoded_classes = []
+    for i in range(len(encoding_list)):
+        if isinstance(encoding_list[i], torch.Tensor):
+            encoded_classes.append(([i] * encoding_list[i].size(0)))
+        else:
+            device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+            encoding_list[i] = torch.Tensor(encoding_list[i]).to(device)
+            encoded_classes.append(([i] * 0))
+    encoded_classes = np.concatenate(np.asarray(encoded_classes), axis=0)
+    encoding = torch.cat(encoding_list, dim=0)
+    if (encoding.size(1) != 2):
+        print('Skipping visualization of latent space because it is not 2-D')
+        return
+    encoded_dim1 = np.squeeze(encoding.narrow(1, 0, 1).cpu().numpy())
+    encoded_dim2 = np.squeeze(encoding.narrow(1, 1, 1).cpu().numpy())
+    xlabel = 'z dimension 1'
+    ylabel = 'z dimension 2'
+    my_cmap = ListedColormap(sns.color_palette('Paired', num_classes).as_hex())
+    fig = plt.figure(figsize=(20, 20))
+    plt.scatter(encoded_dim1, encoded_dim2, c=encoded_classes, cmap=my_cmap)
+    plt.xlabel(xlabel, fontsize=axes_font_size)
+    plt.ylabel(ylabel, fontsize=axes_font_size)
+    plt.xticks(fontsize=ticks_font_size)
+    plt.yticks(fontsize=ticks_font_size)
+    cbar = plt.colorbar(ticks=np.linspace(0, (num_classes - 1), num_classes))
+    cbar.ax.set_yticklabels([str(i) for i in range(num_classes)])
+    cbar.ax.tick_params(labelsize=legend_font_size)
+    plt.tight_layout()
+    writer.add_figure('latent_embedding', fig, global_step=task)
+    plt.savefig(os.path.join(save_path, (((dataset_name + '_latent_2d_embedding_task_') + str(task)) + '.png')), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... ( ... =np.linspace)
+
+idx = 90:------------------- similar code ------------------ index = 115, score = 5.0 
+def test_broadcasting_writeable():
+    t = (Time('J2015') + (np.linspace((- 1), 1, 10) * u.day))
+    t[2] = Time(58000, format='mjd')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( + (np.linspace *))
+
+idx = 91:------------------- similar code ------------------ index = 116, score = 5.0 
+def distribute(self, direction='u', number=0, type='constant'):
+    if (direction == 'u'):
+        line = np.array(self.getULines()[number])
+    elif (direction == 'v'):
+        line = np.array(self.getVLines()[number])
+    (tck, u) = interpolate.splprep(line.T, s=0, k=1)
+    if (type == 'constant'):
+        t = np.linspace(0.0, 1.0, num=len(line))
+    if (type == 'transition'):
+        first = np.array(self.getULines()[0])
+        last = np.array(self.getULines()[(- 1)])
+        (tck_first, u_first) = interpolate.splprep(first.T, s=0, k=1)
+        (tck_last, u_last) = interpolate.splprep(last.T, s=0, k=1)
+        if (number < 0.0):
+            number = len(self.getVLines())
+        v = (float(number) / float(len(self.getVLines())))
+        t = (((1.0 - v) * u_first) + (v * u_last))
+    line = interpolate.splev(t, tck, der=0)
+    line = list(zip(line[0].tolist(), line[1].tolist()))
+    if (direction == 'u'):
+        self.getULines()[number] = line
+    elif (direction == 'v'):
+        for (i, uline) in enumerate(self.getULines()):
+            self.getULines()[i][number] = line[i]
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = np.linspace
+
+idx = 92:------------------- similar code ------------------ index = 120, score = 5.0 
+def distribution_plots(input_file, args):
+    (n_theta, vr_n, dist_thresh, choice) = (args.n_theta, args.vr_n, args.dist_thresh, args.choice)
+    distr = np.zeros((n_theta, vr_n))
+
+    def fill_grid(theta_vr):
+        (theta, vr) = theta_vr
+        theta = ((theta * (2 * np.pi)) / 360)
+        thetap = np.floor(((theta * distr.shape[0]) / (2 * np.pi))).astype(int)
+        vrp = np.floor(((vr * distr.shape[1]) / dist_thresh)).astype(int)
+        distr[(thetap, vrp)] += 1
+    unbinned_vr = [[] for _ in range(n_theta)]
+
+    def fill_unbinned_vr(theta_vr):
+        (theta, vr) = theta_vr
+        theta = ((theta * (2 * np.pi)) / 360)
+        thetap = np.floor(((theta * len(unbinned_vr)) / (2 * np.pi))).astype(int)
+        for (th, _) in enumerate(thetap):
+            unbinned_vr[thetap[th]].append(vr[th])
+    vr_max = dist_thresh
+    hist = []
+
+    def fill_hist(vel):
+        hist.append(vel)
+    for (_, rows) in load_all(input_file):
+        (_, chosen_true, dist_true) = check_interaction(rows, pos_range=args.pos_range, dist_thresh=args.dist_thresh, choice=args.choice, pos_angle=args.pos_angle, vel_angle=args.vel_angle, vel_range=args.vel_range, output='all', obs_len=args.obs_len)
+        fill_grid((chosen_true, dist_true))
+        fill_unbinned_vr((chosen_true, dist_true))
+        fill_hist(chosen_true)
+    with show.canvas((((input_file + '.') + choice) + '.png'), figsize=(4, 4), subplot_kw={'polar': True}) as ax:
+        r_edges = np.linspace(0, vr_max, (distr.shape[1] + 1))
+        theta_edges = np.linspace(0, (2 * np.pi), (distr.shape[0] + 1))
+        (thetas, rs) = np.meshgrid(theta_edges, r_edges)
+        ax.pcolormesh(thetas, rs, distr.T, vmin=0, vmax=None, cmap='Blues')
+        median_vr = np.array([(np.median(vrs) if (len(vrs) > 5) else np.nan) for vrs in unbinned_vr])
+        center_thetas = np.linspace(0.0, (2 * np.pi), (len(median_vr) + 1))
+        center_thetas = (0.5 * (center_thetas[:(- 1)] + center_thetas[1:]))
+        center_thetas = np.hstack([center_thetas, center_thetas[0:1]])
+        median_vr = np.hstack([median_vr, median_vr[0:1]])
+        ax.grid(linestyle='dotted')
+        ax.legend()
+    with show.canvas((((input_file + '.') + choice) + '_hist.png'), figsize=(4, 4)) as ax:
+        ax.hist(np.hstack(hist), bins=n_theta)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  = np.linspace
+
+idx = 93:------------------- similar code ------------------ index = 122, score = 5.0 
+if (__name__ == '__main__'):
+    "\n    Simulates the 1D Diffusion Equation (also known as the heat equation):\n\n    ∂u/∂t = α ∂²u/∂x²\n\n    Each of the 120 nodes represents a body that can contain some amount of heat. Reproduces the plot at the top of \n    Wolfram's NKS, page 163. \n\n    See: https://www.wolframscience.com/nks/p163--partial-differential-equations/\n    See: http://hplgit.github.io/num-methods-for-PDEs/doc/pub/diffu/sphinx/._main_diffu001.html\n    "
+    space = np.linspace(25, (- 25), 120)
+    initial_conditions = [np.exp((- (x ** 2))) for x in space]
+    network = ntm.topology.cellular_automaton(120)
+    a = 0.25
+    dt = 0.5
+    dx = 0.5
+    F = ((a * dt) / (dx ** 2))
+
+    def activity_rule(ctx):
+        current = ctx.current_activity
+        left = ctx.neighbourhood_activities[0]
+        right = ctx.neighbourhood_activities[2]
+        return (current + (F * ((right - (2 * current)) + left)))
+    trajectory = ntm.evolve(initial_conditions=initial_conditions, network=network, activity_rule=activity_rule, timesteps=75)
+    ntm.plot_activities(trajectory)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = np.linspace
+
+idx = 94:------------------- similar code ------------------ index = 123, score = 5.0 
+def plot_metric(C, diffs, routes_str=[], figsize=(10, 5), scatter_png='', hist_png='', scatter_alpha=0.3, scatter_size=2, scatter_cmap='jet', dpi=300):
+    ' Plot output of cost metric in both scatterplot and histogram format'
+    title = ('Path Length Similarity: ' + str(np.round(C, 2)))
+    (fig, ax0) = plt.subplots(1, 1, figsize=((1 * figsize[0]), figsize[1]))
+    ax0.scatter(list(range(len(diffs))), diffs, s=scatter_size, c=diffs, alpha=scatter_alpha, cmap=scatter_cmap)
+    if (len(routes_str) > 0):
+        xticklabel_pad = 0.1
+        ax0.set_xticks(list(range(len(diffs))))
+        ax0.set_xticklabels(routes_str, rotation=50, fontsize=4)
+        ax0.tick_params(axis='x', which='major', pad=xticklabel_pad)
+    ax0.set_ylabel('Length Diff (Normalized)')
+    ax0.set_xlabel('Path ID')
+    ax0.set_title(title)
+    if scatter_png:
+        plt.savefig(scatter_png, dpi=dpi)
+    bins = np.linspace(0, 1, 30)
+    bin_centers = np.mean(list(zip(bins, bins[1:])), axis=1)
+    (hist, bin_edges) = np.histogram(diffs, bins=bins)
+    (fig, ax1) = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    ax1.bar(bin_centers, ((1.0 * hist) / len(diffs)), width=(bin_centers[1] - bin_centers[0]))
+    ax1.set_xlim([0, 1])
+    ax1.set_ylabel('Frac Num Routes')
+    ax1.set_xlabel('Length Diff (Normalized)')
+    ax1.set_title(('Length Diff Histogram - Score: ' + str(np.round(C, 2))))
+    ax1.grid(True)
+    if hist_png:
+        plt.savefig(hist_png, dpi=dpi)
+    return
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = np.linspace
+    return
+
+idx = 95:------------------- similar code ------------------ index = 124, score = 5.0 
 if (__name__ == '__main__'):
     "\n    A model of Burger's Equation: ∂u/∂t + u ∂u/∂x = ν ∂²u/∂x²\n\n    Based on: https://nbviewer.jupyter.org/github/barbagroup/CFDPython/blob/master/lessons/05_Step_4.ipynb\n    "
     nx = 101
@@ -974,53 +2580,60 @@ if (__name__ == '__main__'):
 if:
      ... . ... (np.linspace,  ... )
 
-idx = 33:------------------- similar code ------------------ index = 8, score = 4.0 
-def get_blocks(params):
-    '\n    Create blocks using the image dimensions, block size and overlap.\n    :param params: input parameters from params.py\n    :return: List of start row/col indices of the blocks\n    '
-    blocks = []
-    (yEnd, xEnd) = np.subtract(params.IMG_SZ, params.BLOCK_SZ)
-    x = np.linspace(0, xEnd, (np.ceil((xEnd / np.float((params.BLOCK_SZ[1] - params.BLOCK_MIN_OVERLAP)))) + 1), endpoint=True).astype('int')
-    y = np.linspace(0, yEnd, (np.ceil((yEnd / np.float((params.BLOCK_SZ[0] - params.BLOCK_MIN_OVERLAP)))) + 1), endpoint=True).astype('int')
-    for currx in x:
-        for curry in y:
-            blocks.append((currx, curry))
-    return blocks
+idx = 96:------------------- similar code ------------------ index = 127, score = 5.0 
+@pytest.mark.parametrize('bin_type', (_bin_types_to_test + [np.linspace((- 5), 5, 31)]))
+def test_histogram(bin_type, N=1000, rseed=0):
+    rng = np.random.RandomState(rseed)
+    x = rng.randn(N)
+    (counts, bins) = histogram(x, bin_type)
+    assert (counts.sum() == len(x))
+    assert (len(counts) == (len(bins) - 1))
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+@( ... , ( ...  + [np.linspace]))
+
+idx = 97:------------------- similar code ------------------ index = 130, score = 5.0 
+def analytic_results(self):
+    '\n            Some analytic results of the model, based on Jordan-Wigner transformation.\n        The formulas may be a little problematic for finite lattice size N.\n\n        E0_per_N:      E0 / N\n        pE0_per_N_pg:  \\partial (E0 / N) / \\partial g\n        p2E0_per_N_pg2: \\partial2 (E0 / N) / \\partial g2\n        '
+    g = self.g.detach().item()
+    ks = (((np.linspace(((- (self.N - 1)) / 2), ((self.N - 1) / 2), num=N) / self.N) * 2) * np.pi)
+    epsilon_ks = (2 * np.sqrt((((g ** 2) - ((2 * g) * np.cos(ks))) + 1)))
+    pepsilon_ks_pg = ((4 * (g - np.cos(ks))) / epsilon_ks)
+    p2epsilon_ks_pg2 = ((16 * (np.sin(ks) ** 2)) / (epsilon_ks ** 3))
+    E0_per_N = (((- 0.5) * epsilon_ks.sum()) / self.N)
+    pE0_per_N_pg = (((- 0.5) * pepsilon_ks_pg.sum()) / self.N)
+    p2E0_per_N_pg2 = (((- 0.5) * p2epsilon_ks_pg2.sum()) / self.N)
+    return (E0_per_N, pE0_per_N_pg, p2E0_per_N_pg2)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
- = np
-     ...  =  ... .linspace
+     ...  = (((np.linspace /) *  ... ) *)
 
-idx = 34:------------------- similar code ------------------ index = 2, score = 4.0 
-def filter_classes(opt, fnames, labels, classes, class_embedding):
-    '\n    Select a subset of classes. Mostly for faster debugging.\n    '
-    sel = (np.ones(len(classes)) == 1)
-    if (opt.class_total > 0):
-        sel = np.linspace(0, (len(classes) - 1), opt.class_total).astype(int)
-    classes = np.array(classes)[sel].tolist()
-    class_embedding = class_embedding[sel]
-    fnames = [f for (i, f) in enumerate(fnames) if (labels[i] in classes)]
-    labels = [l for l in labels if (l in classes)]
-    return (np.array(fnames), np.array(labels), np.array(classes), class_embedding)
+idx = 98:------------------- similar code ------------------ index = 131, score = 5.0 
+def map_angle_color(num_angles, mdp):
+    colors = list(red.range_to(blue, num_angles))
+    colors_rgb = [color.rgb for color in colors]
+    all_angles = np.linspace(start=mdp.angle_range[0], stop=mdp.angle_range[1], num=num_angles)
+    angle_color_map = dict(zip(all_angles, colors_rgb))
+    return (angle_color_map, colors_rgb)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-     ...  = (np ==  ... )
-    if:
-         ...  =  ... .linspace
+     ...  = np.linspace
 
-idx = 35:------------------- similar code ------------------ index = 0, score = 4.0 
-def filter_samples(opt, fnames, labels, classes):
-    '\n    Select a subset of classes. Mostly for faster debugging.\n    '
-    (fnames, labels) = (np.array(fnames), np.array(labels))
-    if (opt.train_samples != (- 1)):
-        sel = np.linspace(0, (len(fnames) - 1), min(opt.train_samples, len(fnames))).astype(int)
-        (fnames, labels) = (fnames[sel], labels[sel])
-    return (np.array(fnames), np.array(labels), np.array(classes))
+idx = 99:------------------- similar code ------------------ index = 132, score = 5.0 
+def get_flat_events(h5file, generator_params, nevents_per_pt_bin, pt_min, pt_max, pt_bins=10, **kwargs):
+    '\n    Construct a sample of events over a pT range by combining samples\n    constructed in pT intervals in this range.\n    '
+    pt_bin_edges = np.linspace(pt_min, pt_max, (pt_bins + 1))
+    offset = 0
+    for (pt_lo, pt_hi) in zip(pt_bin_edges[:(- 1)], pt_bin_edges[1:]):
+        get_events(h5file, generator_params, nevents_per_pt_bin, pt_lo, pt_hi, offset=offset, **kwargs)
+        offset += nevents_per_pt_bin
+    pt = h5file['trimmed_jet']['pT']
+    event_weights = get_flat_weights(pt, pt_min, pt_max, (pt_bins * 4))
+    h5file.create_dataset('weights', data=event_weights)
 
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
- = (np,)
-    if:
-         ...  =  ... .linspace
+     ...  = np.linspace
 

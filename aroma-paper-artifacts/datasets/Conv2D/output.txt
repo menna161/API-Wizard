@@ -1,0 +1,1514 @@
+------------------------- example 1 ------------------------ 
+def identity_block(filters, stage, block):
+    "The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        kernel_size: default 3, the kernel size of\n            middle conv layer at main path\n        filters: list of integers, the filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    # Returns\n        Output tensor for the block.\n    "
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '3'))(x)
+        x = Conv2D((filters * 4), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+        x = Add()([x, input_tensor])
+        return x
+    return layer
+
+------------------------- example 2 ------------------------ 
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(name=(bn_name_base + '1'))(shortcut, training=train_bn)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------------- example 3 ------------------------ 
+def bottom_up_agg(Ps):
+    (P2, P3, P4, P5) = Ps
+    N2 = P2
+    N3 = KL.Add()([P3, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N2)])
+    N3 = KL.Conv2D(256, (3, 3), padding='SAME')(N3)
+    N4 = KL.Add()([P4, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N3)])
+    N4 = KL.Conv2D(256, (3, 3), padding='SAME')(N4)
+    N5 = KL.Add()([P5, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N4)])
+    N5 = KL.Conv2D(256, (3, 3), padding='SAME')(N5)
+    return [N2, N3, N4, N5]
+
+------------------------- example 4 ------------------------ 
+def ConvRelu(filters, kernel_size, use_batchnorm=False, conv_name='conv', bn_name='bn', relu_name='relu'):
+
+    def layer(x):
+        x = Conv2D(filters, kernel_size, padding='same', name=conv_name, use_bias=(not use_batchnorm))(x)
+        if use_batchnorm:
+            x = BatchNormalization(name=bn_name)(x)
+        x = Activation('relu', name=relu_name)(x)
+        return x
+    return layer
+
+------------------------- example 5 ------------------------ 
+def fpn_classifier_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the feature pyramid network classifier\n    and regressor heads.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    - image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns:\n        logits: [N, NUM_CLASSES] classifier logits (before softmax)\n        probs: [N, NUM_CLASSES] classifier probabilities\n        bbox_deltas: [N, (dy, dx, log(dh), log(dw))] Deltas to apply to\n                     proposal boxes\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_classifier')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(1024, (pool_size, pool_size), padding='valid'), name='mrcnn_class_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(1024, (1, 1)), name='mrcnn_class_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    shared = KL.Lambda((lambda x: K.squeeze(K.squeeze(x, 3), 2)), name='pool_squeeze')(x)
+    mrcnn_class_logits = KL.TimeDistributed(KL.Dense(num_classes), name='mrcnn_class_logits')(shared)
+    mrcnn_probs = KL.TimeDistributed(KL.Activation('softmax'), name='mrcnn_class')(mrcnn_class_logits)
+    x = KL.TimeDistributed(KL.Dense((num_classes * 4), activation='linear'), name='mrcnn_bbox_fc')(shared)
+    s = K.int_shape(x)
+    mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name='mrcnn_bbox')(x)
+    return (mrcnn_class_logits, mrcnn_probs, mrcnn_bbox)
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          4           ||        18         ||         0        
+example2  ||          4           ||        18         ||         0        
+example3  ||          2           ||        10         ||         0        
+example4  ||          6           ||        7         ||         0        
+example5  ||          6           ||        16         ||         0        
+
+avg       ||          4.4           ||        13.8         ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 72, score = 1.0 
+def identity_block(filters, stage, block):
+    "The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        kernel_size: default 3, the kernel size of\n            middle conv layer at main path\n        filters: list of integers, the filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    # Returns\n        Output tensor for the block.\n    "
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '3'))(x)
+        x = Conv2D((filters * 4), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+        x = Add()([x, input_tensor])
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 1:------------------- similar code ------------------ index = 19, score = 1.0 
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(name=(bn_name_base + '1'))(shortcut, training=train_bn)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 2:------------------- similar code ------------------ index = 71, score = 1.0 
+def bottom_up_agg(Ps):
+    (P2, P3, P4, P5) = Ps
+    N2 = P2
+    N3 = KL.Add()([P3, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N2)])
+    N3 = KL.Conv2D(256, (3, 3), padding='SAME')(N3)
+    N4 = KL.Add()([P4, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N3)])
+    N4 = KL.Conv2D(256, (3, 3), padding='SAME')(N4)
+    N5 = KL.Add()([P5, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N4)])
+    N5 = KL.Conv2D(256, (3, 3), padding='SAME')(N5)
+    return [N2, N3, N4, N5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... ([ ... ,  ... .Conv2D])
+
+idx = 3:------------------- similar code ------------------ index = 35, score = 1.0 
+def ConvRelu(filters, kernel_size, use_batchnorm=False, conv_name='conv', bn_name='bn', relu_name='relu'):
+
+    def layer(x):
+        x = Conv2D(filters, kernel_size, padding='same', name=conv_name, use_bias=(not use_batchnorm))(x)
+        if use_batchnorm:
+            x = BatchNormalization(name=bn_name)(x)
+        x = Activation('relu', name=relu_name)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 4:------------------- similar code ------------------ index = 34, score = 1.0 
+def fpn_classifier_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the feature pyramid network classifier\n    and regressor heads.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    - image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns:\n        logits: [N, NUM_CLASSES] classifier logits (before softmax)\n        probs: [N, NUM_CLASSES] classifier probabilities\n        bbox_deltas: [N, (dy, dx, log(dh), log(dw))] Deltas to apply to\n                     proposal boxes\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_classifier')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(1024, (pool_size, pool_size), padding='valid'), name='mrcnn_class_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(1024, (1, 1)), name='mrcnn_class_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    shared = KL.Lambda((lambda x: K.squeeze(K.squeeze(x, 3), 2)), name='pool_squeeze')(x)
+    mrcnn_class_logits = KL.TimeDistributed(KL.Dense(num_classes), name='mrcnn_class_logits')(shared)
+    mrcnn_probs = KL.TimeDistributed(KL.Activation('softmax'), name='mrcnn_class')(mrcnn_class_logits)
+    x = KL.TimeDistributed(KL.Dense((num_classes * 4), activation='linear'), name='mrcnn_bbox_fc')(shared)
+    s = K.int_shape(x)
+    mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name='mrcnn_bbox')(x)
+    return (mrcnn_class_logits, mrcnn_probs, mrcnn_bbox)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 5:------------------- similar code ------------------ index = 32, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    if (2 in dilation):
+        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+        print('stage 2 dilated')
+    else:
+        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    if (3 in dilation):
+        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+        print('stage 3 dilated')
+    else:
+        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    if (4 in dilation):
+        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+        print('stage 4 dilated')
+    else:
+        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        if (5 in dilation):
+            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+            print('stage 5 dilated')
+        else:
+            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 6:------------------- similar code ------------------ index = 30, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    shortcut = x
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), strides=strides, name=(conv_name + '1'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+    shortcut = Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(shortcut)
+    x = Add()([x, shortcut])
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 7:------------------- similar code ------------------ index = 29, score = 1.0 
+def layer(c, m=None):
+    x = Conv2D(pyramid_filters, (1, 1))(c)
+    if (m is not None):
+        up = UpSampling2D((upsample_rate, upsample_rate))(m)
+        x = Add()([x, up])
+    p = Conv(segmentation_filters, (3, 3), padding='same', use_batchnorm=use_batchnorm)(x)
+    p = Conv(segmentation_filters, (3, 3), padding='same', use_batchnorm=use_batchnorm)(p)
+    m = x
+    return (m, p)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 8:------------------- similar code ------------------ index = 28, score = 1.0 
+def rpn_graph(feature_map, anchors_per_location, anchor_stride):
+    'Builds the computation graph of Region Proposal Network.\n\n    feature_map: backbone features [batch, height, width, depth]\n    anchors_per_location: number of anchors per pixel in the feature map\n    anchor_stride: Controls the density of anchors. Typically 1 (anchors for\n                   every pixel in the feature map), or 2 (every other pixel).\n\n    Returns:\n        rpn_logits: [batch, H, W, 2] Anchor classifier logits (before softmax)\n        rpn_probs: [batch, H, W, 2] Anchor classifier probabilities.\n        rpn_bbox: [batch, H, W, (dy, dx, log(dh), log(dw))] Deltas to be\n                  applied to anchors.\n    '
+    shared = KL.Conv2D(512, (3, 3), padding='same', activation='relu', strides=anchor_stride, name='rpn_conv_shared')(feature_map)
+    x = KL.Conv2D((2 * anchors_per_location), (1, 1), padding='valid', activation='linear', name='rpn_class_raw')(shared)
+    rpn_class_logits = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 2])))(x)
+    rpn_probs = KL.Activation('softmax', name='rpn_class_xxx')(rpn_class_logits)
+    x = KL.Conv2D((anchors_per_location * 4), (1, 1), padding='valid', activation='linear', name='rpn_bbox_pred')(shared)
+    rpn_bbox = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 4])))(x)
+    return [rpn_class_logits, rpn_probs, rpn_bbox]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 9:------------------- similar code ------------------ index = 27, score = 1.0 
+def build_linknet(backbone, classes, skip_connection_layers, decoder_filters=(None, None, None, None, 16), upsample_rates=(2, 2, 2, 2, 2), n_upsample_blocks=5, upsample_kernel_size=(3, 3), upsample_layer='upsampling', activation='sigmoid', use_batchnorm=False):
+    input = backbone.input
+    x = backbone.output
+    skip_connection_idx = [(get_layer_number(backbone, l) if isinstance(l, str) else l) for l in skip_connection_layers]
+    for i in range(n_upsample_blocks):
+        skip_connection = None
+        if (i < len(skip_connection_idx)):
+            skip_connection = backbone.layers[skip_connection_idx[i]].output
+        upsample_rate = to_tuple(upsample_rates[i])
+        print(upsample_rate)
+        x = DecoderBlock(stage=i, filters=decoder_filters[i], kernel_size=upsample_kernel_size, upsample_rate=upsample_rate, use_batchnorm=use_batchnorm, upsample_layer=upsample_layer, skip=skip_connection)(x)
+    x = Conv2D(classes, (3, 3), padding='same', name='final_conv')(x)
+    x = Activation(activation, name=activation)(x)
+    model = Model(input, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 10:------------------- similar code ------------------ index = 26, score = 1.0 
+def pyramid_block(pyramid_filters=256, segmentation_filters=128, upsample_rate=2, use_batchnorm=False):
+    '\n    Pyramid block according to:\n        http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf\n\n    This block generate `M` and `P` blocks.\n\n    Args:\n        pyramid_filters: integer, filters in `M` block of top-down FPN branch\n        segmentation_filters: integer, number of filters in segmentation head,\n            basically filters in convolution layers between `M` and `P` blocks\n        upsample_rate: integer, uspsample rate for `M` block of top-down FPN branch\n        use_batchnorm: bool, include batchnorm in convolution blocks\n\n    Returns:\n        Pyramid block function (as Keras layers functional API)\n    '
+
+    def layer(c, m=None):
+        x = Conv2D(pyramid_filters, (1, 1))(c)
+        if (m is not None):
+            up = UpSampling2D((upsample_rate, upsample_rate))(m)
+            x = Add()([x, up])
+        p = Conv(segmentation_filters, (3, 3), padding='same', use_batchnorm=use_batchnorm)(x)
+        p = Conv(segmentation_filters, (3, 3), padding='same', use_batchnorm=use_batchnorm)(p)
+        m = x
+        return (m, p)
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ():
+         ...  = Conv2D
+
+idx = 11:------------------- similar code ------------------ index = 25, score = 1.0 
+def det_conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2a'))(x)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias, dilation_rate=2)(x)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2b'))(x)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2c'))(x)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(axis=3, name=(bn_name_base + '1'))(shortcut)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 12:------------------- similar code ------------------ index = 23, score = 1.0 
+def fpn_classifier_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the feature pyramid network classifier\n    and regressor heads.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    - image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns:\n        logits: [N, NUM_CLASSES] classifier logits (before softmax)\n        probs: [N, NUM_CLASSES] classifier probabilities\n        bbox_deltas: [N, (dy, dx, log(dh), log(dw))] Deltas to apply to\n                     proposal boxes\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_classifier')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(1024, (pool_size, pool_size), padding='valid'), name='mrcnn_class_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(1024, (1, 1)), name='mrcnn_class_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    shared = KL.Lambda((lambda x: K.squeeze(K.squeeze(x, 3), 2)), name='pool_squeeze')(x)
+    mrcnn_class_logits = KL.TimeDistributed(KL.Dense(num_classes), name='mrcnn_class_logits')(shared)
+    mrcnn_probs = KL.TimeDistributed(KL.Activation('softmax'), name='mrcnn_class')(mrcnn_class_logits)
+    x = KL.TimeDistributed(KL.Dense((num_classes * 4), activation='linear'), name='mrcnn_bbox_fc')(shared)
+    s = K.int_shape(x)
+    mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name='mrcnn_bbox')(x)
+    return (mrcnn_class_logits, mrcnn_probs, mrcnn_bbox)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 13:------------------- similar code ------------------ index = 22, score = 1.0 
+def layer(x):
+    x = Conv2D(filters, kernel_size, padding='same', name=conv_name, use_bias=(not use_batchnorm))(x)
+    if use_batchnorm:
+        x = BatchNormalization(name=bn_name)(x)
+    x = Activation('relu', name=relu_name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 14:------------------- similar code ------------------ index = 21, score = 1.0 
+def fpn_classifier_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the feature pyramid network classifier\n    and regressor heads.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    - image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns:\n        logits: [N, NUM_CLASSES] classifier logits (before softmax)\n        probs: [N, NUM_CLASSES] classifier probabilities\n        bbox_deltas: [N, (dy, dx, log(dh), log(dw))] Deltas to apply to\n                     proposal boxes\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_classifier')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(1024, (pool_size, pool_size), padding='valid'), name='mrcnn_class_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(1024, (1, 1)), name='mrcnn_class_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_class_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    shared = KL.Lambda((lambda x: K.squeeze(K.squeeze(x, 3), 2)), name='pool_squeeze')(x)
+    mrcnn_class_logits = KL.TimeDistributed(KL.Dense(num_classes), name='mrcnn_class_logits')(shared)
+    mrcnn_probs = KL.TimeDistributed(KL.Activation('softmax'), name='mrcnn_class')(mrcnn_class_logits)
+    x = KL.TimeDistributed(KL.Dense((num_classes * 4), activation='linear'), name='mrcnn_bbox_fc')(shared)
+    s = K.int_shape(x)
+    mrcnn_bbox = KL.Reshape((s[1], num_classes, 4), name='mrcnn_bbox')(x)
+    return (mrcnn_class_logits, mrcnn_probs, mrcnn_bbox)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 15:------------------- similar code ------------------ index = 20, score = 1.0 
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(name=(bn_name_base + '1'))(shortcut, training=train_bn)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 16:------------------- similar code ------------------ index = 18, score = 1.0 
+def build_unet(backbone, classes, skip_connection_layers, decoder_filters=(256, 128, 64, 32, 16), upsample_rates=(2, 2, 2, 2, 2), n_upsample_blocks=5, block_type='upsampling', activation='sigmoid', use_batchnorm=False):
+    input = backbone.input
+    x = backbone.output
+    if (block_type == 'transpose'):
+        up_block = Transpose2D_block
+    else:
+        up_block = Upsample2D_block
+    skip_connection_idx = [(get_layer_number(backbone, l) if isinstance(l, str) else l) for l in skip_connection_layers]
+    for i in range(n_upsample_blocks):
+        skip_connection = None
+        if (i < len(skip_connection_idx)):
+            skip_connection = backbone.layers[skip_connection_idx[i]].output
+        upsample_rate = to_tuple(upsample_rates[i])
+        x = up_block(decoder_filters[i], i, upsample_rate=upsample_rate, skip=skip_connection, use_batchnorm=use_batchnorm)(x)
+    x = Conv2D(classes, (3, 3), padding='same', name='final_conv')(x)
+    x = Activation(activation, name=activation)(x)
+    model = Model(input, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 17:------------------- similar code ------------------ index = 38, score = 1.0 
+def Conv(n_filters, kernel_size, activation='relu', use_batchnorm=False, **kwargs):
+    'Extension of Conv2aaD layer with batchnorm'
+
+    def layer(input_tensor):
+        x = Conv2D(n_filters, kernel_size, use_bias=(not use_batchnorm), **kwargs)(input_tensor)
+        if use_batchnorm:
+            x = BatchNormalization()(x)
+        x = Activation(activation)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 18:------------------- similar code ------------------ index = 17, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), name=(conv_name + '1'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+    x = Add()([x, input_tensor])
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 19:------------------- similar code ------------------ index = 15, score = 1.0 
+def layer(x):
+    x = Conv2D(filters, kernel_size, padding='same', name=conv_name, use_bias=(not use_batchnorm))(x)
+    if use_batchnorm:
+        x = BatchNormalization(name=bn_name)(x)
+    x = Activation('relu', name=relu_name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 20:------------------- similar code ------------------ index = 14, score = 1.0 
+def identity_block(input_tensor, kernel_size, filters, stage, block, use_bias=True, train_bn=True):
+    "The identity_block is the block that has no conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    x = KL.Add()([x, input_tensor])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 21:------------------- similar code ------------------ index = 13, score = 1.0 
+def conv_block(filters, stage, block, strides=(2, 2)):
+    "The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: default 3, the kernel size of\n            middle conv layer at main path\n        filters: list of integers, the filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    # Returns\n        Output tensor for the block.\n    "
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        shortcut = x
+        x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), strides=strides, name=(conv_name + '2'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '3'))(x)
+        x = Conv2D((filters * 4), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+        shortcut = Conv2D((filters * 4), (1, 1), name=sc_name, strides=strides, **conv_params)(shortcut)
+        x = Add()([x, shortcut])
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 22:------------------- similar code ------------------ index = 12, score = 1.0 
+def Conv2DBlock(n_filters, kernel_size, activation='relu', use_batchnorm=True, name='conv_block', **kwargs):
+    'Extension of Conv2D layer with batchnorm'
+
+    def layer(input_tensor):
+        x = Conv2D(n_filters, kernel_size, use_bias=(not use_batchnorm), name=(name + '_conv'), **kwargs)(input_tensor)
+        if use_batchnorm:
+            x = BatchNormalization(name=(name + '_bn'))(x)
+        x = Activation(activation, name=((name + '_') + activation))(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 23:------------------- similar code ------------------ index = 11, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 24:------------------- similar code ------------------ index = 10, score = 1.0 
+def conv2d_bn(x, filters, kernel_size, strides=1, padding='same', activation='relu', use_bias=False, name=None):
+    "Utility function to apply conv + BN.\n    # Arguments\n        x: input tensor.\n        filters: filters in `Conv2D`.\n        kernel_size: kernel size as in `Conv2D`.\n        strides: strides in `Conv2D`.\n        padding: padding mode in `Conv2D`.\n        activation: activation in `Conv2D`.\n        use_bias: whether to use a bias in `Conv2D`.\n        name: name of the ops; will become `name + '_ac'` for the activation\n            and `name + '_bn'` for the batch norm layer.\n    # Returns\n        Output tensor after applying `Conv2D` and `BatchNormalization`.\n    "
+    x = Conv2D(filters, kernel_size, strides=strides, padding=padding, use_bias=use_bias, name=name)(x)
+    if (not use_bias):
+        bn_axis = (1 if (K.image_data_format() == 'channels_first') else 3)
+        bn_name = (None if (name is None) else (name + '_bn'))
+        x = BatchNormalization(axis=bn_axis, scale=False, name=bn_name)(x)
+    if (activation is not None):
+        ac_name = (None if (name is None) else (name + '_ac'))
+        x = Activation(activation, name=ac_name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 25:------------------- similar code ------------------ index = 9, score = 1.0 
+def basic_identity_block(filters, stage, block):
+    "The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        kernel_size: default 3, the kernel size of\n            middle conv layer at main path\n        filters: list of integers, the filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    # Returns\n        Output tensor for the block.\n    "
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), name=(conv_name + '1'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+        x = Add()([x, input_tensor])
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 26:------------------- similar code ------------------ index = 8, score = 1.0 
+if (__name__ == '__main__'):
+    import os
+    import numpy as np
+    import keras.optimizers
+    from keras.datasets import mnist
+    from keras.preprocessing.image import ImageDataGenerator
+    GPU_COUNT = 2
+    ROOT_DIR = os.path.abspath('../')
+    MODEL_DIR = os.path.join(ROOT_DIR, 'logs')
+
+    def build_model(x_train, num_classes):
+        tf.reset_default_graph()
+        inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
+        x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
+        x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
+        x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
+        x = KL.Flatten(name='flat1')(x)
+        x = KL.Dense(128, activation='relu', name='dense1')(x)
+        x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
+        return KM.Model(inputs, x, 'digit_classifier_model')
+    ((x_train, y_train), (x_test, y_test)) = mnist.load_data()
+    x_train = (np.expand_dims(x_train, (- 1)).astype('float32') / 255)
+    x_test = (np.expand_dims(x_test, (- 1)).astype('float32') / 255)
+    print('x_train shape:', x_train.shape)
+    print('x_test shape:', x_test.shape)
+    datagen = ImageDataGenerator()
+    model = build_model(x_train, 10)
+    model = ParallelModel(model, GPU_COUNT)
+    optimizer = keras.optimizers.SGD(lr=0.01, momentum=0.9, clipnorm=5.0)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    model.summary()
+    model.fit_generator(datagen.flow(x_train, y_train, batch_size=64), steps_per_epoch=50, epochs=10, verbose=1, validation_data=(x_test, y_test), callbacks=[keras.callbacks.TensorBoard(log_dir=MODEL_DIR, write_graph=True)])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+    def  ... ():
+         ...  =  ... .Conv2D
+
+idx = 27:------------------- similar code ------------------ index = 7, score = 1.0 
+def build_resnet(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, block_type='usual'):
+    '\n    TODO\n    '
+    input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
+    if (input_tensor is None):
+        img_input = Input(shape=input_shape, name='data')
+    elif (not K.is_keras_tensor(input_tensor)):
+        img_input = Input(tensor=input_tensor, shape=input_shape)
+    else:
+        img_input = input_tensor
+    no_scale_bn_params = get_bn_params(scale=False)
+    bn_params = get_bn_params()
+    conv_params = get_conv_params()
+    init_filters = 64
+    if (block_type == 'basic'):
+        conv_block = basic_conv_block
+        identity_block = basic_identity_block
+    else:
+        conv_block = usual_conv_block
+        identity_block = usual_identity_block
+    x = BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
+    x = ZeroPadding2D(padding=(3, 3))(x)
+    x = Conv2D(init_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
+    x = BatchNormalization(name='bn0', **bn_params)(x)
+    x = Activation('relu', name='relu0')(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
+    for (stage, rep) in enumerate(repetitions):
+        for block in range(rep):
+            filters = (init_filters * (2 ** stage))
+            if ((block == 0) and (stage == 0)):
+                x = conv_block(filters, stage, block, strides=(1, 1))(x)
+            elif (block == 0):
+                x = conv_block(filters, stage, block, strides=(2, 2))(x)
+            else:
+                x = identity_block(filters, stage, block)(x)
+    x = BatchNormalization(name='bn1', **bn_params)(x)
+    x = Activation('relu', name='relu1')(x)
+    if include_top:
+        x = GlobalAveragePooling2D(name='pool1')(x)
+        x = Dense(classes, name='fc1')(x)
+        x = Activation('softmax', name='softmax')(x)
+    if (input_tensor is not None):
+        inputs = get_source_inputs(input_tensor)
+    else:
+        inputs = img_input
+    model = Model(inputs, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 28:------------------- similar code ------------------ index = 5, score = 1.0 
+def build_psp(backbone, psp_layer, last_upsampling_factor, classes=21, activation='softmax', conv_filters=512, pooling_type='avg', dropout=None, final_interpolation='bilinear', use_batchnorm=True):
+    input = backbone.input
+    x = extract_outputs(backbone, [psp_layer])[0]
+    x = PyramidPoolingModule(conv_filters=conv_filters, pooling_type=pooling_type, use_batchnorm=use_batchnorm)(x)
+    x = Conv2DBlock(512, (1, 1), activation='relu', padding='same', use_batchnorm=use_batchnorm)(x)
+    if (dropout is not None):
+        x = SpatialDropout2D(dropout)(x)
+    x = Conv2D(classes, (3, 3), padding='same', name='final_conv')(x)
+    if (final_interpolation == 'bilinear'):
+        x = ResizeImage(to_tuple(last_upsampling_factor))(x)
+    elif (final_interpolation == 'duc'):
+        x = DUC(to_tuple(last_upsampling_factor))(x)
+    else:
+        raise ValueError(('Unsupported interpolation type {}. '.format(final_interpolation) + 'Use `duc` or `bilinear`.'))
+    x = Activation(activation, name=activation)(x)
+    model = Model(input, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 29:------------------- similar code ------------------ index = 4, score = 1.0 
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(name=(bn_name_base + '1'))(shortcut, training=train_bn)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 30:------------------- similar code ------------------ index = 3, score = 1.0 
+def ConvRelu(filters, kernel_size, use_batchnorm=False, conv_name='conv', bn_name='bn', relu_name='relu'):
+
+    def layer(x):
+        x = Conv2D(filters, kernel_size, padding='same', name=conv_name, use_bias=(not use_batchnorm))(x)
+        if use_batchnorm:
+            x = BatchNormalization(name=bn_name)(x)
+        x = Activation('relu', name=relu_name)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 31:------------------- similar code ------------------ index = 2, score = 1.0 
+def conv_block(filters, stage, block, strides=(2, 2)):
+    'The conv block is the block that has conv layer at shortcut.\n    # Arguments\n        filters: integer, used for first and second conv layers, third conv layer double this value\n        strides: tuple of integers, strides for conv (3x3) layer in block\n        stage: integer, current stage label, used for generating layer names\n        block: integer, current block label, used for generating layer names\n    # Returns\n        Output layer for the block.\n    '
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(input_tensor)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = GroupConv2D(filters, (3, 3), conv_params, (conv_name + '2'), strides=strides)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = Conv2D((filters * 2), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+        shortcut = Conv2D((filters * 2), (1, 1), name=sc_name, strides=strides, **conv_params)(input_tensor)
+        shortcut = BatchNormalization(name=(sc_name + '_bn'), **bn_params)(shortcut)
+        x = Add()([x, shortcut])
+        x = Activation('relu', name=relu_name)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 32:------------------- similar code ------------------ index = 37, score = 1.0 
+def basic_conv_block(filters, stage, block, strides=(2, 2)):
+    "The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: default 3, the kernel size of\n            middle conv layer at main path\n        filters: list of integers, the filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    # Returns\n        Output tensor for the block.\n    "
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        shortcut = x
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), strides=strides, name=(conv_name + '1'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+        shortcut = Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(shortcut)
+        x = Add()([x, shortcut])
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 33:------------------- similar code ------------------ index = 36, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    if (2 in dilation):
+        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+        print('stage 2 dilated')
+    else:
+        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    if (3 in dilation):
+        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+        print('stage 3 dilated')
+    else:
+        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    if (4 in dilation):
+        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+        print('stage 4 dilated')
+    else:
+        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        if (5 in dilation):
+            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+            print('stage 5 dilated')
+        else:
+            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 34:------------------- similar code ------------------ index = 39, score = 1.0 
+def rpn_graph(feature_map, anchors_per_location, anchor_stride):
+    'Builds the computation graph of Region Proposal Network.\n\n    feature_map: backbone features [batch, height, width, depth]\n    anchors_per_location: number of anchors per pixel in the feature map\n    anchor_stride: Controls the density of anchors. Typically 1 (anchors for\n                   every pixel in the feature map), or 2 (every other pixel).\n\n    Returns:\n        rpn_logits: [batch, H, W, 2] Anchor classifier logits (before softmax)\n        rpn_probs: [batch, H, W, 2] Anchor classifier probabilities.\n        rpn_bbox: [batch, H, W, (dy, dx, log(dh), log(dw))] Deltas to be\n                  applied to anchors.\n    '
+    shared = KL.Conv2D(512, (3, 3), padding='same', activation='relu', strides=anchor_stride, name='rpn_conv_shared')(feature_map)
+    x = KL.Conv2D((2 * anchors_per_location), (1, 1), padding='valid', activation='linear', name='rpn_class_raw')(shared)
+    rpn_class_logits = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 2])))(x)
+    rpn_probs = KL.Activation('softmax', name='rpn_class_xxx')(rpn_class_logits)
+    x = KL.Conv2D((anchors_per_location * 4), (1, 1), padding='valid', activation='linear', name='rpn_bbox_pred')(shared)
+    rpn_bbox = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 4])))(x)
+    return [rpn_class_logits, rpn_probs, rpn_bbox]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 35:------------------- similar code ------------------ index = 53, score = 1.0 
+def build_fpn_mask_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the mask head of Feature Pyramid Network.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns: Masks [batch, roi_count, height, width, num_classes]\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_mask')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv3')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn3')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv4')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn4')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation='relu'), name='mrcnn_mask_deconv')(x)
+    x = KL.TimeDistributed(KL.Conv2D(num_classes, (1, 1), strides=1, activation='sigmoid'), name='mrcnn_mask')(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 36:------------------- similar code ------------------ index = 70, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), name=(conv_name + '2'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '3'))(x)
+    x = Conv2D((filters * 4), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+    x = Add()([x, input_tensor])
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 37:------------------- similar code ------------------ index = 67, score = 1.0 
+def build_fpn_mask_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the mask head of Feature Pyramid Network.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns: Masks [batch, roi_count, height, width, num_classes]\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_mask')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv3')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn3')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv4')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn4')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation='relu'), name='mrcnn_mask_deconv')(x)
+    x = KL.TimeDistributed(KL.Conv2D(num_classes, (1, 1), strides=1, activation='sigmoid'), name='mrcnn_mask')(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 38:------------------- similar code ------------------ index = 66, score = 1.0 
+def D_cnn():
+    return tn.net.Net([tn.layer.Conv2D(kernel=[5, 5, 1, 6], stride=[1, 1], padding='SAME'), tn.layer.LeakyReLU(), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Conv2D(kernel=[5, 5, 6, 16], stride=[1, 1], padding='SAME'), tn.layer.LeakyReLU(), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Flatten(), tn.layer.Dense(120), tn.layer.LeakyReLU(), tn.layer.Dense(84), tn.layer.LeakyReLU(), tn.layer.Dense(1)])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... . ... ([ ... .Conv2D,,,,,,,,,,,])
+
+idx = 39:------------------- similar code ------------------ index = 64, score = 1.0 
+def main():
+    if (args.seed >= 0):
+        tn.seeder.random_seed(args.seed)
+    mnist = tn.dataset.MNIST(args.data_dir, one_hot=True)
+    (train_x, train_y) = mnist.train_set
+    (test_x, test_y) = mnist.test_set
+    if (args.model_type == 'mlp'):
+        net = tn.net.Net([tn.layer.Dense(200), tn.layer.ReLU(), tn.layer.Dense(100), tn.layer.ReLU(), tn.layer.Dense(70), tn.layer.ReLU(), tn.layer.Dense(30), tn.layer.ReLU(), tn.layer.Dense(10)])
+    elif (args.model_type == 'cnn'):
+        train_x = train_x.reshape(((- 1), 28, 28, 1))
+        test_x = test_x.reshape(((- 1), 28, 28, 1))
+        net = tn.net.Net([tn.layer.Conv2D(kernel=[5, 5, 1, 6], stride=[1, 1]), tn.layer.ReLU(), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Conv2D(kernel=[5, 5, 6, 16], stride=[1, 1]), tn.layer.ReLU(), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Flatten(), tn.layer.Dense(120), tn.layer.ReLU(), tn.layer.Dense(84), tn.layer.ReLU(), tn.layer.Dense(10)])
+    elif (args.model_type == 'rnn'):
+        train_x = train_x.reshape(((- 1), 28, 28))
+        test_x = test_x.reshape(((- 1), 28, 28))
+        net = tn.net.Net([tn.layer.RNN(num_hidden=30), tn.layer.Dense(10)])
+    elif (args.model_type == 'lstm'):
+        train_x = train_x.reshape(((- 1), 28, 28))
+        test_x = test_x.reshape(((- 1), 28, 28))
+        net = tn.net.Net([tn.layer.LSTM(num_hidden=30), tn.layer.Dense(10)])
+    else:
+        raise ValueError('Invalid argument: model_type')
+    loss = tn.loss.SoftmaxCrossEntropy()
+    optimizer = tn.optimizer.Adam(lr=args.lr)
+    model = tn.model.Model(net=net, loss=loss, optimizer=optimizer)
+    if (args.model_path is not None):
+        model.load(args.model_path)
+        evaluate(model, test_x, test_y)
+    else:
+        iterator = tn.data_iterator.BatchIterator(batch_size=args.batch_size)
+        for epoch in range(args.num_ep):
+            t_start = time.time()
+            for batch in iterator(train_x, train_y):
+                pred = model.forward(batch.inputs)
+                (loss, grads) = model.backward(pred, batch.targets)
+                model.apply_grads(grads)
+            print(f'Epoch {epoch} time cost: {(time.time() - t_start)}')
+            evaluate(model, test_x, test_y)
+        if (not os.path.isdir(args.model_dir)):
+            os.makedirs(args.model_dir)
+        model_name = f'mnist-{args.model_type}-epoch{args.num_ep}.pkl'
+        model_path = os.path.join(args.model_dir, model_name)
+        model.save(model_path)
+        print(f'Model saved in {model_path}')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    elif:
+         ...  =  ... . ... ([ ... .Conv2D,,,,,,,,,,,])
+
+idx = 40:------------------- similar code ------------------ index = 63, score = 1.0 
+def identity_block(filters, stage, block):
+    'The identity block is the block that has no conv layer at shortcut.\n    # Arguments\n        filters: integer, used for first and second conv layers, third conv layer double this value\n        stage: integer, current stage label, used for generating layer names\n        block: integer, current block label, used for generating layer names\n    # Returns\n        Output layer for the block.\n    '
+
+    def layer(input_tensor):
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+        x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(input_tensor)
+        x = BatchNormalization(name=(bn_name + '1'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '1'))(x)
+        x = ZeroPadding2D(padding=(1, 1))(x)
+        x = GroupConv2D(filters, (3, 3), conv_params, (conv_name + '2'))(x)
+        x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+        x = Activation('relu', name=(relu_name + '2'))(x)
+        x = Conv2D((filters * 2), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+        x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+        x = Add()([x, input_tensor])
+        x = Activation('relu', name=relu_name)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 41:------------------- similar code ------------------ index = 62, score = 1.0 
+@pytest.fixture(name='conv_model')
+def fixture_conv_model():
+    net = tn.net.Net([tn.layer.Conv2D(kernel=[3, 3, 1, 8], padding='VALID'), tn.layer.ReLU(), tn.layer.MaxPool2D(pool_size=[2, 2]), tn.layer.Conv2D(kernel=[3, 3, 8, 16], padding='VALID'), tn.layer.ReLU(), tn.layer.MaxPool2D(pool_size=[2, 2]), tn.layer.Flatten(), tn.layer.Dense(10)])
+    loss = tn.loss.SoftmaxCrossEntropy()
+    optimizer = tn.optimizer.Adam(0.001)
+    return tn.model.Model(net=net, loss=loss, optimizer=optimizer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ([ ... .Conv2D,,,,,,,])
+
+idx = 42:------------------- similar code ------------------ index = 61, score = 1.0 
+def bottom_up_agg(Ps):
+    (P2, P3, P4, P5) = Ps
+    N2 = P2
+    N3 = KL.Add()([P3, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N2)])
+    N3 = KL.Conv2D(256, (3, 3), padding='SAME')(N3)
+    N4 = KL.Add()([P4, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N3)])
+    N4 = KL.Conv2D(256, (3, 3), padding='SAME')(N4)
+    N5 = KL.Add()([P5, KL.Conv2D(256, (3, 3), strides=(2, 2), padding='SAME')(N4)])
+    N5 = KL.Conv2D(256, (3, 3), padding='SAME')(N5)
+    return [N2, N3, N4, N5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... ([ ... ,  ... .Conv2D])
+
+idx = 43:------------------- similar code ------------------ index = 60, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(input_tensor)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = GroupConv2D(filters, (3, 3), conv_params, (conv_name + '2'), strides=strides)(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = Conv2D((filters * 2), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+    shortcut = Conv2D((filters * 2), (1, 1), name=sc_name, strides=strides, **conv_params)(input_tensor)
+    shortcut = BatchNormalization(name=(sc_name + '_bn'), **bn_params)(shortcut)
+    x = Add()([x, shortcut])
+    x = Activation('relu', name=relu_name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 44:------------------- similar code ------------------ index = 59, score = 1.0 
+def Conv2DUpsample(filters, upsample_rate, kernel_size=(3, 3), up_name='up', conv_name='conv', **kwargs):
+
+    def layer(input_tensor):
+        x = UpSampling2D(upsample_rate, name=up_name)(input_tensor)
+        x = Conv2D(filters, kernel_size, padding='same', name=conv_name, **kwargs)(x)
+        return x
+    return layer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    def  ... ( ... ):
+         ...  = Conv2D
+
+idx = 45:------------------- similar code ------------------ index = 58, score = 1.0 
+def layer(input_tensor):
+    x = UpSampling2D(upsample_rate, name=up_name)(input_tensor)
+    x = Conv2D(filters, kernel_size, padding='same', name=conv_name, **kwargs)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 46:------------------- similar code ------------------ index = 57, score = 1.0 
+def test_conv_2d():
+    batch_size = 1
+    input_ = np.random.randn(batch_size, 16, 16, 1)
+    layer = tn.layer.Conv2D(kernel=[4, 4, 1, 2], stride=[3, 3], padding='VALID')
+    output = layer.forward(input_)
+    assert (output.shape == (batch_size, 5, 5, 2))
+    input_grads = layer.backward(output)
+    assert (input_grads.shape == input_.shape)
+    layer = tn.layer.Conv2D(kernel=[4, 4, 1, 2], stride=[3, 3], padding='SAME')
+    output = layer.forward(input_)
+    assert (output.shape == (batch_size, 6, 6, 2))
+    input_grads = layer.backward(output)
+    assert (input_grads.shape == input_.shape)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 47:------------------- similar code ------------------ index = 56, score = 1.0 
+def layer(input_tensor):
+    x = Conv2D(n_filters, kernel_size, use_bias=(not use_batchnorm), name=(name + '_conv'), **kwargs)(input_tensor)
+    if use_batchnorm:
+        x = BatchNormalization(name=(name + '_bn'))(x)
+    x = Activation(activation, name=((name + '_') + activation))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 48:------------------- similar code ------------------ index = 40, score = 1.0 
+def rpn_graph(feature_map, anchors_per_location, anchor_stride):
+    'Builds the computation graph of Region Proposal Network.\n\n    feature_map: backbone features [batch, height, width, depth]\n    anchors_per_location: number of anchors per pixel in the feature map\n    anchor_stride: Controls the density of anchors. Typically 1 (anchors for\n                   every pixel in the feature map), or 2 (every other pixel).\n\n    Returns:\n        rpn_logits: [batch, H, W, 2] Anchor classifier logits (before softmax)\n        rpn_probs: [batch, H, W, 2] Anchor classifier probabilities.\n        rpn_bbox: [batch, H, W, (dy, dx, log(dh), log(dw))] Deltas to be\n                  applied to anchors.\n    '
+    shared = KL.Conv2D(512, (3, 3), padding='same', activation='relu', strides=anchor_stride, name='rpn_conv_shared')(feature_map)
+    x = KL.Conv2D((2 * anchors_per_location), (1, 1), padding='valid', activation='linear', name='rpn_class_raw')(shared)
+    rpn_class_logits = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 2])))(x)
+    rpn_probs = KL.Activation('softmax', name='rpn_class_xxx')(rpn_class_logits)
+    x = KL.Conv2D((anchors_per_location * 4), (1, 1), padding='valid', activation='linear', name='rpn_bbox_pred')(shared)
+    rpn_bbox = KL.Lambda((lambda t: tf.reshape(t, [tf.shape(t)[0], (- 1), 4])))(x)
+    return [rpn_class_logits, rpn_probs, rpn_bbox]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 49:------------------- similar code ------------------ index = 54, score = 1.0 
+def conv2d_bn(x, filters, num_row, num_col, padding='same', strides=(1, 1), name=None):
+    "Utility function to apply conv + BN.\n    # Arguments\n        x: input tensor.\n        filters: filters in `Conv2D`.\n        num_row: height of the convolution kernel.\n        num_col: width of the convolution kernel.\n        padding: padding mode in `Conv2D`.\n        strides: strides in `Conv2D`.\n        name: name of the ops; will become `name + '_conv'`\n            for the convolution and `name + '_bn'` for the\n            batch norm layer.\n    # Returns\n        Output tensor after applying `Conv2D` and `BatchNormalization`.\n    "
+    if (name is not None):
+        bn_name = (name + '_bn')
+        conv_name = (name + '_conv')
+    else:
+        bn_name = None
+        conv_name = None
+    if (K.image_data_format() == 'channels_first'):
+        bn_axis = 1
+    else:
+        bn_axis = 3
+    x = Conv2D(filters, (num_row, num_col), strides=strides, padding=padding, use_bias=False, name=conv_name)(x)
+    x = BatchNormalization(axis=bn_axis, scale=False, name=bn_name)(x)
+    x = Activation('relu', name=name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 50:------------------- similar code ------------------ index = 55, score = 1.0 
+@pytest.fixture(name='conv')
+def fixture_conv_model():
+    net = tn.net.Net([tn.layer.Conv2D(kernel=[3, 3, 1, 2]), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Conv2D(kernel=[3, 3, 2, 4]), tn.layer.MaxPool2D(pool_size=[2, 2], stride=[2, 2]), tn.layer.Flatten(), tn.layer.Dense(1)])
+    loss = tn.loss.MSE()
+    opt = tn.optimizer.SGD()
+    return tn.model.Model(net, loss, opt)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ([ ... .Conv2D,,,,,])
+
+idx = 51:------------------- similar code ------------------ index = 52, score = 1.0 
+def conv_bn_relu(kernel):
+    return [tn.layer.Conv2D(kernel=kernel, stride=(1, 1), padding='SAME'), tn.layer.ReLU()]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return [ ... .Conv2D,]
+
+idx = 52:------------------- similar code ------------------ index = 47, score = 1.0 
+def __init__(self):
+    self.conv1 = tf.keras.layers.Conv2D(32, [3, 3], activation='relu')
+    self.mpool1 = tf.keras.layers.MaxPool2D([2, 2], 2)
+    self.conv2 = tf.keras.layers.Conv2D(64, [3, 3], activation='relu')
+    self.mpool2 = tf.keras.layers.MaxPool2D([2, 2], 2)
+    self.conv3 = tf.keras.layers.Conv2D(128, [3, 3], activation='relu')
+    self.fconv = tf.keras.layers.Conv2D(1, [1, 1])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+ =  ... .Conv2D
+
+idx = 53:------------------- similar code ------------------ index = 41, score = 1.0 
+def layer(input_tensor):
+    x = Conv2D(n_filters, kernel_size, use_bias=(not use_batchnorm), **kwargs)(input_tensor)
+    if use_batchnorm:
+        x = BatchNormalization()(x)
+    x = Activation(activation)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 54:------------------- similar code ------------------ index = 43, score = 1.0 
+def build_fpn(backbone, fpn_layers, classes=21, activation='softmax', upsample_rates=(2, 2, 2), last_upsample=4, pyramid_filters=256, segmentation_filters=128, use_batchnorm=False, dropout=None, interpolation='nearest'):
+    "\n    Implementation of FPN head for segmentation models according to:\n        http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf\n\n    Args:\n        backbone: Keras `Model`, some classification model without top\n        layers: list of layer names or indexes, used for pyramid building\n        classes: int, number of output feature maps\n        activation: activation in last layer, e.g. 'sigmoid' or 'softmax'\n        upsample_rates: tuple of integers, scaling rates between pyramid blocks\n        pyramid_filters: int, number of filters in `M` blocks of top-down FPN branch\n        segmentation_filters: int, number of filters in `P` blocks of FPN\n        last_upsample: rate for upsumpling concatenated pyramid predictions to\n            match spatial resolution of input data\n        last_upsampling_type: 'nn' or 'bilinear'\n        dropout: float [0, 1), dropout rate\n        use_batchnorm: bool, include batch normalization to FPN between `conv`\n            and `relu` layers\n\n    Returns:\n        model: Keras `Model`\n    "
+    if (len(upsample_rates) != len(fpn_layers)):
+        raise ValueError('Number of intermediate feature maps and upsample steps should match')
+    outputs = extract_outputs(backbone, fpn_layers, include_top=True)
+    upsample_rates = ([1] + list(upsample_rates))
+    m = None
+    pyramid = []
+    for (i, c) in enumerate(outputs):
+        (m, p) = pyramid_block(pyramid_filters=pyramid_filters, segmentation_filters=segmentation_filters, upsample_rate=upsample_rates[i], use_batchnorm=use_batchnorm)(c, m)
+        pyramid.append(p)
+    upsampled_pyramid = []
+    for (i, p) in enumerate(pyramid[::(- 1)]):
+        if (upsample_rates[i] > 1):
+            upsample_rate = to_tuple(np.prod(upsample_rates[:(i + 1)]))
+            p = UpSampling2D(size=upsample_rate, interpolation=interpolation)(p)
+        upsampled_pyramid.append(p)
+    x = Concatenate()(upsampled_pyramid)
+    n_filters = (segmentation_filters * len(pyramid))
+    x = Conv(n_filters, (3, 3), use_batchnorm=use_batchnorm, padding='same')(x)
+    if (dropout is not None):
+        x = SpatialDropout2D(dropout)(x)
+    x = Conv2D(classes, (3, 3), padding='same')(x)
+    x = Activation(activation)(x)
+    x = UpSampling2D(size=to_tuple(last_upsample), interpolation=interpolation)(x)
+    model = Model(backbone.input, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 55:------------------- similar code ------------------ index = 51, score = 1.0 
+def build_model(x_train, num_classes):
+    tf.reset_default_graph()
+    inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
+    x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
+    x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
+    x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
+    x = KL.Flatten(name='flat1')(x)
+    x = KL.Dense(128, activation='relu', name='dense1')(x)
+    x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
+    return KM.Model(inputs, x, 'digit_classifier_model')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 56:------------------- similar code ------------------ index = 45, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(input_tensor)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    shortcut = x
+    x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = Conv2D(filters, (3, 3), strides=strides, name=(conv_name + '2'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '3'))(x)
+    x = Conv2D((filters * 4), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+    shortcut = Conv2D((filters * 4), (1, 1), name=sc_name, strides=strides, **conv_params)(shortcut)
+    x = Add()([x, shortcut])
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+
+idx = 57:------------------- similar code ------------------ index = 46, score = 1.0 
+def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, first_conv_filters=64, first_block_filters=64):
+    '\n    TODO\n    '
+    input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
+    if (input_tensor is None):
+        img_input = Input(shape=input_shape, name='data')
+    elif (not K.is_keras_tensor(input_tensor)):
+        img_input = Input(tensor=input_tensor, shape=input_shape)
+    else:
+        img_input = input_tensor
+    no_scale_bn_params = get_bn_params(scale=False)
+    bn_params = get_bn_params()
+    conv_params = get_conv_params()
+    init_filters = first_block_filters
+    x = BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
+    x = ZeroPadding2D(padding=(3, 3))(x)
+    x = Conv2D(first_conv_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
+    x = BatchNormalization(name='bn0', **bn_params)(x)
+    x = Activation('relu', name='relu0')(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
+    for (stage, rep) in enumerate(repetitions):
+        for block in range(rep):
+            filters = (init_filters * (2 ** stage))
+            if ((stage == 0) and (block == 0)):
+                x = conv_block(filters, stage, block, strides=(1, 1))(x)
+            elif (block == 0):
+                x = conv_block(filters, stage, block, strides=(2, 2))(x)
+            else:
+                x = identity_block(filters, stage, block)(x)
+    if include_top:
+        x = GlobalAveragePooling2D(name='pool1')(x)
+        x = Dense(classes, name='fc1')(x)
+        x = Activation('softmax', name='softmax')(x)
+    if (input_tensor is not None):
+        inputs = get_source_inputs(input_tensor)
+    else:
+        inputs = img_input
+    model = Model(inputs, x)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Conv2D
+
+idx = 58:------------------- similar code ------------------ index = 44, score = 1.0 
+def build_fpn_mask_graph(rois, feature_maps, image_meta, pool_size, num_classes, train_bn=True):
+    'Builds the computation graph of the mask head of Feature Pyramid Network.\n\n    rois: [batch, num_rois, (y1, x1, y2, x2)] Proposal boxes in normalized\n          coordinates.\n    feature_maps: List of feature maps from diffent layers of the pyramid,\n                  [P2, P3, P4, P5]. Each has a different resolution.\n    image_meta: [batch, (meta data)] Image details. See compose_image_meta()\n    pool_size: The width of the square feature map generated from ROI Pooling.\n    num_classes: number of classes, which determines the depth of the results\n    train_bn: Boolean. Train or freeze Batch Norm layres\n\n    Returns: Masks [batch, roi_count, height, width, num_classes]\n    '
+    x = PyramidROIAlign([pool_size, pool_size], name='roi_align_mask')(([rois, image_meta] + feature_maps))
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv1')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv2')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn2')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv3')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn3')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2D(256, (3, 3), padding='same'), name='mrcnn_mask_conv4')(x)
+    x = KL.TimeDistributed(BatchNorm(), name='mrcnn_mask_bn4')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.TimeDistributed(KL.Conv2DTranspose(256, (2, 2), strides=2, activation='relu'), name='mrcnn_mask_deconv')(x)
+    x = KL.TimeDistributed(KL.Conv2D(num_classes, (1, 1), strides=1, activation='sigmoid'), name='mrcnn_mask')(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Conv2D,)
+
+idx = 59:------------------- similar code ------------------ index = 48, score = 1.0 
+def identity_block(input_tensor, kernel_size, filters, stage, block, use_bias=True, train_bn=True):
+    "The identity_block is the block that has no conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    x = KL.Add()([x, input_tensor])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 60:------------------- similar code ------------------ index = 49, score = 1.0 
+def identity_block(input_tensor, kernel_size, filters, stage, block, use_bias=True, train_bn=True):
+    "The identity_block is the block that has no conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n        use_bias: Boolean. To use or not use a bias in conv layers.\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(name=(bn_name_base + '2a'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2b'))(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(name=(bn_name_base + '2c'))(x, training=train_bn)
+    x = KL.Add()([x, input_tensor])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 61:------------------- similar code ------------------ index = 50, score = 1.0 
+def det_conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), use_bias=True, train_bn=True):
+    "conv_block is the block that has a conv layer at shortcut\n    # Arguments\n        input_tensor: input tensor\n        kernel_size: defualt 3, the kernel size of middle conv layer at main path\n        filters: list of integers, the nb_filters of 3 conv layer at main path\n        stage: integer, current stage label, used for generating layer names\n        block: 'a','b'..., current block label, used for generating layer names\n    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)\n    And the shortcut should have subsample=(2,2) as well\n    "
+    (nb_filter1, nb_filter2, nb_filter3) = filters
+    conv_name_base = ((('res' + str(stage)) + block) + '_branch')
+    bn_name_base = ((('bn' + str(stage)) + block) + '_branch')
+    x = KL.Conv2D(nb_filter1, (1, 1), strides=strides, name=(conv_name_base + '2a'), use_bias=use_bias)(input_tensor)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2a'))(x)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter2, (kernel_size, kernel_size), padding='same', name=(conv_name_base + '2b'), use_bias=use_bias, dilation_rate=2)(x)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2b'))(x)
+    x = KL.Activation('relu')(x)
+    x = KL.Conv2D(nb_filter3, (1, 1), name=(conv_name_base + '2c'), use_bias=use_bias)(x)
+    x = BatchNorm(axis=3, name=(bn_name_base + '2c'))(x)
+    shortcut = KL.Conv2D(nb_filter3, (1, 1), strides=strides, name=(conv_name_base + '1'), use_bias=use_bias)(input_tensor)
+    shortcut = BatchNorm(axis=3, name=(bn_name_base + '1'))(shortcut)
+    x = KL.Add()([x, shortcut])
+    x = KL.Activation('relu', name=((('res' + str(stage)) + block) + '_out'))(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Conv2D
+
+idx = 62:------------------- similar code ------------------ index = 0, score = 1.0 
+def layer(input_tensor):
+    conv_params = get_conv_params()
+    bn_params = get_bn_params()
+    (conv_name, bn_name, relu_name, sc_name) = handle_block_names(stage, block)
+    x = Conv2D(filters, (1, 1), name=(conv_name + '1'), **conv_params)(input_tensor)
+    x = BatchNormalization(name=(bn_name + '1'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '1'))(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = GroupConv2D(filters, (3, 3), conv_params, (conv_name + '2'))(x)
+    x = BatchNormalization(name=(bn_name + '2'), **bn_params)(x)
+    x = Activation('relu', name=(relu_name + '2'))(x)
+    x = Conv2D((filters * 2), (1, 1), name=(conv_name + '3'), **conv_params)(x)
+    x = BatchNormalization(name=(bn_name + '3'), **bn_params)(x)
+    x = Add()([x, input_tensor])
+    x = Activation('relu', name=relu_name)(x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = Conv2D
+

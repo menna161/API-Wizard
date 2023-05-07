@@ -1,0 +1,445 @@
+------------------------- example 1 ------------------------ 
+def load_radon_data(state_code):
+    'Load the radon dataset.\n\n  Code from http://mc-stan.org/users/documentation/case-studies/radon.html.\n  (Apache2 licensed)\n  '
+    with open_data_file('srrs2.dat') as f:
+        srrs2 = pd.read_csv(f)
+    srrs2.columns = srrs2.columns.map(str.strip)
+    srrs_mn = srrs2.assign(fips=((srrs2.stfips * 1000) + srrs2.cntyfips))[(srrs2.state == state_code)]
+    with open_data_file('cty.dat') as f:
+        cty = pd.read_csv(f)
+    cty_mn = cty[(cty.st == state_code)].copy()
+// your code ...
+
+    counties = srrs_mn[['county', 'fips']].drop_duplicates()
+    county_map_uranium = {a: b for (a, b) in zip(counties['county'], range(len(counties['county'])))}
+    uranium_levels = cty_mn.merge(counties, on='fips')['Uppm']
+    srrs_mn_new = srrs_mn.merge(cty_mn[['fips', 'Uppm']], on='fips')
+    srrs_mn_new = srrs_mn_new.drop_duplicates(subset='idnum')
+    srrs_mn_new.county = srrs_mn_new.county.str.strip()
+// your code ...
+
+    n_county = srrs_mn_new.groupby('county')['idnum'].count()
+    uranium = np.zeros(len(n_county), dtype=np.float32)
+// your code ...
+
+
+------------------------- example 2 ------------------------ 
+def normalize(self, df):
+    df = df.drop_duplicates(['text', 'cell_content', 'cell_type']).fillna('')
+    df = df.replace(re.compile('(xxref|xxanchor)-[\\w\\d-]*'), '\\1 ')
+    df = df.replace(re.compile('(^|[ ])\\d+\\.\\d+\\b'), ' xxnum ')
+    df = df.replace(re.compile('(^|[ ])\\d\\b'), ' xxnum ')
+    df = df.replace(re.compile('\\bdata set\\b'), ' dataset ')
+    return df
+
+------------------------- example 3 ------------------------ 
+def normalize(self):
+    if ('tables' not in self.sample_json):
+// your code ...
+
+    for tbl in tables:
+        table_dfs[tbl['name']] = pd.DataFrame(columns=tbl['columns'])
+    for (chunk_id, chunk) in enumerate(pd.read_csv(self.options.normalize, chunksize=100000, header=0)):
+        all_from_fields = []
+        for tbl in tables:
+            table_df = table_dfs[tbl['name']]
+            for mapping in tbl['mapping']:
+                xx = chunk[mapping['fromFields']]
+// your code ...
+
+                table_df = table_df.drop_duplicates(subset=tbl['columns'])
+            table_df = table_df.reset_index(drop=True)
+// your code ...
+
+        for c in all_from_fields:
+// your code ...
+
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        20         ||         3        
+example2  ||          2           ||        7         ||         0        
+example3  ||          2           ||        17         ||         4        
+
+avg       ||          2.0           ||        14.666666666666666         ||         2.3333333333333335        
+
+idx = 0:------------------- similar code ------------------ index = 10, score = 1.0 
+def load_radon_data(state_code):
+    'Load the radon dataset.\n\n  Code from http://mc-stan.org/users/documentation/case-studies/radon.html.\n  (Apache2 licensed)\n  '
+    with open_data_file('srrs2.dat') as f:
+        srrs2 = pd.read_csv(f)
+    srrs2.columns = srrs2.columns.map(str.strip)
+    srrs_mn = srrs2.assign(fips=((srrs2.stfips * 1000) + srrs2.cntyfips))[(srrs2.state == state_code)]
+    with open_data_file('cty.dat') as f:
+        cty = pd.read_csv(f)
+    cty_mn = cty[(cty.st == state_code)].copy()
+    cty_mn['fips'] = ((1000 * cty_mn.stfips) + cty_mn.ctfips)
+    srrs_mn.county = srrs_mn.county.str.strip()
+    counties = srrs_mn[['county', 'fips']].drop_duplicates()
+    county_map_uranium = {a: b for (a, b) in zip(counties['county'], range(len(counties['county'])))}
+    uranium_levels = cty_mn.merge(counties, on='fips')['Uppm']
+    srrs_mn_new = srrs_mn.merge(cty_mn[['fips', 'Uppm']], on='fips')
+    srrs_mn_new = srrs_mn_new.drop_duplicates(subset='idnum')
+    srrs_mn_new.county = srrs_mn_new.county.str.strip()
+    mn_counties = srrs_mn_new.county.unique()
+    county_lookup = dict(zip(mn_counties, range(len(mn_counties))))
+    county = srrs_mn_new['county_code'] = srrs_mn_new.county.replace(county_lookup).values
+    radon = srrs_mn_new.activity
+    srrs_mn_new['log_radon'] = log_radon = np.log((radon + 0.1)).values
+    floor_measure = srrs_mn_new.floor.values
+    n_county = srrs_mn_new.groupby('county')['idnum'].count()
+    uranium = np.zeros(len(n_county), dtype=np.float32)
+    for (k, _) in county_lookup.items():
+        uranium[county_lookup[k]] = uranium_levels[county_map_uranium[k]]
+    uranium = [(np.log(ur) if (ur > 0.0) else 0.0) for ur in uranium]
+    c = county
+    u = np.float32(uranium)
+    x = np.float32(floor_measure)
+    data = np.float32(log_radon).reshape((- 1), 1)
+    return (c, u, x, data)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .drop_duplicates()
+
+idx = 1:------------------- similar code ------------------ index = 9, score = 1.0 
+def stats(predictions, ground_truth, axis=None):
+    gold = pd.DataFrame(ground_truth, columns=['paper', 'task', 'dataset', 'metric', 'value'])
+    pred = pd.DataFrame(predictions, columns=['paper', 'task', 'dataset', 'metric', 'value'])
+    if (axis == 'tdm'):
+        columns = ['paper', 'task', 'dataset', 'metric']
+    elif ((axis == 'tdms') or (axis is None)):
+        columns = ['paper', 'task', 'dataset', 'metric', 'value']
+    else:
+        columns = ['paper', axis]
+    gold = gold[columns].drop_duplicates()
+    pred = pred[columns].drop_duplicates()
+    results = gold.merge(pred, on=columns, how='outer', indicator=True)
+    is_correct = (results['_merge'] == 'both')
+    no_pred = (results['_merge'] == 'left_only')
+    no_gold = (results['_merge'] == 'right_only')
+    results['TP'] = is_correct.astype('int8')
+    results['FP'] = no_gold.astype('int8')
+    results['FN'] = no_pred.astype('int8')
+    m = results.groupby(['paper']).agg({'TP': 'sum', 'FP': 'sum', 'FN': 'sum'})
+    m['precision'] = precision(m.TP, m.FP)
+    m['recall'] = recall(m.TP, m.FN)
+    m['f1'] = f1(m.precision, m.recall)
+    TP_ALL = m.TP.sum()
+    FP_ALL = m.FP.sum()
+    FN_ALL = m.FN.sum()
+    (prec, reca) = (precision(TP_ALL, FP_ALL), recall(TP_ALL, FN_ALL))
+    return {'Micro Precision': prec, 'Micro Recall': reca, 'Micro F1': f1(prec, reca), 'Macro Precision': m.precision.mean(), 'Macro Recall': m.recall.mean(), 'Macro F1': m.f1.mean()}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop_duplicates()
+
+idx = 2:------------------- similar code ------------------ index = 8, score = 1.0 
+def normalize(self, df):
+    df = df.drop_duplicates(['text', 'cell_content', 'cell_type']).fillna('')
+    df = df.replace(re.compile('(xxref|xxanchor)-[\\w\\d-]*'), '\\1 ')
+    df = df.replace(re.compile('(^|[ ])\\d+\\.\\d+\\b'), ' xxnum ')
+    df = df.replace(re.compile('(^|[ ])\\d\\b'), ' xxnum ')
+    df = df.replace(re.compile('\\bdata set\\b'), ' dataset ')
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .drop_duplicates
+
+idx = 3:------------------- similar code ------------------ index = 7, score = 1.0 
+def transform_df(df):
+    df = df.replace(re.compile('(xxref|xxanchor)-[\\w\\d-]*'), '\\1 ')
+    df = df.replace(re.compile('(^|[ ])\\d+\\.\\d+\\b'), ' xxnum ')
+    df = df.replace(re.compile('(^|[ ])\\d\\b'), ' xxnum ')
+    df = df.replace(re.compile('\\bdata set\\b'), ' dataset ')
+    df = df.drop_duplicates(['text', 'cell_content', 'cell_type']).fillna('')
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .drop_duplicates
+
+idx = 4:------------------- similar code ------------------ index = 6, score = 1.0 
+def normalize(self):
+    if ('tables' not in self.sample_json):
+        raise Exception('no tables defined in sample json')
+    tables = self.sample_json['tables']['dimension']
+    table_dfs = {}
+    for tbl in tables:
+        table_dfs[tbl['name']] = pd.DataFrame(columns=tbl['columns'])
+    for (chunk_id, chunk) in enumerate(pd.read_csv(self.options.normalize, chunksize=100000, header=0)):
+        all_from_fields = []
+        for tbl in tables:
+            table_df = table_dfs[tbl['name']]
+            for mapping in tbl['mapping']:
+                xx = chunk[mapping['fromFields']]
+                xx.columns = tbl['columns']
+                table_df = table_df.append(xx)
+                table_df = table_df.drop_duplicates(subset=tbl['columns'])
+            table_df = table_df.reset_index(drop=True)
+            table_df.index.name = 'ID'
+            table_dfs[tbl['name']] = table_df
+            if ('tmp_ID' in table_df.columns):
+                del table_df['tmp_ID']
+            table_df.to_csv(tbl['name'], index=True, mode='w')
+            table_df['tmp_ID'] = table_df.index
+            count = 0
+            for mapping in tbl['mapping']:
+                all_from_fields.extend(mapping['fromFields'])
+                boo = len(chunk)
+                beforechunk = chunk
+                chunk = pd.merge(chunk, table_df, how='left', left_on=mapping['fromFields'], right_on=tbl['columns'])
+                chunk = chunk.rename(columns={'tmp_ID': mapping['fk']})
+                for c in tbl['columns']:
+                    del chunk[c]
+        for c in all_from_fields:
+            del chunk[c]
+        if (chunk_id == 0):
+            chunk.to_csv(self.options.output, index=False, mode='w')
+        else:
+            chunk.to_csv(self.options.output, index=False, header=False, mode='a')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for in:
+        for  ...  in  ... :
+            for  ...  in:
+                 ...  =  ... .drop_duplicates
+
+idx = 5:------------------- similar code ------------------ index = 5, score = 1.0 
+def sweep_thresholds(df):
+    cm = CM(fn=sum(df.gold_positive))
+    df = df[(df.min_threshold < df.max_threshold)]
+    sweeps = df.reset_index().melt(id_vars='cell_ext_id', value_vars=['min_threshold', 'max_threshold'], var_name='threshold_type', value_name='threshold')
+    sweeps = sweeps.sort_values(by=['threshold', 'threshold_type']).reset_index(drop=True)
+    steps = sweeps.threshold.drop_duplicates().index
+    results = []
+    for (i, idx1) in enumerate(steps[:(- 1)]):
+        th1 = sweeps.threshold[idx1]
+        to_restore = cm
+        for (j, idx2) in enumerate(steps[(i + 1):], (i + 1)):
+            th2 = sweeps.threshold[idx2]
+            precision = (cm.tp / ((cm.tp + cm.fp) + 1e-08))
+            recall = (cm.tp / ((cm.tp + cm.fn) + 1e-08))
+            f1 = (((2 * precision) * recall) / ((precision + recall) + 1e-08))
+            result = dict(threshold1=th1, threshold2=sweeps.threshold[(idx2 - 1)], tp=cm.tp, tn=cm.tn, fp=cm.fp, fn=cm.fn, precision=precision, recall=recall, f1=f1)
+            results.append(result)
+            for (_, row) in sweeps[(sweeps.threshold == sweeps.threshold[(idx2 - 1)])].iterrows():
+                proposal = df.loc[row.cell_ext_id]
+                is_activated = (row.threshold_type == 'min_threshold')
+                if ((not is_activated) and (proposal.min_threshold < th1)):
+                    cm = update_cm(proposal, cm, is_activated)
+        precision = (cm.tp / ((cm.tp + cm.fp) + 1e-08))
+        recall = (cm.tp / ((cm.tp + cm.fn) + 1e-08))
+        f1 = (((2 * precision) * recall) / ((precision + recall) + 1e-08))
+        result = dict(threshold1=th1, threshold2=th2, tp=cm.tp, tn=cm.tn, fp=cm.fp, fn=cm.fn, precision=precision, recall=recall, f1=f1)
+        results.append(result)
+        cm = to_restore
+        for (_, row) in sweeps[(sweeps.threshold == th1)].iterrows():
+            proposal = df.loc[row.cell_ext_id]
+            is_activated = (row.threshold_type == 'min_threshold')
+            cm = update_cm(proposal, cm, is_activated)
+    return (df, sweeps, steps, pd.DataFrame(results))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .drop_duplicates()
+
+idx = 6:------------------- similar code ------------------ index = 4, score = 1.0 
+def __init__(self, path, file, crf_path=None, crf_model=None, sp_path=None, sp_model='spm.model', sp_vocab='spm.vocab'):
+    super().__init__(path, file, sp_path, sp_model, sp_vocab)
+    self._full_learner = deepcopy(self.learner)
+    self.learner.model = cut_ulmfit_head(self.learner.model)
+    self.learner.loss_func = None
+    if (crf_model is not None):
+        crf_path = (Path(path) if (crf_path is None) else Path(crf_path))
+        self.crf = load_crf((crf_path / crf_model))
+    else:
+        self.crf = None
+    self._e = ULMFiTExperiment(remove_num=False, drop_duplicates=False, this_paper=True, merge_fragments=True, merge_type='concat', evidence_source='text_highlited', split_btags=True, fixed_tokenizer=True, fixed_this_paper=True, mask=True, evidence_limit=None, context_tokens=None, lowercase=True, drop_mult=0.15, fp16=True, train_on_easy=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... (, drop_duplicates=False,,,,,,,,,,,,,,)
+
+idx = 7:------------------- similar code ------------------ index = 3, score = 1.0 
+def _sample_unevaluated_unique_spoints(self, sample_size: int, max_num_retries: int=100) -> List[dict]:
+    self._verify_sample_size(sample_size)
+    self._verify_max_num_retries(max_num_retries)
+    if (len(self.evaluated_spoints) > 0):
+        evaluated_spoints_df = pd.DataFrame(self.evaluated_spoints)
+        evaluated_spoints_df = evaluated_spoints_df[self.space.variable_names]
+        evaluated_spoints_df = evaluated_spoints_df.drop_duplicates()
+        num_unique_evaluated_spoints = len(evaluated_spoints_df)
+    else:
+        num_unique_evaluated_spoints = 0
+    max_sample_size = min(sample_size, (self.space.size - num_unique_evaluated_spoints))
+    sampled_spoints = []
+    for i in range(max_num_retries):
+        sampled_spoints += self._sample_random_spoints(sample_size=sample_size)
+        sampled_spoints_df = pd.DataFrame(sampled_spoints)
+        sampled_spoints_df = sampled_spoints_df.drop_duplicates()
+        if (num_unique_evaluated_spoints > 0):
+            sampled_spoints_df = sampled_spoints_df.merge(right=evaluated_spoints_df, on=self.space.variable_names, how='left', indicator=True)
+            indicator_left_only = sampled_spoints_df['_merge'].eq('left_only')
+            sampled_spoints_df = sampled_spoints_df[indicator_left_only]
+            sampled_spoints_df = sampled_spoints_df.drop(columns='_merge')
+        sampled_spoints = sampled_spoints_df.to_dict('records')
+        if (len(sampled_spoints) >= max_sample_size):
+            break
+    sampled_spoints = sampled_spoints[:max_sample_size]
+    if (len(sampled_spoints) == 0):
+        raise RuntimeError(f'''could not sample any new spoints - search_space is fully explored or random sampling was unfortunate.
+search_space.size = {self.space.size}
+num evaluated spoints = {len(self.evaluated_spoints)}
+num unevaluated spoints = {(self.space.size - len(self.evaluated_spoints))}''')
+    random.shuffle(sampled_spoints)
+    return sampled_spoints
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->:
+    if:
+         ...  =  ... .drop_duplicates()
+
+idx = 8:------------------- similar code ------------------ index = 2, score = 1.0 
+def add_categorical_data(self, data, name=None, category_order=None, value_order=None, mapping=None, borders=None, priority=None, tick_style='normal'):
+    'Add categorical data to the CoMut object.\n\n        Params:\n        -------\n        data: pandas dataframe\n            A tidy dataframe containing data. Required columns are\n            sample, category, and value. Other columns are ignored.\n\n            Example:\n            -------\n            sample   | category | value\n            ----------------------------\n            Sample_1 | TP53     | Missense\n            Sample_1 | Gender   | Male\n\n        name: str\n            The name of the dataset being added. Used to references axes.\n\n            Example:\n            --------\n            example_comut = comut.CoMut()\n            example_comut.add_categorical_data(data, name = \'Mutation type\')\n\n        category_order: list-like\n            Order of category to plot, from top to bottom. Only these\n            categories are plotted.\n\n            Example:\n            --------\n            example_comut = comut.CoMut()\n            example_comut.add_categorical_data(data, category_order = [\'TP53\', \'BRAF\'])\n\n        value_order: list-like\n            Order of plotting of values in a single patch, from left\n            triangle to right triangle.\n\n            Example:\n            --------\n            value_order = [\'Amp\', \'Missense\']\n\n            If Amp and Missense exist in the same category and sample, Amp\n            will be drawn as left triangle, Missense as right.\n\n        mapping: dict\n            Mapping of values to patch properties. The dict can either specify\n            only the facecolor or other patches properties.\n\n            Note:\n            -----\n            Three additional values are required to fully specify mapping:\n\n            \'Absent\', which determines the color for samples without value\n            for a name (default white).\n\n            \'Multiple\', which determines the color for samples with more than\n            two values in that category (default brown).\n\n            \'Not Available\', which determines the patch properties when a sample\'s\n            value is \'Not Available\'.\n\n        borders: list-like\n            List of values that should be plotted as borders, not patches.\n\n            Example:\n            --------\n            example_comut = comut.CoMut()\n            example_comut.add_categorical_data(data, borders = [\'LOH\'])\n\n        priority: list-like\n            Ordered list of priorities for values. The function will attempt\n            to preserve values in this list, subverting the "Multiple"\n            assignment.\n\n            Example:\n            --------\n            example_comut.add_categorical_data(data, priority = [\'Amp\'])\n\n            If Amp exists alongside two other values, it will be drawn as\n            Amp + Multiple (two triangles), instead of Multiple.\n\n        tick_style: str, default=\'normal\', \'italic\', \'oblique\'\n            Tick style to be used for the y axis ticks (category names).\n\n        Returns:\n        --------\n        None'
+    req_cols = {'sample', 'category', 'value'}
+    if (not req_cols.issubset(data.columns)):
+        missing_cols = (req_cols - set(data.columns))
+        msg = ', '.join(list(missing_cols))
+        raise ValueError('Data missing required columns: {}'.format(msg))
+    samples = list(data['sample'].drop_duplicates())
+    if (self.samples is None):
+        self.samples = samples
+    else:
+        self._check_samples(samples)
+    if (name is None):
+        name = len(self._plots)
+    if (borders is None):
+        borders = []
+    if (priority is None):
+        priority = []
+    if (value_order is None):
+        value_order = []
+    if (category_order is None):
+        category_order = list(data['category'].drop_duplicates())
+    unique_values = set(data['value'])
+    if (mapping is None):
+        mapping = {}
+        for value in borders:
+            mapping[value] = {'facecolor': 'none', 'edgecolor': 'black', 'linewidth': 1}
+        non_border = [val for val in unique_values if (val not in borders)]
+        default_cmap = self._get_default_categorical_cmap(len(non_border))
+        for (i, value) in enumerate(unique_values):
+            mapping[value] = {'facecolor': default_cmap[i]}
+        mapping['Absent'] = {'facecolor': 'white'}
+        mapping['Multiple'] = {'facecolor': palettable.colorbrewer.qualitative.Set1_7.mpl_colors[6]}
+        mapping['Not Available'] = {'facecolor': 'none', 'edgecolor': 'black', 'linewidth': 1}
+    elif isinstance(mapping, dict):
+        mapping = mapping.copy()
+        if ('Not Available' not in mapping):
+            mapping['Not Available'] = {'facecolor': 'none', 'edgecolor': 'black', 'linewidth': 1}
+        if ('Absent' not in mapping):
+            mapping['Absent'] = {'facecolor': 'white'}
+        if ('Multiple' not in mapping):
+            mapping['Multiple'] = {'facecolor': palettable.colorbrewer.qualitative.Set1_7.mpl_colors[6]}
+        if (not unique_values.issubset(mapping.keys())):
+            missing_cats = (unique_values - set(mapping.keys()))
+            raise ValueError('Categories present in dataframe {} are missing from mapping'.format(missing_cats))
+        for (key, value) in mapping.items():
+            if (not isinstance(value, dict)):
+                if (key in borders):
+                    mapping[key] = {'facecolor': 'none', 'edgecolor': value}
+                else:
+                    mapping[key] = {'facecolor': value}
+        for border in borders:
+            if (mapping[border]['facecolor'] != 'none'):
+                raise ValueError("Border category {} must have facecolor = 'none'".format(border))
+    else:
+        raise ValueError('Invalid mapping. Mapping must be a dict.')
+    parsed_data = self._parse_categorical_data(data, category_order, self.samples, value_order, priority)
+    plot_data = {'data': parsed_data, 'patches_options': mapping, 'tick_style': tick_style, 'borders': borders, 'type': 'categorical'}
+    self._plots[name] = plot_data
+    return None
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ( ... .drop_duplicates())
+    return None
+
+idx = 9:------------------- similar code ------------------ index = 1, score = 1.0 
+def __init__(self, pkl_file, drop_dup=False):
+    df = pkl.load(open(pkl_file, 'rb'))
+    if (drop_dup == True):
+        df_user = df.drop_duplicates(['user_id'])
+        df_movie = df.drop_duplicates(['movie_id'])
+        self.dataFrame = pd.concat((df_user, df_movie), axis=0)
+    else:
+        self.dataFrame = df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .drop_duplicates
+
+idx = 10:------------------- similar code ------------------ index = 0, score = 1.0 
+def _transform_df(self, df):
+    df.cell_reference = (df.cell_reference != '').astype(str)
+    df.cell_styles = df.cell_styles.astype(str)
+    if (self.merge_type not in ['concat', 'vote_maj', 'vote_avg', 'vote_max']):
+        raise Exception(f'merge_type must be one of concat, vote_maj, vote_avg, vote_max, but {self.merge_type} was given')
+    if (self.mark_this_paper and ((self.merge_type != 'concat') or self.this_paper)):
+        raise Exception("merge_type must be 'concat' and this_paper must be false")
+    if (self.evidence_limit is not None):
+        df = df.groupby(by=['ext_id', 'this_paper']).head(self.evidence_limit)
+    if (self.context_tokens is not None):
+        df.loc['text_highlited'] = df['text_highlited'].apply(self._limit_context)
+        df.loc['text'] = df['text_highlited'].str.replace('<b>', ' ').replace('</b>', ' ')
+    if (self.evidence_source != 'text'):
+        df = df.copy(True)
+        if self.mask:
+            df['text'] = df[self.evidence_source].replace(re.compile('<b>.*?</b>'), ' xxmask ')
+        else:
+            df['text'] = df[self.evidence_source]
+    elif self.mask:
+        raise Exception("Masking with evidence_source='text' makes no sense")
+    duplicates_columns = ['text', 'cell_content', 'cell_type', 'row_context', 'col_context', 'cell_reference', 'cell_layout', 'cell_styles']
+    columns_to_keep = ['ext_id', 'cell_content', 'cell_type', 'row_context', 'col_context', 'cell_reference', 'cell_layout', 'cell_styles']
+    if self.mark_this_paper:
+        df = df.groupby(by=(columns_to_keep + ['this_paper'])).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        this_paper_map = {True: 'this paper', False: 'other paper'}
+        df.text = ((('xxfld 3 ' + df.this_paper.apply(this_paper_map.get)) + ' ') + df.text)
+        df = df.groupby(by=columns_to_keep).text.apply((lambda x: ' '.join(x.values))).reset_index()
+    elif (not self.fixed_this_paper):
+        if (self.merge_fragments and (self.merge_type == 'concat')):
+            df = df.groupby(by=(columns_to_keep + ['this_paper'])).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        if self.drop_duplicates:
+            df = df.drop_duplicates(duplicates_columns).fillna('')
+        if self.this_paper:
+            df = df[df.this_paper]
+    else:
+        if self.this_paper:
+            df = df[df.this_paper]
+        if (self.merge_fragments and (self.merge_type == 'concat')):
+            df = df.groupby(by=columns_to_keep).text.apply((lambda x: '\n'.join(x.values))).reset_index()
+        if self.drop_duplicates:
+            df = df.drop_duplicates(duplicates_columns).fillna('')
+    if self.split_btags:
+        df['text'] = df['text'].replace(re.compile('(\\</?b\\>)'), ' \\1 ')
+    df = df.replace(re.compile('(xxref|xxanchor)-[\\w\\d-]*'), '\\1 ')
+    if self.remove_num:
+        df = df.replace(re.compile('(^|[ ])\\d+\\.\\d+(\\b|%)'), ' xxnum ')
+        df = df.replace(re.compile('(^|[ ])\\d+(\\b|%)'), ' xxnum ')
+    df = df.replace(re.compile('\\bdata set\\b'), ' dataset ')
+    df['label'] = df['cell_type'].apply((lambda x: label_map.get(x, 0)))
+    if (not self.distinguish_model_source):
+        df['label'] = df['label'].apply((lambda x: (x if (x != Labels.COMPETING_MODEL.value) else Labels.PAPER_MODEL.value)))
+    df['label'] = pd.Categorical(df['label'])
+    return df
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    elif:
+        if  ... .drop_duplicates:

@@ -1,0 +1,335 @@
+------------------------- example 1 ------------------------ 
+def create_model():
+    torch.manual_seed(opt.seed)
+    model = MLP().to(opt.device)
+    loss = nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.weight_decay)
+    logger.debug(str(model))
+    logger.debug(str(loss))
+    logger.debug(str(optimizer))
+    return (model, loss, optimizer)
+
+------------------------- example 2 ------------------------ 
+def forward(self, c, iter):
+    feats_BE = self.BE.forward_branch(c)
+    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+// your code ...
+
+    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
+    rec = feats_SD[(- 1)]
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    rec_feats_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(rec_feats_BE)):
+        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
+    kd_feat_loss = 0
+    for i in range(len(feats_BD)):
+        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
+    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+
+------------------------- example 3 ------------------------ 
+def __init__(self):
+    super(MSETeacherPointwise, self).__init__()
+    self.mse = torch.nn.MSELoss()
+
+------------------------- example 4 ------------------------ 
+def forward(self, c, iter):
+    cF_BE = self.BE.forward_branch(c)
+    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
+    rec = self.BD(cF_SE[(- 1)])
+    sd_BE = 0
+    if ((iter % self.args.save_interval) == 0):
+        rec_BE = self.BD(cF_BE[(- 1)])
+    feat_loss = 0
+    for i in range(len(cF_BE)):
+        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
+
+examples  ||  representativeness  ||  number of lines  || number of comments 
+example1  ||          2           ||        9         ||         0        
+example2  ||          4           ||        15         ||         1        
+example3  ||          2           ||        3         ||         0        
+example4  ||          2           ||        16         ||         0        
+
+avg       ||          2.5           ||        10.75         ||         0.25        
+
+idx = 0:------------------- similar code ------------------ index = 8, score = 5.0 
+def __init__(self, use_lsgan=True, target_real_label=1.0, target_fake_label=0.0):
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label))
+    self.register_buffer('fake_label', torch.tensor(target_fake_label))
+    if use_lsgan:
+        self.loss = nn.MSELoss()
+    else:
+        self.loss = nn.BCELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if  ... :
+ = nn.MSELoss()
+
+idx = 1:------------------- similar code ------------------ index = 7, score = 5.0 
+def create_model():
+    torch.manual_seed(opt.seed)
+    model = MLP().to(opt.device)
+    loss = nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.weight_decay)
+    logger.debug(str(model))
+    logger.debug(str(loss))
+    logger.debug(str(optimizer))
+    return (model, loss, optimizer)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = nn.MSELoss
+
+idx = 2:------------------- similar code ------------------ index = 2, score = 5.0 
+def train():
+    transform = _get_transform()
+    print('Loading Data')
+    train_dataset = GazeFollow(gazefollow_train_data, gazefollow_train_label, transform, input_size=input_resolution, output_size=output_resolution)
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
+    val_dataset = GazeFollow(gazefollow_val_data, gazefollow_val_label, transform, input_size=input_resolution, output_size=output_resolution, test=True)
+    val_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
+    logdir = os.path.join(args.log_dir, datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+    if os.path.exists(logdir):
+        shutil.rmtree(logdir)
+    os.makedirs(logdir)
+    writer = SummaryWriter(logdir)
+    np.random.seed(1)
+    device = torch.device('cuda', args.device)
+    print('Constructing model')
+    model = ModelSpatial()
+    model.cuda().to(device)
+    if args.init_weights:
+        model_dict = model.state_dict()
+        pretrained_dict = torch.load(args.init_weights)
+        pretrained_dict = pretrained_dict['model']
+        model_dict.update(pretrained_dict)
+        model.load_state_dict(model_dict)
+    mse_loss = nn.MSELoss(reduce=False)
+    bcelogit_loss = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    step = 0
+    loss_amp_factor = 10000
+    max_steps = len(train_loader)
+    optimizer.zero_grad()
+    print('Training in progress ...')
+    for ep in range(args.epochs):
+        for (batch, (img, face, head_channel, gaze_heatmap, name, gaze_inside)) in enumerate(train_loader):
+            model.train(True)
+            images = img.cuda().to(device)
+            head = head_channel.cuda().to(device)
+            faces = face.cuda().to(device)
+            gaze_heatmap = gaze_heatmap.cuda().to(device)
+            (gaze_heatmap_pred, attmap, inout_pred) = model(images, head, faces)
+            gaze_heatmap_pred = gaze_heatmap_pred.squeeze(1)
+            l2_loss = (mse_loss(gaze_heatmap_pred, gaze_heatmap) * loss_amp_factor)
+            l2_loss = torch.mean(l2_loss, dim=1)
+            l2_loss = torch.mean(l2_loss, dim=1)
+            gaze_inside = gaze_inside.cuda(device).to(torch.float)
+            l2_loss = torch.mul(l2_loss, gaze_inside)
+            l2_loss = (torch.sum(l2_loss) / torch.sum(gaze_inside))
+            Xent_loss = (bcelogit_loss(inout_pred.squeeze(), gaze_inside.squeeze()) * 100)
+            total_loss = l2_loss
+            total_loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            step += 1
+            if ((batch % args.print_every) == 0):
+                print('Epoch:{:04d}\tstep:{:06d}/{:06d}\ttraining loss: (l2){:.4f} (Xent){:.4f}'.format(ep, (batch + 1), max_steps, l2_loss, Xent_loss))
+                ind = np.random.choice(len(images), replace=False)
+                writer.add_scalar('Train Loss', total_loss, global_step=step)
+            if (((batch != 0) and ((batch % args.eval_every) == 0)) or ((batch + 1) == max_steps)):
+                print('Validation in progress ...')
+                model.train(False)
+                AUC = []
+                min_dist = []
+                avg_dist = []
+                with torch.no_grad():
+                    for (val_batch, (val_img, val_face, val_head_channel, val_gaze_heatmap, cont_gaze, imsize, _)) in enumerate(val_loader):
+                        val_images = val_img.cuda().to(device)
+                        val_head = val_head_channel.cuda().to(device)
+                        val_faces = val_face.cuda().to(device)
+                        val_gaze_heatmap = val_gaze_heatmap.cuda().to(device)
+                        (val_gaze_heatmap_pred, val_attmap, val_inout_pred) = model(val_images, val_head, val_faces)
+                        val_gaze_heatmap_pred = val_gaze_heatmap_pred.squeeze(1)
+                        for b_i in range(len(cont_gaze)):
+                            valid_gaze = cont_gaze[b_i]
+                            valid_gaze = valid_gaze[(valid_gaze != (- 1))].view((- 1), 2)
+                            multi_hot = imutils.multi_hot_targets(cont_gaze[b_i], imsize[b_i])
+                            scaled_heatmap = imresize(val_gaze_heatmap_pred[b_i], (imsize[b_i][1], imsize[b_i][0]), interp='bilinear')
+                            auc_score = evaluation.auc(scaled_heatmap, multi_hot)
+                            AUC.append(auc_score)
+                            (pred_x, pred_y) = evaluation.argmax_pts(val_gaze_heatmap_pred[b_i])
+                            norm_p = [(pred_x / float(output_resolution)), (pred_y / float(output_resolution))]
+                            all_distances = []
+                            for gt_gaze in valid_gaze:
+                                all_distances.append(evaluation.L2_dist(gt_gaze, norm_p))
+                            min_dist.append(min(all_distances))
+                            mean_gt_gaze = torch.mean(valid_gaze, 0)
+                            avg_distance = evaluation.L2_dist(mean_gt_gaze, norm_p)
+                            avg_dist.append(avg_distance)
+                print('\tAUC:{:.4f}\tmin dist:{:.4f}\tavg dist:{:.4f}'.format(torch.mean(torch.tensor(AUC)), torch.mean(torch.tensor(min_dist)), torch.mean(torch.tensor(avg_dist))))
+                val_ind = np.random.choice(len(val_images), replace=False)
+                writer.add_scalar('Validation AUC', torch.mean(torch.tensor(AUC)), global_step=step)
+                writer.add_scalar('Validation min dist', torch.mean(torch.tensor(min_dist)), global_step=step)
+                writer.add_scalar('Validation avg dist', torch.mean(torch.tensor(avg_dist)), global_step=step)
+        if ((ep % args.save_every) == 0):
+            checkpoint = {'model': model.state_dict()}
+            torch.save(checkpoint, os.path.join(logdir, ('epoch_%02d_weights.pt' % (ep + 1))))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = nn.MSELoss
+
+idx = 3:------------------- similar code ------------------ index = 11, score = 3.0 
+def forward(self, c, iter):
+    feats_BE = self.BE.forward_branch(c)
+    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+    feats_BD = self.BD.forward_branch(feat_SE_aux)
+    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
+    rec = feats_SD[(- 1)]
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    rec_feats_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(rec_feats_BE)):
+        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
+    kd_feat_loss = 0
+    for i in range(len(feats_BD)):
+        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
+    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 4:------------------- similar code ------------------ index = 10, score = 3.0 
+def __init__(self):
+    super(MSETeacherPointwise, self).__init__()
+    self.mse = torch.nn.MSELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ =  ... .nn.MSELoss()
+
+idx = 5:------------------- similar code ------------------ index = 9, score = 3.0 
+def forward(self, c, iter):
+    feats_BE = self.BE.forward_branch(c)
+    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+    feats_BD = self.BD.forward_branch(feat_SE_aux)
+    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
+    rec = feats_SD[(- 1)]
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    rec_feats_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(rec_feats_BE)):
+        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
+    kd_feat_loss = 0
+    for i in range(len(feats_BD)):
+        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
+    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 6:------------------- similar code ------------------ index = 6, score = 3.0 
+def __init__(self):
+    super(MSERanknetTeacher, self).__init__()
+    self.mse = torch.nn.MSELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ =  ... .nn.MSELoss()
+
+idx = 7:------------------- similar code ------------------ index = 5, score = 3.0 
+def forward(self, c, iter):
+    cF_BE = self.BE.forward_branch(c)
+    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
+    rec = self.BD(cF_SE[(- 1)])
+    sd_BE = 0
+    if ((iter % self.args.save_interval) == 0):
+        rec_BE = self.BD(cF_BE[(- 1)])
+    feat_loss = 0
+    for i in range(len(cF_BE)):
+        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    for  ...  in:
+         ...  += nn.MSELoss()
+
+idx = 8:------------------- similar code ------------------ index = 4, score = 3.0 
+def forward(self, c, iter):
+    rec = self.SD(self.SE(c))
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    cF_BE = self.BE.forward_branch(c)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (rec_pixl_loss, rec_perc_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 9:------------------- similar code ------------------ index = 3, score = 3.0 
+def __init__(self):
+    super(MSETeacherPointwisePassages, self).__init__()
+    self.mse = torch.nn.MSELoss(reduction='none')
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ =  ... .nn.MSELoss
+
+idx = 10:------------------- similar code ------------------ index = 1, score = 3.0 
+def forward(self, c, iter):
+    rec = self.SD(self.SE(c))
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    cF_BE = self.BE.forward_branch(c)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (rec_pixl_loss, rec_perc_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 11:------------------- similar code ------------------ index = 0, score = 3.0 
+def forward(self, c, iter):
+    cF_BE = self.BE.forward_branch(c)
+    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
+    rec = self.BD(cF_SE[(- 1)])
+    sd_BE = 0
+    if ((iter % self.args.save_interval) == 0):
+        rec_BE = self.BD(cF_BE[(- 1)])
+    feat_loss = 0
+    for i in range(len(cF_BE)):
+        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    for  ...  in:
+         ...  += nn.MSELoss()
+

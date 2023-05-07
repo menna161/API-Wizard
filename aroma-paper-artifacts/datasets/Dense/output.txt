@@ -1,94 +1,73 @@
 ------------------------- example 1 ------------------------ 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.decoder_vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(LSTM(units=self.hidden_sizes[0], input_shape=(None, 1), activation=self.activations[0]))
+    self.model.add(Dense(units=1, activation=self.activations[1]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
 
 ------------------------- example 2 ------------------------ 
+def make_default_model(self):
+    '\n        Makes a CNN keras model with the default hyper parameters.\n        '
+    self.model.add(Conv2D(8, (13, 13), input_shape=(self.input_shape[0], self.input_shape[1], 1)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(Conv2D(8, (13, 13)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(MaxPooling2D(pool_size=(2, 1)))
+    self.model.add(Conv2D(8, (13, 13)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+// your code ...
+
+    self.model.add(Conv2D(8, (2, 2)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(MaxPooling2D(pool_size=(2, 1)))
+    self.model.add(Flatten())
+    self.model.add(Dense(64))
+    self.model.add(BatchNormalization())
+// your code ...
+
+    self.model.add(Dropout(0.2))
+
+------------------------- example 3 ------------------------ 
+def __init__(self, num_mixtures, memory, memory_sequence_length=None, check_inner_dims_defined=True, score_mask_value=None, name='GmmAttention'):
+    self.dtype = memory.dtype
+    self.num_mixtures = num_mixtures
+    self.query_layer = tf.layers.Dense((3 * num_mixtures), name='gmm_query_layer', use_bias=True, dtype=self.dtype)
+    with tf.name_scope(name, 'GmmAttentionMechanismInit'):
+        if (score_mask_value is None):
+// your code ...
+
+        self._maybe_mask_score = functools.partial(_maybe_mask_score, memory_sequence_length=memory_sequence_length, score_mask_value=score_mask_value)
+        self._value = _prepare_memory(memory, memory_sequence_length, check_inner_dims_defined)
+        self._batch_size = (self._value.shape[0].value or tf.shape(self._value)[0])
+        self._alignments_size = (self._value.shape[1].value or tf.shape(self._value)[1])
+
+------------------------- example 4 ------------------------ 
 def build_latent_space(self):
     with tf.name_scope('latent_space'):
         self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
         self.z_log_sigma = Dense(self.latent_dim, name='z_log_sigma')(self.h_N)
-        self.z_tilda = tf.identity(self.sample_z_tilda_from_posterior(), name='z_tilda')
-
-------------------------- example 3 ------------------------ 
-def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, cppn_loc_embed_dim, cppn_Z_embed_dim: int, c_out: int=1, **kwargs):
-    super(CPPN, self).__init__()
-    self.loc_embed = tf.keras.layers.Dense(cppn_loc_embed_dim, **dense_regularization)
-    self.Z_embed = tf.keras.layers.Dense(cppn_Z_embed_dim, **dense_regularization)
-    self.in_w = tf.keras.layers.Dense(vision_hidden_size, **dense_regularization)
-    self.ws = [tf.keras.layers.Dense(vision_hidden_size, **dense_regularization) for _ in range(R)]
-    self.out_w = tf.keras.layers.Dense(c_out, **dense_regularization)
-    self.y_dim = y_dim
-    self.x_dim = x_dim
-    self.spatial_scale = (1 / max([y_dim, x_dim]))
-    self.output_scale = (1.0 / tf.math.sqrt(tf.cast(vision_hidden_size, tf.float32)))
-
-------------------------- example 4 ------------------------ 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+        self.z_vector = tf.identity(self.sample_gaussian(), name='z_vector')
 
 ------------------------- example 5 ------------------------ 
-def __init__(self, num_heads: int, graph_hidden_size: int):
-    super(GlobalAttention, self).__init__()
+def __init__(self, num_heads: int, graph_hidden_size: int, max_nodes: int):
+    'Multi-head global self-attention (based generally on the original\n    Transformer paper) combined with local graph attention (Graph Attention\n    Networks.)\n\n    Attention Is All You Need by Vaswani et al.\n    https://arxiv.org/abs/1706.03762\n\n    Graph Attention Networks by Veličković et al.\n    https://arxiv.org/abs/1710.10903\n\n    This layer incorporates a multi-head self-attention module as well as\n    a feed-forward layer with the swish activation function.\n    '
+    super(GlobalLocalAttention, self).__init__()
+    self.max_nodes = max_nodes
     self.num_heads = num_heads
     self.graph_hidden_size = graph_hidden_size
     self.scale = (1.0 / tf.math.sqrt(tf.cast(graph_hidden_size, tf.float32)))
-    self.q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.local_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.local_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.local_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
     self.w_out_1 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
     self.layer_norm_1 = tf.keras.layers.LayerNormalization()
     self.w_out_2 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
@@ -97,230 +76,29 @@ def __init__(self, num_heads: int, graph_hidden_size: int):
     self.layer_norm_3 = tf.keras.layers.LayerNormalization()
 
 examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        29         ||         0        
-example2  ||          4           ||        5         ||         0        
-example3  ||          4           ||        11         ||         0        
-example4  ||          3           ||        29         ||         0        
-example5  ||          2           ||        14         ||         0        
+example1  ||          3           ||        8         ||         0        
+example2  ||          2           ||        21         ||         2        
+example3  ||          2           ||        11         ||         1        
+example4  ||          4           ||        5         ||         0        
+example5  ||          2           ||        19         ||         0        
 
-avg       ||          3.0           ||        17.6         ||         0.0        
+avg       ||          2.6           ||        12.8         ||         0.6        
 
-idx = 0:------------------- similar code ------------------ index = 24, score = 1.0 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.decoder_vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 1:------------------- similar code ------------------ index = 11, score = 1.0 
-def build_latent_space(self):
-    with tf.name_scope('latent_space'):
-        self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
-        self.z_log_sigma = Dense(self.latent_dim, name='z_log_sigma')(self.h_N)
-        self.z_tilda = tf.identity(self.sample_z_tilda_from_posterior(), name='z_tilda')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 2:------------------- similar code ------------------ index = 1, score = 1.0 
-def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, cppn_loc_embed_dim, cppn_Z_embed_dim: int, c_out: int=1, **kwargs):
-    super(CPPN, self).__init__()
-    self.loc_embed = tf.keras.layers.Dense(cppn_loc_embed_dim, **dense_regularization)
-    self.Z_embed = tf.keras.layers.Dense(cppn_Z_embed_dim, **dense_regularization)
-    self.in_w = tf.keras.layers.Dense(vision_hidden_size, **dense_regularization)
-    self.ws = [tf.keras.layers.Dense(vision_hidden_size, **dense_regularization) for _ in range(R)]
-    self.out_w = tf.keras.layers.Dense(c_out, **dense_regularization)
-    self.y_dim = y_dim
-    self.x_dim = x_dim
-    self.spatial_scale = (1 / max([y_dim, x_dim]))
-    self.output_scale = (1.0 / tf.math.sqrt(tf.cast(vision_hidden_size, tf.float32)))
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
- =  ... .Dense
-
-idx = 3:------------------- similar code ------------------ index = 2, score = 1.0 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 4:------------------- similar code ------------------ index = 3, score = 1.0 
-def __init__(self, num_heads: int, graph_hidden_size: int):
-    super(GlobalAttention, self).__init__()
-    self.num_heads = num_heads
-    self.graph_hidden_size = graph_hidden_size
-    self.scale = (1.0 / tf.math.sqrt(tf.cast(graph_hidden_size, tf.float32)))
-    self.q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.w_out_1 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
-    self.w_out_2 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
-    self.w_out_3 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_3 = tf.keras.layers.LayerNormalization()
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
- = [ ... .Dense]
-
-idx = 5:------------------- similar code ------------------ index = 4, score = 1.0 
-def make_default_model(self):
-    '\n        Makes the LSTM model with keras with the default hyper parameters.\n        '
-    self.model.add(KERAS_LSTM(128, input_shape=(self.input_shape[0], self.input_shape[1])))
-    self.model.add(Dropout(0.5))
-    self.model.add(Dense(32, activation='relu'))
-    self.model.add(Dense(16, activation='tanh'))
+idx = 0:------------------- similar code ------------------ index = 62, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(LSTM(units=self.hidden_sizes[0], input_shape=(None, 1), activation=self.activations[0]))
+    self.model.add(Dense(units=1, activation=self.activations[1]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
      ... . ... (Dense)
 
-idx = 6:------------------- similar code ------------------ index = 5, score = 1.0 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.word_index['GO']
-            end_token = self.word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 7:------------------- similar code ------------------ index = 6, score = 1.0 
-def build_decoder(self):
-    with tf.variable_scope('decode'):
-        for layer in range(self.num_layers):
-            with tf.variable_scope('decoder_{}'.format((layer + 1))):
-                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
-                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
-        self.output_layer = Dense(self.decoder_vocab_size)
-        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
-        with tf.name_scope('training_decoder'):
-            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
-            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
-        with tf.name_scope('validate_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
-        with tf.name_scope('inference_decoder'):
-            start_token = self.decoder_word_index['GO']
-            end_token = self.decoder_word_index['EOS']
-            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
-            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
-            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
-            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
-            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 8:------------------- similar code ------------------ index = 7, score = 1.0 
-def build_latent_space(self):
-    with tf.name_scope('latent_space'):
-        self.z_tilda = Dense(self.latent_dim, name='z_tilda')(self.h_N)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 9:------------------- similar code ------------------ index = 8, score = 1.0 
+idx = 1:------------------- similar code ------------------ index = 15, score = 1.0 
 def make_default_model(self):
     '\n        Makes a CNN keras model with the default hyper parameters.\n        '
     self.model.add(Conv2D(8, (13, 13), input_shape=(self.input_shape[0], self.input_shape[1], 1)))
@@ -347,19 +125,386 @@ def make_default_model(self):
 def  ... ( ... ):
      ... . ... (Dense)
 
-idx = 10:------------------- similar code ------------------ index = 9, score = 1.0 
+idx = 2:------------------- similar code ------------------ index = 28, score = 1.0 
+def __init__(self, num_mixtures, memory, memory_sequence_length=None, check_inner_dims_defined=True, score_mask_value=None, name='GmmAttention'):
+    self.dtype = memory.dtype
+    self.num_mixtures = num_mixtures
+    self.query_layer = tf.layers.Dense((3 * num_mixtures), name='gmm_query_layer', use_bias=True, dtype=self.dtype)
+    with tf.name_scope(name, 'GmmAttentionMechanismInit'):
+        if (score_mask_value is None):
+            score_mask_value = 0.0
+        self._maybe_mask_score = functools.partial(_maybe_mask_score, memory_sequence_length=memory_sequence_length, score_mask_value=score_mask_value)
+        self._value = _prepare_memory(memory, memory_sequence_length, check_inner_dims_defined)
+        self._batch_size = (self._value.shape[0].value or tf.shape(self._value)[0])
+        self._alignments_size = (self._value.shape[1].value or tf.shape(self._value)[1])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .Dense
+
+idx = 3:------------------- similar code ------------------ index = 27, score = 1.0 
 def build_latent_space(self):
     with tf.name_scope('latent_space'):
         self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
         self.z_log_sigma = Dense(self.latent_dim, name='z_log_sigma')(self.h_N)
-        self.z_tilda = tf.identity(self.sample_z_tilda_from_posterior(), name='z_tilda')
+        self.z_vector = tf.identity(self.sample_gaussian(), name='z_vector')
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
     with:
  = Dense
 
-idx = 11:------------------- similar code ------------------ index = 10, score = 1.0 
+idx = 4:------------------- similar code ------------------ index = 26, score = 1.0 
+def __init__(self, num_heads: int, graph_hidden_size: int, max_nodes: int):
+    'Multi-head global self-attention (based generally on the original\n    Transformer paper) combined with local graph attention (Graph Attention\n    Networks.)\n\n    Attention Is All You Need by Vaswani et al.\n    https://arxiv.org/abs/1706.03762\n\n    Graph Attention Networks by Veličković et al.\n    https://arxiv.org/abs/1710.10903\n\n    This layer incorporates a multi-head self-attention module as well as\n    a feed-forward layer with the swish activation function.\n    '
+    super(GlobalLocalAttention, self).__init__()
+    self.max_nodes = max_nodes
+    self.num_heads = num_heads
+    self.graph_hidden_size = graph_hidden_size
+    self.scale = (1.0 / tf.math.sqrt(tf.cast(graph_hidden_size, tf.float32)))
+    self.local_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.local_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.local_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.global_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.w_out_1 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
+    self.w_out_2 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
+    self.w_out_3 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_3 = tf.keras.layers.LayerNormalization()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = [ ... .Dense]
+
+idx = 5:------------------- similar code ------------------ index = 25, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([K.shape(x)[0], (- 1), K.prod(K.shape(x)[2:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(flat_ctx)
+    embedded_q = onehot(query)
+    embed_pred = ZeroGRU(dim, go_backwards=True, return_sequences=True, return_state=True, name='embed_pred')
+    (embedded_predqs, embedded_predq) = embed_pred(embedded_q)
+    embed_pred.return_sequences = False
+    embed_pred.return_state = False
+    embedded_rules = L.TimeDistributed(embed_pred, name='rule_embed')(embedded_ctx)
+    concatm1 = L.Concatenate(name='concatm1')
+    repeat_toqlen = L.RepeatVector(K.shape(embedded_q)[1], name='repeat_toqlen')
+    mult_cqi = L.Multiply(name='mult_cqi')
+    dense_cqi = L.Dense(dim, name='dense_cqi')
+    dense_cais = L.Dense(1, name='dense_cais')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1, name='softmax1')
+    dot11 = L.Dot((1, 1), name='dot11')
+    repeat_toctx = L.RepeatVector(K.shape(context)[1], name='repeat_toctx')
+    memory_dense = L.Dense(dim, name='memory_dense')
+    kb_dense = L.Dense(dim, name='kb_dense')
+    mult_info = L.Multiply(name='mult_info')
+    info_dense = L.Dense(dim, name='info_dense')
+    mult_att_dense = L.Multiply(name='mult_att_dense')
+    read_att_dense = L.Dense(1, name='read_att_dense')
+    mem_info_dense = L.Dense(dim, name='mem_info_dense')
+    stack1 = L.Lambda((lambda xs: K.stack(xs, 1)), output_shape=(None, dim), name='stack1')
+    mult_self_att = L.Multiply(name='mult_self_att')
+    self_att_dense = L.Dense(1, name='self_att_dense')
+    misa_dense = L.Dense(dim, use_bias=False, name='misa_dense')
+    mi_info_dense = L.Dense(dim, name='mi_info_dense')
+    add_mip = L.Lambda((lambda xy: (xy[0] + xy[1])), name='add_mip')
+    control_gate = L.Dense(1, activation='sigmoid', name='control_gate')
+    gate2 = L.Lambda((lambda xyg: ((xyg[2] * xyg[0]) + ((1 - xyg[2]) * xyg[1]))), name='gate')
+    zeros_like = L.Lambda(K.zeros_like, name='zeros_like')
+    memory = embedded_predq
+    control = zeros_like(memory)
+    (pmemories, pcontrols) = ([memory], [control])
+    outs = list()
+    for i in range(iterations):
+        qi = L.Dense(dim, name=('qi' + str(i)))(embedded_predq)
+        cqi = dense_cqi(concatm1([control, qi]))
+        cais = dense_cais(mult_cqi([repeat_toqlen(cqi), embedded_predqs]))
+        cais = squeeze2(cais)
+        cais = softmax1(cais)
+        outs.append(cais)
+        new_control = dot11([cais, embedded_predqs])
+        info = mult_info([repeat_toctx(memory_dense(memory)), kb_dense(embedded_rules)])
+        infop = info_dense(concatm1([info, embedded_rules]))
+        rai = read_att_dense(mult_att_dense([repeat_toctx(new_control), infop]))
+        rai = squeeze2(rai)
+        rai = softmax1(rai)
+        outs.append(rai)
+        read = dot11([rai, embedded_rules])
+        mi_info = mem_info_dense(concatm1([read, memory]))
+        past_ctrls = stack1(pcontrols)
+        sai = self_att_dense(mult_self_att([L.RepeatVector((i + 1))(new_control), past_ctrls]))
+        sai = squeeze2(sai)
+        sai = softmax1(sai)
+        outs.append(sai)
+        past_mems = stack1(pmemories)
+        misa = L.dot([sai, past_mems], (1, 1), name=('misa_' + str(i)))
+        mip = add_mip([misa_dense(misa), mi_info_dense(mi_info)])
+        cip = control_gate(new_control)
+        outs.append(cip)
+        new_memory = gate2([mip, memory, cip])
+        pcontrols.append(new_control)
+        pmemories.append(new_memory)
+        (memory, control) = (new_memory, new_control)
+    out = L.Dense(1, activation='sigmoid', name='out')(concatm1([embedded_predq, memory]))
+    if training:
+        model = Model([context, query], out)
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Dense
+
+idx = 6:------------------- similar code ------------------ index = 24, score = 1.0 
+def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, c_out: int, NUM_SYMBOLS: int, minimum_filters: int, **kwargs):
+    super(ConvDiscriminator, self).__init__()
+    self.res_preps = []
+    self.residual_blocks_1 = []
+    self.residual_blocks_2 = []
+    self.maxpools = []
+    for r in range(R):
+        filters = (vision_hidden_size // (2 ** ((R - r) - 1)))
+        filters = max([filters, minimum_filters])
+        res_prep = tf.keras.layers.Conv2D(filters, kernel_size=1, strides=1, padding='same', **cnn_regularization)
+        residual_block_1 = ResidualBlock(filters)
+        residual_block_2 = ResidualBlock(filters)
+        self.res_preps.append(res_prep)
+        self.residual_blocks_1.append(residual_block_1)
+        self.residual_blocks_2.append(residual_block_2)
+        self.maxpools.append(tf.keras.layers.Conv2D(filters, kernel_size=3, strides=2, padding='same', **cnn_regularization))
+    self.out_conv = tf.keras.layers.Conv2D(vision_hidden_size, kernel_size=1, strides=1, padding='same', **dense_regularization)
+    self.pred = tf.keras.layers.Dense(NUM_SYMBOLS, **dense_regularization)
+    self.gap = tf.keras.layers.GlobalAveragePooling2D()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .Dense
+
+idx = 7:------------------- similar code ------------------ index = 23, score = 1.0 
+def build_decoder(self):
+    with tf.variable_scope('decode'):
+        for layer in range(self.num_layers):
+            with tf.variable_scope('decoder_{}'.format((layer + 1))):
+                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
+                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
+        self.output_layer = Dense(self.vocab_size)
+        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
+        with tf.name_scope('training_decoder'):
+            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
+            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
+            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
+        with tf.name_scope('validate_decoder'):
+            start_token = self.word_index['GO']
+            end_token = self.word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
+            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
+        with tf.name_scope('inference_decoder'):
+            start_token = self.word_index['GO']
+            end_token = self.word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
+            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 8:------------------- similar code ------------------ index = 22, score = 1.0 
+def test_with_embedding(self):
+    model = keras.models.Sequential()
+    model.add(keras.layers.Embedding(input_dim=10, output_dim=5, mask_zero=True, input_shape=(7,)))
+    model.add(keras.layers.LSTM(units=5))
+    model.add(keras.layers.Dense(units=2, activation='softmax'))
+    model.compile(optimizer=AdaBound(), loss='sparse_categorical_crossentropy')
+    model.fit(self._embedding_data(), steps_per_epoch=1000, validation_data=self._embedding_data(), validation_steps=10, epochs=3)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... ( ... .Dense)
+
+idx = 9:------------------- similar code ------------------ index = 21, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 10:------------------- similar code ------------------ index = 20, score = 1.0 
+def __init__(self, num_heads: int, graph_hidden_size: int):
+    super(GlobalAttention, self).__init__()
+    self.num_heads = num_heads
+    self.graph_hidden_size = graph_hidden_size
+    self.scale = (1.0 / tf.math.sqrt(tf.cast(graph_hidden_size, tf.float32)))
+    self.q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
+    self.w_out_1 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
+    self.w_out_2 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
+    self.w_out_3 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_3 = tf.keras.layers.LayerNormalization()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = [ ... .Dense]
+
+idx = 11:------------------- similar code ------------------ index = 19, score = 1.0 
+@staticmethod
+def gen_keras_linear(w, b, amsgrad=False):
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(input_shape=(3,), units=5, weights=[w, b]))
+    model.compile(optimizer=AdaBound(lr=0.001, final_lr=0.1, amsgrad=amsgrad, weight_decay=0.001), loss='mse')
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... ( ... .Dense)
+
+idx = 12:------------------- similar code ------------------ index = 18, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 13:------------------- similar code ------------------ index = 17, score = 1.0 
+@staticmethod
+def build(width, height, depth, classes):
+    model = Sequential()
+    input_shape = (height, width, depth)
+    if (K.image_data_format() == 'channels_first'):
+        input_shape = (depth, height, width)
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Dropout(0.5))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(Flatten())
+    model.add(Activation('relu'))
+    model.add(Dense(classes))
+    model.add(Activation('softmax'))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 14:------------------- similar code ------------------ index = 16, score = 1.0 
+def build_decoder(self):
+    with tf.variable_scope('decode'):
+        for layer in range(self.num_layers):
+            with tf.variable_scope('decoder_{}'.format((layer + 1))):
+                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
+                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
+        self.output_layer = Dense(self.decoder_vocab_size)
+        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
+        with tf.name_scope('training_decoder'):
+            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
+            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
+            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
+        with tf.name_scope('validate_decoder'):
+            start_token = self.decoder_word_index['GO']
+            end_token = self.decoder_word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_tilda, output_layer=self.output_layer)
+            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
+        with tf.name_scope('inference_decoder'):
+            start_token = self.decoder_word_index['GO']
+            end_token = self.decoder_word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_sampled, output_layer=self.output_layer)
+            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 15:------------------- similar code ------------------ index = 14, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 16:------------------- similar code ------------------ index = 30, score = 1.0 
+def get_my_CNN_model_architecture():
+    '\n    The network should accept a 96x96 grayscale image as input, and it should output a vector with 30 entries,\n    corresponding to the predicted (horizontal and vertical) locations of 15 facial keypoints.\n    '
+    model = Sequential()
+    model.add(Convolution2D(32, (5, 5), input_shape=(96, 96, 1), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.1))
+    model.add(Convolution2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.2))
+    model.add(Convolution2D(30, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.3))
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(30))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 17:------------------- similar code ------------------ index = 13, score = 1.0 
 def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, c_out: int, Z_embed_num: int, minimum_filters: int, **kwargs):
     super(ConvGenerator, self).__init__()
     self.init_Z_embed = tf.keras.layers.Dense(vision_hidden_size, **dense_regularization)
@@ -396,7 +541,638 @@ def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, c_ou
 def  ... ():
  =  ... .Dense
 
-idx = 12:------------------- similar code ------------------ index = 12, score = 1.0 
+idx = 18:------------------- similar code ------------------ index = 12, score = 1.0 
+def _build_model(self):
+    model = tf.keras.Sequential()
+    for neuron_num in self.hidden_neurons:
+        model.add(layers.Dense(neuron_num, activation=self.activation, kernel_regularizer=tf.keras.regularizers.l1(self.kernel_regularizer)))
+        model.add(layers.Dropout(self.dropout_rate))
+    model.compile(loss=self.loss_function, optimizer=self.optimizer)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+         ... . ... ( ... .Dense)
+
+idx = 19:------------------- similar code ------------------ index = 11, score = 1.0 
+def test_with_plateau(self):
+    self.reset_seed(51966)
+    (w, b) = self.gen_random_weights()
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(input_shape=(3,), units=5, weights=[w, b]))
+    model.compile(optimizer=AdaBound(lr=0.001, final_lr=0.1), loss='mse')
+    x = np.random.standard_normal((10000, 3))
+    y = (np.dot(x, w) + b)
+    model.fit(x, y, epochs=100, callbacks=[keras.callbacks.ReduceLROnPlateau(monitor='loss')], verbose=False)
+    with tempfile.TemporaryDirectory() as temp_path:
+        model_path = os.path.join(temp_path, 'keras_adabound.h5')
+        model.save(model_path)
+        model = keras.models.load_model(model_path, custom_objects={'AdaBound': AdaBound})
+    self.assertGreater(0.001, float(K.get_value(model.optimizer.lr)))
+    self.assertEqual(0.001, model.optimizer.base_lr)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... ( ... .Dense)
+
+idx = 20:------------------- similar code ------------------ index = 10, score = 1.0 
+def build_model(char_size=27, dim=64, training=True, **kwargs):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([(- 1), K.prod(K.shape(x)[1:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+    onehot = L.Embedding(char_size, char_size, embeddings_initializer='identity', trainable=False, mask_zero=True, name='onehot')
+    embedded_ctx = onehot(flat_ctx)
+    embedded_q = onehot(query)
+    (_, *states) = L.LSTM(dim, return_state=True, name='query_lstm')(embedded_q)
+    (out, *states) = L.LSTM(dim, return_state=True, name='ctx_lstm')(embedded_ctx, initial_state=states)
+    out = L.concatenate(([out] + states), name='final_states')
+    out = L.Dense(1, activation='sigmoid', name='out')(out)
+    model = Model([context, query], out)
+    if training:
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Dense
+
+idx = 21:------------------- similar code ------------------ index = 9, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 22:------------------- similar code ------------------ index = 8, score = 1.0 
+def test_with_scheduler(self):
+    (w, b) = self.gen_random_weights()
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(input_shape=(3,), units=5, weights=[w, b]))
+    decay = tf.keras.optimizers.schedules.ExponentialDecay(0.001, decay_steps=100000, decay_rate=0.96)
+    decay = tf.keras.optimizers.schedules.serialize(decay)
+    model.compile(optimizer=AdaBound(learning_rate=decay, final_lr=0.1, decay=0.5, weight_decay=decay), loss='mse')
+    x = np.random.standard_normal((1, 3))
+    y = (np.dot(x, w) + b)
+    model.train_on_batch(x, y)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... ( ... .Dense)
+
+idx = 23:------------------- similar code ------------------ index = 7, score = 1.0 
+def decode(self, genome):
+    if (not self.is_compatible_genome(genome)):
+        raise ValueError('Invalid genome for specified configs')
+    model = Sequential()
+    dim = 0
+    offset = 0
+    if (self.convolution_layers > 0):
+        dim = min(self.input_shape[:(- 1)])
+    input_layer = True
+    for i in range(self.convolution_layers):
+        if genome[offset]:
+            convolution = None
+            if input_layer:
+                convolution = Convolution2D(genome[(offset + 1)], (3, 3), padding='same', input_shape=self.input_shape)
+                input_layer = False
+            else:
+                convolution = Convolution2D(genome[(offset + 1)], (3, 3), padding='same')
+            model.add(convolution)
+            if genome[(offset + 2)]:
+                model.add(BatchNormalization())
+            model.add(Activation(self.activation[genome[(offset + 3)]]))
+            model.add(Dropout(float((genome[(offset + 4)] / 20.0))))
+            max_pooling_type = genome[(offset + 5)]
+            if ((max_pooling_type == 1) and (dim >= 5)):
+                model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+                dim = int(math.ceil((dim / 2)))
+        offset += self.convolution_layer_size
+    if (not input_layer):
+        model.add(Flatten())
+    for i in range(self.dense_layers):
+        if genome[offset]:
+            dense = None
+            if input_layer:
+                dense = Dense(genome[(offset + 1)], input_shape=self.input_shape)
+                input_layer = False
+            else:
+                dense = Dense(genome[(offset + 1)])
+            model.add(dense)
+            if genome[(offset + 2)]:
+                model.add(BatchNormalization())
+            model.add(Activation(self.activation[genome[(offset + 3)]]))
+            model.add(Dropout(float((genome[(offset + 4)] / 20.0))))
+        offset += self.dense_layer_size
+    model.add(Dense(self.n_classes, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer=self.optimizer[genome[offset]], metrics=['accuracy'])
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+            if  ... :
+                 ...  = Dense
+
+idx = 24:------------------- similar code ------------------ index = 6, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([K.shape(x)[0], (- 1), K.prod(K.shape(x)[2:])]))), name='var_flat')
+    flat_ctx = var_flat(context)
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(flat_ctx)
+    embedded_q = onehot(query)
+    embed_pred = ZeroGRU(dim, go_backwards=True, name='embed_pred')
+    embedded_predq = embed_pred(embedded_q)
+    embedded_rules = NestedTimeDist(embed_pred, name='rule_embed')(embedded_ctx)
+    repeat_toctx = L.RepeatVector(K.shape(embedded_ctx)[1], name='repeat_to_ctx')
+    diff_sq = L.Lambda((lambda xy: K.square((xy[0] - xy[1]))), output_shape=(None, dim), name='diff_sq')
+    concat = L.Lambda((lambda xs: K.concatenate(xs, axis=2)), output_shape=(None, (dim * 5)), name='concat')
+    att_dense1 = L.TimeDistributed(L.Dense(dim, activation='tanh', name='att_dense1'), name='d_att_dense1')
+    att_dense2 = L.TimeDistributed(L.Dense(1, activation='sigmoid', name='att_dense2'), name='d_att_dense2')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    rule_mask = L.Lambda((lambda x: K.cast(K.any(K.not_equal(x, 0), axis=(- 1), keepdims=True), 'float32')), name='rule_mask')(embedded_rules)
+    episodic_mem = EpisodicMemory(dim, name='episodic_mem')
+    state = embedded_predq
+    repeated_q = repeat_toctx(embedded_predq)
+    outs = list()
+    for _ in range(iterations):
+        ctx_state = repeat_toctx(state)
+        s_s_c = diff_sq([ctx_state, embedded_rules])
+        s_m_c = L.multiply([embedded_rules, state])
+        sim_vec = concat([s_s_c, s_m_c, ctx_state, embedded_rules, repeated_q])
+        sim_vec = att_dense1(sim_vec)
+        sim_vec = att_dense2(sim_vec)
+        sim_vec = L.multiply([sim_vec, rule_mask])
+        state = episodic_mem([state, sim_vec, embedded_rules])
+        sim_vec = squeeze2(sim_vec)
+        outs.append(sim_vec)
+    out = L.Dense(1, activation='sigmoid', name='out')(state)
+    if pca:
+        model = Model([context, query], [embedded_rules])
+    elif training:
+        model = Model([context, query], [out])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .Dense,)
+
+idx = 25:------------------- similar code ------------------ index = 5, score = 1.0 
+def build_decoder(self):
+    with tf.variable_scope('decode'):
+        for layer in range(self.num_layers):
+            with tf.variable_scope('decoder_{}'.format((layer + 1))):
+                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
+                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
+        self.output_layer = Dense(self.decoder_vocab_size)
+        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
+        with tf.name_scope('training_decoder'):
+            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
+            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
+        with tf.name_scope('validate_decoder'):
+            start_token = self.decoder_word_index['GO']
+            end_token = self.decoder_word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
+        with tf.name_scope('inference_decoder'):
+            start_token = self.decoder_word_index['GO']
+            end_token = self.decoder_word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.decoder_embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.decoder_num_tokens)
+            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 26:------------------- similar code ------------------ index = 4, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 27:------------------- similar code ------------------ index = 3, score = 1.0 
+def __new__(self, input_shapes, optimizer, loss, weights=None):
+    x1 = Input(input_shapes[0])
+    x2 = Input(input_shapes[1])
+    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(x1)
+    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y1)
+    y1 = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y1)
+    y1 = Flatten()(y1)
+    y1 = Dense(units=512, activation='relu')(y1)
+    y2 = Flatten()(x2)
+    y2 = Dense(units=512, activation='relu')(y2)
+    y = Concatenate()([y1, y2])
+    y = Dense(units=1024, activation='relu')(y)
+    y = Dropout(0.5)(y)
+    y = Dense(units=1024, activation='relu')(y)
+    y = Reshape(target_shape=(8, 8, 16))(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y)
+    model = Model(inputs=[x1, x2], outputs=y)
+    model.compile(optimizer=optimizer, loss=loss)
+    try:
+        if (not (weights is None)):
+            model.load_weights(weights)
+    except:
+        pass
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = Dense
+
+idx = 28:------------------- similar code ------------------ index = 2, score = 1.0 
+def create_model(network_width, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 29:------------------- similar code ------------------ index = 1, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 30:------------------- similar code ------------------ index = 29, score = 1.0 
+def build_latent_space(self):
+    with tf.name_scope('latent_space'):
+        self.z_tilda = Dense(self.latent_dim, name='z_tilda')(self.h_N)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 31:------------------- similar code ------------------ index = 31, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    if ilp:
+        (context, query, templates) = ilp
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(context)
+    embedded_q = onehot(query)
+    if ilp:
+        embedded_ctx = L.Lambda((lambda xs: K.concatenate(xs, axis=1)), name='template_concat')([templates, embedded_ctx])
+    embed_pred = ZeroGRU(dim, go_backwards=True, name='embed_pred')
+    embedded_predq = embed_pred(embedded_q)
+    embedded_ctx_preds = NestedTimeDist(NestedTimeDist(embed_pred, name='nest1'), name='nest2')(embedded_ctx)
+    embed_rule = ZeroGRU(dim, name='embed_rule')
+    embedded_rules = NestedTimeDist(embed_rule, name='d_embed_rule')(embedded_ctx_preds)
+    repeat_toctx = L.RepeatVector(K.shape(embedded_ctx)[1], name='repeat_to_ctx')
+    diff_sq = L.Lambda((lambda xy: K.square((xy[0] - xy[1]))), output_shape=(None, dim), name='diff_sq')
+    mult = L.Multiply()
+    concat = L.Lambda((lambda xs: K.concatenate(xs, axis=2)), output_shape=(None, (dim * 5)), name='concat')
+    att_densel = L.Dense((dim // 2), activation='tanh', name='att_densel')
+    att_dense = L.Dense(1, name='att_dense')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1)
+    unifier = NestedTimeDist(ZeroGRU(dim, go_backwards=False, name='unifier'), name='dist_unifier')
+    dot11 = L.Dot((1, 1))
+    state = embedded_predq
+    repeated_q = repeat_toctx(embedded_predq)
+    outs = list()
+    for _ in range(iterations):
+        ctx_state = repeat_toctx(state)
+        s_s_c = diff_sq([ctx_state, embedded_rules])
+        s_m_c = mult([embedded_rules, state])
+        sim_vec = concat([s_s_c, s_m_c, ctx_state, embedded_rules, repeated_q])
+        sim_vec = att_densel(sim_vec)
+        sim_vec = att_dense(sim_vec)
+        sim_vec = squeeze2(sim_vec)
+        sim_vec = softmax1(sim_vec)
+        outs.append(sim_vec)
+        new_states = unifier(embedded_ctx_preds, initial_state=[state])
+        state = dot11([sim_vec, new_states])
+    out = L.Dense(1, activation='sigmoid', name='out')(state)
+    if ilp:
+        return (outs, out)
+    elif pca:
+        model = Model([context, query], [embedded_rules])
+    elif training:
+        model = Model([context, query], [out])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Dense
+
+idx = 32:------------------- similar code ------------------ index = 61, score = 1.0 
+def test_with_embedding_amsgrad(self):
+    model = keras.models.Sequential()
+    model.add(keras.layers.Embedding(input_dim=10, mask_zero=True, output_dim=5, input_shape=(7,)))
+    model.add(keras.layers.LSTM(units=5))
+    model.add(keras.layers.Dense(units=2, activation='softmax'))
+    model.compile(optimizer=AdaBound(amsgrad=True, weight_decay=0.001), loss='sparse_categorical_crossentropy')
+    model.fit(self._embedding_data(), steps_per_epoch=1000, validation_data=self._embedding_data(), validation_steps=10, epochs=2)
+    with tempfile.TemporaryDirectory() as temp_path:
+        model_path = os.path.join(temp_path, 'keras_adabound.h5')
+        model.save(model_path)
+        model = keras.models.load_model(model_path, custom_objects={'AdaBound': AdaBound})
+    model.fit(self._embedding_data(), steps_per_epoch=1000, validation_data=self._embedding_data(), validation_steps=10, epochs=1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... ( ... .Dense)
+
+idx = 33:------------------- similar code ------------------ index = 47, score = 1.0 
+def __init__(self, graph_hidden_size: int, node_feature_specs: Dict[(str, int)]):
+    super(NodeFeatureEmbed, self).__init__()
+    self.nf_w = {name: tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for name in node_feature_specs.keys()}
+    self.w = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
+    self.w_out = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
+    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = { ... :  ... .Dense}
+
+idx = 34:------------------- similar code ------------------ index = 60, score = 1.0 
+def __init__(self, input_size=[3, 32, 32], output_size=10, problem_type='classification', **kw):
+    "\n        *** Create tf.keras net ***\n        input_size: Iterable. Size of 1 input. Example: [3,32,32] for CIFAR, [784] for MNIST\n        output_size: Integer. #labels. Example: 100 for CIFAR-100, 39 for TIMIT phonemes\n        problem_type: String. Task/problem type. Example: 'classification' or 'regression'\n        kw:\n            act: String. Activation for all layers. Must be pre-defined in F_activations and nn_activations. Default 'relu'\n            --- CONV ---:\n                    out_channels: Iterable. #filters in each conv layer, i.e. #conv layers. If no conv layer is needed, enter []          \n                --- For the next kws, either pass an iterable of size = size of out_channels, OR leave blank to get default values ---\n                        kernel_sizes: Default all 3\n                        strides: Default all 1\n                        paddings: Default values keep output size same as input for that kernel_size. Example 2 for kernel_size=5, 1 for kernel_size=3\n                        dilations: Default all 1\n                        groups: Default all 1\n                        apply_bns: 1 to get BN layer after the current conv layer, else 0. Default all 1\n                        apply_maxpools: 1 to get maxpool layer after the current conv layer, else 0. Default all 0\n                        apply_dropouts: 1 to get dropout layer after the current conv layer, else 0. Default all 1\n                        shortcuts: 1 to start shortcut after current conv layer, else 0. All shortcuts rejoin after 2 layers. Default all 0\n                            2 consecutive elements of shortcuts cannot be 1, last 2 elements of shortcuts must be 0s\n                            The shortcut portion has added 0s to compensate for channel increase, and avg pools to compensate for dwensampling\n                    dropout_probs: Iterable of size = #1s in apply_dropouts. DROP probabilities for each dropout layer. Default first layer 0.1, all other 0.3\n                        Eg: If apply_dropouts = [1,0,1,0], then dropout_probs = [0.1,0.3]. If apply_dropouts = [0,1,1,1], then dropout_probs = [0.3,0.3,0.3]\n                    apply_gap: 1 to apply global average pooling just before MLPs, else 0. Default 1\n            --- MLP ---:\n                    hidden_mlp: Iterable. #nodes in the hidden layers only.\n                    apply_dropouts_mlp: Whether to apply dropout after current hidden layer. Iterable of size = number of hidden layers. Default all 0\n                    dropout_probs_mlp: As in dropout_probs for conv. Default all 0.5\n                    \n                    Examples:\n                        If input_size=800, output_size=10, and hidden_mlp is not given, or is [], then the config will be [800,10]. By default, apply_dropouts_mlp = [], dropout_probs_mlp = []\n                        If input_size=800, output_size=10, and hidden_mlp is [100,100], then the config will be [800,100,100,10]. apply_dropouts_mlp for example can be [1,0], then dropout_probs_mlp = [0.5] by default\n        "
+    super(Net, self).__init__()
+    self.act = (kw['act'] if ('act' in kw) else net_kws_defaults['act'])
+    self.out_channels = (kw['out_channels'] if ('out_channels' in kw) else net_kws_defaults['out_channels'])
+    self.num_layers_conv = len(self.out_channels)
+    self.kernel_sizes = (kw['kernel_sizes'] if ('kernel_sizes' in kw) else (self.num_layers_conv * net_kws_defaults['kernel_sizes']))
+    self.strides = (kw['strides'] if ('strides' in kw) else (self.num_layers_conv * net_kws_defaults['strides']))
+    self.paddings = (kw['paddings'] if ('paddings' in kw) else (self.num_layers_conv * ['same']))
+    self.dilations = (kw['dilations'] if ('dilations' in kw) else (self.num_layers_conv * net_kws_defaults['dilations']))
+    self.groups = (kw['groups'] if ('groups' in kw) else (self.num_layers_conv * net_kws_defaults['groups']))
+    self.apply_bns = (kw['apply_bns'] if ('apply_bns' in kw) else (self.num_layers_conv * net_kws_defaults['apply_bns']))
+    self.apply_maxpools = (kw['apply_maxpools'] if ('apply_maxpools' in kw) else (self.num_layers_conv * net_kws_defaults['apply_maxpools']))
+    self.apply_gap = (kw['apply_gap'] if ('apply_gap' in kw) else net_kws_defaults['apply_gap'])
+    self.apply_dropouts = (kw['apply_dropouts'] if ('apply_dropouts' in kw) else (self.num_layers_conv * net_kws_defaults['apply_dropouts']))
+    if ('dropout_probs' in kw):
+        self.dropout_probs = kw['dropout_probs']
+    else:
+        self.dropout_probs = (np.count_nonzero(self.apply_dropouts) * [net_kws_defaults['dropout_probs'][1]])
+        if ((len(self.apply_dropouts) != 0) and (self.apply_dropouts[0] == 1)):
+            self.dropout_probs[0] = net_kws_defaults['dropout_probs'][0]
+    self.shortcuts = (kw['shortcuts'] if ('shortcuts' in kw) else (self.num_layers_conv * net_kws_defaults['shortcuts']))
+    dropout_index = 0
+    self.conv = {}
+    for i in range(self.num_layers_conv):
+        self.conv['conv-{0}'.format(i)] = tf.keras.layers.Conv2D(filters=self.out_channels[i], kernel_size=self.kernel_sizes[i], strides=self.strides[i], padding=self.paddings[i], dilation_rate=self.dilations[i])
+        if (self.apply_maxpools[i] == 1):
+            self.conv['mp-{0}'.format(i)] = tf.keras.layers.MaxPool2D(pool_size=2)
+        if (self.apply_bns[i] == 1):
+            self.conv['bn-{0}'.format(i)] = tf.keras.layers.BatchNormalization()
+        self.conv['act-{0}'.format(i)] = nn_activations[self.act]
+        if (self.apply_dropouts[i] == 1):
+            self.conv['drop-{0}'.format(i)] = tf.keras.layers.Dropout(self.dropout_probs[dropout_index])
+            dropout_index += 1
+    if ((self.apply_gap == 1) and (self.num_layers_conv > 0)):
+        self.conv['gap'] = tf.keras.layers.GlobalAveragePooling2D()
+    self.n_mlp = [(- 1), output_size]
+    if ('hidden_mlp' in kw):
+        self.n_mlp[1:1] = kw['hidden_mlp']
+    else:
+        self.n_mlp[1:1] = net_kws_defaults['hidden_mlp']
+    self.num_hidden_layers_mlp = len(self.n_mlp[1:(- 1)])
+    self.apply_dropouts_mlp = (kw['apply_dropouts_mlp'] if ('apply_dropouts_mlp' in kw) else (self.num_hidden_layers_mlp * net_kws_defaults['apply_dropouts_mlp']))
+    self.dropout_probs_mlp = (kw['dropout_probs_mlp'] if ('dropout_probs_mlp' in kw) else (np.count_nonzero(self.apply_dropouts_mlp) * net_kws_defaults['dropout_probs_mlp']))
+    self.mlp = {}
+    dropout_index = 0
+    for i in range(1, len(self.n_mlp)):
+        if (i != (len(self.n_mlp) - 1)):
+            self.mlp['dense-{0}'.format((i - 1))] = tf.keras.layers.Dense(self.n_mlp[i], activation=F_activations[self.act])
+            if (self.apply_dropouts_mlp[(i - 1)] == 1):
+                self.mlp['drop-{0}'.format((i - 1))] = tf.keras.layers.Dropout(self.dropout_probs_mlp[dropout_index])
+                dropout_index += 1
+        elif (problem_type == 'classification'):
+            self.mlp['dense-{0}'.format((i - 1))] = tf.keras.layers.Dense(self.n_mlp[i], activation='softmax')
+        elif (problem_type == 'regression'):
+            self.mlp['dense-{0}'.format((i - 1))] = tf.keras.layers.Dense(self.n_mlp[i])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+ =  ... .Dense
+
+idx = 35:------------------- similar code ------------------ index = 59, score = 1.0 
+def __init__(self, embed_dim, ctx):
+    super(Model, self).__init__()
+    self.embed_dim = embed_dim
+    self.ctx = ctx
+    self.backbone = Backbone('googlenet', ctx)
+    with self.name_scope():
+        self.embedding_layer = mx.gluon.nn.Dense(embed_dim, weight_initializer=mx.initializer.Xavier(magnitude=2))
+        self.pooling_layer = mx.gluon.nn.GlobalAvgPool2D()
+    self.embedding_layer.initialize(ctx=ctx)
+    self.pooling_layer.initialize(ctx=ctx)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+ =  ... .Dense
+
+idx = 36:------------------- similar code ------------------ index = 58, score = 1.0 
+def __init__(self, n_classes, mask=None, name='vgg', reuse=None):
+    super(VGG, self).__init__()
+    n_units = [64, 64, 128, 128, 256, 256, 256, 512, 512, 512, 512, 512, 512, 512, 512]
+    self.mask = mask
+    self.n_classes = n_classes
+
+    def create_block(l, n_in, n_out):
+        self.base.append(Conv(n_in, n_out, 3, name=('conv' + str(l)), padding='SAME'))
+        self.base.append(BatchNorm(n_out, name=('bn' + str(l))))
+        self.bbd.append(BBDropout(n_out, name=('bbd' + str(l)), a_uc_init=2.0))
+    with tf.variable_scope(name, reuse=reuse):
+        create_block(1, 3, n_units[0])
+        for i in range(1, 13):
+            create_block((i + 1), n_units[(i - 1)], n_units[i])
+        self.bbd.append(BBDropout(n_units[13], name='bbd14'))
+        self.base.append(Dense(n_units[13], n_units[14], name='dense14'))
+        self.base.append(BatchNorm(n_units[14], name='bn14'))
+        self.bbd.append(BBDropout(n_units[14], name='bbd15'))
+        self.base.append(Dense(n_units[14], n_classes, name='dense15'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+         ... . ... (Dense)
+
+idx = 37:------------------- similar code ------------------ index = 57, score = 1.0 
+def __init__(self, input_shape, num_classes, **params):
+    '\n        Constructor to initialize the deep neural network model. Takes the input\n        shape and number of classes and other parameters required for the\n        abstract class `Model` as parameters.\n\n        Args:\n            input_shape (tuple): shape of the input\n            num_classes (int): number of different classes ( labels ) in the data.\n            **params: Additional parameters required by the underlying abstract\n                class `Model`.\n\n        '
+    super(DNN, self).__init__(**params)
+    self.input_shape = input_shape
+    self.model = Sequential()
+    self.make_default_model()
+    self.model.add(Dense(num_classes, activation='softmax'))
+    self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(self.model.summary(), file=sys.stderr)
+    self.save_path = (self.save_path or (self.name + '_best_model.h5'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 38:------------------- similar code ------------------ index = 56, score = 1.0 
+def create_model(network_width, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 39:------------------- similar code ------------------ index = 55, score = 1.0 
+def build_latent_space(self):
+    with tf.name_scope('latent_space'):
+        self.z_tilda = Dense(self.latent_dim, name='z_tilda')(self.h_N)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 40:------------------- similar code ------------------ index = 54, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(Dense(units=self.hidden_sizes[0], input_dim=self.X_train.shape[1], activation=self.activations[0]))
+    self.model.add(Dense(1, activation=self.activations[1]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 41:------------------- similar code ------------------ index = 53, score = 1.0 
+def make_default_model(self):
+    '\n        Makes the LSTM model with keras with the default hyper parameters.\n        '
+    self.model.add(KERAS_LSTM(128, input_shape=(self.input_shape[0], self.input_shape[1])))
+    self.model.add(Dropout(0.5))
+    self.model.add(Dense(32, activation='relu'))
+    self.model.add(Dense(16, activation='tanh'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 42:------------------- similar code ------------------ index = 52, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (Dense)
+
+idx = 43:------------------- similar code ------------------ index = 51, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(LSTM(units=self.hidden_sizes[0], activation=self.activations[0], input_shape=(self.X_train.shape[1], 1)))
+    self.model.add(Dropout(self.dropouts[0]))
+    self.model.add(Dense(units=1, activation=self.activations[1]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 44:------------------- similar code ------------------ index = 50, score = 1.0 
+def __init__(self, num_units, memory, memory_sequence_length=None, smoothing=False, cumulate_weights=True, name='LocationSensitiveAttention'):
+    "Construct the Attention mechanism.\n        Args:\n                num_units: The depth of the query mechanism.\n                memory: The memory to query; usually the output of an RNN encoder.  This\n                        tensor should be shaped `[batch_size, max_time, ...]`.\n                memory_sequence_length (optional): Sequence lengths for the batch entries\n                        in memory.  If provided, the memory tensor rows are masked with zeros\n                        for values past the respective sequence lengths. Only relevant if mask_encoder = True.\n                smoothing (optional): Boolean. Determines which normalization function to use.\n                        Default normalization function (probablity_fn) is softmax. If smoothing is\n                        enabled, we replace softmax with:\n                                        a_{i, j} = sigmoid(e_{i, j}) / sum_j(sigmoid(e_{i, j}))\n                        Introduced in:\n                                J. K. Chorowski, D. Bahdanau, D. Serdyuk, K. Cho, and Y. Ben-\n                          gio, �쏛ttention-based models for speech recognition,�� in Ad-\n                          vances in Neural Information Processing Systems, 2015, pp.\n                          577��585.\n                        This is mainly used if the model wants to attend to multiple inputs parts\n                        at the same decoding step. We probably won't be using it since multiple sound\n                        frames may depend from the same character, probably not the way around.\n                        Note:\n                                We still keep it implemented in case we want to test it. They used it in the\n                                paper in the context of speech recognition, where one phoneme may depend on\n                                multiple subsequent sound frames.\n                name: Name to use when creating ops.\n        "
+    normalization_function = (_smoothing_normalization if (smoothing == True) else None)
+    super(LocationSensitiveAttention, self).__init__(num_units=num_units, memory=memory, memory_sequence_length=memory_sequence_length, probability_fn=normalization_function, name=name)
+    self.location_convolution = tf.layers.Conv1D(filters=32, kernel_size=(31,), padding='same', use_bias=True, bias_initializer=tf.zeros_initializer(), name='location_features_convolution')
+    self.location_layer = tf.layers.Dense(units=num_units, use_bias=False, dtype=tf.float32, name='location_features_layer')
+    self._cumulate = cumulate_weights
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .Dense
+
+idx = 45:------------------- similar code ------------------ index = 49, score = 1.0 
+def __init__(self, n_units=None, mask=None, name='lenet_conv', reuse=None):
+    n_units = ([20, 50, 800, 500] if (n_units is None) else n_units)
+    self.mask = mask
+    super(LeNetConv, self).__init__()
+    with tf.variable_scope(name, reuse=reuse):
+        self.base.append(Conv(1, n_units[0], 5, name='conv1'))
+        self.base.append(Conv(n_units[0], n_units[1], 5, name='conv2'))
+        self.base.append(Dense(n_units[2], n_units[3], name='dense3'))
+        self.base.append(Dense(n_units[3], 10, name='dense4'))
+        for i in range(4):
+            self.bbd.append(BBDropout(n_units[i], name=('bbd' + str((i + 1)))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+         ... . ... (Dense)
+
+idx = 46:------------------- similar code ------------------ index = 48, score = 1.0 
 def build_decoder(self):
     with tf.variable_scope('decode'):
         for layer in range(self.num_layers):
@@ -432,41 +1208,244 @@ def  ... ( ... ):
     with:
  = Dense
 
-idx = 13:------------------- similar code ------------------ index = 23, score = 1.0 
-def compile_bert(shape, dropout_rate, lr, mode, human_metric):
-    "\n    Using the above class, creates, compiles the and returns the BERT model ready to be trained\n    :param shape: The Input shape (We used 512 as the max bpes that can be fit).\n    :param dropout_rate: The dropout rate of the model.\n    :param lr: The learning rate of the model.\n    :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].\n    :param human_metric: The metric for which the model will be trained at.\n    :return: The compiler model ready to be used.\n    "
-    random.seed(11)
-    np.random.seed(13)
-    tf.set_random_seed(21)
-    word_inputs = Input(shape=(shape[1],), name='word_inputs', dtype='int32')
-    mask_inputs = Input(shape=(shape[1],), name='pos_inputs', dtype='int32')
-    seg_inputs = Input(shape=(shape[1],), name='seg_inputs', dtype='int32')
-    doc_encoding = BERT()([word_inputs, mask_inputs, seg_inputs])
-    doc_encoding = Dropout(dropout_rate)(doc_encoding)
-    model = None
-    if (mode == 'Single Task'):
-        outputs = Dense(1, activation='linear', name='outputs')(doc_encoding)
-        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[outputs])
-    elif (mode == 'Multi Task-1'):
-        outputs = Dense(5, activation='linear', name='outputs')(doc_encoding)
-        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[outputs])
-    elif (mode == 'Multi Task-5'):
-        output_q1 = Dense(1, activation='linear', name='output_Q1')(doc_encoding)
-        output_q2 = Dense(1, activation='linear', name='output_Q2')(doc_encoding)
-        output_q3 = Dense(1, activation='linear', name='output_Q3')(doc_encoding)
-        output_q4 = Dense(1, activation='linear', name='output_Q4')(doc_encoding)
-        output_q5 = Dense(1, activation='linear', name='output_Q5')(doc_encoding)
-        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[Concatenate()([output_q1, output_q2, output_q3, output_q4, output_q5])])
-    set_quality_index(mode=mode, quality=human_metric)
-    model.compile(optimizer=Adam(lr=lr), loss='mse', loss_weights=None, metrics=[custom_loss])
-    return model
+idx = 47:------------------- similar code ------------------ index = 46, score = 1.0 
+def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, cppn_loc_embed_dim, cppn_Z_embed_dim: int, c_out: int=1, **kwargs):
+    super(CPPN, self).__init__()
+    self.loc_embed = tf.keras.layers.Dense(cppn_loc_embed_dim, **dense_regularization)
+    self.Z_embed = tf.keras.layers.Dense(cppn_Z_embed_dim, **dense_regularization)
+    self.in_w = tf.keras.layers.Dense(vision_hidden_size, **dense_regularization)
+    self.ws = [tf.keras.layers.Dense(vision_hidden_size, **dense_regularization) for _ in range(R)]
+    self.out_w = tf.keras.layers.Dense(c_out, **dense_regularization)
+    self.y_dim = y_dim
+    self.x_dim = x_dim
+    self.spatial_scale = (1 / max([y_dim, x_dim]))
+    self.output_scale = (1.0 / tf.math.sqrt(tf.cast(vision_hidden_size, tf.float32)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .Dense
+
+idx = 48:------------------- similar code ------------------ index = 32, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(LSTM(units=self.hidden_sizes[0], return_sequences=True, input_shape=(None, 1), activation=self.activations[0]))
+    self.model.add(LSTM(units=self.hidden_sizes[1], activation=self.activations[1]))
+    self.model.add(Dense(units=1, activation=self.activations[2]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 49:------------------- similar code ------------------ index = 45, score = 1.0 
+def __init__(self, cell, attention_mechanism, is_manual_attention, manual_alignments, attention_layer_size=None, alignment_history=False, cell_input_fn=None, output_attention=True, initial_cell_state=None, name=None):
+    'Construct the `AttentionWrapper`.\n        **NOTE** If you are using the `BeamSearchDecoder` with a cell wrapped in\n        `AttentionWrapper`, then you must ensure that:\n        - The encoder output has been tiled to `beam_width` via\n          @{tf.contrib.seq2seq.tile_batch} (NOT `tf.tile`).\n        - The `batch_size` argument passed to the `zero_state` method of this\n          wrapper is equal to `true_batch_size * beam_width`.\n        - The initial state created with `zero_state` above contains a\n          `cell_state` value containing properly tiled final state from the\n          encoder.\n        An example:\n        ```\n        tiled_encoder_outputs = tf.contrib.seq2seq.tile_batch(\n            encoder_outputs, multiplier=beam_width)\n        tiled_encoder_final_state = tf.conrib.seq2seq.tile_batch(\n            encoder_final_state, multiplier=beam_width)\n        tiled_sequence_length = tf.contrib.seq2seq.tile_batch(\n            sequence_length, multiplier=beam_width)\n        attention_mechanism = MyFavoriteAttentionMechanism(\n            num_units=attention_depth,\n            memory=tiled_inputs,\n            memory_sequence_length=tiled_sequence_length)\n        attention_cell = AttentionWrapper(cell, attention_mechanism, ...)\n        decoder_initial_state = attention_cell.zero_state(\n            dtype, batch_size=true_batch_size * beam_width)\n        decoder_initial_state = decoder_initial_state.clone(\n            cell_state=tiled_encoder_final_state)\n        ```\n        Args:\n          cell: An instance of `RNNCell`.\n          attention_mechanism: A list of `AttentionMechanism` instances or a single\n            instance.\n          attention_layer_size: A list of Python integers or a single Python\n            integer, the depth of the attention (output) layer(s). If None\n            (default), use the context as attention at each time step. Otherwise,\n            feed the context and cell output into the attention layer to generate\n            attention at each time step. If attention_mechanism is a list,\n            attention_layer_size must be a list of the same length.\n          alignment_history: Python boolean, whether to store alignment history\n            from all time steps in the final output state (currently stored as a\n            time major `TensorArray` on which you must call `stack()`).\n          cell_input_fn: (optional) A `callable`.  The default is:\n            `lambda inputs, attention: tf.concat([inputs, attention], -1)`.\n          output_attention: Python bool.  If `True` (default), the output at each\n            time step is the attention value.  This is the behavior of Luong-style\n            attention mechanisms.  If `False`, the output at each time step is\n            the output of `cell`.  This is the behavior of Bhadanau-style\n            attention mechanisms.  In both cases, the `attention` tensor is\n            propagated to the next time step via the state and is used there.\n            This flag only controls whether the attention mechanism is propagated\n            up to the next cell in an RNN stack or to the top RNN output.\n          initial_cell_state: The initial state value to use for the cell when\n            the user calls `zero_state()`.  Note that if this value is provided\n            now, and the user uses a `batch_size` argument of `zero_state` which\n            does not match the batch size of `initial_cell_state`, proper\n            behavior is not guaranteed.\n          name: Name to use when creating ops.\n        Raises:\n          TypeError: `attention_layer_size` is not None and (`attention_mechanism`\n            is a list but `attention_layer_size` is not; or vice versa).\n          ValueError: if `attention_layer_size` is not None, `attention_mechanism`\n            is a list, and its length does not match that of `attention_layer_size`.\n        '
+    super(AttentionWrapper, self).__init__(name=name)
+    self.is_manual_attention = is_manual_attention
+    self.manual_alignments = manual_alignments
+    rnn_cell_impl.assert_like_rnncell('cell', cell)
+    if isinstance(attention_mechanism, (list, tuple)):
+        self._is_multi = True
+        attention_mechanisms = attention_mechanism
+        for attention_mechanism in attention_mechanisms:
+            if (not isinstance(attention_mechanism, AttentionMechanism)):
+                raise TypeError(('attention_mechanism must contain only instances of AttentionMechanism, saw type: %s' % type(attention_mechanism).__name__))
+    else:
+        self._is_multi = False
+        if (not isinstance(attention_mechanism, AttentionMechanism)):
+            raise TypeError(('attention_mechanism must be an AttentionMechanism or list of multiple AttentionMechanism instances, saw type: %s' % type(attention_mechanism).__name__))
+        attention_mechanisms = (attention_mechanism,)
+    if (cell_input_fn is None):
+        cell_input_fn = (lambda inputs, attention: tf.concat([inputs, attention], (- 1)))
+    elif (not callable(cell_input_fn)):
+        raise TypeError(('cell_input_fn must be callable, saw type: %s' % type(cell_input_fn).__name__))
+    if (attention_layer_size is not None):
+        attention_layer_sizes = tuple((attention_layer_size if isinstance(attention_layer_size, (list, tuple)) else (attention_layer_size,)))
+        if (len(attention_layer_sizes) != len(attention_mechanisms)):
+            raise ValueError(('If provided, attention_layer_size must contain exactly one integer per attention_mechanism, saw: %d vs %d' % (len(attention_layer_sizes), len(attention_mechanisms))))
+        self._attention_layers = tuple((layers_core.Dense(attention_layer_size, name='attention_layer', use_bias=False, dtype=attention_mechanisms[i].dtype) for (i, attention_layer_size) in enumerate(attention_layer_sizes)))
+        self._attention_layer_size = sum(attention_layer_sizes)
+    else:
+        self._attention_layers = None
+        self._attention_layer_size = sum((attention_mechanism.values.get_shape()[(- 1)].value for attention_mechanism in attention_mechanisms))
+    self._cell = cell
+    self._attention_mechanisms = attention_mechanisms
+    self._cell_input_fn = cell_input_fn
+    self._output_attention = output_attention
+    self._alignment_history = alignment_history
+    with tf.name_scope(name, 'AttentionWrapperInit'):
+        if (initial_cell_state is None):
+            self._initial_cell_state = None
+        else:
+            final_state_tensor = nest.flatten(initial_cell_state)[(- 1)]
+            state_batch_size = (final_state_tensor.shape[0].value or tf.shape(final_state_tensor)[0])
+            error_message = (('When constructing AttentionWrapper %s: ' % self._base_name) + 'Non-matching batch sizes between the memory (encoder output) and initial_cell_state.  Are you using the BeamSearchDecoder?  You may need to tile your initial state via the tf.contrib.seq2seq.tile_batch function with argument multiple=beam_width.')
+            with tf.control_dependencies(self._batch_size_checks(state_batch_size, error_message)):
+                self._initial_cell_state = nest.map_structure((lambda s: tf.identity(s, name='check_initial_cell_state')), initial_cell_state)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
     if:
-         ...  = Dense
+ =  ... (( ... .Dense))
 
-idx = 14:------------------- similar code ------------------ index = 13, score = 1.0 
+idx = 50:------------------- similar code ------------------ index = 44, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(Dense(self.hidden_sizes[0], input_dim=self.X_train.shape[1], activation=self.activations[0]))
+    self.model.add(Dense(self.hidden_sizes[1], activation=self.activations[1]))
+    self.model.add(Dense(1, activation=self.activations[2]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 51:------------------- similar code ------------------ index = 43, score = 1.0 
+def __init__(self, num_units, memory, memory_sequence_length=None, normalize=False, score_mask_value=None, sigmoid_noise=0.0, sigmoid_noise_seed=None, score_bias_init=0.0, mode='parallel', dtype=None, name='BahdanauMonotonicAttentionHccho'):
+    "Construct the Attention mechanism.\n\n        Args:\n          num_units: The depth of the query mechanism.\n          memory: The memory to query; usually the output of an RNN encoder.  This\n            tensor should be shaped `[batch_size, max_time, ...]`.\n          memory_sequence_length (optional): Sequence lengths for the batch entries\n            in memory.  If provided, the memory tensor rows are masked with zeros\n            for values past the respective sequence lengths.\n          normalize: Python boolean.  Whether to normalize the energy term.\n          score_mask_value: (optional): The mask value for score before passing into\n            `probability_fn`. The default is -inf. Only used if\n            `memory_sequence_length` is not None.\n          sigmoid_noise: Standard deviation of pre-sigmoid noise.  See the docstring\n            for `_monotonic_probability_fn` for more information.\n          sigmoid_noise_seed: (optional) Random seed for pre-sigmoid noise.\n          score_bias_init: Initial value for score bias scalar.  It's recommended to\n            initialize this to a negative value when the length of the memory is\n            large.\n          mode: How to compute the attention distribution.  Must be one of\n            'recursive', 'parallel', or 'hard'.  See the docstring for\n            `tf.contrib.seq2seq.monotonic_attention` for more information.\n          dtype: The data type for the query and memory layers of the attention\n            mechanism.\n          name: Name to use when creating ops.\n        "
+    if (dtype is None):
+        dtype = tf.float32
+    wrapped_probability_fn = functools.partial(_monotonic_probability_fn, sigmoid_noise=sigmoid_noise, mode=mode, seed=sigmoid_noise_seed)
+    super(BahdanauMonotonicAttention_hccho, self).__init__(query_layer=Dense(num_units, name='query_layer', use_bias=False, dtype=dtype), memory_layer=Dense(num_units, name='memory_layer', use_bias=False, dtype=dtype), memory=memory, probability_fn=wrapped_probability_fn, memory_sequence_length=memory_sequence_length, score_mask_value=score_mask_value, name=name)
+    self._num_units = num_units
+    self._normalize = normalize
+    self._name = name
+    self._score_bias_init = score_bias_init
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... ( ... =Dense,,,,,,)
+
+idx = 52:------------------- similar code ------------------ index = 42, score = 1.0 
+def build_decoder(self):
+    with tf.variable_scope('decode'):
+        for layer in range(self.num_layers):
+            with tf.variable_scope('decoder_{}'.format((layer + 1))):
+                dec_cell = tf.contrib.rnn.LayerNormBasicLSTMCell((2 * self.lstm_hidden_units))
+                dec_cell = tf.contrib.rnn.DropoutWrapper(dec_cell, input_keep_prob=self.keep_prob)
+        self.output_layer = Dense(self.vocab_size)
+        self.init_state = dec_cell.zero_state(self.batch_size, tf.float32)
+        with tf.name_scope('training_decoder'):
+            training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=self.dec_embed_input, sequence_length=self.target_sentence_length, time_major=False)
+            training_decoder = basic_decoder.BasicDecoder(dec_cell, training_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.training_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(training_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.training_logits = tf.identity(self.training_logits.rnn_output, 'logits')
+        with tf.name_scope('validate_decoder'):
+            start_token = self.word_index['GO']
+            end_token = self.word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.validate_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.validate_sent = tf.identity(self.validate_logits.sample_id, name='predictions')
+        with tf.name_scope('inference_decoder'):
+            start_token = self.word_index['GO']
+            end_token = self.word_index['EOS']
+            start_tokens = tf.tile(tf.constant([start_token], dtype=tf.int32), [self.batch_size], name='start_tokens')
+            inference_helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(self.embeddings, start_tokens, end_token)
+            inference_decoder = basic_decoder.BasicDecoder(dec_cell, inference_helper, initial_state=self.init_state, latent_vector=self.z_vector, output_layer=self.output_layer)
+            (self.inference_logits, _state, _len) = tf.contrib.seq2seq.dynamic_decode(inference_decoder, output_time_major=False, impute_finished=True, maximum_iterations=self.num_tokens)
+            self.inference_logits = tf.identity(self.inference_logits.sample_id, name='predictions')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 53:------------------- similar code ------------------ index = 41, score = 1.0 
+def build_model(char_size=27, dim=64, iterations=4, training=True, ilp=False, pca=False):
+    'Build the model.'
+    context = L.Input(shape=(None, None, None), name='context', dtype='int32')
+    query = L.Input(shape=(None,), name='query', dtype='int32')
+    if ilp:
+        (context, query, templates) = ilp
+    onehot_weights = np.eye(char_size)
+    onehot_weights[(0, 0)] = 0
+    onehot = L.Embedding(char_size, char_size, trainable=False, weights=[onehot_weights], name='onehot')
+    embedded_ctx = onehot(context)
+    embedded_q = onehot(query)
+    if ilp:
+        embedded_ctx = L.Lambda((lambda xs: K.concatenate(xs, axis=1)), name='template_concat')([templates, embedded_ctx])
+    embed_pred = ZeroGRU(dim, go_backwards=True, name='embed_pred')
+    embedded_predq = embed_pred(embedded_q)
+    embedded_ctx_preds = NestedTimeDist(NestedTimeDist(embed_pred, name='nest1'), name='nest2')(embedded_ctx)
+    embed_rule = ZeroGRU(dim, name='embed_rule')
+    embedded_rules = NestedTimeDist(embed_rule, name='d_embed_rule')(embedded_ctx_preds)
+    repeat_toctx = L.RepeatVector(K.shape(embedded_ctx)[1], name='repeat_to_ctx')
+    diff_sq = L.Lambda((lambda xy: K.square((xy[0] - xy[1]))), output_shape=(None, dim), name='diff_sq')
+    mult = L.Multiply()
+    concat = L.Lambda((lambda xs: K.concatenate(xs, axis=2)), output_shape=(None, (dim * 5)), name='concat')
+    att_dense = L.Dense(1, name='d_att_dense')
+    squeeze2 = L.Lambda((lambda x: K.squeeze(x, 2)), name='sequeeze2')
+    softmax1 = L.Softmax(axis=1)
+    unifier = NestedTimeDist(ZeroGRU(dim, go_backwards=True, name='unifier'), name='dist_unifier')
+    dot11 = L.Dot((1, 1))
+    state = embedded_predq
+    repeated_q = repeat_toctx(embedded_predq)
+    outs = list()
+    for _ in range(iterations):
+        ctx_state = repeat_toctx(state)
+        s_s_c = diff_sq([ctx_state, embedded_rules])
+        s_m_c = mult([embedded_rules, state])
+        sim_vec = concat([s_s_c, s_m_c, ctx_state, embedded_rules, repeated_q])
+        sim_vec = att_dense(sim_vec)
+        sim_vec = squeeze2(sim_vec)
+        sim_vec = softmax1(sim_vec)
+        outs.append(sim_vec)
+        new_states = unifier(embedded_ctx_preds, initial_state=[state])
+        state = dot11([sim_vec, new_states])
+    out = L.Dense(1, activation='sigmoid', name='out')(state)
+    if ilp:
+        return (outs, out)
+    elif pca:
+        model = Model([context, query], [embedded_rules])
+    elif training:
+        model = Model([context, query], [out])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
+    else:
+        model = Model([context, query], (outs + [out]))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .Dense
+
+idx = 54:------------------- similar code ------------------ index = 40, score = 1.0 
+def _training__(self):
+    self.model = Sequential()
+    self.model.add(LSTM(units=self.hidden_sizes[0], return_sequences=True, input_shape=(self.X_train.shape[1], 1), activation=self.activations[0]))
+    self.model.add(Dropout(self.dropouts[0]))
+    self.model.add(LSTM(units=self.hidden_sizes[1], activation=self.activations[1]))
+    self.model.add(Dropout(self.dropouts[1]))
+    self.model.add(Dense(units=1, activation=self.activations[2]))
+    self.model.compile(loss=self.loss, optimizer=self.optimizer)
+    backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=2, inter_op_parallelism_threads=2)))
+    ml = self.model.fit(self.X_train, self.y_train, epochs=self.epoch, batch_size=self.batch_size, verbose=self.print_train)
+    self.loss_train = ml.history['loss']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (Dense)
+
+idx = 55:------------------- similar code ------------------ index = 39, score = 1.0 
+def build_latent_space(self):
+    with tf.name_scope('latent_space'):
+        self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
+        self.z_log_sigma = Dense(self.latent_dim, name='z_log_sigma')(self.h_N)
+        self.z_tilda = tf.identity(self.sample_z_tilda_from_posterior(), name='z_tilda')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+ = Dense
+
+idx = 56:------------------- similar code ------------------ index = 38, score = 1.0 
 def build_latent_space(self):
     with tf.name_scope('latent_space'):
         self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
@@ -478,93 +1457,32 @@ def  ... ( ... ):
     with:
  = Dense
 
-idx = 15:------------------- similar code ------------------ index = 14, score = 1.0 
-def build_latent_space(self):
-    with tf.name_scope('latent_space'):
-        self.z_tilda = Dense(self.latent_dim, name='z_tilda')(self.h_N)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    with:
- = Dense
-
-idx = 16:------------------- similar code ------------------ index = 15, score = 1.0 
-def __init__(self, input_shape, num_classes, **params):
-    '\n        Constructor to initialize the deep neural network model. Takes the input\n        shape and number of classes and other parameters required for the\n        abstract class `Model` as parameters.\n\n        Args:\n            input_shape (tuple): shape of the input\n            num_classes (int): number of different classes ( labels ) in the data.\n            **params: Additional parameters required by the underlying abstract\n                class `Model`.\n\n        '
-    super(DNN, self).__init__(**params)
-    self.input_shape = input_shape
-    self.model = Sequential()
-    self.make_default_model()
-    self.model.add(Dense(num_classes, activation='softmax'))
-    self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(self.model.summary(), file=sys.stderr)
-    self.save_path = (self.save_path or (self.name + '_best_model.h5'))
+idx = 57:------------------- similar code ------------------ index = 37, score = 1.0 
+def create_model(network_width, network_hidden_layers, observation_space, action_space):
+    action_predictor_model = Sequential()
+    action_predictor_model.add(Dense(network_width, activation='relu', input_dim=observation_space))
+    for i in range(network_hidden_layers):
+        action_predictor_model.add(Dense(network_width, activation='relu'))
+    action_predictor_model.add(Dense(action_space))
+    return action_predictor_model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ... . ... (Dense)
 
-idx = 17:------------------- similar code ------------------ index = 16, score = 1.0 
-def __new__(self, input_shapes, optimizer, loss, weights=None):
-    x1 = Input(input_shapes[0])
-    x2 = Input(input_shapes[1])
-    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(x1)
-    y1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y1)
-    y1 = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y1)
-    y1 = Flatten()(y1)
-    y1 = Dense(units=512, activation='relu')(y1)
-    y2 = Flatten()(x2)
-    y2 = Dense(units=512, activation='relu')(y2)
-    y = Concatenate()([y1, y2])
-    y = Dense(units=1024, activation='relu')(y)
-    y = Dropout(0.5)(y)
-    y = Dense(units=1024, activation='relu')(y)
-    y = Reshape(target_shape=(8, 8, 16))(y)
-    y = UpSampling2D(size=(2, 2))(y)
-    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
-    y = UpSampling2D(size=(2, 2))(y)
-    y = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(y)
-    y = UpSampling2D(size=(2, 2))(y)
-    y = Conv2D(filters=1, kernel_size=(3, 3), padding='same', activation='relu')(y)
-    model = Model(inputs=[x1, x2], outputs=y)
-    model.compile(optimizer=optimizer, loss=loss)
-    try:
-        if (not (weights is None)):
-            model.load_weights(weights)
-    except:
-        pass
-    return model
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  = Dense
-
-idx = 18:------------------- similar code ------------------ index = 17, score = 1.0 
+idx = 58:------------------- similar code ------------------ index = 36, score = 1.0 
 def build_latent_space(self):
     with tf.name_scope('latent_space'):
         self.z_mean = Dense(self.latent_dim, name='z_mean')(self.h_N)
         self.z_log_sigma = Dense(self.latent_dim, name='z_log_sigma')(self.h_N)
-        self.z_vector = tf.identity(self.sample_gaussian(), name='z_vector')
+        self.z_tilda = tf.identity(self.sample_z_tilda_from_posterior(), name='z_tilda')
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
     with:
  = Dense
 
-idx = 19:------------------- similar code ------------------ index = 18, score = 1.0 
-def __init__(self, graph_hidden_size: int, node_feature_specs: Dict[(str, int)]):
-    super(NodeFeatureEmbed, self).__init__()
-    self.nf_w = {name: tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for name in node_feature_specs.keys()}
-    self.w = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
-    self.w_out = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
- = { ... :  ... .Dense}
-
-idx = 20:------------------- similar code ------------------ index = 19, score = 1.0 
+idx = 59:------------------- similar code ------------------ index = 35, score = 1.0 
 def build_decoder(self):
     with tf.variable_scope('decode'):
         for layer in range(self.num_layers):
@@ -600,49 +1518,41 @@ def  ... ( ... ):
     with:
  = Dense
 
-idx = 21:------------------- similar code ------------------ index = 20, score = 1.0 
-def __init__(self, y_dim: int, x_dim: int, vision_hidden_size: int, R: int, c_out: int, NUM_SYMBOLS: int, minimum_filters: int, **kwargs):
-    super(ConvDiscriminator, self).__init__()
-    self.res_preps = []
-    self.residual_blocks_1 = []
-    self.residual_blocks_2 = []
-    self.maxpools = []
-    for r in range(R):
-        filters = (vision_hidden_size // (2 ** ((R - r) - 1)))
-        filters = max([filters, minimum_filters])
-        res_prep = tf.keras.layers.Conv2D(filters, kernel_size=1, strides=1, padding='same', **cnn_regularization)
-        residual_block_1 = ResidualBlock(filters)
-        residual_block_2 = ResidualBlock(filters)
-        self.res_preps.append(res_prep)
-        self.residual_blocks_1.append(residual_block_1)
-        self.residual_blocks_2.append(residual_block_2)
-        self.maxpools.append(tf.keras.layers.Conv2D(filters, kernel_size=3, strides=2, padding='same', **cnn_regularization))
-    self.out_conv = tf.keras.layers.Conv2D(vision_hidden_size, kernel_size=1, strides=1, padding='same', **dense_regularization)
-    self.pred = tf.keras.layers.Dense(NUM_SYMBOLS, **dense_regularization)
-    self.gap = tf.keras.layers.GlobalAveragePooling2D()
+idx = 60:------------------- similar code ------------------ index = 34, score = 1.0 
+def compile_bert(shape, dropout_rate, lr, mode, human_metric):
+    "\n    Using the above class, creates, compiles the and returns the BERT model ready to be trained\n    :param shape: The Input shape (We used 512 as the max bpes that can be fit).\n    :param dropout_rate: The dropout rate of the model.\n    :param lr: The learning rate of the model.\n    :param mode: Depending on your choice : ['Single Task', 'Multi Task-1', 'Multi Task-5'].\n    :param human_metric: The metric for which the model will be trained at.\n    :return: The compiler model ready to be used.\n    "
+    random.seed(11)
+    np.random.seed(13)
+    tf.set_random_seed(21)
+    word_inputs = Input(shape=(shape[1],), name='word_inputs', dtype='int32')
+    mask_inputs = Input(shape=(shape[1],), name='pos_inputs', dtype='int32')
+    seg_inputs = Input(shape=(shape[1],), name='seg_inputs', dtype='int32')
+    doc_encoding = BERT()([word_inputs, mask_inputs, seg_inputs])
+    doc_encoding = Dropout(dropout_rate)(doc_encoding)
+    model = None
+    if (mode == 'Single Task'):
+        outputs = Dense(1, activation='linear', name='outputs')(doc_encoding)
+        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[outputs])
+    elif (mode == 'Multi Task-1'):
+        outputs = Dense(5, activation='linear', name='outputs')(doc_encoding)
+        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[outputs])
+    elif (mode == 'Multi Task-5'):
+        output_q1 = Dense(1, activation='linear', name='output_Q1')(doc_encoding)
+        output_q2 = Dense(1, activation='linear', name='output_Q2')(doc_encoding)
+        output_q3 = Dense(1, activation='linear', name='output_Q3')(doc_encoding)
+        output_q4 = Dense(1, activation='linear', name='output_Q4')(doc_encoding)
+        output_q5 = Dense(1, activation='linear', name='output_Q5')(doc_encoding)
+        model = Model(inputs=[word_inputs, mask_inputs, seg_inputs], outputs=[Concatenate()([output_q1, output_q2, output_q3, output_q4, output_q5])])
+    set_quality_index(mode=mode, quality=human_metric)
+    model.compile(optimizer=Adam(lr=lr), loss='mse', loss_weights=None, metrics=[custom_loss])
+    return model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
- =  ... .Dense
+    if:
+         ...  = Dense
 
-idx = 22:------------------- similar code ------------------ index = 21, score = 1.0 
-def __init__(self, embed_dim, ctx):
-    super(Model, self).__init__()
-    self.embed_dim = embed_dim
-    self.ctx = ctx
-    self.backbone = Backbone('googlenet', ctx)
-    with self.name_scope():
-        self.embedding_layer = mx.gluon.nn.Dense(embed_dim, weight_initializer=mx.initializer.Xavier(magnitude=2))
-        self.pooling_layer = mx.gluon.nn.GlobalAvgPool2D()
-    self.embedding_layer.initialize(ctx=ctx)
-    self.pooling_layer.initialize(ctx=ctx)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-    with:
- =  ... .Dense
-
-idx = 23:------------------- similar code ------------------ index = 22, score = 1.0 
+idx = 61:------------------- similar code ------------------ index = 33, score = 1.0 
 def __init__(self, num_heads: int, graph_hidden_size: int, max_nodes: int, node_feature_specs: Dict[(str, int)], decoder_attention_layers: int, **kwargs):
     "Simple graph reconstruction with dense feed-forward neural network based\n    generally on the GraphVAE paper. Added global self-attention as a refining\n    step which improves accuracy.\n\n    ---\n    GraphVAE: Towards Generation of Small Graphs Using Variational Autoencoders,\n    Simonovsky et al.\n    https://arxiv.org/abs/1802.03480\n    ---\n\n    Args:\n      num_heads\n      hidden_size\n      max_nodes\n      node_feature_specs: a dict of integers, each mapping a node feature name\n        to its dimensionality. Example: {'ord': 4}\n    "
     super(GraphDecoder, self).__init__()
@@ -663,28 +1573,15 @@ def __init__(self, num_heads: int, graph_hidden_size: int, max_nodes: int, node_
 def  ... ():
  =  ... .Dense
 
-idx = 24:------------------- similar code ------------------ index = 0, score = 1.0 
-def __init__(self, num_heads: int, graph_hidden_size: int, max_nodes: int):
-    'Multi-head global self-attention (based generally on the original\n    Transformer paper) combined with local graph attention (Graph Attention\n    Networks.)\n\n    Attention Is All You Need by Vaswani et al.\n    https://arxiv.org/abs/1706.03762\n\n    Graph Attention Networks by Veličković et al.\n    https://arxiv.org/abs/1710.10903\n\n    This layer incorporates a multi-head self-attention module as well as\n    a feed-forward layer with the swish activation function.\n    '
-    super(GlobalLocalAttention, self).__init__()
-    self.max_nodes = max_nodes
-    self.num_heads = num_heads
-    self.graph_hidden_size = graph_hidden_size
-    self.scale = (1.0 / tf.math.sqrt(tf.cast(graph_hidden_size, tf.float32)))
-    self.local_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.local_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.local_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.global_q_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.global_k_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.global_v_ws = [tf.keras.layers.Dense(graph_hidden_size, **dense_regularization) for _ in range(num_heads)]
-    self.w_out_1 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_1 = tf.keras.layers.LayerNormalization()
-    self.w_out_2 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_2 = tf.keras.layers.LayerNormalization()
-    self.w_out_3 = tf.keras.layers.Dense(graph_hidden_size, **dense_regularization)
-    self.layer_norm_3 = tf.keras.layers.LayerNormalization()
+idx = 62:------------------- similar code ------------------ index = 0, score = 1.0 
+@staticmethod
+def gen_keras_linear(w, b, amsgrad=False, weight_decay=0.0):
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(input_shape=(3,), units=5, weights=[w, b]))
+    model.compile(optimizer=AdaBound(lr=0.001, final_lr=0.1, amsgrad=amsgrad, weight_decay=weight_decay), loss='mse')
+    return model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
- = [ ... .Dense]
+     ... . ... ( ... .Dense)
 
