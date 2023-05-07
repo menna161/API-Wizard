@@ -1,0 +1,26 @@
+import random
+import psutil
+import ray
+from scenario.helper.scenario import get_zero_stats, get_zero_stats_variant
+from simulator.constants.keys import nrun_key, nday_key, nvariant_key
+from simulator.helper.plot import print_progress_bar
+from scenario.helper.progressbar import ProgressBar
+
+
+def launch_parallel_run(params, env_dic, fun, ncpu, progress_total_count):
+    if (ncpu < 0):
+        num_cpus = max((psutil.cpu_count(logical=False) - ncpu), 1)
+    elif (ncpu == 0):
+        num_cpus = 1
+    else:
+        num_cpus = min(ncpu, psutil.cpu_count(logical=False))
+    ray.init(num_cpus=num_cpus)
+    pb = ProgressBar((params[nrun_key] * progress_total_count))
+    actor = pb.actor
+    ray_params = ray.put(params)
+    ray_env_dic = ray.put(env_dic)
+    stats_l = []
+    for run_id in range(params[nrun_key]):
+        stats_l.append(fun.remote(ray_env_dic, ray_params, run_id, random.randint(0, 10000), actor))
+    pb.print_until_done()
+    return ray.get(stats_l)

@@ -1,1 +1,1 @@
-randint.text
+randint

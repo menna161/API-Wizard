@@ -1,0 +1,89 @@
+import torch
+import gym
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import numpy as np
+from dataclasses import dataclass
+from typing import Any
+from random import random
+from PIL import Image
+from agent_and_model import DQNAgent, sars, Model, ReplayBuffer
+import plotly.express as px
+
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 50000
+    MAX_EPISODE_STEPS = 10000
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.3
+    EPSLILON_COUNT = 4000
+    RANDOM_GAME_EVERY = 10
+    TRAIN_EVERY_N_STEPS = 10
+    TRAINING_SAMPLE_SIZE = 1
+    TRAINING_ITTERATIONS = 1
+    PRINT_EVERY = 1
+    RENDER_ENV = True
+    LOAD_MODEL = True
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 25
+    epsilon = EPSILON_START
+    env = gym.make('Pong-v0')
+    agent = DQNAgent(Model(env.observation_space.shape, env.action_space.n, lr=0.0001), Model(env.observation_space.shape, env.action_space.n, lr=0.0001))
+    observation = env.reset()
+    frame1 = []
+    frame2 = []
+    frame3 = []
+    frame1 = agent.process_frame(observation)
+    frame2 = agent.process_frame(observation)
+    frame3 = agent.process_frame(observation)
+    observation = np.concatenate((frame1, frame2, frame3), axis=1)
+    observation = observation.reshape((1, 3, 160, (140 * 3)))
+    if LOAD_MODEL:
+        print('Loading Model ', (('' + MODEL_ID) + MODEL_FILE_NAME))
+        agent.model = torch.load((('' + MODEL_ID) + MODEL_FILE_NAME))
+        agent.model.eval()
+    step_counter = 0
+    avg_reward = []
+    rolling_average = 0
+    for game in range(NUM_GAMES):
+        episode_steps = 0
+        score = 0.0
+        all_scores = []
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = 0
+            action = agent.get_actions(observation).item()
+            frame3 = frame2
+            frame2 = frame1
+            (frame1, reward, done, info) = env.step(action)
+            score += reward
+            frame1 = agent.process_frame(frame1)
+            observation_next = np.concatenate((frame1, frame2, frame3), axis=1)
+            observation_next = observation_next.reshape((1, 3, 160, (140 * 3)))
+            avg_reward.append([reward])
+            observation = observation_next
+            step_counter += 1
+            episode_steps = step
+            if done:
+                observation = env.reset()
+                frame1 = []
+                frame2 = []
+                frame3 = []
+                frame1 = agent.process_frame(observation)
+                frame2 = agent.process_frame(observation)
+                frame3 = agent.process_frame(observation)
+                observation = np.concatenate((frame1, frame2, frame3), axis=1)
+                observation = observation.reshape((1, 3, 160, (140 * 3)))
+                break
+        rolling_average = ((0.05 * score) + ((1 - 0.05) * rolling_average))
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        all_scores.append(score)
+        if ((game % PRINT_EVERY) == 0):
+            plot_score(all_scores)
+            print('episide ', game, 'last score', reward, 'rolling score ', rolling_average, 'episode_len', episode_steps, 'score', score, 'epsilon', epsilon)
+        avg_reward = []
