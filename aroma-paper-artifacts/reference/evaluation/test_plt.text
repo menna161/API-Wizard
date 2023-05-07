@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root plt.text/snippets.json plt.text"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root plt.text/test.json plt.text/test.py"
+time python3 src/main/python/similar.py -c plt.text/snippets.json -d plt.text/tmpout
+time python3 src/main/python/similar.py -d plt.text/tmpout -f plt.text/test.json -o plt.text/output.txt
