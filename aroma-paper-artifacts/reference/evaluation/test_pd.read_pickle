@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root pd.read_pickle/snippets.json pd.read_pickle"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root pd.read_pickle/test.json pd.read_pickle/test.py"
+time python3 src/main/python/similar.py -c pd.read_pickle/snippets.json -d pd.read_pickle/tmpout
+time python3 src/main/python/similar.py -d pd.read_pickle/tmpout -f pd.read_pickle/test.json -o pd.read_pickle/output.txt
