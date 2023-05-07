@@ -7,6 +7,7 @@ import os
 import pickle
 import random
 import re
+import csv
 from collections import Counter, OrderedDict
 
 from sklearn.cluster import DBSCAN, AffinityPropagation
@@ -1020,10 +1021,29 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         avg_lines += lines_count[i]
         avg_comments += comments_count[i]
 
+    f.write("\n")
     if no_examples > 0:
-        f.write("\n")
-        f.write("avg       ||          "+str(avg_rep/no_examples)+"           ||        "+str(
-                avg_lines/no_examples)+"         ||         "+str(avg_comments/no_examples)+"        ")
+        avg_rep = avg_rep/no_examples
+        avg_lines = avg_lines/no_examples
+        avg_comments = avg_comments/no_examples
+    else:
+        avg_rep = 0
+        avg_lines = 0
+        avg_comments = 0
+
+    f.write("avg       ||          "+str(avg_rep)+"           ||        "+str(
+        avg_lines)+"         ||         "+str(avg_comments)+"        ")
+
+    # add new row to the csv
+    # row = {'A': api, 'B': no_examples, 'C': avg_lines,
+    #        'D': avg_rep, 'E': avg_comments}
+    row = [api, no_examples, avg_lines, avg_rep, avg_comments]
+    with open(cwd_old+'/aroma_results.csv', 'a') as fn:
+        # Create a dictionary writer with the dict keys as column fieldnames
+        writer = csv.writer(fn)
+        # Append single row to CSV
+        writer.writerow(row)
+        fn.close()
 
     f.write("\n\n")
 
@@ -1171,8 +1191,9 @@ def setup(records_file):
 
 logging.basicConfig(level=logging.DEBUG)
 
-cwd = os.getcwd()
-cwd = cwd.replace("reference", "datasets")
+cwd_old = os.getcwd()
+
+cwd = cwd_old.replace("reference", "datasets")
 cwd += "/"
 
 print(cwd)
@@ -1184,6 +1205,7 @@ setup(options.corpus)
     os.path.join(cwd+options.working_dir, config.TFIDF_FILE),
     os.path.join(cwd+options.working_dir, config.FEATURES_FILE),
 )
+api = options.output_file.split("/")[0]
 
 output_file = cwd+options.output_file
 
