@@ -472,7 +472,7 @@ public class ConvertJava {
           .toAbsolutePath()
           .toString();
       // System.out.println(cwd);
-
+      cwd = cwd.replace("reference", "datasets");
       File[] files = new File(
           cwd + File.separator + args[2] + "/snippets").listFiles();
 
