@@ -1,0 +1,20 @@
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+
+avg       ||          0           ||        0         ||         0        ||         0        
+
+idx = 0:------------------- similar code ------------------ index = 0, score = 7.0 
+def plot_training():
+    'Plot training method on mean accuracy per test set.'
+    df = pd.read_csv('results.csv')
+    df = df[(df['Model'] == ARGS.model)]
+    print(df.head())
+    sns.set_style('whitegrid')
+    sns.barplot(x='Training', y='Mean', hue='Set', errwidth=1.2, capsize=0.025, data=df)
+    plt.ylabel('Mean Accuracy')
+    plt.ylim(0.5, 1.0)
+    showsave_plot()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    sns.barplot
+

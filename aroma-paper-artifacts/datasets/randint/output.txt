@@ -1,234 +1,2541 @@
 ------------------------- example 1 ------------------------ 
 @printf
-def input(self, channel):
-    if ((channel in self._inputs) and (self._inputs[channel] is not None)):
-// your code ...
-
-    return randint(0, 1)
+def read_byte_data(self, i2c_addr, register):
+    return randint(0, ((2 ** 8) - 1))
 
 ------------------------- example 2 ------------------------ 
 @printf
-def read_word_data(self, i2c_addr, register):
-    return randint(0, ((2 ** 16) - 1))
+def input(self, channel):
+    if ((channel in self._inputs) and (self._inputs[channel] is not None)):
+// your code ...
+    return randint(0, 1)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        5         ||         1        
-example2  ||          2           ||        3         ||         0        
+------------------------- example 3 ------------------------ 
+def mutate(childGenes, fnCreateGene, fnGetFitness, sourceCount):
+    count = random.randint(1, 5)
+    initialFitness = fnGetFitness(childGenes)
+    while (count > 0):
+        count -= 1
+        indexesUsed = [i for i in nodes_to_circuit(childGenes)[1] if (i >= sourceCount)]
+// your code ...
 
-avg       ||          2.5           ||        4.0         ||         0.5        
+------------------------- example 4 ------------------------ 
+def _sample_letter_bag(is_train, min_total):
+    'Samples a "container of letters" and returns info on it.'
+    while True:
+        num_distinct_letters = random.randint(1, _MAX_DISTINCT_LETTERS)
+        num_letters_total = random.randint(max(num_distinct_letters, min_total), min(_MAX_TOTAL_LETTERS, (num_distinct_letters * _MAX_LETTER_REPEAT)))
+// your code ...
+    letters_distinct = random.sample(_LETTERS, num_distinct_letters)
+// your code ...
 
-idx = 0:------------------- similar code ------------------ index = 47, score = 4.0 
-def train(args):
-    device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
-    split_train_val(args, per_val=args.per_val)
-    current_time = datetime.now().strftime('%b%d_%H%M%S')
-    log_dir = os.path.join('runs', (current_time + '_{}'.format(args.arch)))
-    writer = SummaryWriter(log_dir=log_dir)
-    if args.aug:
-        data_aug = Compose([RandomRotate(10), RandomHorizontallyFlip(), AddNoise()])
-    else:
-        data_aug = None
-    train_set = section_loader(is_transform=True, split='train', augmentations=data_aug)
-    val_set = section_loader(is_transform=True, split='val')
-    n_classes = train_set.n_classes
-    shuffle = False
-    with open(pjoin('data', 'splits', 'section_train.txt'), 'r') as f:
-        train_list = f.read().splitlines()
-    with open(pjoin('data', 'splits', 'section_val.txt'), 'r') as f:
-        val_list = f.read().splitlines()
+------------------------- example 5 ------------------------ 
+def _create_dummy_data(filename):
+    random_data = torch.rand((num_examples * maxlen))
+// your code ...
+    with open(os.path.join(data_dir, input_dir, (filename + '.out')), 'w') as f_in:
+        label_filename = ((filename + '.label') if regression else (filename + '.out'))
+        with open(os.path.join(data_dir, 'label', label_filename), 'w') as f_out:
+            offset = 0
+            for i in range(num_examples):
+                ex_len = random.randint(1, maxlen)
+                ex_str = ' '.join(map(chr, input_data[offset:(offset + ex_len)]))
+// your code ...
 
-    class CustomSamplerTrain(torch.utils.data.Sampler):
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example2  ||          3           ||        4         ||         1        ||        0.25         
+example3  ||          8           ||        6         ||         1        ||        0.16666666666666666         
+example4  ||          4           ||        6         ||         2        ||        0.5         
+example5  ||          6           ||        9         ||         2        ||        0.2222222222222222         
 
-        def __iter__(self):
-            char = [('i' if (np.random.randint(2) == 1) else 'x')]
-            self.indices = [idx for (idx, name) in enumerate(train_list) if (char[0] in name)]
-            return (self.indices[i] for i in torch.randperm(len(self.indices)))
+avg       ||          0.628415300546448           ||        5.6         ||         1.2        ||         29.444444444444446        
 
-    class CustomSamplerVal(torch.utils.data.Sampler):
+idx = 0:------------------- similar code ------------------ index = 197, score = 2.0 
+def randint(self, a, b):
+    return super().randint(a, b)
 
-        def __iter__(self):
-            char = [('i' if (np.random.randint(2) == 1) else 'x')]
-            self.indices = [idx for (idx, name) in enumerate(val_list) if (char[0] in name)]
-            return (self.indices[i] for i in torch.randperm(len(self.indices)))
-    trainloader = data.DataLoader(train_set, batch_size=args.batch_size, sampler=CustomSamplerTrain(train_list), num_workers=4, shuffle=shuffle)
-    valloader = data.DataLoader(val_set, batch_size=args.batch_size, sampler=CustomSamplerVal(val_list), num_workers=4)
-    running_metrics = runningScore(n_classes)
-    running_metrics_val = runningScore(n_classes)
-    if (args.resume is not None):
-        if os.path.isfile(args.resume):
-            print("Loading model and optimizer from checkpoint '{}'".format(args.resume))
-            model = torch.load(args.resume)
-        else:
-            print("No checkpoint found at '{}'".format(args.resume))
-    else:
-        model = get_model(args.arch, args.pretrained, n_classes)
-    model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
-    model = model.to(device)
-    if hasattr(model.module, 'optimizer'):
-        print('Using custom optimizer')
-        optimizer = model.module.optimizer
-    else:
-        optimizer = torch.optim.Adam(model.parameters(), amsgrad=True)
-    loss_fn = core.loss.cross_entropy
-    if args.class_weights:
-        class_weights = torch.tensor([0.7151, 0.8811, 0.5156, 0.9346, 0.9683, 0.9852], device=device, requires_grad=False)
-    else:
-        class_weights = None
-    best_iou = (- 100.0)
-    class_names = ['upper_ns', 'middle_ns', 'lower_ns', 'rijnland_chalk', 'scruff', 'zechstein']
-    for arg in vars(args):
-        text = ((arg + ': ') + str(getattr(args, arg)))
-        writer.add_text('Parameters/', text)
-    for epoch in range(args.n_epoch):
-        model.train()
-        (loss_train, total_iteration) = (0, 0)
-        for (i, (images, labels)) in enumerate(trainloader):
-            (image_original, labels_original) = (images, labels)
-            (images, labels) = (images.to(device), labels.to(device))
-            optimizer.zero_grad()
-            outputs = model(images)
-            pred = outputs.detach().max(1)[1].cpu().numpy()
-            gt = labels.detach().cpu().numpy()
-            running_metrics.update(gt, pred)
-            loss = loss_fn(input=outputs, target=labels, weight=class_weights)
-            loss_train += loss.item()
-            loss.backward()
-            if (args.clip != 0):
-                torch.nn.utils.clip_grad_norm(model.parameters(), args.clip)
-            optimizer.step()
-            total_iteration = (total_iteration + 1)
-            if ((i % 20) == 0):
-                print(('Epoch [%d/%d] training Loss: %.4f' % ((epoch + 1), args.n_epoch, loss.item())))
-            numbers = [0]
-            if (i in numbers):
-                tb_original_image = vutils.make_grid(image_original[0][0], normalize=True, scale_each=True)
-                writer.add_image('train/original_image', tb_original_image, (epoch + 1))
-                labels_original = labels_original.numpy()[0]
-                correct_label_decoded = train_set.decode_segmap(np.squeeze(labels_original))
-                writer.add_image('train/original_label', np_to_tb(correct_label_decoded), (epoch + 1))
-                out = F.softmax(outputs, dim=1)
-                prediction = out.max(1)[1].cpu().numpy()[0]
-                confidence = out.max(1)[0].cpu().detach()[0]
-                tb_confidence = vutils.make_grid(confidence, normalize=True, scale_each=True)
-                decoded = train_set.decode_segmap(np.squeeze(prediction))
-                writer.add_image('train/predicted', np_to_tb(decoded), (epoch + 1))
-                writer.add_image('train/confidence', tb_confidence, (epoch + 1))
-                unary = outputs.cpu().detach()
-                unary_max = torch.max(unary)
-                unary_min = torch.min(unary)
-                unary = unary.add(((- 1) * unary_min))
-                unary = (unary / (unary_max - unary_min))
-                for channel in range(0, len(class_names)):
-                    decoded_channel = unary[0][channel]
-                    tb_channel = vutils.make_grid(decoded_channel, normalize=True, scale_each=True)
-                    writer.add_image(f'train_classes/_{class_names[channel]}', tb_channel, (epoch + 1))
-        loss_train /= total_iteration
-        (score, class_iou) = running_metrics.get_scores()
-        writer.add_scalar('train/Pixel Acc', score['Pixel Acc: '], (epoch + 1))
-        writer.add_scalar('train/Mean Class Acc', score['Mean Class Acc: '], (epoch + 1))
-        writer.add_scalar('train/Freq Weighted IoU', score['Freq Weighted IoU: '], (epoch + 1))
-        writer.add_scalar('train/Mean_IoU', score['Mean IoU: '], (epoch + 1))
-        running_metrics.reset()
-        writer.add_scalar('train/loss', loss_train, (epoch + 1))
-        if (args.per_val != 0):
-            with torch.no_grad():
-                model.eval()
-                (loss_val, total_iteration_val) = (0, 0)
-                for (i_val, (images_val, labels_val)) in tqdm(enumerate(valloader)):
-                    (image_original, labels_original) = (images_val, labels_val)
-                    (images_val, labels_val) = (images_val.to(device), labels_val.to(device))
-                    outputs_val = model(images_val)
-                    pred = outputs_val.detach().max(1)[1].cpu().numpy()
-                    gt = labels_val.detach().cpu().numpy()
-                    running_metrics_val.update(gt, pred)
-                    loss = loss_fn(input=outputs_val, target=labels_val)
-                    total_iteration_val = (total_iteration_val + 1)
-                    if ((i_val % 20) == 0):
-                        print(('Epoch [%d/%d] validation Loss: %.4f' % (epoch, args.n_epoch, loss.item())))
-                    numbers = [0]
-                    if (i_val in numbers):
-                        tb_original_image = vutils.make_grid(image_original[0][0], normalize=True, scale_each=True)
-                        writer.add_image('val/original_image', tb_original_image, epoch)
-                        labels_original = labels_original.numpy()[0]
-                        correct_label_decoded = train_set.decode_segmap(np.squeeze(labels_original))
-                        writer.add_image('val/original_label', np_to_tb(correct_label_decoded), (epoch + 1))
-                        out = F.softmax(outputs_val, dim=1)
-                        prediction = out.max(1)[1].cpu().detach().numpy()[0]
-                        confidence = out.max(1)[0].cpu().detach()[0]
-                        tb_confidence = vutils.make_grid(confidence, normalize=True, scale_each=True)
-                        decoded = train_set.decode_segmap(np.squeeze(prediction))
-                        writer.add_image('val/predicted', np_to_tb(decoded), (epoch + 1))
-                        writer.add_image('val/confidence', tb_confidence, (epoch + 1))
-                        unary = outputs.cpu().detach()
-                        (unary_max, unary_min) = (torch.max(unary), torch.min(unary))
-                        unary = unary.add(((- 1) * unary_min))
-                        unary = (unary / (unary_max - unary_min))
-                        for channel in range(0, len(class_names)):
-                            tb_channel = vutils.make_grid(unary[0][channel], normalize=True, scale_each=True)
-                            writer.add_image(f'val_classes/_{class_names[channel]}', tb_channel, (epoch + 1))
-                (score, class_iou) = running_metrics_val.get_scores()
-                for (k, v) in score.items():
-                    print(k, v)
-                writer.add_scalar('val/Pixel Acc', score['Pixel Acc: '], (epoch + 1))
-                writer.add_scalar('val/Mean IoU', score['Mean IoU: '], (epoch + 1))
-                writer.add_scalar('val/Mean Class Acc', score['Mean Class Acc: '], (epoch + 1))
-                writer.add_scalar('val/Freq Weighted IoU', score['Freq Weighted IoU: '], (epoch + 1))
-                writer.add_scalar('val/loss', loss.item(), (epoch + 1))
-                running_metrics_val.reset()
-                if (score['Mean IoU: '] >= best_iou):
-                    best_iou = score['Mean IoU: ']
-                    model_dir = os.path.join(log_dir, f'{args.arch}_model.pkl')
-                    torch.save(model, model_dir)
-        elif (((epoch + 1) % 10) == 0):
-            model_dir = os.path.join(log_dir, f'{args.arch}_ep{(epoch + 1)}_model.pkl')
-            torch.save(model, model_dir)
-    writer.close()
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def randint():
+idx = 1:------------------- similar code ------------------ index = 272, score = 2.0 
+@printf
+def read_byte_data(self, i2c_addr, register):
+    return randint(0, ((2 ** 8) - 1))
 
-------------------- similar code (pruned) ------------------ score = 0.3888888888888889 
-def  ... ( ... ):
-    class  ... ():
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return randint
 
-        def  ... ( ... ):
-             ...  = [( ...  if ( ... .randint ==  ... ) else  ... )]
-    for  ...  in:
-        text
-         ... . ... ( ... , text)
-
-idx = 1:------------------- similar code ------------------ index = 143, score = 3.0 
+idx = 2:------------------- similar code ------------------ index = 55, score = 2.0 
 @printf
 def input(self, channel):
     if ((channel in self._inputs) and (self._inputs[channel] is not None)):
         return self._inputs[channel]
     return randint(0, 1)
 
-------------------- similar code (pruned) ------------------ score = 0.3 
+------------------- similar code (pruned) ------------------ score = 0.5 
 def  ... ():
     return randint
 
-idx = 2:------------------- similar code ------------------ index = 24, score = 3.0 
-@printf
-def read_word_data(self, i2c_addr, register):
-    return randint(0, ((2 ** 16) - 1))
-
-------------------- similar code (pruned) ------------------ score = 0.3 
-def  ... ():
-    return randint
-
-idx = 3:------------------- similar code ------------------ index = 83, score = 3.0 
+idx = 3:------------------- similar code ------------------ index = 470, score = 2.0 
 @printf
 def read_byte(self, i2c_addr):
     return randint(0, ((2 ** 8) - 1))
 
-------------------- similar code (pruned) ------------------ score = 0.3 
+------------------- similar code (pruned) ------------------ score = 0.5 
 def  ... ():
     return randint
 
-idx = 4:------------------- similar code ------------------ index = 110, score = 3.0 
+idx = 4:------------------- similar code ------------------ index = 471, score = 2.0 
 @printf
-def read_byte_data(self, i2c_addr, register):
-    return randint(0, ((2 ** 8) - 1))
+def read_word_data(self, i2c_addr, register):
+    return randint(0, ((2 ** 16) - 1))
 
-------------------- similar code (pruned) ------------------ score = 0.3 
+------------------- similar code (pruned) ------------------ score = 0.5 
 def  ... ():
     return randint
+
+idx = 5:------------------- similar code ------------------ index = 159, score = 1.0 
+def mutate(childGenes, fnCreateGene, fnGetFitness, sourceCount):
+    count = random.randint(1, 5)
+    initialFitness = fnGetFitness(childGenes)
+    while (count > 0):
+        count -= 1
+        indexesUsed = [i for i in nodes_to_circuit(childGenes)[1] if (i >= sourceCount)]
+        if (len(indexesUsed) == 0):
+            return
+        index = random.choice(indexesUsed)
+        childGenes[index] = fnCreateGene(index)
+        if (fnGetFitness(childGenes) > initialFitness):
+            return
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 6:------------------- similar code ------------------ index = 162, score = 1.0 
+def _sample_letter_bag(is_train, min_total):
+    'Samples a "container of letters" and returns info on it.'
+    while True:
+        num_distinct_letters = random.randint(1, _MAX_DISTINCT_LETTERS)
+        num_letters_total = random.randint(max(num_distinct_letters, min_total), min(_MAX_TOTAL_LETTERS, (num_distinct_letters * _MAX_LETTER_REPEAT)))
+        letter_counts = combinatorics.uniform_positive_integers_with_sum(num_distinct_letters, num_letters_total)
+        if ((is_train is None) or (train_test_split.is_train(sorted(letter_counts)) == is_train)):
+            break
+    letters_distinct = random.sample(_LETTERS, num_distinct_letters)
+    weights = {i: 1 for i in range(num_letters_total)}
+    letters_with_repetition = []
+    for (letter, count) in zip(letters_distinct, letter_counts):
+        letters_with_repetition += ([letter] * count)
+    random.shuffle(letters_with_repetition)
+    random_variable = probability.DiscreteRandomVariable({i: letter for (i, letter) in enumerate(letters_with_repetition)})
+    if random.choice([False, True]):
+        bag_contents = ''.join(letters_with_repetition)
+    else:
+        letters_and_counts = ['{}: {}'.format(letter, count) for (letter, count) in zip(letters_distinct, letter_counts)]
+        bag_contents = (('{' + ', '.join(letters_and_counts)) + '}')
+    return LetterBag(weights=weights, random_variable=random_variable, letters_distinct=letters_distinct, bag_contents=bag_contents)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    while True:
+         ...  =  ... .randint
+
+idx = 7:------------------- similar code ------------------ index = 161, score = 1.0 
+def augment_directions(self, directions):
+    if (directions == 2.0):
+        if (random.randint(0, 100) < 20):
+            directions = random.choice([3.0, 4.0, 5.0])
+    return directions
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        if ( ... .randint <  ... ):
+idx = 8:------------------- similar code ------------------ index = 160, score = 1.0 
+def _create_dummy_data(filename):
+    random_data = torch.rand((num_examples * maxlen))
+    input_data = (97 + torch.floor((26 * random_data)).int())
+    if regression:
+        output_data = torch.rand((num_examples, num_classes))
+    else:
+        output_data = (1 + torch.floor((num_classes * torch.rand(num_examples))).int())
+    with open(os.path.join(data_dir, input_dir, (filename + '.out')), 'w') as f_in:
+        label_filename = ((filename + '.label') if regression else (filename + '.out'))
+        with open(os.path.join(data_dir, 'label', label_filename), 'w') as f_out:
+            offset = 0
+            for i in range(num_examples):
+                ex_len = random.randint(1, maxlen)
+                ex_str = ' '.join(map(chr, input_data[offset:(offset + ex_len)]))
+                print(ex_str, file=f_in)
+                if regression:
+                    class_str = ' '.join(map(str, output_data[i].numpy()))
+                    print(class_str, file=f_out)
+                else:
+                    class_str = 'class{}'.format(output_data[i])
+                    print(class_str, file=f_out)
+                offset += ex_len
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+        with:
+            for  ...  in:
+                 ...  =  ... .randint
+
+idx = 9:------------------- similar code ------------------ index = 158, score = 1.0 
+def gen_task1(upreds=None):
+    'Ground instances only: p(a).q(c,b).'
+    preds = r_preds(2, upreds)
+    args = r_consts(R.randint(1, 2))
+    rule = [(preds[0], args)]
+    if upreds:
+        return rule
+    ctx = list()
+    add_pred(ctx, rule[0], preds, args, 1.0)
+    targets = [(rule[0], 1)]
+    args = r_consts(R.randint(1, 2))
+    fpred = (preds[1], args)
+    add_pred(ctx, fpred, preds, args)
+    targets.append((fpred, 0))
+    gen_task(ctx, targets, preds)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ( ... .randint)
+
+idx = 10:------------------- similar code ------------------ index = 164, score = 1.0 
+def main(ip):
+    rand_state = np.random.RandomState(1).get_state()
+    np.random.set_state(rand_state)
+    tf_set_seeds(np.random.randint(1, ((2 ** 31) - 1)))
+    env = ReacherEnv(setup='UR5_default', host=ip, dof=2, control_type='velocity', target_type='position', reset_type='zero', reward_type='precision', derivative_type='none', deriv_action_max=5, first_deriv_max=2, accel_max=1.4, speed_max=0.3, speedj_a=1.4, episode_length_time=4.0, episode_length_step=None, actuation_sync_period=1, dt=0.04, run_mode='multiprocess', rllab_box=False, movej_t=2.0, delay=0.0, random_state=rand_state)
+    env = NormalizedEnv(env)
+    env.start()
+    sess = U.single_threaded_session()
+    sess.__enter__()
+
+    def policy_fn(name, ob_space, ac_space):
+        return MlpPolicy(name=name, ob_space=ob_space, ac_space=ac_space, hid_size=32, num_hid_layers=2)
+    plot_running = Value('i', 1)
+    shared_returns = Manager().dict({'write_lock': False, 'episodic_returns': [], 'episodic_lengths': []})
+    pp = Process(target=plot_ur5_reacher, args=(env, 2048, shared_returns, plot_running))
+    pp.start()
+    kindred_callback = create_callback(shared_returns)
+    learn(env, policy_fn, max_timesteps=150000, timesteps_per_batch=2048, max_kl=0.05, cg_iters=10, cg_damping=0.1, vf_iters=5, vf_stepsize=0.001, gamma=0.995, lam=0.995, callback=kindred_callback)
+    plot_running.value = 0
+    time.sleep(2)
+    pp.join()
+    env.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... ( ... .randint)
+
+idx = 11:------------------- similar code ------------------ index = 157, score = 1.0 
+def get_random_action(self):
+    legal = self.get_legal_actions()
+    return legal[np.random.randint(len(legal))]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... [ ... .randint]
+
+idx = 12:------------------- similar code ------------------ index = 156, score = 1.0 
+def __init__(self, dictionary, dataset_impl: str, path: str, split: str, epoch: int, name: str=None, combine: bool=False, seed: int=0):
+    self._name = (name if (name is not None) else os.path.basename(path))
+    num_shards = 0
+    for i in itertools.count():
+        if (not os.path.exists(os.path.join(path, ('shard' + str(i))))):
+            break
+        num_shards += 1
+    if ((num_shards > 0) and (split == 'train')):
+        random.seed((seed ^ epoch))
+        shard = random.randint(0, (num_shards - 1))
+        split_path = os.path.join(path, ('shard' + str(shard)), split)
+    else:
+        split_path = os.path.join(path, split)
+        if os.path.isdir(split_path):
+            split_path = os.path.join(split_path, split)
+    dataset = data_utils.load_indexed_dataset(split_path, dictionary, dataset_impl, combine=combine)
+    if (dataset is None):
+        raise FileNotFoundError('Dataset not found: {} ({})'.format(split, split_path))
+    super().__init__(dataset)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 13:------------------- similar code ------------------ index = 155, score = 1.0 
+def sample_degree(max_degree):
+    'Select in range [0, max_degree], biased away from ends.'
+    if ((max_degree <= 1) or random.choice([False, True])):
+        return random.randint(0, max_degree)
+    return random.randint(1, (max_degree - 1))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
+        return  ... .randint
+
+idx = 14:------------------- similar code ------------------ index = 154, score = 1.0 
+def intercambiar(padre, otroPadre):
+    genesDelNiño = padre[:]
+    if ((len(padre) <= 2) or (len(otroPadre) < 2)):
+        return genesDelNiño
+    longitud = random.randint(1, (len(padre) - 2))
+    principio = random.randrange(0, (len(padre) - longitud))
+    genesDelNiño[principio:(principio + longitud)] = otroPadre[principio:(principio + longitud)]
+    return genesDelNiño
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 15:------------------- similar code ------------------ index = 153, score = 1.0 
+def _sample_with_brackets(depth, variables, degrees, entropy, length, force_brackets=True):
+    'Internal recursive function for: constructs a polynomial with brackets.'
+    if force_brackets:
+        length = max(2, length)
+    if ((not force_brackets) and (random.choice([False, True]) or (length < 2))):
+        return sample(variables, degrees, entropy, length)
+    length_left = random.randint(1, (length - 1))
+    length_right = (length - length_left)
+    (entropy_left, entropy_right) = (entropy * np.random.dirichlet([length_left, length_right]))
+    if random.choice([False, True]):
+        while True:
+            left = _sample_with_brackets((depth + 1), variables, degrees, entropy_left, length_left, True)
+            right = _sample_with_brackets((depth + 1), variables, degrees, entropy_right, length_right, False)
+            if random.choice([False, True]):
+                (left, right) = (right, left)
+            result = ops.Add(left, right)
+            all_ok = True
+            for (variable, degree) in zip(variables, degrees):
+                if (_degree_of_variable(result, variable) != degree):
+                    all_ok = False
+                    break
+            if all_ok:
+                return result
+    else:
+
+        def sample_with_zero_check(degrees_, entropy_, length_):
+            while True:
+                result = _sample_with_brackets((depth + 1), variables, degrees_, entropy_, length_, False)
+                if ((degrees_.sum() > 0) or (not result.sympy().is_zero)):
+                    return result
+        degrees = np.asarray(degrees)
+
+        def sample_degree(max_degree):
+            'Select in range [0, max_degree], biased away from ends.'
+            if ((max_degree <= 1) or random.choice([False, True])):
+                return random.randint(0, max_degree)
+            return random.randint(1, (max_degree - 1))
+        degrees_left = np.array([sample_degree(degree) for degree in degrees])
+        degrees_right = (degrees - degrees_left)
+        left = sample_with_zero_check(degrees_left, entropy_left, length_left)
+        right = sample_with_zero_check(degrees_right, entropy_right, length_right)
+        return ops.Mul(left, right)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 16:------------------- similar code ------------------ index = 163, score = 1.0 
+def _generate_terrain(self, hardcore):
+    (GRASS, STUMP, STAIRS, PIT, _STATES_) = range(5)
+    state = GRASS
+    velocity = 0.0
+    y = TERRAIN_HEIGHT
+    counter = TERRAIN_STARTPAD
+    oneshot = False
+    self.terrain = []
+    self.terrain_x = []
+    self.terrain_y = []
+    for i in range(TERRAIN_LENGTH):
+        x = (i * TERRAIN_STEP)
+        self.terrain_x.append(x)
+        if ((state == GRASS) and (not oneshot)):
+            velocity = ((0.8 * velocity) + (0.01 * np.sign((TERRAIN_HEIGHT - y))))
+            if (i > TERRAIN_STARTPAD):
+                velocity += (self.np_random.uniform((- 1), 1) / SCALE)
+            y += velocity
+        elif ((state == PIT) and oneshot):
+            counter = self.np_random.randint(3, 5)
+            poly = [(x, y), ((x + TERRAIN_STEP), y), ((x + TERRAIN_STEP), (y - (4 * TERRAIN_STEP))), (x, (y - (4 * TERRAIN_STEP)))]
+            self.fd_polygon.shape.vertices = poly
+            t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
+            (t.color1, t.color2) = ((1, 1, 1), (0.6, 0.6, 0.6))
+            self.terrain.append(t)
+            self.fd_polygon.shape.vertices = [((p[0] + (TERRAIN_STEP * counter)), p[1]) for p in poly]
+            t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
+            (t.color1, t.color2) = ((1, 1, 1), (0.6, 0.6, 0.6))
+            self.terrain.append(t)
+            counter += 2
+            original_y = y
+        elif ((state == PIT) and (not oneshot)):
+            y = original_y
+            if (counter > 1):
+                y -= (4 * TERRAIN_STEP)
+        elif ((state == STUMP) and oneshot):
+            counter = self.np_random.randint(1, 3)
+            poly = [(x, y), ((x + (counter * TERRAIN_STEP)), y), ((x + (counter * TERRAIN_STEP)), (y + (counter * TERRAIN_STEP))), (x, (y + (counter * TERRAIN_STEP)))]
+            self.fd_polygon.shape.vertices = poly
+            t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
+            (t.color1, t.color2) = ((1, 1, 1), (0.6, 0.6, 0.6))
+            self.terrain.append(t)
+        elif ((state == STAIRS) and oneshot):
+            stair_height = ((+ 1) if (self.np_random.rand() > 0.5) else (- 1))
+            stair_width = self.np_random.randint(4, 5)
+            stair_steps = self.np_random.randint(3, 5)
+            original_y = y
+            for s in range(stair_steps):
+                poly = [((x + ((s * stair_width) * TERRAIN_STEP)), (y + ((s * stair_height) * TERRAIN_STEP))), ((x + (((1 + s) * stair_width) * TERRAIN_STEP)), (y + ((s * stair_height) * TERRAIN_STEP))), ((x + (((1 + s) * stair_width) * TERRAIN_STEP)), (y + (((- 1) + (s * stair_height)) * TERRAIN_STEP))), ((x + ((s * stair_width) * TERRAIN_STEP)), (y + (((- 1) + (s * stair_height)) * TERRAIN_STEP)))]
+                self.fd_polygon.shape.vertices = poly
+                t = self.world.CreateStaticBody(fixtures=self.fd_polygon)
+                (t.color1, t.color2) = ((1, 1, 1), (0.6, 0.6, 0.6))
+                self.terrain.append(t)
+            counter = (stair_steps * stair_width)
+        elif ((state == STAIRS) and (not oneshot)):
+            s = (((stair_steps * stair_width) - counter) - stair_height)
+            n = (s / stair_width)
+            y = (original_y + ((n * stair_height) * TERRAIN_STEP))
+        oneshot = False
+        self.terrain_y.append(y)
+        counter -= 1
+        if (counter == 0):
+            counter = self.np_random.randint((TERRAIN_GRASS / 2), TERRAIN_GRASS)
+            if ((state == GRASS) and hardcore):
+                state = self.np_random.randint(1, _STATES_)
+                oneshot = True
+            else:
+                state = GRASS
+                oneshot = True
+    self.terrain_poly = []
+    for i in range((TERRAIN_LENGTH - 1)):
+        poly = [(self.terrain_x[i], self.terrain_y[i]), (self.terrain_x[(i + 1)], self.terrain_y[(i + 1)])]
+        self.fd_edge.shape.vertices = poly
+        t = self.world.CreateStaticBody(fixtures=self.fd_edge)
+        color = (0.3, (1.0 if ((i % 2) == 0) else 0.8), 0.3)
+        t.color1 = color
+        t.color2 = color
+        self.terrain.append(t)
+        color = (0.4, 0.6, 0.3)
+        poly += [(poly[1][0], 0), (poly[0][0], 0)]
+        self.terrain_poly.append((poly, color))
+    self.terrain.reverse()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:        elif:
+             ...  =  ... .randint
+
+idx = 17:------------------- similar code ------------------ index = 481, score = 1.0 
+def sample_negatives(self, y):
+    (bsz, fsz, tsz) = y.shape
+    y = y.transpose(0, 1)
+    y = y.contiguous().view(fsz, (- 1))
+    if self.cross_sample_negatives:
+        high = (tsz * bsz)
+        assert (self.sample_distance is None), 'sample distance is not supported with cross sampling'
+    else:
+        high = (tsz if (self.sample_distance is None) else min(tsz, self.sample_distance))
+    neg_idxs = torch.randint(low=0, high=high, size=(bsz, (self.n_negatives * tsz)))
+    if ((self.sample_distance is not None) and (self.sample_distance < tsz)):
+        neg_idxs += torch.cat([torch.arange(start=1, end=(tsz - self.sample_distance), device=neg_idxs.device, dtype=neg_idxs.dtype), torch.arange(start=(tsz - self.sample_distance), end=((tsz - (self.sample_distance * 2)) - 1), step=(- 1), device=neg_idxs.device, dtype=neg_idxs.dtype)])
+    if (not self.cross_sample_negatives):
+        for i in range(1, bsz):
+            neg_idxs[i] += (i * high)
+    negs = y[(..., neg_idxs.view((- 1)))]
+    negs = negs.view(fsz, bsz, self.n_negatives, tsz).permute(2, 1, 0, 3)
+    return negs
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 18:------------------- similar code ------------------ index = 165, score = 1.0 
+def sequence_nth_term(min_entropy, max_entropy):
+    'E.g., "What is the nth term in the sequence 1, 2, 3?".'
+    entropy = random.uniform(min_entropy, max_entropy)
+    context = composition.Context()
+    variable = sympy.Symbol(context.pop())
+    sequence = _PolynomialSequence(variable, entropy)
+    min_num_terms = sequence.min_num_terms
+    num_terms = random.randint(min_num_terms, (min_num_terms + 3))
+    sequence_sample = [sequence.term((n + 1)) for n in range(num_terms)]
+    sequence_sample = display.NumberList(sequence_sample)
+    template = random.choice(["What is the {variable}'th term of {sequence}?"])
+    answer = sequence.sympy
+    return example.Problem(question=example.question(context, template, variable=variable, sequence=sequence_sample), answer=answer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 19:------------------- similar code ------------------ index = 152, score = 1.0 
+def game_loop(args, agent):
+    pygame.init()
+    pygame.font.init()
+    world = None
+    try:
+        client = carla.Client(args.host, args.port)
+        client.set_timeout(4.0)
+        display = pygame.display.set_mode((args.width, args.height), (pygame.HWSURFACE | pygame.DOUBLEBUF))
+        if (args.output_folder is not None):
+            if (not os.path.exists(args.output_folder)):
+                os.mkdir(args.output_folder)
+        hud = HUD(args.width, args.height)
+        world = World(client.get_world(), hud)
+        controller = KeyboardControl(world, False)
+        print('###########################################################\n   CONDITIONAL IMITATION LEARNING VISUALIZATION SYSTEM \n    ON THE BOTTOM CORNER WE SHOW THE FIRST PERSON VIEW \n        AND THE ACTIVATIONS OF THE FIRST 3 LAYERS \n \n Use ARROWS  keys to give high level commands to the Agent\n###########################################################\n')
+        spawn_point = world.world.get_map().get_spawn_points()[random.randint(0, 40)]
+        clock = pygame.time.Clock()
+        while True:
+            if controller.parse_events(world, clock):
+                return
+            if (not world.world.wait_for_tick(20.0)):
+                continue
+            world.tick(clock)
+            sensor_data = world.get_agent_sensor()
+            world.render(display)
+            pygame.display.flip()
+            control = agent.run_step(world.get_forward_speed(), sensor_data, controller.get_command(), (spawn_point.location.x, spawn_point.location.y, spawn_point.location.z))
+            attentions = agent.get_attentions()
+            world.camera_manager.show_image_mini(agent.latest_image, attentions[0], attentions[1], attentions[2], out_folder=args.output_folder)
+            world.vehicle.apply_control(control)
+    finally:
+        if (world is not None):
+            world.destroy()
+        pygame.quit()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  =  ... [ ... .randint]
+
+idx = 20:------------------- similar code ------------------ index = 167, score = 1.0 
+def testArithmeticLength(self):
+    'Tests that the generated arithmetic expressions have given length.'
+    for _ in range(1000):
+        target = number.integer_or_rational(4, signed=True)
+        entropy = 8.0
+        length = random.randint(2, 10)
+        expression = arithmetic.arithmetic(target, entropy, length)
+        actual_length = (len(ops.number_constants(expression)) - 1)
+        self.assertEqual(actual_length, length)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 21:------------------- similar code ------------------ index = 168, score = 1.0 
+def __call__(self, img, mask=None, label=None):
+    if (np.random.uniform(0, 1) < self.p):
+        (h, w) = (img.shape[0], img.shape[1])
+        angle = np.random.randint((- self.angle), self.angle)
+        M = cv2.getRotationMatrix2D(((w / 2), (h / 2)), angle, 1)
+        img = cv2.warpAffine(img, M, (w, h))
+        if (mask is not None):
+            mask = cv2.warpAffine(mask, M, (w, h))
+    if (mask is not None):
+        return (img, mask, label)
+    else:
+        return (img, label)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 22:------------------- similar code ------------------ index = 169, score = 1.0 
+@classmethod
+def random_tree(cls, language_spec: str, min_num_values: int, max_num_values: int, **kwargs):
+    'Generate a random, valid tree based on a language spec. Trees are\n    generated as NumPy arrays and can be converted to TensorFlow tensors later.\n    '
+    SPEC = LanguageSpecs[language_spec]
+    assert (SPEC['data_structure'] == 'tree'), f'can not make tree batch with {language_spec} because it is not for trees.'
+    adj_list = []
+    values_list = []
+    value_tokens_list = []
+    order_list = []
+    NUM_VALUE_TOKENS = len(SPEC['value_tokens'])
+    NON_VALUE_NODE_TYPES = [nt for nt in SPEC['node_types'] if (not nt.is_value)]
+    NUM_NODE_VALUES = (len(NON_VALUE_NODE_TYPES) + NUM_VALUE_TOKENS)
+    NUM_ORDER_INDICES = (1 + SPEC['max_children'])
+    num_values = random.randint(min_num_values, max_num_values)
+    values = []
+    for val_num in range(num_values):
+        adj = []
+        val = np.zeros(NUM_NODE_VALUES, dtype=np.int32)
+        val_idx = random.randint(0, (NUM_VALUE_TOKENS - 1))
+        val[val_idx] = 1
+        val_token = SPEC['value_tokens'][val_idx]
+        order = np.zeros(NUM_ORDER_INDICES, dtype=np.int32)
+        adj_list.append(adj)
+        values_list.append(val)
+        value_tokens_list.append(val_token)
+        order_list.append(order)
+    tree_stack = list(range(num_values))
+    next_idx = len(tree_stack)
+    while (len(tree_stack) != 1):
+        node_type_i = random.randint(0, (len(NON_VALUE_NODE_TYPES) - 1))
+        new_node_type = NON_VALUE_NODE_TYPES[node_type_i]
+        child_select_num = min([len(tree_stack), random.randint(new_node_type.min_children, new_node_type.max_children)])
+        valid_children = []
+        for child_i in tree_stack:
+            child_token = value_tokens_list[child_i]
+            if (child_token not in new_node_type.parent_blacklist):
+                valid_children.append(child_i)
+            else:
+                pass
+        children = random.sample(tree_stack, k=child_select_num)
+        for (o_i, child_i) in enumerate(children):
+            if new_node_type.ordered_children:
+                order_list[child_i][(o_i + 1)] = 1
+            else:
+                order_list[child_i][0] = 1
+        p_adj = children
+        p_val = np.zeros(NUM_NODE_VALUES, dtype=np.int32)
+        p_val[(NUM_VALUE_TOKENS + node_type_i)] = 1
+        p_val_token = new_node_type.token
+        p_order = np.zeros(NUM_ORDER_INDICES, dtype=np.int32)
+        adj_list.append(p_adj)
+        values_list.append(p_val)
+        value_tokens_list.append(p_val_token)
+        order_list.append(p_order)
+        for child_i in children:
+            tree_stack.remove(child_i)
+        tree_stack.append(next_idx)
+        next_idx += 1
+    order_list[(- 1)][0] = 1
+    return (adj_list, values_list, value_tokens_list, order_list)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 23:------------------- similar code ------------------ index = 170, score = 1.0 
+def create_gene(index, gates, sources):
+    if (index < len(sources)):
+        gateType = sources[index]
+    else:
+        gateType = random.choice(gates)
+    indexA = indexB = None
+    if (gateType[1].input_count() > 0):
+        indexA = random.randint(0, index)
+    if (gateType[1].input_count() > 1):
+        indexB = random.randint(0, index)
+        if (indexB == indexA):
+            indexB = random.randint(0, index)
+    return Node(gateType[0], indexA, indexB)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 24:------------------- similar code ------------------ index = 171, score = 1.0 
+def test_regular_events():
+    rng = np.random.RandomState(0)
+    dt = 0.01
+    steps = np.concatenate([np.unique(rng.randint(0, 500, 100)), np.unique(rng.randint(500, 1000, 200))])
+    t = (dt * steps)
+    bins1 = bayesian_blocks(t, fitness='regular_events', dt=dt)
+    assert (len(bins1) == 3)
+    assert_allclose(bins1[1], 5, rtol=0.05)
+    bins2 = bayesian_blocks(t, fitness=RegularEvents, dt=dt)
+    assert_allclose(bins1, bins2)
+    bins3 = bayesian_blocks(t, fitness=RegularEvents(dt=dt))
+    assert_allclose(bins1, bins3)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ([ ... . ... ( ... .randint),])
+
+idx = 25:------------------- similar code ------------------ index = 172, score = 1.0 
+def launch_parallel_run(params, env_dic, fun, ncpu, progress_total_count):
+    if (ncpu < 0):
+        num_cpus = max((psutil.cpu_count(logical=False) - ncpu), 1)
+    elif (ncpu == 0):
+        num_cpus = 1
+    else:
+        num_cpus = min(ncpu, psutil.cpu_count(logical=False))
+    ray.init(num_cpus=num_cpus)
+    pb = ProgressBar((params[nrun_key] * progress_total_count))
+    actor = pb.actor
+    ray_params = ray.put(params)
+    ray_env_dic = ray.put(env_dic)
+    stats_l = []
+    for run_id in range(params[nrun_key]):
+        stats_l.append(fun.remote(ray_env_dic, ray_params, run_id, random.randint(0, 10000), actor))
+    pb.print_until_done()
+    return ray.get(stats_l)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+         ... . ... ( ... . ... ( ... ,  ... ,  ... ,  ... .randint,  ... ))
+
+idx = 26:------------------- similar code ------------------ index = 173, score = 1.0 
+def setUp(self):
+    (self.task, self.parser) = get_dummy_task_and_parser()
+    eos = self.task.tgt_dict.eos()
+    src_tokens = torch.randint(3, 50, (2, 10)).long()
+    src_tokens = torch.cat((src_tokens, torch.LongTensor([[eos], [eos]])), (- 1))
+    src_lengths = torch.LongTensor([2, 10])
+    self.sample = {'net_input': {'src_tokens': src_tokens, 'src_lengths': src_lengths}}
+    TransformerModel.add_args(self.parser)
+    args = self.parser.parse_args([])
+    args.encoder_layers = 2
+    args.decoder_layers = 1
+    self.transformer_model = TransformerModel.build_model(args, self.task)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .randint
+
+idx = 27:------------------- similar code ------------------ index = 174, score = 1.0 
+def run(self):
+    ' Main program loop '
+    layer = 0
+    while self.running:
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                self.running = False
+            for tree in self.forest:
+                if (layer < top_layer):
+                    for i in range(len(tree)):
+                        if (not tree[i].finished):
+                            tree.append(tree[i].branch_off((math.pi / random.randint(4, ((top_layer - layer) + 8))), branch_reduction))
+                            tree.append(tree[i].branch_off(((- math.pi) / random.randint(4, ((top_layer - layer) + 8))), branch_reduction))
+                            tree[i].finished = True
+                    layer += 1
+                if (layer == top_layer):
+                    for i in range(len(tree)):
+                        if (not tree[i].finished):
+                            if show_leaves:
+                                self.leaves.append(copy.copy(tree[i].end))
+                self.draw()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    while:
+        for  ...  in:
+            for  ...  in:
+                if:
+                    for  ...  in:
+                        if:
+                             ... . ... ( ... . ... (( /  ... .randint),  ... ))
+
+idx = 28:------------------- similar code ------------------ index = 175, score = 1.0 
+def mutate(genes, fnGetFitness):
+    count = random.randint(2, len(genes))
+    initialFitness = fnGetFitness(genes)
+    while (count > 0):
+        count -= 1
+        (indexA, indexB) = random.sample(range(len(genes)), 2)
+        (genes[indexA], genes[indexB]) = (genes[indexB], genes[indexA])
+        fitness = fnGetFitness(genes)
+        if (fitness > initialFitness):
+            return
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 29:------------------- similar code ------------------ index = 176, score = 1.0 
+def next_batch(self, batch_size):
+    result = np.random.randint(self.limit, size=batch_size).tolist()
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 30:------------------- similar code ------------------ index = 177, score = 1.0 
+def get_verify_code(self):
+    '\n        生成验证码图形\n        '
+    code = ''.join(random.sample(string.digits, 4))
+    for item in range(4):
+        self.draw.text((((6 + random.randint((- 3), 3)) + (10 * item)), (2 + random.randint((- 2), 2))), text=code[item], fill=(random.randint(32, 127), random.randint(32, 127), random.randint(32, 127)), font=self.font)
+    self.im = self.im.resize((100, 24))
+    buffered = io.BytesIO()
+    self.im.save(buffered, format='JPEG')
+    img_str = (b'data:image/png;base64,' + base64.b64encode(buffered.getvalue()))
+    return (img_str, code)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+         ... . ... (((( ...  +  ... .randint) +),),,,)
+
+idx = 31:------------------- similar code ------------------ index = 166, score = 1.0 
+@composition.module(composition.is_integer_polynomial)
+def add(value, sample_args, context=None):
+    'E.g., "Let f(x)=2x+1, g(x)=3x+2. What is 5*f(x) - 7*g(x)?".'
+    is_question = (context is None)
+    if (context is None):
+        context = composition.Context()
+    (entropy, sample_args) = sample_args.peel()
+    if (value is None):
+        max_degree = 3
+        degree = random.randint(1, max_degree)
+        entropy -= math.log10(max_degree)
+        entropy_value = (entropy / 2)
+        entropy -= entropy_value
+        value = polynomials.sample_coefficients(degree, entropy=entropy_value, min_non_zero=random.randint(1, 3))
+        value = composition.Polynomial(value)
+    (c1, c2, coeffs1, coeffs2) = polynomials.coefficients_linear_split(value.coefficients, entropy)
+    coeffs1 = polynomials.trim(coeffs1)
+    coeffs2 = polynomials.trim(coeffs2)
+    (c1, c2, fn1, fn2) = context.sample(sample_args, [c1, c2, composition.Polynomial(coeffs1), composition.Polynomial(coeffs2)])
+    var = sympy.var(context.pop())
+    expression = ((c1.handle * fn1.handle.apply(var)) + (c2.handle * fn2.handle.apply(var)))
+    if is_question:
+        answer = polynomials.coefficients_to_polynomial(value.coefficients, var)
+        answer = answer.sympy()
+        template = random.choice(_TEMPLATES)
+        return example.Problem(question=example.question(context, template, composed=expression), answer=answer)
+    else:
+        intermediate_symbol = context.pop()
+        intermediate = sympy.Function(intermediate_symbol)(var)
+        return composition.Entity(context=context, value=value, description='Let {intermediate} = {composed}.', handle=composition.FunctionHandle(intermediate_symbol), intermediate=intermediate, composed=expression)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 32:------------------- similar code ------------------ index = 150, score = 1.0 
+def _clean_sub_graphs(G_, min_length=80, max_nodes_to_skip=100, weight='length', verbose=True, super_verbose=False):
+    "\n    Remove subgraphs with a max path length less than min_length,\n    if the subgraph has more than max_noxes_to_skip, don't check length\n       (this step great reduces processing time)\n    "
+    if (len(G_.nodes()) == 0):
+        return G_
+    if verbose:
+        print('Running clean_sub_graphs...')
+    sub_graphs = list(nx.connected_component_subgraphs(G_))
+    bad_nodes = []
+    if verbose:
+        print(' len(G_.nodes()):', len(G_.nodes()))
+        print(' len(G_.edges()):', len(G_.edges()))
+    if super_verbose:
+        print('G_.nodes:', G_.nodes())
+        edge_tmp = G_.edges()[np.random.randint(len(G_.edges()))]
+        print(edge_tmp, 'G.edge props:', G_.edges[edge_tmp[0]][edge_tmp[1]])
+    for G_sub in sub_graphs:
+        if (len(G_sub.nodes()) > max_nodes_to_skip):
+            continue
+        else:
+            all_lengths = dict(nx.all_pairs_dijkstra_path_length(G_sub, weight=weight))
+            if super_verbose:
+                print('  \nGs.nodes:', G_sub.nodes())
+                print('  all_lengths:', all_lengths)
+            lens = []
+            for u in all_lengths.keys():
+                v = all_lengths[u]
+                for uprime in v.keys():
+                    vprime = v[uprime]
+                    lens.append(vprime)
+                    if super_verbose:
+                        print('  u, v', u, v)
+                        print('    uprime, vprime:', uprime, vprime)
+            max_len = np.max(lens)
+            if super_verbose:
+                print('  Max length of path:', max_len)
+            if (max_len < min_length):
+                bad_nodes.extend(G_sub.nodes())
+                if super_verbose:
+                    print(' appending to bad_nodes:', G_sub.nodes())
+    G_.remove_nodes_from(bad_nodes)
+    if verbose:
+        print(' num bad_nodes:', len(bad_nodes))
+        print(" len(G'.nodes()):", len(G_.nodes()))
+        print(" len(G'.edges()):", len(G_.edges()))
+    if super_verbose:
+        print('  G_.nodes:', G_.nodes())
+    return G_
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... :
+         ...  =  ... [ ... .randint]
+
+idx = 33:------------------- similar code ------------------ index = 151, score = 1.0 
+def mutar(genes, geneSet, mínGenes, máxGenes, fnObtenerAptitud, rondasMáximas):
+    cuenta = random.randint(1, rondasMáximas)
+    aptitudInicial = fnObtenerAptitud(genes)
+    while (cuenta > 0):
+        cuenta -= 1
+        if (fnObtenerAptitud(genes) > aptitudInicial):
+            return
+        añadiendo = ((len(genes) == 0) or ((len(genes) < máxGenes) and (random.randint(0, 5) == 0)))
+        if añadiendo:
+            genes.append(random.choice(geneSet)())
+            continue
+        eliminando = ((len(genes) > mínGenes) and (random.randint(0, 50) == 0))
+        if eliminando:
+            índice = random.randrange(0, len(genes))
+            del genes[índice]
+            continue
+        índice = random.randrange(0, len(genes))
+        genes[índice] = random.choice(geneSet)()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 34:------------------- similar code ------------------ index = 179, score = 1.0 
+@staticmethod
+def get_params(img, scale, ratio):
+    'Get parameters for ``crop`` for a random sized crop.\n        Args:\n            img (PIL Image): Image to be cropped.\n            scale (tuple): range of size of the origin size cropped\n            ratio (tuple): range of aspect ratio of the origin aspect ratio cropped\n        Returns:\n            tuple: params (i, j, h, w) to be passed to ``crop`` for a random\n                sized crop.\n        '
+    for attempt in range(10):
+        area = (img.size[0] * img.size[1])
+        target_area = (random.uniform(*scale) * area)
+        aspect_ratio = random.uniform(*ratio)
+        w = int(round(math.sqrt((target_area * aspect_ratio))))
+        h = int(round(math.sqrt((target_area / aspect_ratio))))
+        if (random.random() < 0.5):
+            (w, h) = (h, w)
+        if ((w <= img.size[0]) and (h <= img.size[1])):
+            i = random.randint(0, (img.size[1] - h))
+            j = random.randint(0, (img.size[0] - w))
+            return (i, j, h, w)
+    w = min(img.size[0], img.size[1])
+    i = ((img.size[1] - w) // 2)
+    j = ((img.size[0] - w) // 2)
+    return (i, j, w, w)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+             ...  =  ... .randint
+
+idx = 35:------------------- similar code ------------------ index = 123, score = 1.0 
+def _generate_polynomial(num_variables, entropy, derivative_order, derivative_axis):
+    'Returns polynomial.'
+    degrees = np.random.randint(1, 4, [num_variables])
+    degrees[derivative_axis] = np.random.randint(0, 4)
+    coefficients = polynomials.sample_coefficients(degrees, entropy)
+    assert (derivative_order > 0)
+    degrees[derivative_axis] = (derivative_order - 1)
+    extra_coefficients = polynomials.sample_coefficients(degrees, entropy)
+    return np.concatenate([extra_coefficients, coefficients], axis=derivative_axis)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 36:------------------- similar code ------------------ index = 124, score = 1.0 
+def get_list_by_uid(user_id, dytk, cursor=0, favorite=False):
+    '获取用户视频列表信息\n\n    @param: user_id\n    @param: dytk\n    @param: cursor,用于列表分页定位\n    @return json\n    '
+    global FREEZE_SIGNATURE
+    '读取数据文件,若存在则直接返回'
+    file_result = load_from_json_file(user_id, cursor, favorite)
+    if file_result:
+        return file_result
+    if favorite:
+        url = LIKE_LIST_URL
+    else:
+        url = POST_LIST_URL
+    '获取签名'
+    signature = (FREEZE_SIGNATURE if FREEZE_SIGNATURE else get_signature(user_id))
+    headers = {**DOWNLOAD_HEADERS, 'x-requested-with': 'XMLHttpRequest', 'accept': 'application/json'}
+    params = {'user_id': user_id, 'count': 30, 'max_cursor': cursor, 'app_id': 1128, '_signature': signature}
+    with HTMLSession() as session:
+        while True:
+            r = session.get(url, params=params, headers=headers)
+            if (r.status_code != 200):
+                print(r)
+                continue
+            r.html.render()
+            res_json = json.loads(r.html.text)
+            r.close()
+            if res_json.get('max_cursor', None):
+                FREEZE_SIGNATURE = signature
+                save_json_data(user_id, cursor, res_json, favorite)
+                return res_json
+            print(('get empty list, ' + str(res_json)))
+            time.sleep(randint(1, 5))
+            print('retry...')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+        while True:
+             ... . ... (randint)
+
+idx = 37:------------------- similar code ------------------ index = 125, score = 1.0 
+def __init__(self):
+    self.history = []
+    self.sendMessage = MockMethod(result={'message_id': random.randint(1, 1000)})
+    self.editMessageText = MockMethod()
+    self.editMessageReplyMarkup = MockMethod()
+    self.getFile = MockMethod(result='https://google.com/robots.txt')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+ =  ... ( ... ={ ... :  ... .randint})
+
+idx = 38:------------------- similar code ------------------ index = 126, score = 1.0 
+def mutate(genes, validationRules):
+    selectedRule = next((rule for rule in validationRules if (genes[rule.Index] == genes[rule.OtherIndex])))
+    if (selectedRule is None):
+        return
+    if (((index_row(selectedRule.OtherIndex) % 3) == 2) and (random.randint(0, 10) == 0)):
+        sectionStart = section_start(selectedRule.Index)
+        current = selectedRule.OtherIndex
+        while (selectedRule.OtherIndex == current):
+            shuffle_in_place(genes, sectionStart, 80)
+            selectedRule = next((rule for rule in validationRules if (genes[rule.Index] == genes[rule.OtherIndex])))
+        return
+    row = index_row(selectedRule.OtherIndex)
+    start = (row * 9)
+    indexA = selectedRule.OtherIndex
+    indexB = random.randrange(start, len(genes))
+    (genes[indexA], genes[indexB]) = (genes[indexB], genes[indexA])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if ( and ( ... .randint ==  ... )):
+idx = 39:------------------- similar code ------------------ index = 127, score = 1.0 
+def release_ip(src_mac, dst_mac, src_ip, dst_ip, timeout=0.2, debug=0):
+    rand_xid = random.randint(1, 900000000)
+    dhcp_release = ((((Ether(src=src_mac, dst=dst_mac) / IP(src=src_ip, dst=dst_ip)) / UDP(sport=68, dport=67)) / BOOTP(ciaddr=src_ip, chaddr=[mac2str(src_mac)], xid=rand_xid)) / DHCP(options=[('message-type', 'release'), ('server_id', dst_ip), ('client_id', mac2str(src_mac)), 'end']))
+    sendp(dhcp_release)
+    print(('Requesting release for: %s (%s)' % (src_ip, src_mac)))
+    if debug:
+        print(('%r' % dhcp_release))
+    time.sleep(timeout)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 40:------------------- similar code ------------------ index = 128, score = 1.0 
+def get_timeline_feed(self, reason=None, options=[]):
+    headers = {'X-Ads-Opt-Out': '0'}
+    data = {'feed_view_info': '[]', 'phone_id': self.phone_id, 'battery_level': random.randint(25, 100), 'timezone_offset': '0', '_csrftoken': self.token, 'device_id': self.uuid, 'request_id': self.uuid, '_uuid': self.uuid, 'is_charging': random.randint(0, 1), 'will_sound_on': random.randint(0, 1), 'session_id': self.client_session_id, 'bloks_versioning_id': 'e538d4591f238824118bfcb9528c8d005f2ea3becd947a3973c030ac971bb88e'}
+    if ('is_pull_to_refresh' in options):
+        data['reason'] = 'pull_to_refresh'
+        data['is_pull_to_refresh'] = '1'
+    elif ('is_pull_to_refresh' not in options):
+        data['reason'] = 'cold_start_fetch'
+        data['is_pull_to_refresh'] = '0'
+    if ('push_disabled' in options):
+        data['push_disabled'] = 'true'
+    if ('recovered_from_crash' in options):
+        data['recovered_from_crash'] = '1'
+    data = json.dumps(data)
+    return self.send_request('feed/timeline/', data, with_signature=False, headers=headers)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = { ... :  ... ,  ... :,  ... :  ... .randint,  ... :  ... ,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :  ... }
+
+idx = 41:------------------- similar code ------------------ index = 129, score = 1.0 
+def get_dummy_encoder_output(encoder_out_shape=(100, 80, 5)):
+    '\n    This only provides an example to generate dummy encoder output\n    '
+    (T, B, D) = encoder_out_shape
+    encoder_out = {}
+    encoder_out['encoder_out'] = torch.from_numpy(np.random.randn(*encoder_out_shape).astype(np.float32))
+    seq_lengths = torch.from_numpy(np.random.randint(low=1, high=T, size=B))
+    encoder_out['encoder_padding_mask'] = (torch.arange(T).view(1, T).expand(B, (- 1)) >= seq_lengths.view(B, 1).expand((- 1), T))
+    encoder_out['encoder_padding_mask'].t_()
+    return encoder_out
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ( ... .randint)
+
+idx = 42:------------------- similar code ------------------ index = 130, score = 1.0 
+def non_integer_decimal(entropy, signed):
+    'Returns a random decimal; integer divided by random power of ten.\n\n  Guaranteed to be non-integer (i.e., numbers after the decimal point).\n\n  Args:\n    entropy: Float.\n    signed: Boolean. Whether to also return negative numbers.\n\n  Returns:\n    Non-integer decimal.\n  '
+    while True:
+        base = integer(entropy, signed)
+        shift = random.randint(1, int(math.ceil(entropy)))
+        divisor = (10 ** shift)
+        if ((base % divisor) != 0):
+            return display.Decimal(sympy.Rational(base, divisor))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    while True:
+         ...  =  ... .randint
+
+idx = 43:------------------- similar code ------------------ index = 131, score = 1.0 
+def __call__(self, img, mask):
+    assert (img.size == mask.size)
+    for attempt in range(10):
+        area = (img.size[0] * img.size[1])
+        target_area = (random.uniform(0.45, 1.0) * area)
+        aspect_ratio = random.uniform(0.5, 2)
+        w = int(round(math.sqrt((target_area * aspect_ratio))))
+        h = int(round(math.sqrt((target_area / aspect_ratio))))
+        if (random.random() < 0.5):
+            (w, h) = (h, w)
+        if ((w <= img.size[0]) and (h <= img.size[1])):
+            x1 = random.randint(0, (img.size[0] - w))
+            y1 = random.randint(0, (img.size[1] - h))
+            img = img.crop((x1, y1, (x1 + w), (y1 + h)))
+            mask = mask.crop((x1, y1, (x1 + w), (y1 + h)))
+            assert (img.size == (w, h))
+            return (img.resize((self.size, self.size), Image.BILINEAR), mask.resize((self.size, self.size), Image.NEAREST))
+    scale = Scale(self.size)
+    crop = CenterCrop(self.size)
+    return crop(*scale(img, mask))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+             ...  =  ... .randint
+
+idx = 44:------------------- similar code ------------------ index = 132, score = 1.0 
+def test_random():
+    rs = RandomState(seed=0)
+    vals = [rs.randint(10) for t in range(10000)]
+    assert_almost_equal(np.mean(vals), 5.018)
+    vals = [rs.binomial(1000, 0.8) for t in range(10000)]
+    assert_almost_equal(np.mean(vals), 799.8564)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = [ ... .randint]
+
+idx = 45:------------------- similar code ------------------ index = 133, score = 1.0 
+@printf
+def read_i2c_block_data(self, a, b, c):
+    return ([randint(0, ((2 ** 8) - 1))] * c)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return ([randint] *  ... )
+
+idx = 46:------------------- similar code ------------------ index = 134, score = 1.0 
+def upgrade_units_smithy_thread(browser: client, village: int, units: list, interval: int) -> None:
+    time.sleep(randint(0, 10))
+    while True:
+        sleep_time: int = interval
+        rv = upgrade_units_smithy(browser, village, units)
+        if (rv != (- 1)):
+            if (rv is None):
+                log('smithy is busy.')
+            else:
+                sleep_time = rv
+                log((('smithy is busy. going to sleep for ' + '{:0>8}'.format(str(timedelta(seconds=sleep_time)))) + '.'))
+        time.sleep(sleep_time)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () -> None:
+     ... . ... (randint)
+
+idx = 47:------------------- similar code ------------------ index = 135, score = 1.0 
+def get_batch(data, labels, batchsize):
+    rand_select = np.random.randint(0, 50000, [batchsize])
+    batch = data[rand_select]
+    labels = labels[(rand_select, 0)]
+    z = np.random.normal(0, 1, [batchsize, 100])
+    return (batch, labels, z)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 48:------------------- similar code ------------------ index = 136, score = 1.0 
+def encode_keywords_reddit(csv_path, model='en_core_web_sm', keyword_gen_field='title', keyword_sep='<|sep|>', repeat=3, max_keywords=3, keyword_length_max=20, out_path='csv_encoded.csv', end_token='<|endoftext|>', schema=SCHEMA):
+    data_list = []
+    with open(csv_path, 'r', encoding='utf8', errors='ignore') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data_list.append(row)
+    nlp = spacy.load(model)
+    with open(out_path, 'w', encoding='utf8', errors='ignore') as f:
+        w = csv.writer(f)
+        for row in tqdm(data_list):
+            text = re.sub(u'[‘’]', "'", re.sub(u'[“”]', '"', row[keyword_gen_field]))
+            doc = nlp(text)
+            keywords_pos = [(chunk.text if (chunk.pos_ == 'NOUN') else (chunk.lemma_ if (chunk.pos_ in ['VERB', 'ADJ', 'ADV']) else 'I')) for chunk in doc if (not chunk.is_stop)]
+            keywords_ents = [re.sub(' ', '-', chunk.text) for chunk in doc.ents]
+            keywords_compounds = [chunk.text for chunk in doc.noun_chunks if (len(chunk.text) < keyword_length_max)]
+            keywords = list((set(((keywords_pos + keywords_ents) + keywords_compounds)) - PRONOUNS))
+            for _ in range(repeat):
+                new_keywords = keywords
+                shuffle(new_keywords)
+                new_keywords = keyword_sep.join(new_keywords[:randint(0, max_keywords)])
+                str_enc = ((((row['subreddit'] + schema['keywords']) + new_keywords) + schema['title']) + text)
+                w.writerow([str_enc])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+        for  ...  in:
+            for  ...  in:
+                 ...  =  ... . ... ( ... [:randint])
+
+idx = 49:------------------- similar code ------------------ index = 137, score = 1.0 
+def coefficient_named(value, sample_args, context=None):
+    'E.g., "Express x^2 + 2x in the form h * x^2 + k * x + t and give h.".'
+    del value
+    if (context is None):
+        context = composition.Context()
+    variable = sympy.Symbol(context.pop())
+    (entropy, sample_args) = sample_args.peel()
+    degree = random.randint(1, 4)
+    if random.choice([False, True]):
+        coefficients = polynomials.sample_coefficients(degree, (entropy / 2), min_non_zero=random.randint((degree - 1), degree))
+        expanded = polynomials.expand_coefficients(coefficients, (entropy / 2))
+        expression = polynomials.coefficients_to_polynomial(expanded, variable)
+    else:
+        expression = polynomials.sample_with_brackets(variable, degree, entropy)
+        coefficients = list(reversed(sympy.Poly(expression).all_coeffs()))
+    named_coeffs = [sympy.Symbol(context.pop()) for _ in range((degree + 1))]
+    canonical = polynomials.coefficients_to_polynomial(named_coeffs, variable)
+    if (random.random() < 0.2):
+        power = random.randint(0, degree)
+    else:
+        non_zero_powers = [i for i in range((degree + 1)) if (coefficients[i] != 0)]
+        power = random.choice(non_zero_powers)
+    value = coefficients[power]
+    named_coeff = named_coeffs[power]
+    template = random.choice(['Express {expression} as {canonical} and give {target}.', 'Rearrange {expression} to {canonical} and give {target}.', 'Express {expression} in the form {canonical} and give {target}.', 'Rearrange {expression} to the form {canonical} and give {target}.'])
+    return example.Problem(question=example.question(context, template, expression=expression, canonical=canonical, target=named_coeff), answer=value)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 50:------------------- similar code ------------------ index = 138, score = 1.0 
+def test_mow_turn_jump_func(self):
+    width = height = 8
+    geneSet = [(lambda : Mow()), (lambda : Turn()), (lambda : Jump(random.randint(0, min(width, height)), random.randint(0, min(width, height)))), (lambda : Func())]
+    minGenes = 3
+    maxGenes = 20
+    maxMutationRounds = 3
+    expectedNumberOfInstructions = 18
+    expectedNumberOfSteps = 65
+
+    def fnCreateField():
+        return lawnmower.ToroidField(width, height, lawnmower.FieldContents.Grass)
+    self.run_with(geneSet, width, height, minGenes, maxGenes, expectedNumberOfInstructions, maxMutationRounds, fnCreateField, expectedNumberOfSteps)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = [,, (lambda :  ... ( ... .randint,)),]
+
+idx = 51:------------------- similar code ------------------ index = 139, score = 1.0 
+@app.route('/get_captcha', methods=['GET'])
+def get_captcha():
+    img_list = os.listdir('static/captcha')
+    img = img_list[random.randint(0, 1000)]
+    return os.path.join('static/captcha', img)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... [ ... .randint]
+
+idx = 52:------------------- similar code ------------------ index = 140, score = 1.0 
+def sample_idx(self, dim):
+    return self._rnd.randint(0, ((len(self.noise) - dim) + 1))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .randint
+
+idx = 53:------------------- similar code ------------------ index = 141, score = 1.0 
+def crear(geneSet, mínGenes, máxGenes):
+    cantidad = random.randint(mínGenes, máxGenes)
+    genes = [random.choice(geneSet)() for _ in range(1, cantidad)]
+    return genes
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 54:------------------- similar code ------------------ index = 142, score = 1.0 
+def reset(self, **kwargs):
+    'Do no-op action for a number of steps in [1, noop_max].'
+    self.env.reset(**kwargs)
+    if (self.override_num_noops is not None):
+        noops = self.override_num_noops
+    else:
+        noops = self.unwrapped.np_random.randint(1, (self.noop_max + 1))
+    assert (noops > 0)
+    obs = None
+    for _ in range(noops):
+        (obs, _, done, info) = self.env.step(self.noop_action)
+        if (done or info.get('needs_reset', False)):
+            obs = self.env.reset(**kwargs)
+    return obs
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    else:
+         ...  =  ... .randint
+
+idx = 55:------------------- similar code ------------------ index = 143, score = 1.0 
+def test_assert_jit_vs_nonjit_(self):
+    (task, parser) = get_dummy_task_and_parser()
+    LSTMModel.add_args(parser)
+    args = parser.parse_args([])
+    args.criterion = ''
+    model = LSTMModel.build_model(args, task)
+    model.eval()
+    scripted_model = torch.jit.script(model)
+    scripted_model.eval()
+    idx = len(task.source_dictionary)
+    iter = 100
+    seq_len_tensor = torch.randint(1, 10, (iter,))
+    num_samples_tensor = torch.randint(1, 10, (iter,))
+    for i in range(iter):
+        seq_len = seq_len_tensor[i]
+        num_samples = num_samples_tensor[i]
+        src_token = (torch.randint(0, idx, (num_samples, seq_len)),)
+        src_lengths = torch.randint(1, (seq_len + 1), (num_samples,))
+        (src_lengths, _) = torch.sort(src_lengths, descending=True)
+        src_lengths[0] = seq_len
+        prev_output_token = (torch.randint(0, idx, (num_samples, 1)),)
+        result = model(src_token[0], src_lengths, prev_output_token[0], None)
+        scripted_result = scripted_model(src_token[0], src_lengths, prev_output_token[0], None)
+        self.assertTensorEqual(result[0], scripted_result[0])
+        self.assertTensorEqual(result[1], scripted_result[1])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .randint
+
+idx = 56:------------------- similar code ------------------ index = 144, score = 1.0 
+def _deletable_directory(request, onefs_client):
+    path = ('/' + new_name(request))
+    mode = random.randint(0, MAX_MODE)
+    mode &= 511
+    onefs_client.mkdir(path=path, mode=mode)
+    return (path, {'group': onefs_client.primary_group_of_user(onefs_client.username), 'mode': mode, 'owner': onefs_client.username})
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 57:------------------- similar code ------------------ index = 145, score = 1.0 
+def np_free_form_mask(maxVertex, maxLength, maxBrushWidth, maxAngle, h, w):
+    mask = np.zeros((h, w, 1), np.float32)
+    numVertex = np.random.randint((maxVertex + 1))
+    startY = np.random.randint(h)
+    startX = np.random.randint(w)
+    brushWidth = 0
+    for i in range(numVertex):
+        angle = np.random.randint((maxAngle + 1))
+        angle = (((angle / 360.0) * 2) * np.pi)
+        if ((i % 2) == 0):
+            angle = ((2 * np.pi) - angle)
+        length = np.random.randint((maxLength + 1))
+        brushWidth = ((np.random.randint(10, (maxBrushWidth + 1)) // 2) * 2)
+        nextY = (startY + (length * np.cos(angle)))
+        nextX = (startX + (length * np.sin(angle)))
+        nextY = np.maximum(np.minimum(nextY, (h - 1)), 0).astype(np.int)
+        nextX = np.maximum(np.minimum(nextX, (w - 1)), 0).astype(np.int)
+        cv2.line(mask, (startY, startX), (nextY, nextX), 1, brushWidth)
+        cv2.circle(mask, (startY, startX), (brushWidth // 2), 2)
+        (startY, startX) = (nextY, nextX)
+    cv2.circle(mask, (startY, startX), (brushWidth // 2), 2)
+    return mask
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 58:------------------- similar code ------------------ index = 146, score = 1.0 
+def execute(gpu, exp_batch, exp_alias, suppress_output=True, number_of_workers=12):
+    '\n        The main training function. This functions loads the latest checkpoint\n        for a given, exp_batch (folder) and exp_alias (experiment configuration).\n        With this checkpoint it starts from the beginning or continue some training.\n    Args:\n        gpu: The GPU number\n        exp_batch: the folder with the experiments\n        exp_alias: the alias, experiment name\n        suppress_output: if the output are going to be saved on a file\n        number_of_workers: the number of threads used for data loading\n\n    Returns:\n        None\n\n    '
+    try:
+        os.environ['CUDA_VISIBLE_DEVICES'] = gpu
+        g_conf.VARIABLE_WEIGHT = {}
+        merge_with_yaml(os.path.join('configs', exp_batch, (exp_alias + '.yaml')))
+        set_type_of_process('train')
+        coil_logger.add_message('Loading', {'GPU': gpu})
+        if suppress_output:
+            if (not os.path.exists('_output_logs')):
+                os.mkdir('_output_logs')
+            sys.stdout = open(os.path.join('_output_logs', (((((exp_alias + '_') + g_conf.PROCESS_NAME) + '_') + str(os.getpid())) + '.out')), 'a', buffering=1)
+            sys.stderr = open(os.path.join('_output_logs', (((((exp_alias + '_err_') + g_conf.PROCESS_NAME) + '_') + str(os.getpid())) + '.out')), 'a', buffering=1)
+        if coil_logger.check_finish('train'):
+            coil_logger.add_message('Finished', {})
+            return
+        if (g_conf.PRELOAD_MODEL_ALIAS is not None):
+            checkpoint = torch.load(os.path.join('_logs', g_conf.PRELOAD_MODEL_BATCH, g_conf.PRELOAD_MODEL_ALIAS, 'checkpoints', (str(g_conf.PRELOAD_MODEL_CHECKPOINT) + '.pth')))
+        checkpoint_file = get_latest_saved_checkpoint()
+        if (checkpoint_file is not None):
+            checkpoint = torch.load(os.path.join('_logs', exp_batch, exp_alias, 'checkpoints', str(get_latest_saved_checkpoint())))
+            iteration = checkpoint['iteration']
+            best_loss = checkpoint['best_loss']
+            best_loss_iter = checkpoint['best_loss_iter']
+        else:
+            iteration = 0
+            best_loss = 10000.0
+            best_loss_iter = 0
+        full_dataset = os.path.join(os.environ['COIL_DATASET_PATH'], g_conf.TRAIN_DATASET_NAME)
+        augmenter = Augmenter(g_conf.AUGMENTATION)
+        dataset = CoILDataset(full_dataset, transform=augmenter, preload_name=((str(g_conf.NUMBER_OF_HOURS) + 'hours_') + g_conf.TRAIN_DATASET_NAME))
+        print('Loaded dataset')
+        data_loader = select_balancing_strategy(dataset, iteration, number_of_workers)
+        model = CoILModel(g_conf.MODEL_TYPE, g_conf.MODEL_CONFIGURATION)
+        model.cuda()
+        optimizer = optim.Adam(model.parameters(), lr=g_conf.LEARNING_RATE)
+        if ((checkpoint_file is not None) or (g_conf.PRELOAD_MODEL_ALIAS is not None)):
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            accumulated_time = checkpoint['total_time']
+            loss_window = coil_logger.recover_loss_window('train', iteration)
+        else:
+            accumulated_time = 0
+            loss_window = []
+        print('Before the loss')
+        criterion = Loss(g_conf.LOSS_FUNCTION)
+        for data in data_loader:
+            if ((g_conf.FINISH_ON_VALIDATION_STALE is not None) and check_loss_validation_stopped(iteration, g_conf.FINISH_ON_VALIDATION_STALE)):
+                break
+            '\n                ####################################\n                    Main optimization loop\n                ####################################\n            '
+            iteration += 1
+            if ((iteration % 1000) == 0):
+                adjust_learning_rate_auto(optimizer, loss_window)
+            capture_time = time.time()
+            controls = data['directions']
+            model.zero_grad()
+            branches = model(torch.squeeze(data['rgb'].cuda()), dataset.extract_inputs(data).cuda())
+            loss_function_params = {'branches': branches, 'targets': dataset.extract_targets(data).cuda(), 'controls': controls.cuda(), 'inputs': dataset.extract_inputs(data).cuda(), 'branch_weights': g_conf.BRANCH_LOSS_WEIGHT, 'variable_weights': g_conf.VARIABLE_WEIGHT}
+            (loss, _) = criterion(loss_function_params)
+            loss.backward()
+            optimizer.step()
+            '\n                ####################################\n                    Saving the model if necessary\n                ####################################\n            '
+            if is_ready_to_save(iteration):
+                state = {'iteration': iteration, 'state_dict': model.state_dict(), 'best_loss': best_loss, 'total_time': accumulated_time, 'optimizer': optimizer.state_dict(), 'best_loss_iter': best_loss_iter}
+                torch.save(state, os.path.join('_logs', exp_batch, exp_alias, 'checkpoints', (str(iteration) + '.pth')))
+            '\n                ################################################\n                    Adding tensorboard logs.\n                    Making calculations for logging purposes.\n                    These logs are monitored by the printer module.\n                #################################################\n            '
+            coil_logger.add_scalar('Loss', loss.data, iteration)
+            coil_logger.add_image('Image', torch.squeeze(data['rgb']), iteration)
+            if (loss.data < best_loss):
+                best_loss = loss.data.tolist()
+                best_loss_iter = iteration
+            position = random.randint(0, (len(data) - 1))
+            output = model.extract_branch(torch.stack(branches[0:4]), controls)
+            error = torch.abs((output - dataset.extract_targets(data).cuda()))
+            accumulated_time += (time.time() - capture_time)
+            coil_logger.add_message('Iterating', {'Iteration': iteration, 'Loss': loss.data.tolist(), 'Images/s': ((iteration * g_conf.BATCH_SIZE) / accumulated_time), 'BestLoss': best_loss, 'BestLossIteration': best_loss_iter, 'Output': output[position].data.tolist(), 'GroundTruth': dataset.extract_targets(data)[position].data.tolist(), 'Error': error[position].data.tolist(), 'Inputs': dataset.extract_inputs(data)[position].data.tolist()}, iteration)
+            loss_window.append(loss.data.tolist())
+            coil_logger.write_on_error_csv('train', loss.data)
+            print(('Iteration: %d  Loss: %f' % (iteration, loss.data)))
+        coil_logger.add_message('Finished', {})
+    except KeyboardInterrupt:
+        coil_logger.add_message('Error', {'Message': 'Killed By User'})
+    except RuntimeError as e:
+        coil_logger.add_message('Error', {'Message': str(e)})
+    except:
+        traceback.print_exc()
+        coil_logger.add_message('Error', {'Message': 'Something Happened'})
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+        for  ...  in  ... :
+             ...  =  ... .randint
+
+idx = 59:------------------- similar code ------------------ index = 147, score = 1.0 
+def train(g_par, d_par, gan_model, dataset_real, u_sampled_data, n_epochs, n_batch, n_critic, clip_val, n_patch, f):
+    bat_per_epo = int((dataset_real.shape[0] / n_batch))
+    half_batch = int((n_batch / 2))
+    for i in range(n_epochs):
+        for j in range(bat_per_epo):
+            for k in range(n_critic):
+                ix = np.random.randint(0, dataset_real.shape[0], half_batch)
+                X_real = dataset_real[ix]
+                y_real = np.ones((half_batch, n_patch, n_patch, 1))
+                ix_1 = np.random.randint(0, u_sampled_data.shape[0], half_batch)
+                X_fake = g_par.predict(u_sampled_data[ix_1])
+                y_fake = (- np.ones((half_batch, n_patch, n_patch, 1)))
+                (X, y) = (np.vstack((X_real, X_fake)), np.vstack((y_real, y_fake)))
+                (d_loss, accuracy) = d_par.train_on_batch(X, y)
+                for l in d_par.layers:
+                    weights = l.get_weights()
+                    weights = [np.clip(w, (- clip_val), clip_val) for w in weights]
+                    l.set_weights(weights)
+            ix = np.random.randint(0, dataset_real.shape[0], n_batch)
+            X_r = dataset_real[ix]
+            X_gen_inp = u_sampled_data[ix]
+            y_gan = np.ones((n_batch, n_patch, n_patch, 1))
+            g_loss = gan_model.train_on_batch([X_gen_inp], [y_gan, X_r, X_r])
+            f.write(('>%d, %d/%d, d=%.3f, acc = %.3f,  w=%.3f,  mae=%.3f,  mssim=%.3f, g=%.3f' % ((i + 1), (j + 1), bat_per_epo, d_loss, accuracy, g_loss[1], g_loss[2], g_loss[3], g_loss[0])))
+            f.write('\n')
+            print(('>%d, %d/%d, d=%.3f, acc = %.3f, g=%.3f' % ((i + 1), (j + 1), bat_per_epo, d_loss, accuracy, g_loss[0])))
+        filename = ('/home/cs-mri-gan/gen_weights_a5_%04d.h5' % (i + 1))
+        g_save = g_par.get_layer('model_3')
+        g_save.save_weights(filename)
+    f.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        for  ...  in:
+            for  ...  in:
+                 ...  =  ... .randint
+
+idx = 60:------------------- similar code ------------------ index = 148, score = 1.0 
+def find_indices_srnn(data_set, action):
+    seed = 1234567890
+    rng = np.random.RandomState(seed)
+    subject = 5
+    T1 = data_set[(subject, action, 1, 'even')].shape[0]
+    T2 = data_set[(subject, action, 2, 'even')].shape[0]
+    (prefix, suffix) = (50, 100)
+    idx = []
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    return idx
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... ( ... .randint)
+
+idx = 61:------------------- similar code ------------------ index = 149, score = 1.0 
+def crop_to_max_size(self, wav, target_size):
+    size = len(wav)
+    diff = (size - target_size)
+    if (diff <= 0):
+        return wav
+    start = np.random.randint(0, (diff + 1))
+    end = ((size - diff) + start)
+    return wav[start:end]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 62:------------------- similar code ------------------ index = 178, score = 1.0 
+def gen_rnn_sentiment_test(cell_type, num_vocabs=10, num_hidden=5, batch_size=3, sequence_length=4, output_loss_only=False, param_initializer=np.random.random):
+
+    def fn(test_name):
+        gb = onnx_script.GraphBuilder(test_name)
+        if (cell_type == 'LSTM'):
+            wr = 8
+            perm = [0, 2, 1, 3, 4, 6, 5, 7]
+            num_direction = 1
+            direction = 'forward'
+        elif (cell_type == 'BiLSTM'):
+            wr = 16
+            perm = (np.tile([0, 2, 1, 3], 4) + (np.repeat(np.arange(4), 4) * 4))
+            num_direction = 2
+            direction = 'bidirectional'
+        elif (cell_type == 'GRU'):
+            wr = 6
+            perm = [1, 0, 2, 4, 3, 5]
+            num_direction = 1
+            direction = 'forward'
+        elif (cell_type == 'BiGRU'):
+            wr = 12
+            perm = [1, 0, 2, 4, 3, 5, 7, 6, 8, 10, 9, 11]
+            num_direction = 2
+            direction = 'bidirectional'
+        else:
+            raise RuntimeError(('Unknown cell_type: %s' % cell_type))
+        embed_size = num_hidden
+        np.random.seed(42)
+        if ((batch_size == 3) and (sequence_length == 4)):
+            labels = np.array([[1, 2, 3, 7], [4, 5, 0, 0], [6, 0, 0, 0]])
+            lengths = np.array([4, 2, 1])
+            targets = np.array([1, 0, 1])
+        else:
+            (labels, lengths) = _gen_random_sequence(batch_size, sequence_length, num_vocabs)
+            targets = np.random.randint(2, size=batch_size)
+        labels = labels.astype(np.int32)
+        embed = param_initializer(size=(num_vocabs, embed_size)).astype(np.float32)
+        weight = param_initializer(size=(embed_size, (num_hidden * wr))).astype(np.float32)
+        bias = param_initializer(size=((num_hidden * wr),)).astype(np.float32)
+        linear_w = param_initializer(size=((num_direction * num_hidden), 2)).astype(np.float32)
+        linear_b = param_initializer(size=(2,)).astype(np.float32)
+        x = F.embed_id(labels, embed)
+        state = np.zeros((num_direction, len(labels), num_hidden)).astype(np.float32)
+        xs = F.transpose_sequence([v[:l] for (v, l) in zip(x, lengths)])
+        ch_weight = np.split(weight, wr, axis=1)
+        ch_weight = [ch_weight[i] for i in perm]
+        ch_bias = np.split(bias, wr, axis=0)
+        ch_bias = [ch_bias[i] for i in perm]
+        if (cell_type == 'LSTM'):
+            (h, _, rnn_outputs) = F.n_step_lstm(1, 0.0, state, state, [ch_weight], [ch_bias], xs)
+        elif (cell_type == 'BiLSTM'):
+            (h, _, rnn_outputs) = F.n_step_bilstm(1, 0.0, state, state, [ch_weight[:8], ch_weight[8:]], [ch_bias[:8], ch_bias[8:]], xs)
+        elif (cell_type == 'GRU'):
+            (h, rnn_outputs) = F.n_step_gru(1, 0.0, state, [ch_weight], [ch_bias], xs)
+        elif (cell_type == 'BiGRU'):
+            (h, rnn_outputs) = F.n_step_bigru(1, 0.0, state, [ch_weight[:6], ch_weight[6:]], [ch_bias[:6], ch_bias[6:]], xs)
+        shape = (len(labels), (num_hidden * num_direction))
+        h = F.reshape(h, shape)
+        rnn_outputs = F.pad_sequence(rnn_outputs)
+        rnn_outputs = F.reshape(rnn_outputs, ((- 1), len(labels), num_direction, num_hidden))
+        rnn_outputs = F.transpose(rnn_outputs, axes=[0, 2, 1, 3])
+        result = F.linear(h, np.transpose(linear_w), linear_b)
+        loss = F.softmax_cross_entropy(result, targets)
+        (weight_w, weight_r) = np.split(weight, 2, axis=1)
+        labels_v = gb.input('labels', labels)
+        lengths_v = gb.input('lengths', lengths)
+        targets_v = gb.input('targets', targets)
+        embed_v = gb.param('embed', embed)
+        weight_w_v = gb.param('weight_w', np.reshape(np.transpose(weight_w), (num_direction, (- 1), embed_size)))
+        weight_r_v = gb.param('weight_r', np.reshape(np.transpose(weight_r), (num_direction, (- 1), num_hidden)))
+        bias_v = gb.param('bias', np.reshape(bias, (num_direction, (- 1))))
+        linear_w_v = gb.param('linear_w', linear_w)
+        linear_b_v = gb.param('linear_b', linear_b)
+        x = gb.Gather([embed_v, labels_v])
+        x = gb.Transpose([x], perm=[1, 0, 2])
+        if (cell_type in ['LSTM', 'BiLSTM']):
+            (rnn_outputs_v, h) = gb.LSTM([x, weight_w_v, weight_r_v, bias_v, lengths_v], outputs=['rnn_outputs', 'last_state'], hidden_size=num_hidden, direction=direction)
+        elif (cell_type in ['GRU', 'BiGRU']):
+            (rnn_outputs_v, h) = gb.GRU([x, weight_w_v, weight_r_v, bias_v, lengths_v], outputs=['rnn_outputs', 'last_state'], hidden_size=num_hidden, direction=direction)
+        shape_v = gb.const(shape)
+        h = gb.Reshape([h, shape_v])
+        result_v = gb.Gemm([h, linear_w_v, linear_b_v])
+        loss_v = gb.ChainerSoftmaxCrossEntropy([result_v, targets_v])
+        if (not output_loss_only):
+            gb.output(rnn_outputs_v, rnn_outputs.array)
+            gb.output(result_v, result.array)
+        gb.output(loss_v, loss.array)
+        gb.gen_test()
+    return fn
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    def  ... ( ... ):
+        if:        else:
+             ...  =  ... .randint
+
+idx = 63:------------------- similar code ------------------ index = 182, score = 1.0 
+@staticmethod
+def generate_triplets(labels, num_triplets):
+
+    def create_indices(_labels):
+        inds = dict()
+        for (idx, ind) in enumerate(_labels):
+            if (ind not in inds):
+                inds[ind] = []
+            inds[ind].append(idx)
+        return inds
+    triplets = []
+    indices = create_indices(labels.numpy())
+    unique_labels = np.unique(labels.numpy())
+    n_classes = unique_labels.shape[0]
+    already_idxs = set()
+    for x in tqdm(range(num_triplets)):
+        if (len(already_idxs) >= args.batch_size):
+            already_idxs = set()
+        c1 = np.random.randint(0, (n_classes - 1))
+        while (c1 in already_idxs):
+            c1 = np.random.randint(0, (n_classes - 1))
+        already_idxs.add(c1)
+        c2 = np.random.randint(0, (n_classes - 1))
+        while (c1 == c2):
+            c2 = np.random.randint(0, (n_classes - 1))
+        if (len(indices[c1]) == 2):
+            (n1, n2) = (0, 1)
+        else:
+            n1 = np.random.randint(0, (len(indices[c1]) - 1))
+            n2 = np.random.randint(0, (len(indices[c1]) - 1))
+            while (n1 == n2):
+                n2 = np.random.randint(0, (len(indices[c1]) - 1))
+        n3 = np.random.randint(0, (len(indices[c2]) - 1))
+        triplets.append([indices[c1][n1], indices[c1][n2], indices[c2][n3]])
+    return torch.LongTensor(np.array(triplets))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
+    for  ...  in:
+         ...  =  ... .randint
+
+idx = 64:------------------- similar code ------------------ index = 180, score = 1.0 
+def process_file(f):
+    diff = {}
+    p = f.split('p.')[1].split('.apple')[0]
+    p = float(p)
+    if (p not in diff):
+        diff[p] = []
+    model = make_model(game)
+    model.load_model(f)
+    model.make_env(render_mode=True)
+    model.env.reset()
+    dir_data = {0: [], 1: [], 2: [], 3: [], 4: []}
+    rew_data = worker(model, np.random.randint(1000000000))
+    action_data = np.asarray(rew_data[(- 1)])
+    (unique, counts) = np.unique(action_data, return_counts=True)
+    dir_dict = dict(zip(unique, ((1.0 * counts) / sum(counts))))
+    for k in range(100):
+        for direction in [0, 1, 2, 3, 4]:
+            model.make_env(render_mode=True)
+            model.env.reset()
+            obs = model.env.observe()
+            new_obs = model.env.step(direction)
+            new_obs = new_obs[0]
+            if (run_type == 'conv'):
+                sample = model.world_model.window_deterministic_predict_next_state(obs, direction)
+            if (run_type == 'near'):
+                sample = model.world_model.near_sight_deterministic_predict_next_state(obs, direction)
+            if (run_type == 'fc'):
+                sample = model.world_model.deterministic_predict_next_state(obs, direction)
+            diff_val = ((new_obs.reshape((- 1)) - sample.reshape((- 1))) ** 2.0).mean(axis=0)
+            dir_data[direction].append(diff_val)
+    mins = []
+    mins_probs = []
+    for i in [0, 1, 2, 3, 4]:
+        mins.append(np.mean(dir_data[i]))
+        if (i in dir_dict):
+            mins_probs.append((np.mean(dir_data[i]), dir_dict[i]))
+        else:
+            mins_probs.append((np.mean(dir_data[i]), 0.0))
+    cur_min = min(mins)
+    index_of_min = 0
+    for (i, k) in enumerate(mins):
+        if (k == cur_min):
+            index_of_min = i
+    index_of_max = 0
+    cur_max = 0
+    for i in range(5):
+        if (i in dir_dict):
+            if (cur_max < dir_dict[i]):
+                cur_max = dir_dict[i]
+                index_of_max = i
+    weighted_mins = 0
+    for i in range(5):
+        if (i in dir_dict):
+            weighted_mins += (dir_dict[i] * mins[i])
+    diff[p].append((cur_min, copy.deepcopy(rew_data[0]), mins_probs[index_of_max], weighted_mins))
+    return diff
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... ( ... ,  ... .randint)
+
+idx = 65:------------------- similar code ------------------ index = 224, score = 1.0 
+def random_binary(size):
+    return np.random.randint(0, 2, size, dtype=np.bool)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .randint
+
+idx = 66:------------------- similar code ------------------ index = 212, score = 1.0 
+def glass_blur(x, severity=1):
+    c = [(0.7, 1, 2), (0.9, 2, 1), (1, 2, 3), (1.1, 3, 2), (1.5, 4, 2)][(severity - 1)]
+    x = np.uint8((gaussian((np.array(x) / 255.0), sigma=c[0], multichannel=True) * 255))
+    for i in range(c[2]):
+        for h in range((args.CROP_SIZE - c[1]), c[1], (- 1)):
+            for w in range((args.CROP_SIZE - c[1]), c[1], (- 1)):
+                (dx, dy) = np.random.randint((- c[1]), c[1], size=(2,))
+                (h_prime, w_prime) = ((h + dy), (w + dx))
+                (x[(h, w)], x[(h_prime, w_prime)]) = (x[(h_prime, w_prime)], x[(h, w)])
+    return (np.clip(gaussian((x / 255.0), sigma=c[0], multichannel=True), 0, 1) * 255)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        for  ...  in:
+            for  ...  in:
+ =  ... .randint
+
+idx = 67:------------------- similar code ------------------ index = 213, score = 1.0 
+def _generate_sentence_pair(self, doc, doc_id, max_num_tokens, sizes):
+    '\n        Go through a single document and genrate sentence paris from it\n        '
+    current_chunk = []
+    current_length = 0
+    curr = 0
+    target_seq_length = max_num_tokens
+    if (np.random.random() < self.short_seq_prob):
+        target_seq_length = np.random.randint(2, max_num_tokens)
+    while (curr < len(doc)):
+        sent_id = doc[curr]
+        current_chunk.append(sent_id)
+        current_length = sum(sizes[current_chunk])
+        if ((curr == (len(doc) - 1)) or (current_length >= target_seq_length)):
+            a_end = 1
+            if (len(current_chunk) > 2):
+                a_end = np.random.randint(1, (len(current_chunk) - 1))
+            sent_a = current_chunk[:a_end]
+            len_a = sum(sizes[sent_a])
+            next_sent_label = (1 if ((np.random.rand() > 0.5) and (len(current_chunk) != 1)) else 0)
+            if (not next_sent_label):
+                target_b_length = (target_seq_length - len_a)
+                rand_doc_id = self._skip_sampling(len(self.block_indices), [doc_id])
+                random_doc = self.block_indices[rand_doc_id]
+                random_start = np.random.randint(0, len(random_doc))
+                sent_b = []
+                len_b = 0
+                for j in range(random_start, len(random_doc)):
+                    sent_b.append(random_doc[j])
+                    len_b = sum(sizes[sent_b])
+                    if (len_b >= target_b_length):
+                        break
+                num_unused_segments = (len(current_chunk) - a_end)
+                curr -= num_unused_segments
+            else:
+                sent_b = current_chunk[a_end:]
+                len_b = sum(sizes[sent_b])
+            (sent_a, sent_b) = self._truncate_sentences(sent_a, sent_b, max_num_tokens)
+            self.sent_pairs.append((sent_a, sent_b, next_sent_label))
+            self.sizes.append(((3 + sent_a[3]) + sent_b[3]))
+            current_chunk = []
+        curr += 1
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 68:------------------- similar code ------------------ index = 214, score = 1.0 
+def get_page(url):
+    time.sleep(random.randint(1, 4))
+    res = requests.get(url, headers=headers)
+    res.encoding = 'utf-8'
+    et = etree.HTML(res.text)
+    text_list = et.xpath('//*[@id="article"]/div/p/span/text()')
+    result = []
+    for text in text_list:
+        if is_chinese(text[0]):
+            pass
+        elif (text[1] == '：'):
+            result.append(text.split('：')[1])
+        else:
+            result.append(text.split(':')[1])
+    save_text(result)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... ( ... .randint)
+
+idx = 69:------------------- similar code ------------------ index = 215, score = 1.0 
+def generate_encoded_text(self, row):
+    nlp = self.nlp
+    pattern = self.pattern
+    category = (re.sub(pattern, '-', row[self.category_field].lower().strip()) if (self.category_field is not None) else None)
+    title = (row[self.title_field] if (self.title_field is not None) else None)
+    body = (row[self.body_field] if (self.body_field is not None) else None)
+    if (self.keywords_field is None):
+        text = re.sub(u'[‘’]', "'", re.sub(u'[“”]', '"', row[self.keyword_gen]))
+        doc = nlp(text)
+        keywords_pos = [(chunk.text if (chunk.pos_ == 'NOUN') else (chunk.lemma_ if (chunk.pos_ in ['VERB', 'ADJ', 'ADV']) else 'I')) for chunk in doc if (not chunk.is_stop)]
+        keywords_ents = [re.sub(' ', '-', chunk.text) for chunk in doc.ents]
+        keywords_compounds = [re.sub(' ', '-', chunk.text) for chunk in doc.noun_chunks if (len(chunk.text) < self.keyword_length_max)]
+        keywords = list((set(((keywords_pos + keywords_ents) + keywords_compounds)) - self.PRONOUNS))
+    else:
+        keywords = [keyword.strip() for keyword in row[self.keywords_field].split(self.keyword_sep)]
+        keywords = list(set(keywords))
+    encoded_texts = []
+    for _ in range(self.repeat):
+        new_keywords = keywords
+        shuffle(new_keywords)
+        new_keywords = ' '.join(new_keywords[:randint(0, self.max_keywords)])
+        encoded_texts.append(((((((self.start_token + self.build_section('category', category)) + self.build_section('keywords', new_keywords)) + self.build_section('title', title)) + self.build_section('body', body)) + self.end_token) + '\n'))
+    return encoded_texts
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+         ...  =  ... . ... ( ... [:randint])
+
+idx = 70:------------------- similar code ------------------ index = 216, score = 1.0 
+def __getitem__(self, index):
+    '\n        Args:\n            index (int): Index\n\n        Returns:\n            tuple: (image, target, semi_target, index)\n        '
+    index = ((index + self.offset) % self.size)
+    index = self.idxs[index]
+    if self.exclude_cifar:
+        while self.in_cifar(index):
+            index = np.random.randint(79302016)
+    img = self.load_image(index)
+    if (self.transform is not None):
+        img = self.transform(img)
+    return (img, 1, (- 1), index)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        while:
+             ...  =  ... .randint
+
+idx = 71:------------------- similar code ------------------ index = 217, score = 1.0 
+def __getitem__(self, idx):
+    sample = self.file_list[idx]
+    data = {}
+    rand_idx = (- 1)
+    if ('n_renderings' in self.options):
+        rand_idx = (random.randint(0, (self.options['n_renderings'] - 1)) if self.options['shuffle'] else 0)
+    for ri in self.options['required_items']:
+        file_path = sample[('%s_path' % ri)]
+        if (type(file_path) == list):
+            file_path = file_path[rand_idx]
+        data[ri] = IO.get(file_path).astype(np.float32)
+    if (self.transforms is not None):
+        data = self.transforms(data)
+    return (sample['taxonomy_id'], sample['model_id'], data)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = ( ... .randint if else  ... )
+
+idx = 72:------------------- similar code ------------------ index = 218, score = 1.0 
+@pytest.mark.filterwarnings('ignore: In LDPC applications, using systematic')
+@pytest.mark.parametrize('systematic, sparse', product([False, True], [False, True]))
+def test_image_gray(systematic, sparse):
+    n = 100
+    d_v = 3
+    d_c = 4
+    seed = 0
+    rnd = np.random.RandomState(seed)
+    (H, G) = make_ldpc(n, d_v, d_c, seed=seed, systematic=systematic, sparse=sparse)
+    assert (not binaryproduct(H, G).any())
+    (n, k) = G.shape
+    snr = 10
+    img = rnd.randint(0, 255, size=(3, 3))
+    img_bin = gray2bin(img)
+    img_shape = img_bin.shape
+    (coded, noisy) = ldpc_images.encode_img(G, img_bin, snr, seed)
+    x = ldpc_images.decode_img(G, H, coded, snr, img_shape=img_shape)
+    assert (ldpc_images.ber_img(img_bin, gray2bin(x)) == 0)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 73:------------------- similar code ------------------ index = 219, score = 1.0 
+def base_conversion(min_entropy, max_entropy):
+    'E.g., "What is 17 base 8 in base 10?".'
+    context = composition.Context()
+    from_base = random.randint(2, 16)
+    while True:
+        to_base = random.randint(2, 16)
+        if (to_base != from_base):
+            break
+    entropy_used = math.log10((16 * 15))
+    entropy = random.uniform((min_entropy - entropy_used), (max_entropy - entropy_used))
+    value = number.integer(entropy, signed=True)
+    template = random.choice(['{from_str} (base {from_base}) to base {to_base}', 'Convert {from_str} (base {from_base}) to base {to_base}.', 'What is {from_str} (base {from_base}) in base {to_base}?'])
+    return example.Problem(question=example.question(context, template, from_str=display.NumberInBase(value, from_base), from_base=from_base, to_base=to_base), answer=display.NumberInBase(value, to_base))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 74:------------------- similar code ------------------ index = 220, score = 1.0 
+def add_insertion_noise(self, tokens, p):
+    if (p == 0.0):
+        return tokens
+    num_tokens = len(tokens)
+    n = int(math.ceil((num_tokens * p)))
+    noise_indices = (torch.randperm(((num_tokens + n) - 2))[:n] + 1)
+    noise_mask = torch.zeros(size=((num_tokens + n),), dtype=torch.bool)
+    noise_mask[noise_indices] = 1
+    result = torch.LongTensor((n + len(tokens))).fill_((- 1))
+    num_random = int(math.ceil((n * self.random_ratio)))
+    result[noise_indices[num_random:]] = self.mask_idx
+    result[noise_indices[:num_random]] = torch.randint(low=1, high=len(self.vocab), size=(num_random,))
+    result[(~ noise_mask)] = tokens
+    assert (result >= 0).all()
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .randint
+
+idx = 75:------------------- similar code ------------------ index = 221, score = 1.0 
+def random_batch_(path, batch_size, shape, c_nums):
+    folder_names = os.listdir(path)
+    rand_select = np.random.randint(0, folder_names.__len__())
+    if (not (c_nums == folder_names.__len__())):
+        print('Error: c_nums must match the number of the folders')
+        return
+    y = np.zeros([1, c_nums])
+    y[(0, rand_select)] = 1
+    path = ((path + folder_names[rand_select]) + '//')
+    data = sio.loadmat((path + 'dataset.mat'))['data']
+    rand_select = np.random.randint(0, np.size(data, 0), [batch_size])
+    batch = data[rand_select]
+    return (batch, y)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 76:------------------- similar code ------------------ index = 222, score = 1.0 
+def collater(self, samples):
+    samples = [s for s in samples if ((s['source'] is not None) and (len(s['source']) > 0))]
+    if (len(samples) == 0):
+        return {}
+    sources = [s['source'] for s in samples]
+    sizes = [len(s) for s in sources]
+    target_size = min(min(sizes), self.max_sample_size)
+    if (target_size < self.min_length):
+        return {}
+    if (self.min_sample_size < target_size):
+        target_size = np.random.randint(self.min_sample_size, (target_size + 1))
+    collated_sources = sources[0].new(len(sources), target_size)
+    for (i, (source, size)) in enumerate(zip(sources, sizes)):
+        diff = (size - target_size)
+        assert (diff >= 0)
+        if (diff == 0):
+            collated_sources[i] = source
+        else:
+            collated_sources[i] = self.crop_to_max_size(source, target_size)
+    return {'id': torch.LongTensor([s['id'] for s in samples]), 'net_input': {'source': collated_sources}}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 77:------------------- similar code ------------------ index = 223, score = 1.0 
+def test_mow_turn_jump_validating(self):
+    width = height = 8
+    geneSet = [(lambda : Mow()), (lambda : Turn()), (lambda : Jump(random.randint(0, min(width, height)), random.randint(0, min(width, height))))]
+    minGenes = (width * height)
+    maxGenes = int((1.5 * minGenes))
+    maxMutationRounds = 3
+    expectedNumberOfInstructions = 79
+
+    def fnCreateField():
+        return lawnmower.ValidatingField(width, height, lawnmower.FieldContents.Grass)
+    self.run_with(geneSet, width, height, minGenes, maxGenes, expectedNumberOfInstructions, maxMutationRounds, fnCreateField, expectedNumberOfInstructions)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = [,, (lambda :  ... ( ... .randint,))]
+
+idx = 78:------------------- similar code ------------------ index = 225, score = 1.0 
+def finalize_goal_replay(self, goal_thresholds):
+    num_trans = len(self.temp_goal_replay_storage)
+    num_replay_goals = self.num_replay_goals
+    if (num_trans < self.num_replay_goals):
+        num_replay_goals = num_trans
+    indices = np.zeros(num_replay_goals)
+    indices[:(num_replay_goals - 1)] = np.random.randint(num_trans, size=(num_replay_goals - 1))
+    indices[(num_replay_goals - 1)] = (num_trans - 1)
+    indices = np.sort(indices)
+    for i in range(len(indices)):
+        trans_copy = np.copy(self.temp_goal_replay_storage)
+        new_goal = trans_copy[int(indices[i])][6]
+        for index in range(num_trans):
+            trans_copy[index][4] = new_goal
+            trans_copy[index][2] = self.get_reward(new_goal, trans_copy[index][6], goal_thresholds, self.FLAGS.rtype)
+            if (trans_copy[index][2] == 0):
+                trans_copy[index][5] = True
+            else:
+                trans_copy[index][5] = False
+            self.replay_buffer.add(trans_copy[index])
+    self.temp_goal_replay_storage = []
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .randint
+
+idx = 79:------------------- similar code ------------------ index = 181, score = 1.0 
+def batchMpiEval(pop, sameSeedForEachIndividual=True):
+    'Sends population to workers for evaluation one batch at a time.\n\n  Args:\n    pop - [Ind] - list of individuals\n      .wMat - (np_array) - weight matrix of network\n              [N X N] \n      .aVec - (np_array) - activation function of each node\n              [N X 1]\n\n  Return:\n    reward  - (np_array) - fitness value of each individual\n              [N X 1]\n\n  Todo:\n    * Asynchronous evaluation instead of batches\n  '
+    global nWorker, hyp
+    nSlave = (nWorker - 1)
+    nJobs = len(pop)
+    nBatch = math.ceil((nJobs / nSlave))
+    if (sameSeedForEachIndividual is False):
+        seed = np.random.randint(1000, size=nJobs)
+    else:
+        seed = np.random.randint(1000)
+    reward = np.empty(nJobs, dtype=np.float64)
+    i = 0
+    for iBatch in range(nBatch):
+        for iWork in range(nSlave):
+            if (i < nJobs):
+                wVec = pop[i].wMat.flatten()
+                n_wVec = np.shape(wVec)[0]
+                aVec = pop[i].aVec.flatten()
+                n_aVec = np.shape(aVec)[0]
+                comm.send(n_wVec, dest=(iWork + 1), tag=1)
+                comm.Send(wVec, dest=(iWork + 1), tag=2)
+                comm.send(n_aVec, dest=(iWork + 1), tag=3)
+                comm.Send(aVec, dest=(iWork + 1), tag=4)
+                if (sameSeedForEachIndividual is False):
+                    comm.send(seed.item(i), dest=(iWork + 1), tag=5)
+                else:
+                    comm.send(seed, dest=(iWork + 1), tag=5)
+            else:
+                n_wVec = 0
+                comm.send(n_wVec, dest=(iWork + 1))
+            i = (i + 1)
+        i -= nSlave
+        for iWork in range(1, (nSlave + 1)):
+            if (i < nJobs):
+                workResult = np.empty(1, dtype='d')
+                comm.Recv(workResult, source=iWork)
+                reward[i] = workResult
+            i += 1
+    return reward
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 80:------------------- similar code ------------------ index = 226, score = 1.0 
+def random_index():
+    return [random.randint(0, degrees[i]) for i in range(len(degrees))]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return [ ... .randint]
+
+idx = 81:------------------- similar code ------------------ index = 227, score = 1.0 
+def __call__(self, image, img_meta, tubes, labels, start_frame):
+    if random.randint(2):
+        alpha = random.uniform(self.lower, self.upper)
+        image = (image * alpha)
+    return (image, img_meta, tubes, labels, start_frame)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... .randint:
+idx = 82:------------------- similar code ------------------ index = 228, score = 1.0 
+def __call__(self, image, img_meta, tubes, labels, start_frame):
+    if random.randint(2):
+        delta = random.uniform((- self.delta), self.delta)
+        image = (image + delta)
+    return (image, img_meta, tubes, labels, start_frame)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... .randint:
+idx = 83:------------------- similar code ------------------ index = 229, score = 1.0 
+def sequence_next_term(min_entropy, max_entropy):
+    'E.g., "What is the next term in the sequence 1, 2, 3?".'
+    entropy = random.uniform(min_entropy, max_entropy)
+    context = composition.Context()
+    variable = sympy.Symbol(context.pop())
+    sequence = _PolynomialSequence(variable, entropy)
+    min_num_terms = sequence.min_num_terms
+    num_terms = random.randint(min_num_terms, (min_num_terms + 3))
+    sequence_sample = [sequence.term((n + 1)) for n in range(num_terms)]
+    sequence_sample = display.NumberList(sequence_sample)
+    template = random.choice(['What is next in {sequence}?', 'What comes next: {sequence}?', 'What is the next term in {sequence}?'])
+    answer = sequence.term((num_terms + 1))
+    return example.Problem(question=example.question(context, template, sequence=sequence_sample), answer=answer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 84:------------------- similar code ------------------ index = 230, score = 1.0 
+def like(self, media_id, double_tap=None, container_module='feed_short_url', feed_position=0, username=None, user_id=None, hashtag_name=None, hashtag_id=None, entity_page_name=None, entity_page_id=None):
+    data = self.action_data({'inventory_source': 'media_or_ad', 'media_id': media_id, '_csrftoken': self.token, 'radio_type': 'wifi-none', '_uid': self.user_id, '_uuid': self.uuid, 'is_carousel_bumped_post': 'false', 'container_module': container_module, 'feed_position': str(feed_position)})
+    if (container_module == 'feed_timeline'):
+        data.update({'inventory_source': 'media_or_ad'})
+    if username:
+        data.update({'username': username, 'user_id': user_id})
+    if hashtag_name:
+        data.update({'hashtag_name': hashtag_name, 'hashtag_id': hashtag_id})
+    if entity_page_name:
+        data.update({'entity_page_name': entity_page_name, 'entity_page_id': entity_page_id})
+    double_tap = random.randint(0, 1)
+    json_data = self.json_data(data)
+    self.logger.debug('post data: {}'.format(json_data))
+    return self.send_request(endpoint='media/{media_id}/like/'.format(media_id=media_id), post=json_data, extra_sig=['d={}'.format(double_tap)])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 85:------------------- similar code ------------------ index = 231, score = 1.0 
+def get_occluders(colors, materials):
+    occluders = []
+    occluder_rand = rand(0, 1)
+    init_pos = (rand((- 0.5), 0.5), rand((- 1.0), 1.0), 0)
+    half_width = rand(0.5, 1.5)
+    half_height = rand(0.5, 1.0)
+    scale = (OCCLUDER_HALF_WIDTH, half_width, half_height)
+    init_orn = (0, 0, rand((- 20), 20))
+    if (occluder_rand < 0.85):
+        joint_rand = rand(0, 1)
+        joint_t = np.random.randint(10, 25)
+        if (joint_rand < (1 / 6)):
+            joint_pattern = [(90, 90, joint_t), (90, 0, (250 - joint_t)), (0, 90, (250 - joint_t)), (90, 90, joint_t)]
+        elif (joint_rand < (1 / 3)):
+            joint_pattern = [(90, 90, joint_t), (90, 0, (250 - joint_t)), (0, (- 90), (250 - joint_t)), ((- 90), (- 90), joint_t)]
+        elif (joint_rand < 0.5):
+            joint_pattern = [((- 90), (- 90), joint_t), ((- 90), 0, (250 - joint_t)), (0, 90, (250 - joint_t)), (90, 90, joint_t)]
+        elif (joint_rand < (2 / 3)):
+            joint_pattern = [((- 90), (- 90), joint_t), ((- 90), 0, (250 - joint_t)), (0, (- 90), (250 - joint_t)), ((- 90), (- 90), joint_t)]
+        elif (joint_rand < (5 / 6)):
+            joint_pattern = [(0, 0, joint_t), (0, 90, (250 - joint_t)), (90, 0, (250 - joint_t)), (0, 0, joint_t)]
+        else:
+            joint_pattern = [(0, 0, joint_t), (0, (- 90), (250 - joint_t)), ((- 90), 0, (250 - joint_t)), (0, 0, joint_t)]
+        occluder = dict(shape='cube', color=colors.pop(), joint='revolute', material=materials.pop(), init_pos=init_pos, init_orn=init_orn, scale=scale, joint_pattern=joint_pattern)
+        occluders.append(occluder)
+    elif (occluder_rand < 0.9):
+        joint_rand = rand(0, 1)
+        if (joint_rand < 0.25):
+            joint_pattern = [(rand(0.6, 1.2), 0, 250), (0, rand(0.6, 1.2), 250)]
+        elif (joint_rand < 0.5):
+            joint_pattern = [(rand(0.6, 1.2), 0, 250), (0, rand((- 1.2), (- 0.6)), 250)]
+        elif (joint_rand < 0.75):
+            joint_pattern = [(rand((- 1.2), (- 0.6)), 0, 250), (0, rand(0.6, 1.2), 250)]
+        else:
+            joint_pattern = [(rand((- 1.2), (- 0.6)), 0, 250), (0, rand((- 1.2), (- 0.6)), 250)]
+        occluder = dict(shape='cube', color=colors.pop(), joint='prismatic', material=materials.pop(), init_pos=init_pos, init_orn=init_orn, scale=scale, joint_pattern=joint_pattern)
+        occluders.append(occluder)
+    return occluders
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
+
+idx = 86:------------------- similar code ------------------ index = 232, score = 1.0 
+def _mask_block(self, sentence: np.ndarray, mask_idx: int, pad_idx: int, dictionary_token_range: Tuple):
+    "\n        Mask tokens for Masked Language Model training\n        Samples mask_ratio tokens that will be predicted by LM.\n\n        Note:This function may not be efficient enough since we had multiple\n        conversions between np and torch, we can replace them with torch\n        operators later.\n\n        Args:\n            sentence: 1d tensor to be masked\n            mask_idx: index to use for masking the sentence\n            pad_idx: index to use for masking the target for tokens we aren't\n                predicting\n            dictionary_token_range: range of indices in dictionary which can\n                be used for random word replacement\n                (e.g. without special characters)\n        Return:\n            masked_sent: masked sentence\n            target: target with words which we are not predicting replaced\n                by pad_idx\n        "
+    masked_sent = np.copy(sentence)
+    sent_length = len(sentence)
+    mask_num = math.ceil((sent_length * self.masking_ratio))
+    mask = np.random.choice(sent_length, mask_num, replace=False)
+    target = np.copy(sentence)
+    for i in range(sent_length):
+        if (i in mask):
+            rand = np.random.random()
+            if (rand < self.masking_prob):
+                masked_sent[i] = mask_idx
+            elif (rand < (self.masking_prob + self.random_token_prob)):
+                masked_sent[i] = np.random.randint(dictionary_token_range[0], dictionary_token_range[1])
+        else:
+            target[i] = pad_idx
+    return (masked_sent, target)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+            if:            elif:
+ =  ... .randint
+
+idx = 87:------------------- similar code ------------------ index = 233, score = 1.0 
+if (__name__ == '__main__'):
+
+    class MyJob():
+
+        def __init__(self, id, countdown):
+            self.cntdwn = countdown
+            self.myid = id
+
+        def __call__(self):
+            with glck:
+                print(('[Job] ID: %s Starts.' % str(self.myid)))
+            while (self.cntdwn >= 0):
+                with glck:
+                    print(('[Job] ID: %s, CountDown: %d' % (str(self.myid), self.cntdwn)))
+                self.cntdwn -= 1
+                time.sleep(1.0)
+            with glck:
+                print(('[Job] ID: %s Ends.' % str(self.myid)))
+    wp = WorkPool()
+    wp.start()
+    glck = threading.Lock()
+    random.seed()
+    for i in range(50):
+        j = MyJob(i, random.randint(1, 10))
+        wp.append_job(j)
+    dj = set()
+    while (len(dj) < 50):
+        r = wp.retrieve_job()
+        if (None == r):
+            time.sleep(0.5)
+            continue
+        dj.add(r.myid)
+    print('[Main] All job done. Joining work pool...')
+    wp.join()
+    print('[Main] Work pool has joined.')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+
+    for  ...  in:
+         ...  =  ... ( ... ,  ... .randint)
+
+idx = 88:------------------- similar code ------------------ index = 234, score = 1.0 
+def __init__(self, image_paths: List[str], mask_paths: List[str], image_size: Tuple[int], channels: Tuple[int]=(3, 3), crop_percent: float=None, seed: int=None, augment: bool=True, compose: bool=False, one_hot_encoding: bool=False, palette=None):
+    '\n        Initializes the data loader object\n        Args:\n            image_paths: List of paths of train images.\n            mask_paths: List of paths of train masks (segmentation masks)\n            image_size: Tuple, the final height, width of the loaded images.\n            channels: Tuple of ints, first element is number of channels in images,\n                      second is the number of channels in the mask image (needed to\n                      correctly read the images into tensorflow and apply augmentations)\n            crop_percent: Float in the range 0-1, defining percentage of image \n                          to randomly crop.\n            palette: A list of RGB pixel values in the mask. If specified, the mask\n                     will be one hot encoded along the channel dimension.\n            seed: An int, if not specified, chosen randomly. Used as the seed for \n                  the RNG in the data pipeline.\n        '
+    self.image_paths = image_paths
+    self.mask_paths = mask_paths
+    self.palette = palette
+    self.image_size = image_size
+    self.augment = augment
+    self.compose = compose
+    self.one_hot_encoding = one_hot_encoding
+    if (crop_percent is not None):
+        if (0.0 < crop_percent <= 1.0):
+            self.crop_percent = tf.constant(crop_percent, tf.float32)
+        elif (0 < crop_percent <= 100):
+            self.crop_percent = tf.constant((crop_percent / 100.0), tf.float32)
+        else:
+            raise ValueError('Invalid value entered for crop size. Please use an                                   integer between 0 and 100, or a float between 0 and 1.0')
+    else:
+        self.crop_percent = None
+    self.channels = channels
+    if (seed is None):
+        self.seed = random.randint(0, 1000)
+    else:
+        self.seed = seed
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+ =  ... .randint
+
+idx = 89:------------------- similar code ------------------ index = 235, score = 1.0 
+def __call__(self, images, img_meta, tubes, labels, start_frame):
+    if random.randint(2):
+        res = self.mirror(images, tubes)
+        images = res[0]
+        tubes = res[1]
+    return (images, img_meta, tubes, labels, start_frame)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if  ... .randint:
+idx = 90:------------------- similar code ------------------ index = 236, score = 1.0 
+def test_librispeech_clean(logger):
+    audio_conf = dict(sample_rate=SAMPLE_RATE, window_size=0.02, window_stride=0.01, labels='ABCDEFGHIJKLMNOPQRSTUVWXYZ', normalize=True, augment=False)
+    processor = AudioDataProcessor(**audio_conf)
+    manifest_directory = os.path.join(os.path.expanduser('~'), LIBRI_SPEECH_DIR)
+    test_manifest = os.path.join(manifest_directory, 'libri_test_clean_manifest.csv')
+    if (not os.path.exists(test_manifest)):
+        try_download_librispeech(LIBRI_SPEECH_DIR, SAMPLE_RATE, ['test-clean.tar.gz', 'test-other.tar.gz'], 1, 15)
+    assert os.path.exists(test_manifest)
+    test_dataset = AudioDataset(processor, manifest_filepath=test_manifest)
+    logger.info('Dataset is created')
+    if os.path.exists(TEST_WAVS_DIR):
+        os.removedirs(TEST_WAVS_DIR)
+    os.makedirs(TEST_WAVS_DIR)
+    n_samples = len(test_dataset)
+    ids = np.random.randint(n_samples, size=min(10, n_samples))
+    for index in ids:
+        (sound, transcription) = test_dataset.get_raw(index)
+        librosa.output.write_wav(os.path.join(TEST_WAVS_DIR, f'audio_{index}.wav'), sound, SAMPLE_RATE)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .randint
+
+idx = 91:------------------- similar code ------------------ index = 237, score = 1.0 
+def make_random_timeseries():
+    length = random.randint(1, 10)
+    result = TimeSeries()
+    t = 0
+    for i in range(length):
+        t += random.randint(0, 5)
+        x = random.randint(0, 5)
+        result[t] = x
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 92:------------------- similar code ------------------ index = 211, score = 1.0 
+def shuffle_in_place(genes, first, last):
+    while (first < last):
+        index = random.randint(first, last)
+        (genes[first], genes[index]) = (genes[index], genes[first])
+        first += 1
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    while:
+         ...  =  ... .randint
+
+idx = 93:------------------- similar code ------------------ index = 210, score = 1.0 
+def apply_core(self, x, y):
+    if (x is not None):
+        (h, w, d) = (x[0].shape[axis] for axis in (_row_axis, _col_axis, _depth_axis))
+    elif (y is not None):
+        (h, w, d) = (y[0].shape[axis] for axis in (_row_axis, _col_axis, _depth_axis))
+    else:
+        return (x, y)
+    x_s = np.random.randint(0, ((h - self._size[0]) + 1))
+    x_e = (x_s + self._size[0])
+    y_s = np.random.randint(0, ((w - self._size[1]) + 1))
+    y_e = (y_s + self._size[1])
+    z_s = np.random.randint(0, ((d - self._size[2]) + 1))
+    z_e = (z_s + self._size[2])
+    if (x is not None):
+        x = [crop(x_i, x_s, x_e, y_s, y_e, z_s, z_e) for x_i in x]
+    if (y is not None):
+        y = [crop(y_i, x_s, x_e, y_s, y_e, z_s, z_e) for y_i in y]
+    return (x, y)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 94:------------------- similar code ------------------ index = 209, score = 1.0 
+if (__name__ == '__main__'):
+    n_measurement_nodes = 10
+    x_coord = 'x'
+    y_coord = 'y'
+    weight = 'length'
+    query_radius = 5
+    length_buffer = 0.05
+    n_routes = 500
+    verbose = False
+    run_all = True
+    truth_dir = '/raid/cosmiq/spacenet/data/spacenetv2/AOI_2_Vegas_Test/400m/gt_graph_pkls'
+    prop_dir = 'raid/cosmiq/basiss/inference_mod_new/results/rgb_test_sn_vegas/graphs'
+    name_list = os.listdir(truth_dir)
+    f = name_list[np.random.randint(len(name_list))]
+    print(('f:', f))
+    t0 = time.time()
+    outroot = f.split('.')[0]
+    print('\noutroot:', outroot)
+    gt_file = os.path.join(truth_dir, f)
+    prop_file = os.path.join(prop_dir, (outroot + '.gpickle'))
+    G_gt_init = nx.read_gpickle(gt_file)
+    G_gt_init1 = osmnx_funcs.simplify_graph(G_gt_init.to_directed()).to_undirected()
+    G_gt_init = osmnx_funcs.project_graph(G_gt_init1)
+    G_gt_init = apls.create_edge_linestrings(G_gt_init, remove_redundant=True, verbose=False)
+    print(('G_gt_init.nodes():', G_gt_init.nodes()))
+    (u, v) = G_gt_init.edges()[0]
+    print(('random edge props:', G_gt_init.edge[u][v]))
+    G_p_init = nx.read_gpickle(prop_file)
+    G_p_init = apls.create_edge_linestrings(G_p_init, remove_redundant=True, verbose=False)
+    t0 = time.time()
+    print('\nComputing score...')
+    (match_list, score) = compute_sp(G_gt_init, G_p_init, x_coord=x_coord, y_coord=y_coord, weight=weight, query_radius=query_radius, length_buffer=length_buffer, n_routes=n_routes, make_plots=True, verbose=verbose)
+    print(('score:', score))
+    print(('Time to compute score:', (time.time() - t0), 'seconds'))
+    if run_all:
+        t0 = time.time()
+        plt.close('all')
+        score_list = []
+        match_list = []
+        for (i, f) in enumerate(name_list):
+            if (i == 0):
+                make_plots = True
+            else:
+                make_plots = False
+            outroot = f.split('.')[0]
+            print('\n', i, '/', len(name_list), 'outroot:', outroot)
+            gt_file = os.path.join(truth_dir, f)
+            G_gt_init = nx.read_gpickle(gt_file)
+            G_gt_init = apls.create_edge_linestrings(G_gt_init, remove_redundant=True, verbose=False)
+            if (len(G_gt_init.nodes()) == 0):
+                continue
+            prop_file = os.path.join(prop_dir, (outroot + '.gpickle'))
+            if (not os.path.exists(prop_file)):
+                score_list.append(0)
+                continue
+            G_p_init0 = nx.read_gpickle(prop_file)
+            G_p_init1 = osmnx_funcs.simplify_graph(G_p_init0.to_directed()).to_undirected()
+            G_p_init = osmnx_funcs.project_graph(G_p_init1)
+            G_p_init = apls.create_edge_linestrings(G_p_init, remove_redundant=True, verbose=False)
+            (match_list_tmp, score) = compute_sp(G_gt_init, G_p_init, x_coord=x_coord, y_coord=y_coord, weight=weight, query_radius=query_radius, length_buffer=length_buffer, n_routes=n_routes, make_plots=make_plots, verbose=verbose)
+            score_list.append(score)
+            match_list.extend(match_list_tmp)
+        sp_tot = ((1.0 * np.sum(match_list)) / len(match_list))
+        print(('Total sp metric for', len(name_list), 'files:'))
+        print(('  query_radius:', query_radius, 'length_buffer:', length_buffer))
+        print(('  n_measurement_nodes:', n_measurement_nodes, 'n_routes:', n_routes))
+        print(('  total time elapsed to compute sp and make plots:', (time.time() - t0), 'seconds'))
+        print(('  total sp:', sp_tot))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ...  =  ... [ ... .randint]
+
+idx = 95:------------------- similar code ------------------ index = 208, score = 1.0 
+def find_indices_srnn(data_set, action):
+    seed = 1234567890
+    rng = np.random.RandomState(seed)
+    subject = 5
+    T1 = data_set[(subject, action, 1, 'even')].shape[0]
+    T2 = data_set[(subject, action, 2, 'even')].shape[0]
+    (prefix, suffix) = (50, 100)
+    idx = []
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T1 - prefix) - suffix)))
+    idx.append(rng.randint(16, ((T2 - prefix) - suffix)))
+    return idx
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... ( ... .randint)
+
+idx = 96:------------------- similar code ------------------ index = 121, score = 1.0 
+def get_random_genre():
+    return GENRE_CHOICES[random.randint(0, (len(GENRE_CHOICES) - 1))][0]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... [ ... .randint]
+
+idx = 97:------------------- similar code ------------------ index = 183, score = 1.0 
+def _draw_resample_index(n, seed):
+    'Compute vector of randomly drawn indices with replacement.\n\n    Draw indices with replacement from the discrete uniform distribution\n    on {0,...,n-1}. We control the randomness by setting the seed to *seed*.\n    If *seed* = -1 we return all indices {0,...,n-1} for debugging.\n\n    Args:\n        n (int): Upper bound for indices and number of indices to draw\n        seed (int): Random number seed.\n\n    Returns:\n        indices (np.array): Resample indices.\n\n    '
+    if (seed == (- 1)):
+        return np.arange(n)
+    np.random.seed(seed)
+    indices = np.random.randint(0, n, n)
+    return indices
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .randint
+
+idx = 98:------------------- similar code ------------------ index = 184, score = 1.0 
+def sort_danger_farms_thread(browser: client, farmlists: list, to_list: int, red: bool, yellow: bool, interval: int) -> None:
+    time.sleep(randint(0, 10))
+    while True:
+        sort_danger_farms(browser, farmlists, to_list, red, yellow)
+        time.sleep((interval + randint(0, 10)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () -> None:
+     ... . ... (randint)
+
+idx = 99:------------------- similar code ------------------ index = 185, score = 1.0 
+def collater(self, samples):
+    samples = [s for s in samples if ((s['source'] is not None) and (len(s['source']) > 0))]
+    if (len(samples) == 0):
+        return {}
+    sources = [s['source'] for s in samples]
+    sizes = [len(s) for s in sources]
+    target_size = min(min(sizes), self.max_sample_size)
+    if (target_size < self.min_length):
+        return {}
+    if (self.min_sample_size < target_size):
+        target_size = np.random.randint(self.min_sample_size, (target_size + 1))
+    collated_sources = sources[0].new(len(sources), target_size)
+    for (i, (source, size)) in enumerate(zip(sources, sizes)):
+        diff = (size - target_size)
+        assert (diff >= 0)
+        if (diff == 0):
+            collated_sources[i] = source
+        else:
+            collated_sources[i] = self.crop_to_max_size(source, target_size)
+    return {'id': torch.LongTensor([s['id'] for s in samples]), 'net_input': {'source': collated_sources}}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .randint
 

@@ -1,8 +1,963 @@
+------------------------- example 1 ------------------------ 
+def image_callback(self):
+    request = [airsim.ImageRequest('fpv_cam', airsim.ImageType.Scene, False, False)]
+// your code ...
+    if self.viz_image_cv2:
+        cv2.imshow('img_rgb', img_rgb)
+        cv2.waitKey(1)
+
+------------------------- example 2 ------------------------ 
+if (__name__ == '__main__'):
+    images = []
+// your code ...
+    image = cv2.imread(filepath)
+    preprocess = cv2.resize(preprocessImage(image), (540, 540))
+    preprocess = cv2.bitwise_not(preprocess, preprocess)
+    coords = getCoords(preprocess)
+    preprocess = cv2.cvtColor(preprocess, cv2.COLOR_GRAY2BGR)
+    coordsImage = preprocess.copy()
+    for coord in coords:
+        cv2.circle(coordsImage, (coord[0], coord[1]), 5, (255, 0, 0), (- 1))
+    warpedImage = warp(preprocess, coords)
+    rects = displayGrid(warpedImage)
+    tiles = extractGrid(warpedImage, rects)
+    for (i, tile) in enumerate(tiles):
+        preprocess = preprocessImage(tile)
+        (flag, centered) = centeringImage(preprocess)
+        centeredImage = cv2.resize(centered, (32, 32))
+        images.append(centeredImage)
+        centeredImage = torch.Tensor(centeredImage).unsqueeze(dim=0).unsqueeze(dim=0)
+        preds = model(centeredImage)
+        (_, prediction) = torch.max(preds, dim=1)
+        if flag:
+            predictions.append((prediction.item() + 1))
+        else:
+            predictions.append(0)
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+// your code ...
+    if (0 in final):
+// your code ...
+    else:
+        print(final)
+        solutionBoard = cv2.imread('./boards/blank.png')
+        solutionImage = displaySolution(solutionBoard, final, predictions)
+        print("Press 'q' to quit...")
+        while True:
+            cv2.imshow('Original Image', image)
+            cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cv2.destroyAllWindows()
+                break
+
+------------------------- example 3 ------------------------ 
+def showImgs(self, imgrequest=None, range=10, imgfilters=[], shuffle=True):
+    "\n        :param imgrequest: list, images names you want to request, eg. ['1-HIT_canteen/IMG_1_4.jpg', ...]\n        :param range: number of image to show\n        :param imgfilters: essential keywords in image name\n        :param shuffle: shuffle all image\n        :return:\n        "
+    if ((imgrequest is None) or (not isinstance(imgrequest, list))):
+        allnames = list(self.annos.keys())
+// your code ...
+        if range:
+            if (isinstance(range, int) and (range <= len(imgnames))):
+// your code ...
+    else:
+// your code ...
+    for imgname in imgnames:
+        imgpath = os.path.join(self.imagepath, imgname)
+// your code ...
+        cv2.putText(img, 'Press any button to continue', (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.imshow(util.custombasename(imgname), img)
+        cv2.waitKey(0)
+
+------------------------- example 4 ------------------------ 
+if (__name__ == '__main__'):
+    if (os.name == 'nt'):
+// your code ...
+    while RUN_FLAG:
+        image = launcher(imdir)
+// your code ...
+        try:
+            image_orig = cv2.imread(image, cv2.IMREAD_COLOR)
+        except:
+// your code ...
+        cv2.namedWindow('STEFANN')
+        grid = False
+// your code ...
+        invert = 0
+        cntmin = 0
+        cntidx = 0
+// your code ...
+        step = 1
+        cv2.setMouseCallback('STEFANN', select_region, points)
+        image_scaled = image_orig.copy()
+        while (step == 1):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+// your code ...
+            elif ((key == 82) or (key == 114)):
+                fscale = 1.0
+// your code ...
+                image_scaled = image_orig.copy()
+                points.clear()
+            elif (key == 43):
+// your code ...
+            elif (key == 45):
+                fscale = round(max((fscale - DELTA_FSCALE), 0.2), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+// your code ...
+            elif (key == 13):
+// your code ...
+            cv2.imshow('STEFANN', image_work)
+        cv2.setMouseCallback('STEFANN', select_region, None)
+// your code ...
+        while (step == 2):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+// your code ...
+            elif (key == 42):
+                cntmin = min((cntmin + DELTA_CNTMIN), (image_mask.shape[0] * image_mask.shape[1]))
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Increased allowed contour area -> {cntmin}'))
+// your code ...
+            elif (key == 47):
+// your code ...
+            elif (key == 32):
+                cntidx = (((cntidx + 1) % len(contours)) if (len(contours) > 0) else (- 1))
+            elif (((key >= 65) and (key <= 90)) or ((key >= 97) and (key <= 122))):
+// your code ...
+            cv2.imshow('STEFANN', image_work)
+        if edited:
+// your code ...
+    colorama.deinit()
+// your code ...
+
+------------------------- example 5 ------------------------ 
+def predicting(data, image_paths, model):
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    print(preds)
+    for (i, imagePath) in enumerate(image_paths):
+        image = cv2.imread(imagePath)
+        cv2.putText(image, 'Label: {}'.format(classLabels[preds[i]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.imshow('Image', image)
+        cv2.waitKey(0)
+
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        5         ||         1        ||        0.0         
+example2  ||          2           ||        39         ||         3        ||        0.0         
+example3  ||          2           ||        12         ||         4        ||        0.0         
+example4  ||          2           ||        42         ||         17        ||        0.0         
+example5  ||          2           ||        8         ||         0        ||        0.0         
 
-avg       ||          0           ||        0         ||         0        ||         0        
+avg       ||          4.3478260869565215           ||        21.2         ||         5.0        ||         0.0        
 
-idx = 0:------------------- similar code ------------------ index = 3, score = 7.0 
+idx = 0:------------------- similar code ------------------ index = 31, score = 7.0 
+def showAnns(self, imgrequest=None, range=10, imgfilters=[], shuffle=True, saveimg=False):
+    "\n        :param imgrequest: list, images names you want to request, eg. ['1-HIT_canteen/IMG_1_4.jpg', ...]\n        :param range: number of image to show\n        :param imgfilters: essential keywords in image name\n        :param shuffle: shuffle all image\n        :return:\n        "
+    savedir = 'results/image'
+    if (saveimg and (not os.path.exists(savedir))):
+        os.makedirs(savedir)
+    if ((imgrequest is None) or (not isinstance(imgrequest, list))):
+        allnames = list(self.annos.keys())
+        imgnames = ([] if imgfilters else allnames)
+        if imgfilters:
+            for imgname in allnames:
+                iskeep = False
+                for imgfilter in imgfilters:
+                    if (imgfilter in imgname):
+                        iskeep = True
+                if iskeep:
+                    imgnames.append(imgname)
+        if shuffle:
+            random.shuffle(imgnames)
+        if range:
+            if (isinstance(range, int) and (range <= len(imgnames))):
+                imgnames = imgnames[:range]
+    else:
+        imgnames = imgrequest
+    for imgname in imgnames:
+        imgpath = os.path.join(self.imagepath, imgname)
+        img = self.loadImg(imgpath)
+        if (img is None):
+            continue
+        if (self.annomode == 'person'):
+            imgwithann = self._addPersonAnns(imgname, img)
+        elif (self.annomode == 'vehicle'):
+            imgwithann = self._addVehicleAnns(imgname, img)
+        elif (self.annomode == 'person&vehicle'):
+            imgwithann = self._addPersonVehicleAnns(imgname, img)
+        elif (self.annomode == 'headbbox'):
+            imgwithann = self._addHeadbboxAnns(imgname, img)
+        elif (self.annomode == 'headpoint'):
+            imgwithann = self._addHeadpointAnns(imgname, img)
+        if saveimg:
+            cv2.imwrite(os.path.join(savedir, (util.custombasename(imgname) + '.jpg')), imgwithann)
+        cv2.putText(img, 'Press any button to continue', (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.imshow('image_with_anno', imgwithann)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for  ...  in  ... :
+        cv2.imshow
+
+idx = 1:------------------- similar code ------------------ index = 30, score = 7.0 
+def image_callback(self):
+    request = [airsim.ImageRequest('fpv_cam', airsim.ImageType.Scene, False, False)]
+    response = self.airsim_client_images.simGetImages(request)
+    img_rgb_1d = np.fromstring(response[0].image_data_uint8, dtype=np.uint8)
+    img_rgb = img_rgb_1d.reshape(response[0].height, response[0].width, 3)
+    if self.viz_image_cv2:
+        cv2.imshow('img_rgb', img_rgb)
+        cv2.waitKey(1)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    if:
+        cv2.imshow
+
+idx = 2:------------------- similar code ------------------ index = 1, score = 7.0 
+if (__name__ == '__main__'):
+    images = []
+    predictions = []
+    filepath = raw_input('Enter an image filepath : ')
+    image = cv2.imread(filepath)
+    preprocess = cv2.resize(preprocessImage(image), (540, 540))
+    preprocess = cv2.bitwise_not(preprocess, preprocess)
+    coords = getCoords(preprocess)
+    preprocess = cv2.cvtColor(preprocess, cv2.COLOR_GRAY2BGR)
+    coordsImage = preprocess.copy()
+    for coord in coords:
+        cv2.circle(coordsImage, (coord[0], coord[1]), 5, (255, 0, 0), (- 1))
+    warpedImage = warp(preprocess, coords)
+    rects = displayGrid(warpedImage)
+    tiles = extractGrid(warpedImage, rects)
+    for (i, tile) in enumerate(tiles):
+        preprocess = preprocessImage(tile)
+        (flag, centered) = centeringImage(preprocess)
+        centeredImage = cv2.resize(centered, (32, 32))
+        images.append(centeredImage)
+        centeredImage = torch.Tensor(centeredImage).unsqueeze(dim=0).unsqueeze(dim=0)
+        preds = model(centeredImage)
+        (_, prediction) = torch.max(preds, dim=1)
+        if flag:
+            predictions.append((prediction.item() + 1))
+        else:
+            predictions.append(0)
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+    print('Solving...')
+    solver = SudokuSolver(board)
+    solver.solve()
+    final = solver.board
+    if (0 in final):
+        print('Error occured while solving, try another image!')
+    else:
+        print(final)
+        solutionBoard = cv2.imread('./boards/blank.png')
+        solutionImage = displaySolution(solutionBoard, final, predictions)
+        print("Press 'q' to quit...")
+        while True:
+            cv2.imshow('Original Image', image)
+            cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cv2.destroyAllWindows()
+                break
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    if:    else:
+        while True:
+            cv2.imshow
+
+idx = 3:------------------- similar code ------------------ index = 2, score = 7.0 
+def showImgs(self, imgrequest=None, range=10, imgfilters=[], shuffle=True):
+    "\n        :param imgrequest: list, images names you want to request, eg. ['1-HIT_canteen/IMG_1_4.jpg', ...]\n        :param range: number of image to show\n        :param imgfilters: essential keywords in image name\n        :param shuffle: shuffle all image\n        :return:\n        "
+    if ((imgrequest is None) or (not isinstance(imgrequest, list))):
+        allnames = list(self.annos.keys())
+        imgnames = ([] if imgfilters else allnames)
+        if imgfilters:
+            for imgname in allnames:
+                iskeep = False
+                for imgfilter in imgfilters:
+                    if (imgfilter in imgname):
+                        iskeep = True
+                if iskeep:
+                    imgnames.append(imgname)
+        if shuffle:
+            random.shuffle(imgnames)
+        if range:
+            if (isinstance(range, int) and (range <= len(imgnames))):
+                imgnames = imgnames[:range]
+    else:
+        imgnames = imgrequest
+    for imgname in imgnames:
+        imgpath = os.path.join(self.imagepath, imgname)
+        img = self.loadImg(imgpath)
+        if (img is None):
+            continue
+        cv2.putText(img, 'Press any button to continue', (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.imshow(util.custombasename(imgname), img)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for  ...  in  ... :
+        cv2.imshow
+
+idx = 4:------------------- similar code ------------------ index = 3, score = 7.0 
+if (__name__ == '__main__'):
+    if (os.name == 'nt'):
+        os.system('cls')
+    else:
+        os.system('clear')
+    colorama.init(autoreset=True)
+    imdir = None
+    print(APP_INFO)
+    print((colorama.Fore.LIGHTBLACK_EX + '[DEBUG] Loading application... '), end='')
+    if RUN_FLAG:
+        print((colorama.Fore.LIGHTGREEN_EX + 'done'))
+    else:
+        print((colorama.Fore.LIGHTRED_EX + 'integrity failure'))
+    while RUN_FLAG:
+        image = launcher(imdir)
+        if (image is None):
+            print((colorama.Fore.LIGHTBLACK_EX + '[DEBUG] Exiting application...'))
+            break
+        elif (not os.path.isfile(image)):
+            print((colorama.Fore.LIGHTRED_EX + '[ERROR] File does not exist'))
+            continue
+        try:
+            image_orig = cv2.imread(image, cv2.IMREAD_COLOR)
+        except:
+            image_orig = None
+        if (image_orig is None):
+            print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to read image'))
+            continue
+        else:
+            print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Loaded new image from: {image}'))
+            imdir = os.path.dirname(image)
+        cv2.namedWindow('STEFANN')
+        grid = False
+        fscale = 1.0
+        points = []
+        thresh = 150
+        invert = 0
+        cntmin = 0
+        cntidx = 0
+        edited = False
+        step = 1
+        cv2.setMouseCallback('STEFANN', select_region, points)
+        image_scaled = image_orig.copy()
+        while (step == 1):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Operation canceled'))
+                break
+            elif ((key == 71) or (key == 103)):
+                grid = (not grid)
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Toggled grids -> {grid}'))
+            elif ((key == 82) or (key == 114)):
+                fscale = 1.0
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = image_orig.copy()
+                points.clear()
+            elif (key == 43):
+                fscale = round(min((fscale + DELTA_FSCALE), 5.0), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = cv2.resize(image_orig, None, fx=fscale, fy=fscale)
+                points.clear()
+            elif (key == 45):
+                fscale = round(max((fscale - DELTA_FSCALE), 0.2), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = cv2.resize(image_orig, None, fx=fscale, fy=fscale)
+                points.clear()
+            elif (key == 13):
+                step += 1
+            image_work = (draw_grid(image_scaled) if grid else image_scaled.copy())
+            image_work = draw_region(image_work, points)
+            cv2.imshow('STEFANN', image_work)
+        cv2.setMouseCallback('STEFANN', select_region, None)
+        image_edit = image_scaled.copy()
+        image_gray = cv2.cvtColor(image_scaled, cv2.COLOR_BGR2GRAY)
+        image_mask = binarize(image_gray, points, thresh, 255, invert)
+        (contours, bndboxes) = find_contours(image_mask, cntmin)
+        while (step == 2):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Operation canceled'))
+                break
+            elif (key == 43):
+                thresh = min((thresh + DELTA_THRESH), 255)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Increased threshold -> {thresh}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 45):
+                thresh = max((thresh - DELTA_THRESH), 0)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Decreased threshold -> {thresh}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 9):
+                invert = int((not invert))
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Invert thresholding -> {invert}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 42):
+                cntmin = min((cntmin + DELTA_CNTMIN), (image_mask.shape[0] * image_mask.shape[1]))
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Increased allowed contour area -> {cntmin}'))
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 47):
+                cntmin = max((cntmin - DELTA_CNTMIN), 0)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Decreased allowed contour area -> {cntmin}'))
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 32):
+                cntidx = (((cntidx + 1) % len(contours)) if (len(contours) > 0) else (- 1))
+            elif (((key >= 65) and (key <= 90)) or ((key >= 97) and (key <= 122))):
+                if ((key >= 97) and (key <= 122)):
+                    key -= 32
+                print((colorama.Fore.CYAN + f'[DEBUG] Inserting character -> {chr(key)}'))
+                try:
+                    (image_mask, image_edit) = edit_char(image_edit, image_mask, contours, bndboxes, cntidx, chr(key), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', NET_F, NET_C)
+                except:
+                    print((colorama.Fore.LIGHTRED_EX + '[ERROR] Operation failed'))
+                    continue
+                image_gray = cv2.cvtColor(image_edit, cv2.COLOR_BGR2GRAY)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+                edited = True
+            elif (key == 8):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Reset modifications'))
+                image_edit = image_scaled.copy()
+                image_gray = cv2.cvtColor(image_scaled, cv2.COLOR_BGR2GRAY)
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+                edited = False
+            elif (key == 13):
+                step += 1
+            image_work = draw_contours(image_mask, contours, cntidx, (0, 255, 0), cv2.COLOR_GRAY2BGR)
+            cv2.imshow('STEFANN', image_work)
+        if edited:
+            image_edit = watermark(image_edit, 'Edited with STEFANN', alpha=0.3, position=3)
+            (root, ext) = os.path.splitext(image)
+            file_path = (((root + '_') + timestamp()) + ext)
+            try:
+                cv2.imwrite(file_path, image_edit)
+                print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Edited image saved as: {file_path}'))
+            except:
+                print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to write image'))
+        change = False
+        layout = 0
+        labels = False
+        fscale = 1.0
+        image_work = image_edit.copy()
+        while (step == 3):
+            key = (cv2.waitKey(1) & 255)
+            if ((key == 13) or (key == 27)):
+                break
+            elif (key == 32):
+                layout = ((layout + 1) % 6)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Select layout -> {layout}'))
+                change = True
+            elif (key == 9):
+                labels = (not labels)
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Toggled label -> {labels}'))
+                change = True
+            elif (key == 43):
+                fscale = round(min((fscale + DELTA_FSCALE), 2.5), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif (key == 45):
+                fscale = round(max((fscale - DELTA_FSCALE), 0.2), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif ((key == 82) or (key == 114)):
+                fscale = 1.0
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif ((key == 83) or (key == 115)):
+                (root, ext) = os.path.splitext(image)
+                file_path = (((root + '_') + timestamp()) + ext)
+                try:
+                    cv2.imwrite(file_path, image_work)
+                    print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Image layout saved as: {file_path}'))
+                except:
+                    print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to write image'))
+            if change:
+                image_work_0 = cv2.resize(image_scaled, None, fx=fscale, fy=fscale)
+                image_work_1 = cv2.resize(image_edit, None, fx=fscale, fy=fscale)
+                (rows, cols) = image_work_0.shape[:2]
+                h_bar_1 = numpy.zeros((10, cols, 3), numpy.uint8)
+                v_bar_1 = numpy.zeros((rows, 10, 3), numpy.uint8)
+                if labels:
+                    image_work_0 = watermark(image_work_0, 'ORIGINAL', 20, color=(255, 255, 0), alpha=0.7, position=4)
+                    image_work_1 = watermark(image_work_1, 'EDITED', 20, color=(0, 255, 0), alpha=0.7, position=4)
+                if (layout == 0):
+                    image_work = image_work_1.copy()
+                elif (layout == 1):
+                    image_work = image_work_0.copy()
+                elif (layout == 2):
+                    image_work = numpy.hstack((image_work_0, v_bar_1, image_work_1))
+                elif (layout == 3):
+                    image_work = numpy.hstack((image_work_1, v_bar_1, image_work_0))
+                elif (layout == 4):
+                    image_work = numpy.vstack((image_work_0, h_bar_1, image_work_1))
+                elif (layout == 5):
+                    image_work = numpy.vstack((image_work_1, h_bar_1, image_work_0))
+                change = False
+            cv2.imshow('STEFANN', image_work)
+        cv2.destroyAllWindows()
+    colorama.deinit()
+    time.sleep(2)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    while  ... :
+        while:
+            cv2.imshow
+
+idx = 5:------------------- similar code ------------------ index = 4, score = 7.0 
+def test(self):
+    for i in range(1, 9):
+        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
+        now = datetime.now()
+        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
+        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
+        for bbox in bboxes:
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        if (max(im.shape[:2]) > 1440):
+            scale = (1440 / max(im.shape[:2]))
+            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+        cv2.imshow('im', im)
+        cv2.waitKey(5000)
+        cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    for  ...  in:
+        cv2.imshow
+
+idx = 6:------------------- similar code ------------------ index = 5, score = 7.0 
+def predicting(data, image_paths, model):
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    print(preds)
+    for (i, imagePath) in enumerate(image_paths):
+        image = cv2.imread(imagePath)
+        cv2.putText(image, 'Label: {}'.format(classLabels[preds[i]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.imshow('Image', image)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for in:
+        cv2.imshow
+
+idx = 7:------------------- similar code ------------------ index = 6, score = 7.0 
+def detect_video(yolo, video_path, output_path=''):
+    import cv2
+    vid = cv2.VideoCapture(video_path)
+    if (not vid.isOpened()):
+        raise IOError("Couldn't open webcam or video")
+    video_FourCC = int(vid.get(cv2.CAP_PROP_FOURCC))
+    video_fps = vid.get(cv2.CAP_PROP_FPS)
+    video_size = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    isOutput = (True if (output_path != '') else False)
+    if isOutput:
+        print('!!! TYPE:', type(output_path), type(video_FourCC), type(video_fps), type(video_size))
+        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
+    accum_time = 0
+    curr_fps = 0
+    fps = 'FPS: ??'
+    prev_time = timer()
+    while True:
+        (return_value, frame) = vid.read()
+        image = Image.fromarray(frame)
+        image = yolo.detect_image(image)
+        result = np.asarray(image)
+        curr_time = timer()
+        exec_time = (curr_time - prev_time)
+        prev_time = curr_time
+        accum_time = (accum_time + exec_time)
+        curr_fps = (curr_fps + 1)
+        if (accum_time > 1):
+            accum_time = (accum_time - 1)
+            fps = ('FPS: ' + str(curr_fps))
+            curr_fps = 0
+        cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+        cv2.namedWindow('result', cv2.WINDOW_NORMAL)
+        cv2.imshow('result', result)
+        if isOutput:
+            out.write(result)
+        if ((cv2.waitKey(1) & 255) == ord('q')):
+            break
+    yolo.close_session()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    while True:
+        cv2.imshow
+
+idx = 8:------------------- similar code ------------------ index = 7, score = 7.0 
+def count_iou(split):
+    coco = COCO.COCO((ANN_PATH + ANN_FILES[split]))
+    images = coco.getImgIds()
+    cnt = 0
+    obj = 0
+    for img_id in images:
+        ann_ids = coco.getAnnIds(imgIds=[img_id])
+        anns = coco.loadAnns(ids=ann_ids)
+        bboxes = []
+        obj += len(anns)
+        for ann in anns:
+            if (ann['iscrowd'] > 0):
+                continue
+            bbox = (_coco_box_to_bbox(ann['bbox']).tolist() + [ann['category_id']])
+            for b in bboxes:
+                if ((iou(b, bbox) > 0.5) and (b[4] == bbox[4])):
+                    cnt += 1
+                    if DEBUG:
+                        file_name = coco.loadImgs(ids=[img_id])[0]['file_name']
+                        img = cv2.imread('{}/{}2017/{}'.format(IMG_PATH, split, file_name))
+                        (x1, y1) = (int(b[0]), int(b[1]))
+                        (x2, y2) = (int(b[2]), int(b[3]))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2, cv2.LINE_AA)
+                        (x1, y1) = (int(bbox[0]), int(bbox[1]))
+                        (x2, y2) = (int(bbox[2]), int(bbox[3]))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2, cv2.LINE_AA)
+                        cv2.imshow('img', img)
+                        print('cats', class_name[b[4]], class_name[bbox[4]])
+                        cv2.waitKey()
+            bboxes.append(bbox)
+    print('find {} collisions of {} objects!'.format(cnt, obj))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    for  ...  in  ... :
+        for  ...  in  ... :
+            for  ...  in  ... :
+                if:
+                    if  ... :
+                        cv2.imshow
+
+idx = 9:------------------- similar code ------------------ index = 8, score = 7.0 
+def show_frame(pred, image=None, out_file='', vis=False):
+    if vis:
+        result = np.dstack((colors[(pred, 0)], colors[(pred, 1)], colors[(pred, 2)])).astype(np.uint8)
+    if (out_file != ''):
+        if (not os.path.exists(os.path.split(out_file)[0])):
+            os.makedirs(os.path.split(out_file)[0])
+        if vis:
+            cv2.imwrite(out_file, result)
+        else:
+            cv2.imwrite(out_file, pred)
+    if (vis and (image is not None)):
+        temp = ((image.astype(float) * 0.4) + (result.astype(float) * 0.6))
+        cv2.imshow('Result', temp.astype(np.uint8))
+        cv2.waitKey()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if:
+        cv2.imshow
+
+idx = 10:------------------- similar code ------------------ index = 9, score = 7.0 
+def main(args):
+    mtcnn = MTCNN('./mtcnn.pb')
+    img = cv2.imread(args.image)
+    (bbox, scores, landmarks) = mtcnn.detect(img)
+    print('total box:', len(bbox))
+    for (box, pts) in zip(bbox, landmarks):
+        box = box.astype('int32')
+        img = cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 3)
+        pts = pts.astype('int32')
+        for i in range(5):
+            img = cv2.circle(img, (pts[(i + 5)], pts[i]), 1, (0, 255, 0), 2)
+    cv2.imshow('image', img)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    cv2.imshow
+
+idx = 11:------------------- similar code ------------------ index = 10, score = 7.0 
+if (__name__ == '__main__'):
+    net = Detector(bytes('cfg/yolov3.cfg', encoding='utf-8'), bytes('weights/yolov3.weights', encoding='utf-8'), 0, bytes('cfg/coco.data', encoding='utf-8'))
+    cap = cv2.VideoCapture(0)
+    while True:
+        (r, frame) = cap.read()
+        if r:
+            start_time = time.time()
+            dark_frame = Image(frame)
+            results = net.detect(dark_frame)
+            del dark_frame
+            end_time = time.time()
+            fps = (1 / (end_time - start_time))
+            print('FPS: ', fps)
+            print('Elapsed Time:', (end_time - start_time))
+            for (cat, score, bounds) in results:
+                (x, y, w, h) = bounds
+                cv2.rectangle(frame, (int((x - (w / 2))), int((y - (h / 2)))), (int((x + (w / 2))), int((y + (h / 2)))), (255, 0, 0))
+                cv2.putText(frame, cat, (int(x), int(y)), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0))
+            cv2.imshow('preview', frame)
+        k = cv2.waitKey(1)
+        if (k == (255 & ord('q'))):
+            break
+    cap.release()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    while True:
+        if  ... :
+            cv2.imshow
+
+idx = 12:------------------- similar code ------------------ index = 11, score = 7.0 
+def video_on_sync(self):
+    cost = Cost('video display')
+    (im, bboxes, tracks) = self.box_queue.get()
+    for bbox in bboxes:
+        cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 1)
+    cost.record('draw detect')
+    if self.conf.track_on:
+        for track in tracks:
+            color = create_unique_color_uchar(track[1])
+            (x1, y1, x2, y2) = self.tlwh2rec(track[2])
+            cv2.rectangle(im, (x1, y1), (x2, y2), color, 2)
+    cost.record('draw track')
+    if (max(im.shape[:2]) > 1440):
+        scale = (1440 / max(im.shape[:2]))
+        im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+    cv2.putText(im, (str(format(self.fps, '.2f')) + ' fps'), (500, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2, lineType=2)
+    cv2.imshow('detect', im)
+    cv2.waitKey(1)
+    cost.end(func=logger.info, show=True)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    cv2.imshow
+
+idx = 13:------------------- similar code ------------------ index = 12, score = 7.0 
+def post_processor(arg):
+    (img_queue, arg_visualize) = arg
+    while True:
+        if (not img_queue.empty()):
+            (x, seg_pred, exist_pred) = img_queue.get()
+            seg_pred = seg_pred.numpy()[0]
+            exist_pred = exist_pred.numpy()
+            exist = [(1 if (exist_pred[(0, i)] > 0.5) else 0) for i in range(4)]
+            print(exist)
+            for i in getLane.prob2lines_CULane(seg_pred, exist):
+                print(i)
+            if arg_visualize:
+                frame = x.squeeze().permute(1, 2, 0).numpy()
+                img = visualize(frame, seg_pred, exist_pred)
+                cv2.imshow('input_video', frame)
+                cv2.imshow('output_video', img)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                break
+        else:
+            pass
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    while True:
+        if:
+            if  ... :
+                cv2.imshow
+        else:
+            pass
+
+idx = 14:------------------- similar code ------------------ index = 13, score = 7.0 
+def main(_):
+    if FLAGS.detect:
+        ambient = bme680.BME680(i2c_addr=bme680.I2C_ADDR_PRIMARY, i2c_device=SMBus(1))
+        ambient.set_humidity_oversample(bme680.OS_2X)
+        ambient.set_pressure_oversample(bme680.OS_4X)
+        ambient.set_temperature_oversample(bme680.OS_8X)
+        ambient.set_filter(bme680.FILTER_SIZE_3)
+        ambient.set_gas_status(bme680.DISABLE_GAS_MEAS)
+        face_detector = DetectionEngine(FLAGS.face_model)
+    with PureThermal() as camera:
+        input_shape = (camera.height(), camera.width())
+        raw_buffer = np.zeros(input_shape, dtype=np.int16)
+        scaled_buffer = np.zeros(input_shape, dtype=np.uint8)
+        if FLAGS.detect:
+            rgb_buffer = np.zeros((*input_shape, 3), dtype=np.uint8)
+        if FLAGS.visualize:
+            window_buffer = np.zeros((WINDOW_HEIGHT, WINDOW_WIDTH, 3), dtype=np.uint8)
+        raw_scale_factor = ((FLAGS.max_temperature - FLAGS.min_temperature) // 255)
+        window_scale_factor_x = (WINDOW_WIDTH / camera.width())
+        window_scale_factor_y = (WINDOW_HEIGHT / camera.height())
+        if FLAGS.visualize:
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty(WINDOW_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        while ((not FLAGS.visualize) or (cv2.getWindowProperty(WINDOW_NAME, 0) != (- 1))):
+            try:
+                start_time = time()
+                if FLAGS.detect:
+                    if (not ambient.get_sensor_data()):
+                        logging.warning('Ambient sensor data not ready')
+                    ambient_data = ambient.data
+                    logging.debug(('Ambient temperature: %.f °C' % ambient_data.temperature))
+                    logging.debug(('Ambient pressure: %.f hPa' % ambient_data.pressure))
+                    logging.debug(('Ambient humidity: %.f %%' % ambient_data.humidity))
+                with camera.frame_lock():
+                    np.copyto(dst=raw_buffer, src=camera.frame())
+                np.clip(((raw_buffer - FLAGS.min_temperature) // raw_scale_factor), 0, 255, out=scaled_buffer)
+                cv2.normalize(src=scaled_buffer, dst=scaled_buffer, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+                if FLAGS.detect:
+                    cv2.cvtColor(src=scaled_buffer, dst=rgb_buffer, code=cv2.COLOR_GRAY2RGB)
+                    faces = face_detector.detect_with_image(Image.fromarray(rgb_buffer), threshold=FLAGS.face_confidence, top_k=FLAGS.max_num_faces, keep_aspect_ratio=True, relative_coord=False, resample=Image.BILINEAR)
+                    if (len(faces) == 1):
+                        logging.info('1 person')
+                    else:
+                        logging.info(('%d people' % len(faces)))
+                    for face in faces:
+                        temperature = get_temperature(raw_buffer, face.bounding_box)
+                        if (not temperature):
+                            logging.warning('Empty crop')
+                            continue
+                        logging.info(format_temperature(temperature))
+                if FLAGS.visualize:
+                    turbo_buffer = TURBO_COLORMAP[scaled_buffer]
+                    cv2.cvtColor(src=turbo_buffer, dst=turbo_buffer, code=cv2.COLOR_RGB2BGR)
+                    cv2.resize(src=turbo_buffer, dst=window_buffer, dsize=(WINDOW_WIDTH, WINDOW_HEIGHT), interpolation=cv2.INTER_CUBIC)
+                    if FLAGS.detect:
+                        for face in faces:
+                            bbox = face.bounding_box
+                            top_left = (int((window_scale_factor_x * bbox[(0, 0)])), int((window_scale_factor_y * bbox[(0, 1)])))
+                            bottom_right = (int((window_scale_factor_x * bbox[(1, 0)])), int((window_scale_factor_y * bbox[(1, 1)])))
+                            cv2.rectangle(window_buffer, top_left, bottom_right, LINE_COLOR, LINE_THICKNESS)
+                            temperature = get_temperature(raw_buffer, face.bounding_box)
+                            if (not temperature):
+                                continue
+                            label = format_temperature(temperature, add_unit=False)
+                            (label_size, _) = cv2.getTextSize(label, LABEL_FONT, LABEL_SCALE, LABEL_THICKNESS)
+                            label_position = ((((top_left[0] + bottom_right[0]) // 2) - (label_size[0] // 2)), (((top_left[1] + bottom_right[1]) // 2) + (label_size[1] // 2)))
+                            cv2.putText(window_buffer, label, label_position, LABEL_FONT, LABEL_SCALE, LABEL_COLOR, LABEL_THICKNESS, cv2.LINE_AA)
+                    cv2.imshow(WINDOW_NAME, window_buffer)
+                    cv2.waitKey(1)
+                duration = (time() - start_time)
+                logging.debug(('Frame took %.f ms (%.2f Hz)' % ((duration * 1000), (1 / duration))))
+            except KeyboardInterrupt:
+                break
+    if FLAGS.visualize:
+        cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    with:
+        while:
+            try:
+                if:
+                    cv2.imshow
+
+idx = 15:------------------- similar code ------------------ index = 14, score = 7.0 
+if (__name__ == '__main__'):
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+    print('Solving...')
+    solver = SudokuSolver(board)
+    solver.solve()
+    final = solver.board
+    if (0 in final):
+        print('Error occured while solving, try another image!')
+    else:
+        print(final)
+        solutionBoard = cv2.imread('./boards/blank.png')
+        solutionImage = displaySolution(solutionBoard, final, predictions)
+        print("Press 'q' to quit...")
+        while True:
+            cv2.imshow('Actual Image', image)
+            cv2.imshow('Warped Image', warpedImage)
+            cv2.imshow('Coords Image', coordsImage)
+            cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cv2.destroyAllWindows()
+                break
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    if:    else:
+        while True:
+            cv2.imshow
+
+idx = 16:------------------- similar code ------------------ index = 15, score = 7.0 
+def main():
+    args = parse_args()
+    video_path = args.video_path
+    weight_path = args.weight_path
+    if pipeline:
+        input_queue = JoinableQueue()
+        pre_process = Process(target=pre_processor, args=((input_queue, video_path),))
+        pre_process.start()
+        output_queue = SimpleQueue()
+        post_process = Process(target=post_processor, args=((output_queue, args.visualize),))
+        post_process.start()
+    else:
+        cap = cv2.VideoCapture(video_path)
+    save_dict = torch.load(weight_path, map_location='cpu')
+    net.load_state_dict(save_dict['net'])
+    net.eval()
+    net.cuda()
+    while True:
+        if pipeline:
+            loop_start = time.time()
+            x = input_queue.get()
+            input_queue.task_done()
+            gpu_start = time.time()
+            (seg_pred, exist_pred) = network(net, x)
+            gpu_end = time.time()
+            output_queue.put((x, seg_pred, exist_pred))
+            loop_end = time.time()
+        else:
+            if (not cap.isOpened()):
+                break
+            (ret, frame) = cap.read()
+            if ret:
+                loop_start = time.time()
+                frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                frame = transform_img({'img': frame})['img']
+                img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                x = transform_to_net({'img': img})['img']
+                x.unsqueeze_(0)
+                gpu_start = time.time()
+                (seg_pred, exist_pred) = network(net, x)
+                gpu_end = time.time()
+                seg_pred = seg_pred.numpy()[0]
+                exist_pred = exist_pred.numpy()
+                exist = [(1 if (exist_pred[(0, i)] > 0.5) else 0) for i in range(4)]
+                print(exist)
+                for i in getLane.prob2lines_CULane(seg_pred, exist):
+                    print(i)
+                loop_end = time.time()
+                if args.visualize:
+                    img = visualize(img, seg_pred, exist_pred)
+                    cv2.imshow('input_video', frame)
+                    cv2.imshow('output_video', img)
+                if ((cv2.waitKey(1) & 255) == ord('q')):
+                    break
+            else:
+                break
+        print('gpu_runtime:', (gpu_end - gpu_start), 'FPS:', int((1 / (gpu_end - gpu_start))))
+        print('total_runtime:', (loop_end - loop_start), 'FPS:', int((1 / (loop_end - loop_start))))
+    cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    while True:
+        if  ... :        else:
+            if  ... :
+                if:
+                    cv2.imshow
+            else:
+                break
+
+idx = 17:------------------- similar code ------------------ index = 16, score = 7.0 
+def show_img(self, pause=False, imgId='default'):
+    cv2.imshow('{}'.format(imgId), self.imgs[imgId])
+    if pause:
+        cv2.waitKey()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    cv2.imshow
+
+idx = 18:------------------- similar code ------------------ index = 17, score = 7.0 
 if (__name__ == '__main__'):
     parser = argparse.ArgumentParser(description='Normalise')
     parser.add_argument('-d', '--val_data', type=str, help='the directory of val images', default='/home/wanghuan/Dataset/ImageNet_Dataset/val_subset_1000')
@@ -83,53 +1038,446 @@ if:
         for in  ... :
             cv2.imshow
 
-idx = 1:------------------- similar code ------------------ index = 2, score = 7.0 
-def video_on_sync(self):
-    cost = Cost('video display')
-    (im, bboxes, tracks) = self.box_queue.get()
-    for bbox in bboxes:
-        cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 1)
-    cost.record('draw detect')
-    if self.conf.track_on:
-        for track in tracks:
-            color = create_unique_color_uchar(track[1])
-            (x1, y1, x2, y2) = self.tlwh2rec(track[2])
-            cv2.rectangle(im, (x1, y1), (x2, y2), color, 2)
-    cost.record('draw track')
-    if (max(im.shape[:2]) > 1440):
-        scale = (1440 / max(im.shape[:2]))
-        im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
-    cv2.putText(im, (str(format(self.fps, '.2f')) + ' fps'), (500, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2, lineType=2)
-    cv2.imshow('detect', im)
-    cv2.waitKey(1)
-    cost.end(func=logger.info, show=True)
+idx = 19:------------------- similar code ------------------ index = 18, score = 7.0 
+def show_all_imgs(self, pause=False, time=0):
+    if (not self.ipynb):
+        for (i, v) in self.imgs.items():
+            cv2.imshow('{}'.format(i), v)
+        if (cv2.waitKey((0 if pause else 1)) == 27):
+            import sys
+            sys.exit(0)
+    else:
+        self.ax = None
+        nImgs = len(self.imgs)
+        fig = self.plt.figure(figsize=((nImgs * 10), 10))
+        nCols = nImgs
+        nRows = (nImgs // nCols)
+        for (i, (k, v)) in enumerate(self.imgs.items()):
+            fig.add_subplot(1, nImgs, (i + 1))
+            if (len(v.shape) == 3):
+                self.plt.imshow(cv2.cvtColor(v, cv2.COLOR_BGR2RGB))
+            else:
+                self.plt.imshow(v)
+        self.plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if:
+        for in:
+            cv2.imshow
+
+idx = 20:------------------- similar code ------------------ index = 19, score = 7.0 
+def count(split):
+    coco = COCO.COCO((ANN_PATH + ANN_FILES[split]))
+    images = coco.getImgIds()
+    cnt = 0
+    obj = 0
+    for img_id in images:
+        ann_ids = coco.getAnnIds(imgIds=[img_id])
+        anns = coco.loadAnns(ids=ann_ids)
+        centers = []
+        obj += len(anns)
+        for ann in anns:
+            if (ann['iscrowd'] > 0):
+                continue
+            bbox = ann['bbox']
+            center = (((bbox[0] + (bbox[2] / 2)) // 4), ((bbox[1] + (bbox[3] / 2)) // 4), ann['category_id'], bbox)
+            for c in centers:
+                if ((center[0] == c[0]) and (center[1] == c[1]) and (center[2] == c[2]) and (iou(_coco_box_to_bbox(bbox), _coco_box_to_bbox(c[3])) < 2)):
+                    cnt += 1
+                    if DEBUG:
+                        file_name = coco.loadImgs(ids=[img_id])[0]['file_name']
+                        img = cv2.imread('{}/{}2017/{}'.format(IMG_PATH, split, file_name))
+                        (x1, y1) = (int(c[3][0]), int(c[3][1]))
+                        (x2, y2) = (int((c[3][0] + c[3][2])), int((c[3][1] + c[3][3])))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2, cv2.LINE_AA)
+                        (x1, y1) = (int(center[3][0]), int(center[3][1]))
+                        (x2, y2) = (int((center[3][0] + center[3][2])), int((center[3][1] + center[3][3])))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2, cv2.LINE_AA)
+                        cv2.imshow('img', img)
+                        cv2.waitKey()
+            centers.append(center)
+    print('find {} collisions of {} objects!'.format(cnt, obj))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    for  ...  in  ... :
+        for  ...  in  ... :
+            for  ...  in  ... :
+                if:
+                    if  ... :
+                        cv2.imshow
+
+idx = 21:------------------- similar code ------------------ index = 20, score = 7.0 
+def amin():
+    image_path = args['image_path']
+    size = 50
+    sp = SimplePreprocessor(size, size)
+    iap = ImageToArrayPreprocessor()
+    sdl = SimpleDatasetLoader(preprocessors=[sp, iap])
+    (data, labels) = sdl.single_load(image_path)
+    data = (data.astype('float') / 255.0)
+    model = load_model('./SavedModel/amin.hdf5')
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    image = cv2.imread(image_path)
+    cv2.putText(image, 'Label: {}'.format(classLabels[preds[preds[0]]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    cv2.imshow('Image', image)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    cv2.imshow
+
+idx = 22:------------------- similar code ------------------ index = 21, score = 7.0 
+if (__name__ == '__main__'):
+    dets = []
+    img_ids = coco.getImgIds()
+    num_images = len(img_ids)
+    for k in range(1, len(sys.argv)):
+        pred_path = sys.argv[k]
+        dets.append(coco.loadRes(pred_path))
+    for (i, img_id) in enumerate(img_ids):
+        img_info = coco.loadImgs(ids=[img_id])[0]
+        img_path = (IMG_PATH + img_info['file_name'])
+        img = cv2.imread(img_path)
+        gt_ids = coco.getAnnIds(imgIds=[img_id])
+        gts = coco.loadAnns(gt_ids)
+        gt_img = img.copy()
+        for (j, pred) in enumerate(gts):
+            bbox = _coco_box_to_bbox(pred['bbox'])
+            cat_id = pred['category_id']
+            gt_img = add_box(gt_img, bbox, 0, cat_id)
+        for k in range(len(dets)):
+            pred_ids = dets[k].getAnnIds(imgIds=[img_id])
+            preds = dets[k].loadAnns(pred_ids)
+            pred_img = img.copy()
+            for (j, pred) in enumerate(preds):
+                bbox = _coco_box_to_bbox(pred['bbox'])
+                sc = pred['score']
+                cat_id = pred['category_id']
+                if (sc > 0.2):
+                    pred_img = add_box(pred_img, bbox, sc, cat_id)
+            cv2.imshow('pred{}'.format(k), pred_img)
+        cv2.imshow('gt', gt_img)
+        cv2.waitKey()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    for in:
+        for  ...  in:
+            cv2.imshow
+
+idx = 23:------------------- similar code ------------------ index = 22, score = 7.0 
+if (__name__ == '__main__'):
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            logical_gpus = tf.config.list_logical_devices('GPU')
+            print(len(gpus), 'Physical GPUs,', len(logical_gpus), 'Logical GPUs')
+        except RuntimeError as e:
+            print(e)
+    ssd_model = SSD()
+    last_epoch = os.listdir(save_model_dir)[(- 2)].split('.')[0]
+    ssd_model.load_weights(filepath=(save_model_dir + last_epoch))
+    image = test_single_picture(picture_dir=test_picture_dir, model=ssd_model)
+    cv2.namedWindow('detect result', flags=cv2.WINDOW_NORMAL)
+    cv2.imshow('detect result', image)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    cv2.imshow
+
+idx = 24:------------------- similar code ------------------ index = 23, score = 7.0 
+if (__name__ == '__main__'):
+    detected = False
+    solved = False
+    tiles = []
+    print('Get board closer to webcam until stated otherwise...')
+    while True:
+        (retr, frame) = cap.read()
+        preprocess = preprocessImage(frame)
+        preprocess = cv2.bitwise_not(preprocess.copy(), preprocess.copy())
+        contourImage = preprocess.copy()
+        contourImage = cv2.cvtColor(contourImage, cv2.COLOR_GRAY2BGR)
+        coordsImage = contourImage.copy()
+        (contours, polygon) = getContours(preprocess)
+        coords = getCoords(contourImage, polygon)
+        if (detected and solved):
+            unwarpedImage = unwarp(solutionImage, coords)
+        else:
+            unwarpedImage = np.zeros((frame.shape[0], frame.shape[1]))
+        if ((cv2.contourArea(polygon) > 80000) and (not detected)):
+            for coord in coords:
+                cv2.circle(coordsImage, (coord[0], coord[1]), 5, (255, 0, 0), (- 1))
+            cv2.drawContours(contourImage, polygon, (- 1), (0, 255, 0), 3)
+            cv2.drawContours(frame, polygon, (- 1), (0, 255, 0), 3)
+            warpedImage = warp(coordsImage.copy(), coords)
+            warpedImage = cv2.resize(warpedImage, (540, 540))
+            rects = displayGrid(warpedImage)
+            tiles = extractGrid(warpedImage, rects)
+            if (cv2.contourArea(polygon) >= 90000):
+                print('Detected')
+                detected = True
+            else:
+                print('Bring closer...')
+        else:
+            warpedImage = np.zeros((540, 540))
+        if (detected and (not solved)):
+            predictions = getPredictions(tiles)
+            solutionImage = solveSudoku(predictions, coords)
+            solved = True
+        if (retr == True):
+            cv2.imshow('Frame', frame)
+            if solved:
+                cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cap.release()
+                cv2.destroyAllWindows()
+                break
+        else:
+            cap.release()
+            cv2.destroyAllWindows()
+            break
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    while True:
+        if:
+            cv2.imshow
+
+idx = 25:------------------- similar code ------------------ index = 24, score = 7.0 
+if (__name__ == '__main__'):
+    import argparse
+    parser = argparse.ArgumentParser(description='Process a video.')
+    parser.add_argument('path', metavar='video_path', type=str, help='Path to source video')
+    args = parser.parse_args()
+    print('Source Path:', args.path)
+    cap = cv2.VideoCapture(args.path)
+    average_time = 0
+    net = Detector(bytes('cfg/yolov3.cfg', encoding='utf-8'), bytes('weights/yolov3.weights', encoding='utf-8'), 0, bytes('cfg/coco.data', encoding='utf-8'))
+    while True:
+        (r, frame) = cap.read()
+        if r:
+            start_time = time.time()
+            dark_frame = Image(frame)
+            results = net.detect(dark_frame)
+            del dark_frame
+            end_time = time.time()
+            average_time = ((average_time * 0.8) + ((end_time - start_time) * 0.2))
+            fps = (1 / (end_time - start_time))
+            print('FPS: ', fps)
+            print('Total Time:', (end_time - start_time), ':', average_time)
+            for (cat, score, bounds) in results:
+                (x, y, w, h) = bounds
+                cv2.rectangle(frame, (int((x - (w / 2))), int((y - (h / 2)))), (int((x + (w / 2))), int((y + (h / 2)))), (255, 0, 0))
+                cv2.putText(frame, cat, (int(x), int(y)), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0))
+            cv2.imshow('preview', frame)
+        k = cv2.waitKey(1)
+        if (k == (255 & ord('q'))):
+            break
+    cap.release()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    while True:
+        if  ... :
+            cv2.imshow
+
+idx = 26:------------------- similar code ------------------ index = 25, score = 7.0 
+def detect_video(yolo, video_path, output_path=''):
+    import cv2
+    vid = cv2.VideoCapture(0)
+    if (not vid.isOpened()):
+        raise IOError("Couldn't open webcam or video")
+    video_FourCC = int(vid.get(cv2.CAP_PROP_FOURCC))
+    video_fps = vid.get(cv2.CAP_PROP_FPS)
+    video_size = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    isOutput = (True if (output_path != '') else False)
+    if isOutput:
+        print('!!! TYPE:', type(output_path), type(video_FourCC), type(video_fps), type(video_size))
+        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
+    accum_time = 0
+    curr_fps = 0
+    fps = 'FPS: ??'
+    prev_time = timer()
+    while True:
+        (return_value, frame) = vid.read()
+        image = Image.fromarray(frame)
+        image = yolo.detect_image(image)
+        result = np.asarray(image)
+        curr_time = timer()
+        exec_time = (curr_time - prev_time)
+        prev_time = curr_time
+        accum_time = (accum_time + exec_time)
+        curr_fps = (curr_fps + 1)
+        if (accum_time > 1):
+            accum_time = (accum_time - 1)
+            fps = ('FPS: ' + str(curr_fps))
+            curr_fps = 0
+        cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+        cv2.namedWindow('result', cv2.WINDOW_NORMAL)
+        cv2.imshow('result', result)
+        if isOutput:
+            out.write(result)
+        if ((cv2.waitKey(1) & 255) == ord('q')):
+            break
+    yolo.close_session()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    while True:
+        cv2.imshow
+
+idx = 27:------------------- similar code ------------------ index = 26, score = 7.0 
+if (__name__ == '__main__'):
+    import argparse
+    parser = argparse.ArgumentParser(description='Process an image.')
+    parser.add_argument('path', metavar='image_path', type=str, help='Path to source image')
+    args = parser.parse_args()
+    print('Source Path:', args.path)
+    net = Detector(bytes('cfg/yolov3.cfg', encoding='utf-8'), bytes('weights/yolov3.weights', encoding='utf-8'), 0, bytes('cfg/coco.data', encoding='utf-8'))
+    img = cv2.imread(args.path)
+    img2 = Image(img)
+    results = net.detect(img2)
+    print(results)
+    for (cat, score, bounds) in results:
+        (x, y, w, h) = bounds
+        cv2.rectangle(img, (int((x - (w / 2))), int((y - (h / 2)))), (int((x + (w / 2))), int((y + (h / 2)))), (255, 0, 0), thickness=2)
+        cv2.putText(img, cat, (int(x), int(y)), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0))
+    cv2.imshow('output', img)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    cv2.imshow
+
+idx = 28:------------------- similar code ------------------ index = 27, score = 7.0 
+def camera(self):
+    cap = cv2.VideoCapture(0)
+    if (not cap.isOpened()):
+        print('Unable to open camera')
+        exit((- 1))
+    count_tfps = 1
+    accum_time = 0
+    curr_fps = 0
+    fps = 'FPS: ??'
+    prev_time = timer()
+    while True:
+        (res, img) = cap.read()
+        curr_time = timer()
+        exec_time = (curr_time - prev_time)
+        prev_time = curr_time
+        accum_time = (accum_time + exec_time)
+        curr_fps = (curr_fps + 1)
+        if (accum_time > 1):
+            accum_time = (accum_time - 1)
+            fps = curr_fps
+            curr_fps = 0
+        if res:
+            show_image = self.process(img=img)
+            cv2.putText(show_image, ('FPS: ' + str(fps)), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (204, 51, 51), 2)
+            cv2.imshow('Detection', show_image)
+            k = cv2.waitKey(1)
+            if (k == 27):
+                break
+        else:
+            print('Unable to read image')
+            exit((- 1))
+        count_tfps += 1
+    cap.release()
+    cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    while True:
+        if  ... :
+            cv2.imshow
+
+idx = 29:------------------- similar code ------------------ index = 28, score = 7.0 
+@ex.main
+def predict(_run, _log):
+    cfg = edict(_run.config)
+    torch.manual_seed(cfg.seed)
+    np.random.seed(cfg.seed)
+    random.seed(cfg.seed)
+    device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+    network = UNet(cfg.model)
+    if (not (cfg.resume_dir == 'None')):
+        model_dict = torch.load(cfg.resume_dir, map_location=(lambda storage, loc: storage))
+        network.load_state_dict(model_dict)
+    if ((cfg.num_gpus > 1) and torch.cuda.is_available()):
+        network = torch.nn.DataParallel(network)
+    network.to(device)
+    network.eval()
+    transforms = tf.Compose([tf.ToTensor(), tf.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    bin_mean_shift = Bin_Mean_Shift(device=device)
+    k_inv_dot_xy1 = get_coordinate_map(device)
+    instance_parameter_loss = InstanceParameterLoss(k_inv_dot_xy1)
+    (h, w) = (192, 256)
+    with torch.no_grad():
+        image = cv2.imread(cfg.image_path)
+        image = cv2.resize(image, (w, h))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = transforms(image)
+        image = image.to(device).unsqueeze(0)
+        (logit, embedding, _, _, param) = network(image)
+        prob = torch.sigmoid(logit[0])
+        (_, _, per_pixel_depth) = Q_loss(param, k_inv_dot_xy1, torch.ones_like(logit))
+        (segmentation, sampled_segmentation, sample_param) = bin_mean_shift.test_forward(prob, embedding[0], param, mask_threshold=0.1)
+        b = segmentation.t().view(1, (- 1), h, w)
+        pooling_b = torch.nn.functional.avg_pool2d(b, (7, 7), stride=1, padding=(3, 3))
+        b = pooling_b.view((- 1), (h * w)).t()
+        segmentation = b
+        (instance_loss, instance_depth, instance_abs_disntace, instance_parameter) = instance_parameter_loss(segmentation, sampled_segmentation, sample_param, torch.ones_like(logit), torch.ones_like(logit), False)
+        predict_segmentation = segmentation.cpu().numpy().argmax(axis=1)
+        predict_segmentation[(prob.cpu().numpy().reshape((- 1)) <= 0.1)] = 20
+        predict_segmentation = predict_segmentation.reshape(h, w)
+        image = tensor_to_image(image.cpu()[0])
+        mask = (prob > 0.1).float().cpu().numpy().reshape(h, w)
+        depth = instance_depth.cpu().numpy()[(0, 0)].reshape(h, w)
+        per_pixel_depth = per_pixel_depth.cpu().numpy()[(0, 0)].reshape(h, w)
+        depth = ((depth * (predict_segmentation != 20)) + (per_pixel_depth * (predict_segmentation == 20)))
+        predict_segmentation += 1
+        predict_segmentation[(predict_segmentation == 21)] = 0
+        pred_seg = cv2.resize(np.stack([colors[(predict_segmentation, 0)], colors[(predict_segmentation, 1)], colors[(predict_segmentation, 2)]], axis=2), (w, h))
+        blend_pred = ((pred_seg * 0.7) + (image * 0.3)).astype(np.uint8)
+        mask = cv2.resize((mask * 255).astype(np.uint8), (w, h))
+        mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        depth = (255 - np.clip(((depth / 5) * 255), 0, 255).astype(np.uint8))
+        depth = cv2.cvtColor(cv2.resize(depth, (w, h)), cv2.COLOR_GRAY2BGR)
+        image = np.concatenate((image, pred_seg, blend_pred, mask, depth), axis=1)
+        cv2.imshow('image', image)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    with:
+        cv2.imshow
+
+idx = 30:------------------- similar code ------------------ index = 29, score = 7.0 
+def main(args):
+    img = cv2.imread(args.image)
+    (bbox, scores, landmarks) = mtcnn_fun(img, 40, 0.7, [0.6, 0.7, 0.8])
+    (bbox, scores, landmarks) = (bbox.numpy(), scores.numpy(), landmarks.numpy())
+    print('total box:', len(bbox))
+    for (box, pts) in zip(bbox, landmarks):
+        box = box.astype('int32')
+        img = cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 3)
+        pts = pts.astype('int32')
+        for i in range(5):
+            img = cv2.circle(img, (pts[(i + 5)], pts[i]), 1, (0, 255, 0), 2)
+    cv2.imshow('image', img)
+    cv2.waitKey(0)
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ( ... ):
     cv2.imshow
 
-idx = 2:------------------- similar code ------------------ index = 1, score = 7.0 
-def test(self):
-    for i in range(1, 9):
-        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
-        now = datetime.now()
-        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
-        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
-        for bbox in bboxes:
-            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
-        if (max(im.shape[:2]) > 1440):
-            scale = (1440 / max(im.shape[:2]))
-            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
-        cv2.imshow('im', im)
-        cv2.waitKey(5000)
-        cv2.destroyAllWindows()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    for  ...  in:
-        cv2.imshow
-
-idx = 3:------------------- similar code ------------------ index = 0, score = 7.0 
+idx = 31:------------------- similar code ------------------ index = 0, score = 7.0 
 if (__name__ == '__main__'):
     isp = ISP()
     path = './figs/01_gt.png'

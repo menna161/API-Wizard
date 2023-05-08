@@ -1,0 +1,78 @@
+------------------------- example 1 ------------------------ 
+def __init__(self, n_frames, root_path, config_path):
+    self.conf = pd.read_pickle(config_path)
+    self.n_frames = n_frames
+    self.root_path = root_path
+
+------------------------- example 2 ------------------------ 
+def __init__(self, n_frames, h5path, config_path, img_size):
+    self.h5file = h5py.File(h5path, 'r')
+    self.dset = self.h5file['image']
+    self.conf = pd.read_pickle(config_path)
+    self.ind = self.conf.index.tolist()
+    self.n_frames = n_frames
+    self.img_size = img_size
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        4         ||         0        ||        0.25         
+example2  ||          2           ||        7         ||         0        ||        0.14285714285714285         
+
+avg       ||          41.66666666666667           ||        5.5         ||         0.0        ||         19.642857142857142        
+
+idx = 0:------------------- similar code ------------------ index = 4, score = 5.0 
+def __init__(self, n_frames, root_path, config_path):
+    self.conf = pd.read_pickle(config_path)
+    self.n_frames = n_frames
+    self.root_path = root_path
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = pd.read_pickle
+
+idx = 1:------------------- similar code ------------------ index = 3, score = 5.0 
+def merge_evidences(self, output='evidences.pkl', pattern='pc-parts/pc-part-*.evidences.pkl'):
+    pickles = sorted(Path('.').glob(pattern))
+    evidences = [pd.read_pickle(pickle) for pickle in pickles]
+    evidences = pd.concat(evidences)
+    evidences.to_pickle(output)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = [pd.read_pickle]
+
+idx = 2:------------------- similar code ------------------ index = 2, score = 5.0 
+def __init__(self, n_frames, h5path, config_path, img_size):
+    self.h5file = h5py.File(h5path, 'r')
+    self.dset = self.h5file['image']
+    self.conf = pd.read_pickle(config_path)
+    self.ind = self.conf.index.tolist()
+    self.n_frames = n_frames
+    self.img_size = img_size
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = pd.read_pickle
+
+idx = 3:------------------- similar code ------------------ index = 1, score = 5.0 
+def __init__(self, n_frames, root_path, config_path):
+    self.conf = pd.read_pickle(config_path)
+    self.n_frames = n_frames
+    self.root_path = root_path
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = pd.read_pickle
+
+idx = 4:------------------- similar code ------------------ index = 0, score = 5.0 
+def __init__(self, n_frames, h5path, config_path, img_size):
+    self.h5file = h5py.File(h5path, 'r')
+    self.dset = self.h5file['image']
+    self.conf = pd.read_pickle(config_path)
+    self.ind = self.conf.index.tolist()
+    self.n_frames = n_frames
+    self.img_size = img_size
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = pd.read_pickle
+

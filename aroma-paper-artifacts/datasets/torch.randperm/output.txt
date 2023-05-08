@@ -1,0 +1,1392 @@
+------------------------- example 1 ------------------------ 
+def train(args):
+    device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+// your code ...
+
+    class CustomSamplerTrain(torch.utils.data.Sampler):
+
+        def __iter__(self):
+            char = [('i' if (np.random.randint(2) == 1) else 'x')]
+            self.indices = [idx for (idx, name) in enumerate(train_list) if (char[0] in name)]
+            return (self.indices[i] for i in torch.randperm(len(self.indices)))
+
+    class CustomSamplerVal(torch.utils.data.Sampler):
+// your code ...
+
+------------------------- example 2 ------------------------ 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = list(torch.randperm(len(self.dataset), generator=g))
+    if self.round_up:
+        indices += indices[:(self.total_size - len(indices))]
+    assert (len(indices) == self.total_size)
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    if (self.round_up or ((not self.round_up) and (self.rank < (self.world_size - 1)))):
+        assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------------- example 3 ------------------------ 
+def mixup(data, targets, alpha):
+    indices = torch.randperm(data.size(0))
+    shuffled_data = data[indices]
+    shuffled_targets = targets[indices]
+    lam = np.random.beta(alpha, alpha)
+    lam = max(lam, (1.0 - lam))
+    assert (0.0 <= lam <= 1.0), lam
+    data = ((data * lam) + (shuffled_data * (1 - lam)))
+    return (data, targets, shuffled_targets, lam)
+
+------------------------- example 4 ------------------------ 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = []
+    for (i, size) in enumerate(self.group_sizes):
+        if (size > 0):
+            indice = np.where((self.flag == i))[0]
+            assert (len(indice) == size)
+            indice = indice[list(torch.randperm(int(size), generator=g))].tolist()
+            extra = (((int(math.ceil((((size * 1.0) / self.samples_per_gpu) / self.num_replicas))) * self.samples_per_gpu) * self.num_replicas) - len(indice))
+            indice += indice[:extra]
+            indices += indice
+    assert (len(indices) == self.total_size)
+    indices = [indices[j] for i in list(torch.randperm((len(indices) // your code ... self.samples_per_gpu), generator=g)) for j in range((i * self.samples_per_gpu), ((i + 1) * self.samples_per_gpu))]
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------------- example 5 ------------------------ 
+def run_network(data, input_size, output_size, problem_type, net_kw, run_kw, num_workers=8, pin_memory=True, validate=True, val_patience=np.inf, test=False, ensemble=False, numepochs=100, wt_init=nn.init.kaiming_normal_, bias_init=(lambda x: nn.init.constant_(x, 0.1)), verbose=True):
+    "\n    ARGS:\n        data:\n            6-ary tuple (xtr,ytr, xva,yva, xte,yte) from get_data_mlp(), OR\n            Dict with keys 'train', 'val', 'test' from get_data_cnn()\n        input_size, output_size, net_kw : See Net()\n        run_kw:\n            lr: Initial learning rate\n            gamma: Learning rate decay coefficient\n            milestones: When to step decay learning rate, e.g. 0.5 will decay lr halfway through training\n            weight_decay: Default 0\n            batch_size: Default 256\n        num_workers, pin_memory: Only required if using Pytorch data loaders\n            Generally, set num_workers equal to number of threads (e.g. my Macbook pro has 4 cores x 2 = 8 threads)\n        validate: Whether to do validation at the end of every epoch.\n        val_patience: If best val acc doesn't increase for this many epochs, then stop training. Set as np.inf to never stop training (until numepochs)\n        test: True - Test at end, False - don't\n        ensemble: If True, return feedforward soft outputs to be later used for ensembling\n        numepochs: Self explanatory\n        wt_init, bias_init: Respective pytorch functions\n        verbose: Print messages\n    \n    RETURNS:\n        net: Complete net\n        recs: Dictionary with a key for each stat collected and corresponding value for all values of the stat\n    "
+// your code ...
+    if (torch.cuda.device_count() > 1):
+        print('Using {0} GPUs'.format(torch.cuda.device_count()))
+        net = nn.DataParallel(net)
+    net.to(device)
+    for i in range(len(net.mlp)):
+// your code ...
+    lr = (run_kw['lr'] if ('lr' in run_kw) else run_kws_defaults['lr'])
+    gamma = (run_kw['gamma'] if ('gamma' in run_kw) else run_kws_defaults['gamma'])
+// your code ...
+    if (not isinstance(batch_size, int)):
+        batch_size = batch_size.item()
+    if (problem_type == 'classification'):
+// your code ...
+    opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[int((numepochs * milestone)) for milestone in milestones], gamma=gamma)
+    if (type(data) == dict):
+        loader = True
+        train_loader = torch.utils.data.DataLoader(data['train'], batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+        if (validate is True):
+            val_loader = torch.utils.data.DataLoader(data['val'], batch_size=len(data['val']), num_workers=num_workers, pin_memory=pin_memory)
+        if (test is True):
+            test_loader = torch.utils.data.DataLoader(data['test'], batch_size=len(data['test']), num_workers=num_workers, pin_memory=pin_memory)
+    else:
+// your code ...
+    recs = {'train_accs': np.zeros(numepochs), 'train_losses': np.zeros(numepochs), 'val_accs': (np.zeros(numepochs) if (validate is True) else None), 'val_losses': (np.zeros(numepochs) if (validate is True) else None), 'val_final_outputs': (numepochs * [0])}
+    total_t = 0
+    best_val_acc = (- np.inf)
+// your code ...
+    for epoch in range(numepochs):
+        if verbose:
+            print('Epoch {0}'.format((epoch + 1)))
+        numbatches = (int(np.ceil((xtr.shape[0] / batch_size))) if (not loader) else len(train_loader))
+        if (not loader):
+            shuff = torch.randperm(xtr.shape[0])
+            (xtr, ytr) = (xtr[shuff], ytr[shuff])
+        epoch_correct = 0
+        epoch_loss = 0.0
+// your code ...
+        net.train()
+        for batch in tqdm((range(numbatches) if (not loader) else train_loader), leave=False):
+            if (not loader):
+                inputs = xtr[(batch * batch_size):((batch + 1) * batch_size)]
+                labels = ytr[(batch * batch_size):((batch + 1) * batch_size)]
+            else:
+                (inputs, labels) = batch
+                (inputs, labels) = (inputs.to(device), labels.to(device))
+            (batch_correct, batch_loss) = train_batch(x=inputs, y=labels, net=net, lossfunc=lossfunc, opt=opt)
+            epoch_correct += batch_correct
+// your code ...
+        t_epoch = (time.time() - t)
+        if ((epoch > 0) or (numepochs == 1)):
+// your code ...
+        recs['train_accs'][epoch] = (((100 * epoch_correct) / xtr.shape[0]) if (not loader) else ((100 * epoch_correct) / len(data['train'])))
+        recs['train_losses'][epoch] = (epoch_loss / numbatches)
+        if verbose:
+            print('Training Acc = {0}%, Loss = {1}'.format(np.round(recs['train_accs'][epoch], 2), np.round(recs['train_losses'][epoch], 3)))
+        if (validate is True):
+            if (not loader):
+                (correct, loss, _, final_outputs) = eval_data(net=net, x=xva, ensemble=ensemble, y=yva, lossfunc=lossfunc)
+                recs['val_accs'][epoch] = ((100 * correct) / xva.shape[0])
+                recs['val_losses'][epoch] = loss
+            else:
+                epoch_correct = 0
+                epoch_loss = 0.0
+                for batch in tqdm(val_loader, leave=False):
+                    (inputs, labels) = batch
+                    (inputs, labels) = (inputs.to(device), labels.to(device))
+                    (batch_correct, batch_loss, _, final_outputs) = eval_data(net=net, x=inputs, ensemble=ensemble, y=labels, lossfunc=lossfunc)
+// your code ...
+                val_acc = ((100 * epoch_correct) / len(data['val']))
+                val_loss = (epoch_loss / len(val_loader))
+// your code ...
+            recs['val_final_outputs'][epoch] = final_outputs
+            if verbose:
+                print('Validation Acc = {0}%, Loss = {1}'.format(np.round(recs['val_accs'][epoch], 2), np.round(recs['val_losses'][epoch], 3)))
+            if (problem_type == 'classification'):
+                if (recs['val_accs'][epoch] > best_val_acc):
+                    best_val_acc = recs['val_accs'][epoch]
+                    best_val_ep = (epoch + 1)
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+            elif (problem_type == 'regression'):
+                if (recs['val_losses'][epoch] < best_val_loss):
+                    best_val_loss = recs['val_losses'][epoch]
+// your code ...
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+        scheduler.step()
+    if (validate is True):
+        if (problem_type == 'classification'):
+// your code ...
+    if (test is True):
+        if (not loader):
+            (correct, loss, _, final_outputs) = eval_data(net=net, x=xte, ensemble=ensemble, y=yte, lossfunc=lossfunc)
+            recs['test_acc'] = ((100 * correct) / xte.shape[0])
+            recs['test_loss'] = loss
+        else:
+            overall_correct = 0
+            overall_loss = 0.0
+// your code ...
+        recs['test_final_outputs'] = final_outputs
+// your code ...
+    recs['t_epoch'] = ((total_t / (numepochs - 1)) if (numepochs > 1) else total_t)
+// your code ...
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        5         ||         2        ||        0.4         
+example2  ||          2           ||        12         ||         0        ||        0.08333333333333333         
+example3  ||          2           ||        9         ||         0        ||        0.2222222222222222         
+example4  ||          2           ||        17         ||         1        ||        0.11764705882352941         
+example5  ||          2           ||        101         ||         16        ||        0.009900990099009901         
+
+avg       ||          4.545454545454546           ||        28.8         ||         3.8        ||         16.662072089561896        
+
+idx = 0:------------------- similar code ------------------ index = 28, score = 6.0 
+def train(args):
+    device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+    split_train_val(args, per_val=args.per_val)
+    current_time = datetime.now().strftime('%b%d_%H%M%S')
+    log_dir = os.path.join('runs', (current_time + '_{}'.format(args.arch)))
+    writer = SummaryWriter(log_dir=log_dir)
+    if args.aug:
+        data_aug = Compose([RandomRotate(10), RandomHorizontallyFlip(), AddNoise()])
+    else:
+        data_aug = None
+    train_set = section_loader(is_transform=True, split='train', augmentations=data_aug)
+    val_set = section_loader(is_transform=True, split='val')
+    n_classes = train_set.n_classes
+    shuffle = False
+    with open(pjoin('data', 'splits', 'section_train.txt'), 'r') as f:
+        train_list = f.read().splitlines()
+    with open(pjoin('data', 'splits', 'section_val.txt'), 'r') as f:
+        val_list = f.read().splitlines()
+
+    class CustomSamplerTrain(torch.utils.data.Sampler):
+
+        def __iter__(self):
+            char = [('i' if (np.random.randint(2) == 1) else 'x')]
+            self.indices = [idx for (idx, name) in enumerate(train_list) if (char[0] in name)]
+            return (self.indices[i] for i in torch.randperm(len(self.indices)))
+
+    class CustomSamplerVal(torch.utils.data.Sampler):
+
+        def __iter__(self):
+            char = [('i' if (np.random.randint(2) == 1) else 'x')]
+            self.indices = [idx for (idx, name) in enumerate(val_list) if (char[0] in name)]
+            return (self.indices[i] for i in torch.randperm(len(self.indices)))
+    trainloader = data.DataLoader(train_set, batch_size=args.batch_size, sampler=CustomSamplerTrain(train_list), num_workers=4, shuffle=shuffle)
+    valloader = data.DataLoader(val_set, batch_size=args.batch_size, sampler=CustomSamplerVal(val_list), num_workers=4)
+    running_metrics = runningScore(n_classes)
+    running_metrics_val = runningScore(n_classes)
+    if (args.resume is not None):
+        if os.path.isfile(args.resume):
+            print("Loading model and optimizer from checkpoint '{}'".format(args.resume))
+            model = torch.load(args.resume)
+        else:
+            print("No checkpoint found at '{}'".format(args.resume))
+    else:
+        model = get_model(args.arch, args.pretrained, n_classes)
+    model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
+    model = model.to(device)
+    if hasattr(model.module, 'optimizer'):
+        print('Using custom optimizer')
+        optimizer = model.module.optimizer
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), amsgrad=True)
+    loss_fn = core.loss.cross_entropy
+    if args.class_weights:
+        class_weights = torch.tensor([0.7151, 0.8811, 0.5156, 0.9346, 0.9683, 0.9852], device=device, requires_grad=False)
+    else:
+        class_weights = None
+    best_iou = (- 100.0)
+    class_names = ['upper_ns', 'middle_ns', 'lower_ns', 'rijnland_chalk', 'scruff', 'zechstein']
+    for arg in vars(args):
+        text = ((arg + ': ') + str(getattr(args, arg)))
+        writer.add_text('Parameters/', text)
+    for epoch in range(args.n_epoch):
+        model.train()
+        (loss_train, total_iteration) = (0, 0)
+        for (i, (images, labels)) in enumerate(trainloader):
+            (image_original, labels_original) = (images, labels)
+            (images, labels) = (images.to(device), labels.to(device))
+            optimizer.zero_grad()
+            outputs = model(images)
+            pred = outputs.detach().max(1)[1].cpu().numpy()
+            gt = labels.detach().cpu().numpy()
+            running_metrics.update(gt, pred)
+            loss = loss_fn(input=outputs, target=labels, weight=class_weights)
+            loss_train += loss.item()
+            loss.backward()
+            if (args.clip != 0):
+                torch.nn.utils.clip_grad_norm(model.parameters(), args.clip)
+            optimizer.step()
+            total_iteration = (total_iteration + 1)
+            if ((i % 20) == 0):
+                print(('Epoch [%d/%d] training Loss: %.4f' % ((epoch + 1), args.n_epoch, loss.item())))
+            numbers = [0]
+            if (i in numbers):
+                tb_original_image = vutils.make_grid(image_original[0][0], normalize=True, scale_each=True)
+                writer.add_image('train/original_image', tb_original_image, (epoch + 1))
+                labels_original = labels_original.numpy()[0]
+                correct_label_decoded = train_set.decode_segmap(np.squeeze(labels_original))
+                writer.add_image('train/original_label', np_to_tb(correct_label_decoded), (epoch + 1))
+                out = F.softmax(outputs, dim=1)
+                prediction = out.max(1)[1].cpu().numpy()[0]
+                confidence = out.max(1)[0].cpu().detach()[0]
+                tb_confidence = vutils.make_grid(confidence, normalize=True, scale_each=True)
+                decoded = train_set.decode_segmap(np.squeeze(prediction))
+                writer.add_image('train/predicted', np_to_tb(decoded), (epoch + 1))
+                writer.add_image('train/confidence', tb_confidence, (epoch + 1))
+                unary = outputs.cpu().detach()
+                unary_max = torch.max(unary)
+                unary_min = torch.min(unary)
+                unary = unary.add(((- 1) * unary_min))
+                unary = (unary / (unary_max - unary_min))
+                for channel in range(0, len(class_names)):
+                    decoded_channel = unary[0][channel]
+                    tb_channel = vutils.make_grid(decoded_channel, normalize=True, scale_each=True)
+                    writer.add_image(f'train_classes/_{class_names[channel]}', tb_channel, (epoch + 1))
+        loss_train /= total_iteration
+        (score, class_iou) = running_metrics.get_scores()
+        writer.add_scalar('train/Pixel Acc', score['Pixel Acc: '], (epoch + 1))
+        writer.add_scalar('train/Mean Class Acc', score['Mean Class Acc: '], (epoch + 1))
+        writer.add_scalar('train/Freq Weighted IoU', score['Freq Weighted IoU: '], (epoch + 1))
+        writer.add_scalar('train/Mean_IoU', score['Mean IoU: '], (epoch + 1))
+        running_metrics.reset()
+        writer.add_scalar('train/loss', loss_train, (epoch + 1))
+        if (args.per_val != 0):
+            with torch.no_grad():
+                model.eval()
+                (loss_val, total_iteration_val) = (0, 0)
+                for (i_val, (images_val, labels_val)) in tqdm(enumerate(valloader)):
+                    (image_original, labels_original) = (images_val, labels_val)
+                    (images_val, labels_val) = (images_val.to(device), labels_val.to(device))
+                    outputs_val = model(images_val)
+                    pred = outputs_val.detach().max(1)[1].cpu().numpy()
+                    gt = labels_val.detach().cpu().numpy()
+                    running_metrics_val.update(gt, pred)
+                    loss = loss_fn(input=outputs_val, target=labels_val)
+                    total_iteration_val = (total_iteration_val + 1)
+                    if ((i_val % 20) == 0):
+                        print(('Epoch [%d/%d] validation Loss: %.4f' % (epoch, args.n_epoch, loss.item())))
+                    numbers = [0]
+                    if (i_val in numbers):
+                        tb_original_image = vutils.make_grid(image_original[0][0], normalize=True, scale_each=True)
+                        writer.add_image('val/original_image', tb_original_image, epoch)
+                        labels_original = labels_original.numpy()[0]
+                        correct_label_decoded = train_set.decode_segmap(np.squeeze(labels_original))
+                        writer.add_image('val/original_label', np_to_tb(correct_label_decoded), (epoch + 1))
+                        out = F.softmax(outputs_val, dim=1)
+                        prediction = out.max(1)[1].cpu().detach().numpy()[0]
+                        confidence = out.max(1)[0].cpu().detach()[0]
+                        tb_confidence = vutils.make_grid(confidence, normalize=True, scale_each=True)
+                        decoded = train_set.decode_segmap(np.squeeze(prediction))
+                        writer.add_image('val/predicted', np_to_tb(decoded), (epoch + 1))
+                        writer.add_image('val/confidence', tb_confidence, (epoch + 1))
+                        unary = outputs.cpu().detach()
+                        (unary_max, unary_min) = (torch.max(unary), torch.min(unary))
+                        unary = unary.add(((- 1) * unary_min))
+                        unary = (unary / (unary_max - unary_min))
+                        for channel in range(0, len(class_names)):
+                            tb_channel = vutils.make_grid(unary[0][channel], normalize=True, scale_each=True)
+                            writer.add_image(f'val_classes/_{class_names[channel]}', tb_channel, (epoch + 1))
+                (score, class_iou) = running_metrics_val.get_scores()
+                for (k, v) in score.items():
+                    print(k, v)
+                writer.add_scalar('val/Pixel Acc', score['Pixel Acc: '], (epoch + 1))
+                writer.add_scalar('val/Mean IoU', score['Mean IoU: '], (epoch + 1))
+                writer.add_scalar('val/Mean Class Acc', score['Mean Class Acc: '], (epoch + 1))
+                writer.add_scalar('val/Freq Weighted IoU', score['Freq Weighted IoU: '], (epoch + 1))
+                writer.add_scalar('val/loss', loss.item(), (epoch + 1))
+                running_metrics_val.reset()
+                if (score['Mean IoU: '] >= best_iou):
+                    best_iou = score['Mean IoU: ']
+                    model_dir = os.path.join(log_dir, f'{args.arch}_model.pkl')
+                    torch.save(model, model_dir)
+        elif (((epoch + 1) % 10) == 0):
+            model_dir = os.path.join(log_dir, f'{args.arch}_ep{(epoch + 1)}_model.pkl')
+            torch.save(model, model_dir)
+    writer.close()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    class  ... ():
+
+        def  ... ( ... ):
+            return ( for  ...  in torch.randperm)
+
+
+idx = 1:------------------- similar code ------------------ index = 15, score = 5.0 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = list(torch.randperm(len(self.dataset), generator=g))
+    if self.round_up:
+        indices += indices[:(self.total_size - len(indices))]
+    assert (len(indices) == self.total_size)
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    if (self.round_up or ((not self.round_up) and (self.rank < (self.world_size - 1)))):
+        assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randperm)
+
+idx = 2:------------------- similar code ------------------ index = 16, score = 5.0 
+def mixup(data, targets, alpha):
+    indices = torch.randperm(data.size(0))
+    shuffled_data = data[indices]
+    shuffled_targets = targets[indices]
+    lam = np.random.beta(alpha, alpha)
+    lam = max(lam, (1.0 - lam))
+    assert (0.0 <= lam <= 1.0), lam
+    data = ((data * lam) + (shuffled_data * (1 - lam)))
+    return (data, targets, shuffled_targets, lam)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 3:------------------- similar code ------------------ index = 1, score = 5.0 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = []
+    for (i, size) in enumerate(self.group_sizes):
+        if (size > 0):
+            indice = np.where((self.flag == i))[0]
+            assert (len(indice) == size)
+            indice = indice[list(torch.randperm(int(size), generator=g))].tolist()
+            extra = (((int(math.ceil((((size * 1.0) / self.samples_per_gpu) / self.num_replicas))) * self.samples_per_gpu) * self.num_replicas) - len(indice))
+            indice += indice[:extra]
+            indices += indice
+    assert (len(indices) == self.total_size)
+    indices = [indices[j] for i in list(torch.randperm((len(indices) // self.samples_per_gpu), generator=g)) for j in range((i * self.samples_per_gpu), ((i + 1) * self.samples_per_gpu))]
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for in:
+        if:
+             ...  =  ... [ ... (torch.randperm)]
+
+idx = 4:------------------- similar code ------------------ index = 2, score = 5.0 
+def run_network(data, input_size, output_size, problem_type, net_kw, run_kw, num_workers=8, pin_memory=True, validate=True, val_patience=np.inf, test=False, ensemble=False, numepochs=100, wt_init=nn.init.kaiming_normal_, bias_init=(lambda x: nn.init.constant_(x, 0.1)), verbose=True):
+    "\n    ARGS:\n        data:\n            6-ary tuple (xtr,ytr, xva,yva, xte,yte) from get_data_mlp(), OR\n            Dict with keys 'train', 'val', 'test' from get_data_cnn()\n        input_size, output_size, net_kw : See Net()\n        run_kw:\n            lr: Initial learning rate\n            gamma: Learning rate decay coefficient\n            milestones: When to step decay learning rate, e.g. 0.5 will decay lr halfway through training\n            weight_decay: Default 0\n            batch_size: Default 256\n        num_workers, pin_memory: Only required if using Pytorch data loaders\n            Generally, set num_workers equal to number of threads (e.g. my Macbook pro has 4 cores x 2 = 8 threads)\n        validate: Whether to do validation at the end of every epoch.\n        val_patience: If best val acc doesn't increase for this many epochs, then stop training. Set as np.inf to never stop training (until numepochs)\n        test: True - Test at end, False - don't\n        ensemble: If True, return feedforward soft outputs to be later used for ensembling\n        numepochs: Self explanatory\n        wt_init, bias_init: Respective pytorch functions\n        verbose: Print messages\n    \n    RETURNS:\n        net: Complete net\n        recs: Dictionary with a key for each stat collected and corresponding value for all values of the stat\n    "
+    net = Net(input_size=input_size, output_size=output_size, **net_kw)
+    if (torch.cuda.device_count() > 1):
+        print('Using {0} GPUs'.format(torch.cuda.device_count()))
+        net = nn.DataParallel(net)
+    net.to(device)
+    for i in range(len(net.mlp)):
+        if (wt_init is not None):
+            wt_init(net.mlp[i].weight.data)
+        if (bias_init is not None):
+            bias_init(net.mlp[i].bias.data)
+    lr = (run_kw['lr'] if ('lr' in run_kw) else run_kws_defaults['lr'])
+    gamma = (run_kw['gamma'] if ('gamma' in run_kw) else run_kws_defaults['gamma'])
+    milestones = (run_kw['milestones'] if ('milestones' in run_kw) else run_kws_defaults['milestones'])
+    weight_decay = (run_kw['weight_decay'] if ('weight_decay' in run_kw) else run_kws_defaults['weight_decay'])
+    batch_size = (run_kw['batch_size'] if ('batch_size' in run_kw) else run_kws_defaults['batch_size'])
+    if (not isinstance(batch_size, int)):
+        batch_size = batch_size.item()
+    if (problem_type == 'classification'):
+        lossfunc = nn.CrossEntropyLoss(reduction='mean')
+    elif (problem_type == 'regression'):
+        lossfunc = nn.MSELoss()
+    opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[int((numepochs * milestone)) for milestone in milestones], gamma=gamma)
+    if (type(data) == dict):
+        loader = True
+        train_loader = torch.utils.data.DataLoader(data['train'], batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+        if (validate is True):
+            val_loader = torch.utils.data.DataLoader(data['val'], batch_size=len(data['val']), num_workers=num_workers, pin_memory=pin_memory)
+        if (test is True):
+            test_loader = torch.utils.data.DataLoader(data['test'], batch_size=len(data['test']), num_workers=num_workers, pin_memory=pin_memory)
+    else:
+        loader = False
+        (xtr, ytr, xva, yva, xte, yte) = data
+    recs = {'train_accs': np.zeros(numepochs), 'train_losses': np.zeros(numepochs), 'val_accs': (np.zeros(numepochs) if (validate is True) else None), 'val_losses': (np.zeros(numepochs) if (validate is True) else None), 'val_final_outputs': (numepochs * [0])}
+    total_t = 0
+    best_val_acc = (- np.inf)
+    best_val_loss = np.inf
+    for epoch in range(numepochs):
+        if verbose:
+            print('Epoch {0}'.format((epoch + 1)))
+        numbatches = (int(np.ceil((xtr.shape[0] / batch_size))) if (not loader) else len(train_loader))
+        if (not loader):
+            shuff = torch.randperm(xtr.shape[0])
+            (xtr, ytr) = (xtr[shuff], ytr[shuff])
+        epoch_correct = 0
+        epoch_loss = 0.0
+        t = time.time()
+        net.train()
+        for batch in tqdm((range(numbatches) if (not loader) else train_loader), leave=False):
+            if (not loader):
+                inputs = xtr[(batch * batch_size):((batch + 1) * batch_size)]
+                labels = ytr[(batch * batch_size):((batch + 1) * batch_size)]
+            else:
+                (inputs, labels) = batch
+                (inputs, labels) = (inputs.to(device), labels.to(device))
+            (batch_correct, batch_loss) = train_batch(x=inputs, y=labels, net=net, lossfunc=lossfunc, opt=opt)
+            epoch_correct += batch_correct
+            epoch_loss += batch_loss
+        t_epoch = (time.time() - t)
+        if ((epoch > 0) or (numepochs == 1)):
+            total_t += t_epoch
+        recs['train_accs'][epoch] = (((100 * epoch_correct) / xtr.shape[0]) if (not loader) else ((100 * epoch_correct) / len(data['train'])))
+        recs['train_losses'][epoch] = (epoch_loss / numbatches)
+        if verbose:
+            print('Training Acc = {0}%, Loss = {1}'.format(np.round(recs['train_accs'][epoch], 2), np.round(recs['train_losses'][epoch], 3)))
+        if (validate is True):
+            if (not loader):
+                (correct, loss, _, final_outputs) = eval_data(net=net, x=xva, ensemble=ensemble, y=yva, lossfunc=lossfunc)
+                recs['val_accs'][epoch] = ((100 * correct) / xva.shape[0])
+                recs['val_losses'][epoch] = loss
+            else:
+                epoch_correct = 0
+                epoch_loss = 0.0
+                for batch in tqdm(val_loader, leave=False):
+                    (inputs, labels) = batch
+                    (inputs, labels) = (inputs.to(device), labels.to(device))
+                    (batch_correct, batch_loss, _, final_outputs) = eval_data(net=net, x=inputs, ensemble=ensemble, y=labels, lossfunc=lossfunc)
+                    epoch_correct += batch_correct
+                    epoch_loss += batch_loss
+                val_acc = ((100 * epoch_correct) / len(data['val']))
+                val_loss = (epoch_loss / len(val_loader))
+                recs['val_accs'][epoch] = val_acc
+                recs['val_losses'][epoch] = val_loss
+            recs['val_final_outputs'][epoch] = final_outputs
+            if verbose:
+                print('Validation Acc = {0}%, Loss = {1}'.format(np.round(recs['val_accs'][epoch], 2), np.round(recs['val_losses'][epoch], 3)))
+            if (problem_type == 'classification'):
+                if (recs['val_accs'][epoch] > best_val_acc):
+                    best_val_acc = recs['val_accs'][epoch]
+                    best_val_ep = (epoch + 1)
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+            elif (problem_type == 'regression'):
+                if (recs['val_losses'][epoch] < best_val_loss):
+                    best_val_loss = recs['val_losses'][epoch]
+                    best_val_ep = (epoch + 1)
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+        scheduler.step()
+    if (validate is True):
+        if (problem_type == 'classification'):
+            print('\nBest validation accuracy = {0}% obtained in epoch {1}'.format(best_val_acc, best_val_ep))
+        elif (problem_type == 'regression'):
+            print('\nBest validation loss = {0} obtained in epoch {1}'.format(best_val_loss, best_val_ep))
+    if (test is True):
+        if (not loader):
+            (correct, loss, _, final_outputs) = eval_data(net=net, x=xte, ensemble=ensemble, y=yte, lossfunc=lossfunc)
+            recs['test_acc'] = ((100 * correct) / xte.shape[0])
+            recs['test_loss'] = loss
+        else:
+            overall_correct = 0
+            overall_loss = 0.0
+            for batch in tqdm(test_loader, leave=False):
+                (inputs, labels) = batch
+                (inputs, labels) = (inputs.to(device), labels.to(device))
+                (batch_correct, batch_loss, _, final_outputs) = eval_data(net=net, x=inputs, ensemble=ensemble, y=labels, lossfunc=lossfunc)
+                overall_correct += batch_correct
+                overall_loss += batch_loss
+            recs['test_acc'] = ((100 * overall_correct) / len(data['test']))
+            recs['test_loss'] = (overall_loss / len(test_loader))
+        recs['test_final_outputs'] = final_outputs
+        print('Test accuracy = {0}%, Loss = {1}\n'.format(np.round(recs['test_acc'], 2), np.round(recs['test_loss'], 3)))
+    recs['t_epoch'] = ((total_t / (numepochs - 1)) if (numepochs > 1) else total_t)
+    print('Avg time taken per epoch = {0}'.format(recs['t_epoch']))
+    recs = {**{key: recs[key][:numepochs] for key in recs if hasattr(recs[key], '__iter__')}, **{key: recs[key] for key in recs if (not hasattr(recs[key], '__iter__'))}}
+    return (net, recs)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        if:
+             ...  = torch.randperm
+
+idx = 5:------------------- similar code ------------------ index = 5, score = 5.0 
+def sample_idxs(idx_to_class, B, N, K, rand_N=True, rand_K=True):
+    N = (np.random.randint(int((0.3 * N)), N) if rand_N else N)
+    labels = sample_partitions(B, N, K, rand_K=rand_K, device='cpu', alpha=5.0)
+    idxs = torch.zeros(B, N, dtype=torch.long)
+    abs_labels = torch.zeros(B, N, dtype=torch.long)
+    classes_pool = list(idx_to_class.keys())
+    for b in range(B):
+        classes = np.random.permutation(classes_pool)[:K]
+        for (i, c) in enumerate(classes):
+            if ((labels[b] == i).int().sum() > 0):
+                members = (labels[b] == i).nonzero().view((- 1))
+                idx_pool = idx_to_class[c]
+                idx_pool = idx_pool[torch.randperm(len(idx_pool))]
+                n_repeat = ((len(members) // len(idx_pool)) + 1)
+                idxs[(b, members)] = torch.cat(([idx_pool] * n_repeat))[:len(members)]
+                abs_labels[(b, members)] = np.long(c)
+    oh_labels = F.one_hot(labels, K)
+    return {'idxs': idxs, 'oh_labels': oh_labels, 'abs_labels': abs_labels}
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        for in:
+            if:
+                 ...  =  ... [torch.randperm]
+
+idx = 6:------------------- similar code ------------------ index = 7, score = 5.0 
+def shuffle(self):
+    'shuffle the order of data in every batch'
+
+    def shuffle_group(start, end, NEW):
+        'shuffle the order of samples with index from start to end'
+        RAW = [self.src[start:end], self.tgt[start:end], self.idxs[start:end]]
+        DATA = list(zip(*RAW))
+        index = torch.randperm(len(DATA))
+        (src, tgt, idx) = zip(*[DATA[i] for i in index])
+        NEW['SRCs'] += list(src)
+        NEW['TGTs'] += list(tgt)
+        NEW['IDXs'] += list(idx)
+        if self.answer:
+            ans = [self.ans[start:end][i] for i in index]
+            NEW['ANSs'] += ans
+            if self.ans_feature_num:
+                ansft = [[feature[start:end][i] for i in index] for feature in self.ans_features]
+                for i in range(self.ans_feature_num):
+                    NEW['ANSFTs'][i] += ansft[i]
+        if self.feature_num:
+            ft = [[feature[start:end][i] for i in index] for feature in self.features]
+            for i in range(self.feature_num):
+                NEW['FTs'][i] += ft[i]
+        if self.copy:
+            cpswt = [self.copy_switch[start:end][i] for i in index]
+            cptgt = [self.copy_tgt[start:end][i] for i in index]
+            NEW['COPYSWTs'] += cpswt
+            NEW['COPYTGTs'] += cptgt
+        return NEW
+    assert (self.tgt != None), 'shuffle is only aimed for training data (with target given)'
+    NEW = {'SRCs': [], 'TGTs': [], 'IDXs': []}
+    if self.copy:
+        (NEW['COPYSWTs'], NEW['COPYTGTs']) = ([], [])
+    if self.feature_num:
+        NEW['FTs'] = [[] for i in range(self.feature_num)]
+    if self.answer:
+        NEW['ANSs'] = []
+        if self.ans_feature_num:
+            NEW['ANSFTs'] = [[] for i in range(self.ans_feature_num)]
+    shuffle_all = random.random()
+    if (shuffle_all > 0.75):
+        (start, end) = (0, (self.batchSize * self.numBatches))
+        NEW = shuffle_group(start, end, NEW)
+    else:
+        for batch_idx in range(self.numBatches):
+            start = (batch_idx * self.batchSize)
+            end = (start + self.batchSize)
+            NEW = shuffle_group(start, end, NEW)
+    (self.src, self.tgt, self.idxs) = (NEW['SRCs'], NEW['TGTs'], NEW['IDXs'])
+    if self.copy:
+        (self.copy_switch, self.copy_tgt) = (NEW['COPYSWTs'], NEW['COPYTGTs'])
+    if self.answer:
+        self.ans = NEW['ANSs']
+        if self.ans_feature_num:
+            self.ans_features = NEW['ANSFTs']
+    if self.feature_num:
+        self.features = NEW['FTs']
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    def  ... ():
+         ...  = torch.randperm
+
+idx = 7:------------------- similar code ------------------ index = 8, score = 5.0 
+def SplitGen(train_dataset, val_dataset, first_split_sz=2, other_split_sz=2, rand_split=False, remap_class=False):
+    '\n    Generate the dataset splits based on the labels.\n    :param train_dataset: (torch.utils.data.dataset)\n    :param val_dataset: (torch.utils.data.dataset)\n    :param first_split_sz: (int)\n    :param other_split_sz: (int)\n    :param rand_split: (bool) Randomize the set of label in each split\n    :param remap_class: (bool) Ex: remap classes in a split from [2,4,6 ...] to [0,1,2 ...]\n    :return: train_loaders {task_name:loader}, val_loaders {task_name:loader}, out_dim {task_name:num_classes}\n    '
+    assert (train_dataset.number_classes == val_dataset.number_classes), 'Train/Val has different number of classes'
+    num_classes = train_dataset.number_classes
+    split_boundaries = [0, first_split_sz]
+    while (split_boundaries[(- 1)] < num_classes):
+        split_boundaries.append((split_boundaries[(- 1)] + other_split_sz))
+    print('split_boundaries:', split_boundaries)
+    assert (split_boundaries[(- 1)] == num_classes), 'Invalid split size'
+    if (not rand_split):
+        class_lists = {str(i): list(range(split_boundaries[(i - 1)], split_boundaries[i])) for i in range(1, len(split_boundaries))}
+    else:
+        randseq = torch.randperm(num_classes)
+        class_lists = {str(i): randseq[list(range(split_boundaries[(i - 1)], split_boundaries[i]))].tolist() for i in range(1, len(split_boundaries))}
+    print(class_lists)
+    train_dataset_splits = {}
+    val_dataset_splits = {}
+    task_output_space = {}
+    for (name, class_list) in class_lists.items():
+        train_dataset_splits[name] = AppendName(Subclass(train_dataset, class_list, remap_class), name)
+        val_dataset_splits[name] = AppendName(Subclass(val_dataset, class_list, remap_class), name)
+        task_output_space[name] = len(class_list)
+    return (train_dataset_splits, val_dataset_splits, task_output_space)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:    else:
+         ...  = torch.randperm
+
+idx = 8:------------------- similar code ------------------ index = 9, score = 5.0 
+def train(self):
+    if self.should_train():
+        (states, actions, rewards, next_states, _, _) = self.replay_buffer.get_all_transitions()
+        features = self.feature_nw.target(states)
+        values = self.v.target(features)
+        next_values = self.v.target(self.feature_nw.target(next_states))
+        advantages = self.replay_buffer.compute_gae(rewards, values, next_values, next_states.mask)
+        pi_0 = self.policy.no_grad(features).log_prob(actions.raw)
+        targets = (values + advantages)
+        for _ in range(self.epochs):
+            minibatch_size = int((len(states) / self.minibatches))
+            indexes = torch.randperm(len(states))
+            for n in range(self.minibatches):
+                first = (n * minibatch_size)
+                last = (first + minibatch_size)
+                i = indexes[first:last]
+                self._train_minibatch(states[i], actions[i], pi_0[i], advantages[i], targets[i])
+                self.writer.train_steps += 1
+        self.replay_buffer.clear()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:
+        for  ...  in:
+             ...  = torch.randperm
+
+idx = 9:------------------- similar code ------------------ index = 10, score = 5.0 
+def __iter__(self):
+    indices = torch.randperm(self.num_samples)
+    ret = []
+    for i in indices:
+        pid = self.pids[i]
+        t = self.index_dic[pid]
+        if (len(t) >= self.num_instances):
+            t = np.random.choice(t, size=self.num_instances, replace=False)
+        else:
+            t = np.random.choice(t, size=self.num_instances, replace=True)
+        ret.extend(t)
+    return iter(ret)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randperm
+
+idx = 10:------------------- similar code ------------------ index = 13, score = 5.0 
+def simba_single(self, x, y, num_iters=10000, epsilon=0.2, targeted=False):
+    n_dims = x.view(1, (- 1)).size(1)
+    perm = torch.randperm(n_dims)
+    x = x.unsqueeze(0)
+    last_prob = self.get_probs(x, y)
+    for i in range(num_iters):
+        diff = torch.zeros(n_dims)
+        diff[perm[i]] = epsilon
+        left_prob = self.get_probs((x - diff.view(x.size())).clamp(0, 1), y)
+        if (targeted != (left_prob < last_prob)):
+            x = (x - diff.view(x.size())).clamp(0, 1)
+            last_prob = left_prob
+        else:
+            right_prob = self.get_probs((x + diff.view(x.size())).clamp(0, 1), y)
+            if (targeted != (right_prob < last_prob)):
+                x = (x + diff.view(x.size())).clamp(0, 1)
+                last_prob = right_prob
+        if ((i % 10) == 0):
+            print(last_prob)
+    return x.squeeze()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 11:------------------- similar code ------------------ index = 29, score = 5.0 
+def shuffle_group(start, end, NEW):
+    'shuffle the order of samples with index from start to end'
+    RAW = [self.src[start:end], self.tgt[start:end], self.idxs[start:end]]
+    DATA = list(zip(*RAW))
+    index = torch.randperm(len(DATA))
+    (src, tgt, idx) = zip(*[DATA[i] for i in index])
+    NEW['SRCs'] += list(src)
+    NEW['TGTs'] += list(tgt)
+    NEW['IDXs'] += list(idx)
+    if self.answer:
+        ans = [self.ans[start:end][i] for i in index]
+        NEW['ANSs'] += ans
+        if self.ans_feature_num:
+            ansft = [[feature[start:end][i] for i in index] for feature in self.ans_features]
+            for i in range(self.ans_feature_num):
+                NEW['ANSFTs'][i] += ansft[i]
+    if self.feature_num:
+        ft = [[feature[start:end][i] for i in index] for feature in self.features]
+        for i in range(self.feature_num):
+            NEW['FTs'][i] += ft[i]
+    if self.copy:
+        cpswt = [self.copy_switch[start:end][i] for i in index]
+        cptgt = [self.copy_tgt[start:end][i] for i in index]
+        NEW['COPYSWTs'] += cpswt
+        NEW['COPYTGTs'] += cptgt
+    return NEW
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 12:------------------- similar code ------------------ index = 0, score = 5.0 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = list(torch.randperm(len(self.dataset), generator=g))
+    if self.round_up:
+        indices += indices[:(self.total_size - len(indices))]
+    assert (len(indices) == self.total_size)
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    if (self.round_up or ((not self.round_up) and (self.rank < (self.world_size - 1)))):
+        assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randperm)
+
+idx = 13:------------------- similar code ------------------ index = 19, score = 5.0 
+def sample(self, batch_size):
+    batch_size = int((batch_size / 2))
+    (states, actions, rewards, next_states, weights, indexes) = self.buffer.sample(batch_size)
+    (exp_states, exp_actions, exp_rewards, exp_next_states, exp_weights, exp_indexes) = self.expert_buffer.sample(batch_size)
+    rewards = torch.zeros_like(rewards, dtype=torch.float32, device=self.device)
+    exp_rewards = torch.ones_like(exp_rewards, dtype=torch.float32, device=self.device)
+    states = State.from_list([states, exp_states])
+    actions = Action.from_list([actions, exp_actions])
+    rewards = torch.cat([rewards, exp_rewards], axis=0)
+    next_states = State.from_list([next_states, exp_next_states])
+    weights = torch.cat([weights, exp_weights], axis=0)
+    index = torch.randperm(len(rewards))
+    if ((indexes is None) or (exp_indexes is None)):
+        indexes = None
+    else:
+        indexes = torch.cat([indexes, exp_indexes], axis=0)[index]
+    return (states[index], actions[index], rewards[index], next_states[index], weights[index], indexes)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 14:------------------- similar code ------------------ index = 20, score = 5.0 
+def __iter__(self):
+    img_ratios = torch.tensor(self.img_ratios)
+    tall_indices = (img_ratios < 1).nonzero().view((- 1))
+    fat_indices = (img_ratios >= 1).nonzero().view((- 1))
+    tall_indices_length = len(tall_indices)
+    fat_indices_length = len(fat_indices)
+    tall_indices = tall_indices[torch.randperm(tall_indices_length)]
+    fat_indices = fat_indices[torch.randperm(fat_indices_length)]
+    num_tall_remainder = (tall_indices_length % self.batch_size)
+    num_fat_remainder = (fat_indices_length % self.batch_size)
+    tall_indices = tall_indices[:(tall_indices_length - num_tall_remainder)]
+    fat_indices = fat_indices[:(fat_indices_length - num_fat_remainder)]
+    tall_indices = tall_indices.view((- 1), self.batch_size)
+    fat_indices = fat_indices.view((- 1), self.batch_size)
+    merge_indices = torch.cat([tall_indices, fat_indices], dim=0)
+    merge_indices = merge_indices[torch.randperm(len(merge_indices))].view((- 1))
+    return iter(merge_indices.tolist())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... [torch.randperm]
+
+idx = 15:------------------- similar code ------------------ index = 21, score = 5.0 
+def __iter__(self):
+    g = torch.Generator()
+    g.manual_seed(self.epoch)
+    indices = []
+    for (i, size) in enumerate(self.group_sizes):
+        if (size > 0):
+            indice = np.where((self.flag == i))[0]
+            assert (len(indice) == size)
+            indice = indice[list(torch.randperm(int(size), generator=g))].tolist()
+            extra = (((int(math.ceil((((size * 1.0) / self.samples_per_gpu) / self.num_replicas))) * self.samples_per_gpu) * self.num_replicas) - len(indice))
+            tmp = indice.copy()
+            for _ in range((extra // size)):
+                indice.extend(tmp)
+            indice.extend(tmp[:(extra % size)])
+            indices.extend(indice)
+    assert (len(indices) == self.total_size)
+    indices = [indices[j] for i in list(torch.randperm((len(indices) // self.samples_per_gpu), generator=g)) for j in range((i * self.samples_per_gpu), ((i + 1) * self.samples_per_gpu))]
+    offset = (self.num_samples * self.rank)
+    indices = indices[offset:(offset + self.num_samples)]
+    assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for in:
+        if:
+             ...  =  ... [ ... (torch.randperm)]
+
+idx = 16:------------------- similar code ------------------ index = 22, score = 5.0 
+def __call__(self, img):
+    if (self.transforms is None):
+        return img
+    order = torch.randperm(len(self.transforms))
+    for i in order:
+        img = self.transforms[i](img)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 17:------------------- similar code ------------------ index = 18, score = 5.0 
+def train_epoch(self, device, epoch):
+    ' Epoch operation in training phase'
+    if (self.opt.extra_shuffle and (epoch > self.opt.curriculum)):
+        self.logger.info('Shuffling...')
+        self.training_data.shuffle()
+    self.model.train()
+    total_loss = {'classify': 0, 'generate': 0, 'unify': 0, 'coverage': 0, 'nll': 0}
+    (n_word_total, n_word_correct) = (0, 0)
+    (n_node_total, n_node_correct) = (0, 0)
+    report_total_loss = {'classify': 0, 'generate': 0, 'unify': 0, 'coverage': 0, 'nll': 0}
+    (report_n_word_total, report_n_word_correct) = (0, 0)
+    (report_n_node_total, report_n_node_correct) = (0, 0)
+    sample_num = 0
+    batch_order = torch.randperm(len(self.training_data))
+    for idx in tqdm(range(len(self.training_data)), mininterval=2, desc='  - (Training)   ', leave=False):
+        batch_idx = (batch_order[idx] if (epoch > self.opt.curriculum) else idx)
+        batch = self.training_data[batch_idx]
+        (inputs, max_length, golds, copy) = preprocess_batch(batch, self.opt.edge_vocab_size, sparse=self.opt.sparse, feature=self.opt.feature, dec_feature=self.opt.dec_feature, copy=self.opt.copy, node_feature=self.opt.node_feature, device=device)
+        (copy_gold, copy_switch) = (copy[0], copy[1])
+        sample_num += len(golds[0])
+        self.model.zero_grad()
+        self.optimizer.zero_grad()
+        rst = self.model(inputs, max_length=max_length)
+        loss_input = {'classification': {}, 'generation': {}, 'unify': {}}
+        if (self.opt.copy and (self.opt.training_mode != 'classify')):
+            (loss_input['generation']['copy_pred'], loss_input['generation']['copy_gate']) = (rst['generation']['copy_pred'], rst['generation']['copy_gate'])
+            (loss_input['generation']['copy_gold'], loss_input['generation']['copy_switch']) = (copy_gold, copy_switch)
+        if (self.opt.coverage and (self.opt.training_mode != 'classify')):
+            loss_input['generation']['coverage_pred'] = rst['generation']['coverage_pred']
+        if (self.opt.training_mode != 'generate'):
+            loss_input['classification']['pred'] = rst['classification']
+            loss_input['classification']['gold'] = golds[1]
+            (loss, n_correct_node) = self.cal_class_performance(loss_input['classification'], device)
+            cls_loss = loss
+            total_loss['classify'] += loss.item()
+            report_total_loss['classify'] += loss.item()
+        if (self.opt.training_mode != 'classify'):
+            loss_input['generation']['pred'] = rst['generation']['pred']
+            loss_input['generation']['gold'] = golds[0]
+            (loss, n_correct_word, loss_package) = self.cal_performance(loss_input['generation'])
+            gen_loss = loss
+            (coverage_loss, nll_loss) = (loss_package[0], loss_package[1])
+            total_loss['generate'] += loss.item()
+            report_total_loss['generate'] += loss.item()
+            if self.opt.coverage:
+                total_loss['coverage'] += coverage_loss.item()
+                report_total_loss['coverage'] += coverage_loss.item()
+            total_loss['nll'] += nll_loss.item()
+            report_total_loss['nll'] += nll_loss.item()
+        if (self.opt.training_mode == 'unify'):
+            loss_input['unify'] = rst['generation']['attention_scores']
+            kl_loss = funct.kl_div(torch.log((loss_input['unify'][0] + 1e-16)), loss_input['unify'][1])
+            total_loss['unify'] += kl_loss.item()
+            report_total_loss['unify'] += kl_loss.item()
+        self.cntBatch += 1
+        if (self.opt.training_mode == 'unify'):
+            ratio = ((self.cntBatch // 8000) + 4)
+            if (((self.cntBatch // 128) % ratio) == 0):
+                loss = cls_loss
+            else:
+                loss = gen_loss
+        if (len(self.opt.gpus) > 1):
+            loss = loss.mean()
+        if (math.isnan(loss.item()) or (loss.item() > 1e+20)):
+            print('catch NaN')
+            import ipdb
+            ipdb.set_trace()
+        self.optimizer.backward(loss)
+        self.optimizer.step()
+        non_pad_mask = golds[0].ne(Constants.PAD)
+        n_word = non_pad_mask.sum().item()
+        if (self.opt.training_mode != 'classify'):
+            n_word_total += n_word
+            n_word_correct += n_correct_word
+            report_n_word_total += n_word
+            report_n_word_correct += n_correct_word
+        if (self.opt.training_mode != 'generate'):
+            n_node = golds[1].ne(Constants.PAD).sum().item()
+            n_node_total += n_node
+            n_node_correct += n_correct_node
+            report_n_node_total += n_node
+            report_n_node_correct += n_correct_node
+        if ((self.cntBatch % self.opt.valid_steps) == 0):
+            valid_results = self.eval_step(device, epoch)
+            better = False
+            valid_eval = 0
+            if (self.opt.training_mode != 'generate'):
+                report_avg_loss = (report_total_loss['classify'] / report_n_node_total)
+                report_avg_accu = ((report_n_node_correct / report_n_node_total) * 100)
+                (report_total_loss['classify'], report_n_node_total, report_n_node_correct) = (0, 0, 0)
+                better = (valid_results['classification']['correct'] > self.best_accu)
+                if better:
+                    self.best_accu = valid_results['classification']['correct']
+                valid_eval = valid_results['classification']['correct']
+                self.logger.info('  +  Training accuracy: {accu:3.3f} %, loss: {loss:3.5f}'.format(accu=report_avg_accu, loss=report_avg_loss))
+                self.logger.info('  +  Validation accuracy: {accu:3.3f} %, loss: {loss:3.5f}'.format(accu=(valid_results['classification']['correct'] * 100), loss=valid_results['classification']['loss']))
+            if (self.opt.training_mode != 'classify'):
+                report_avg_loss = (report_total_loss['generate'] / report_n_word_total)
+                report_avg_ppl = math.exp(min((report_total_loss['nll'] / report_n_word_total), 16))
+                report_avg_accu = (report_n_word_correct / report_n_word_total)
+                if self.opt.coverage:
+                    report_avg_coverage = (report_total_loss['coverage'] / sample_num)
+                    report_total_loss['coverage'] = 0
+                    self.logger.info('  +  Training coverage loss: {loss:2.5f}'.format(loss=report_avg_coverage))
+                    self.logger.info('  +  Validation coverage loss: {loss:2.5f}'.format(loss=valid_results['generation']['coverage']))
+                (report_total_loss['generate'], report_total_loss['nll']) = (0, 0)
+                (report_n_word_correct, report_n_word_total) = (0, 0)
+                better = (valid_results['generation']['perplexity'] < self.best_ppl)
+                if better:
+                    self.best_ppl = valid_results['generation']['perplexity']
+                valid_eval = valid_results['generation']['bleu']
+            if (self.opt.training_mode == 'unify'):
+                report_avg_kldiv = (report_total_loss['unify'] / sample_num)
+                report_total_loss['unify'] = 0
+                self.logger.info('  +  Training kl-div loss: {loss:2.5f}'.format(loss=report_avg_kldiv))
+                self.logger.info('  +  Validation kl-div loss: {loss:2.5f}'.format(loss=valid_results['unify']))
+            sample_num = 0
+            self.optimizer.update_learning_rate(better)
+            if (self.opt.training_mode != 'classify'):
+                record_log(self.opt.logfile_train, step=self.cntBatch, loss=report_avg_loss, ppl=report_avg_ppl, accu=report_avg_accu, bad_cnt=self.optimizer._bad_cnt, lr=self.optimizer._learning_rate)
+                record_log(self.opt.logfile_dev, step=self.cntBatch, loss=valid_results['generation']['loss'], ppl=valid_results['generation']['perplexity'], accu=valid_results['generation']['correct'], bleu=valid_results['generation']['bleu'], bad_cnt=self.optimizer._bad_cnt, lr=self.optimizer._learning_rate)
+            if self.opt.save_model:
+                self.save_model(better, valid_eval)
+            self.model.train()
+    if (self.opt.training_mode == 'generate'):
+        loss_per_word = (total_loss['generate'] / n_word_total)
+        perplexity = math.exp(min(loss_per_word, 16))
+        accuracy = ((n_word_correct / n_word_total) * 100)
+        outputs = (perplexity, accuracy)
+    elif (self.opt.training_mode == 'classify'):
+        outputs = ((n_node_correct / n_node_total) * 100)
+    else:
+        outputs = total_loss['unify']
+    return outputs
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 18:------------------- similar code ------------------ index = 24, score = 5.0 
+def __iter__(self):
+    char = [('i' if (np.random.randint(2) == 1) else 'x')]
+    self.indices = [idx for (idx, name) in enumerate(train_list) if (char[0] in name)]
+    return (self.indices[i] for i in torch.randperm(len(self.indices)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    return ( for  ...  in torch.randperm)
+
+idx = 19:------------------- similar code ------------------ index = 26, score = 5.0 
+def sample_idxs(idx_to_class, B, N, K, rand_N=True, rand_K=True, train=True):
+    N = (np.random.randint(int((0.3 * N)), N) if rand_N else N)
+    labels = sample_partitions(B, N, K, rand_K=rand_K, device='cpu', alpha=5.0)
+    idxs = torch.zeros(B, N, NUM_DIGITS, dtype=torch.long)
+    abs_labels = torch.zeros(B, N, dtype=torch.long)
+    cluster_pool = (np.arange((NUM_CLUSTERS // 2)) if train else np.arange((NUM_CLUSTERS // 2), NUM_CLUSTERS))
+    for b in range(B):
+        clusters = np.random.permutation(cluster_pool)[:K]
+        for (i, cls) in enumerate(clusters):
+            if ((labels[b] == i).int().sum() > 0):
+                members = (labels[b] == i).nonzero().view((- 1))
+                abs_labels[(b, members)] = np.long(cls)
+                classes = decode(cls)
+                for (d, c) in enumerate(classes):
+                    idx_pool = idx_to_class[c]
+                    idx_pool = idx_pool[torch.randperm(len(idx_pool))]
+                    n_repeat = ((len(members) // len(idx_pool)) + 1)
+                    idxs[(b, members, d)] = torch.cat(([idx_pool] * n_repeat))[:len(members)]
+    idxs = idxs.view(B, (- 1))
+    oh_labels = F.one_hot(labels, K)
+    return {'idxs': idxs, 'oh_labels': oh_labels, 'abs_labels': abs_labels}
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        for in:
+            if:
+                for in:
+                     ...  =  ... [torch.randperm]
+
+idx = 20:------------------- similar code ------------------ index = 3, score = 4.0 
+def loss_HardNet(anchor, positive, anchor_swap=False, anchor_ave=False, margin=1.0, batch_reduce='min', loss_type='triplet_margin'):
+    'HardNet margin loss - calculates loss based on distance matrix based on positive distance and closest negative distance.\n    '
+    assert (anchor.size() == positive.size()), 'Input sizes between positive and negative must be equal.'
+    assert (anchor.dim() == 2), 'Inputd must be a 2D matrix.'
+    eps = 1e-08
+    dist_matrix = (distance_matrix_vector(anchor, positive) + eps)
+    eye = torch.autograd.Variable(torch.eye(dist_matrix.size(1))).cuda()
+    pos1 = torch.diag(dist_matrix)
+    dist_without_min_on_diag = (dist_matrix + (eye * 10))
+    mask = ((dist_without_min_on_diag.ge(0.008).float() - 1.0) * (- 1))
+    mask = (mask.type_as(dist_without_min_on_diag) * 10)
+    dist_without_min_on_diag = (dist_without_min_on_diag + mask)
+    if (batch_reduce == 'min'):
+        min_neg = torch.min(dist_without_min_on_diag, 1)[0]
+        if anchor_swap:
+            min_neg2 = torch.min(dist_without_min_on_diag, 0)[0]
+            min_neg = torch.min(min_neg, min_neg2)
+        if False:
+            dist_matrix_a = (distance_matrix_vector(anchor, anchor) + eps)
+            dist_matrix_p = (distance_matrix_vector(positive, positive) + eps)
+            dist_without_min_on_diag_a = (dist_matrix_a + (eye * 10))
+            dist_without_min_on_diag_p = (dist_matrix_p + (eye * 10))
+            min_neg_a = torch.min(dist_without_min_on_diag_a, 1)[0]
+            min_neg_p = torch.t(torch.min(dist_without_min_on_diag_p, 0)[0])
+            min_neg_3 = torch.min(min_neg_p, min_neg_a)
+            min_neg = torch.min(min_neg, min_neg_3)
+            print(min_neg_a)
+            print(min_neg_p)
+            print(min_neg_3)
+            print(min_neg)
+        min_neg = min_neg
+        pos = pos1
+    elif (batch_reduce == 'average'):
+        pos = pos1.repeat(anchor.size(0)).view((- 1), 1).squeeze(0)
+        min_neg = dist_without_min_on_diag.view((- 1), 1)
+        if anchor_swap:
+            min_neg2 = torch.t(dist_without_min_on_diag).contiguous().view((- 1), 1)
+            min_neg = torch.min(min_neg, min_neg2)
+        min_neg = min_neg.squeeze(0)
+    elif (batch_reduce == 'random'):
+        idxs = torch.autograd.Variable(torch.randperm(anchor.size()[0]).long()).cuda()
+        min_neg = dist_without_min_on_diag.gather(1, idxs.view((- 1), 1))
+        if anchor_swap:
+            min_neg2 = torch.t(dist_without_min_on_diag).gather(1, idxs.view((- 1), 1))
+            min_neg = torch.min(min_neg, min_neg2)
+        min_neg = torch.t(min_neg).squeeze(0)
+        pos = pos1
+    else:
+        print('Unknown batch reduce mode. Try min, average or random')
+        sys.exit(1)
+    if (loss_type == 'triplet_margin'):
+        loss = torch.clamp(((margin + pos) - min_neg), min=0.0)
+    elif (loss_type == 'softmax'):
+        exp_pos = torch.exp((2.0 - pos))
+        exp_den = ((exp_pos + torch.exp((2.0 - min_neg))) + eps)
+        loss = (- torch.log((exp_pos / exp_den)))
+    elif (loss_type == 'contrastive'):
+        loss = (torch.clamp((margin - min_neg), min=0.0) + pos)
+    else:
+        print('Unknown loss type. Try triplet_margin, softmax or contrastive')
+        sys.exit(1)
+    loss = torch.mean(loss)
+    return loss
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+     ...  =  ... . ... (torch)
+    if:    elif:
+         ...  =  ... . ... ( ... .randperm)
+
+idx = 21:------------------- similar code ------------------ index = 27, score = 4.0 
+def __iter__(self):
+    if self.shuffle:
+        g = torch.Generator()
+        g.manual_seed(self.epoch)
+        indices = torch.randperm(len(self.dataset), generator=g).tolist()
+    else:
+        indices = torch.arange(len(self.dataset)).tolist()
+    indices += indices[:(self.total_size - len(indices))]
+    assert (len(indices) == self.total_size)
+    indices = indices[self.rank:self.total_size:self.num_replicas]
+    assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ( ... ):
+    if:
+         ...  = torch
+         ...  =  ... .randperm
+
+idx = 22:------------------- similar code ------------------ index = 12, score = 4.0 
+def __iter__(self):
+    if self.shuffle:
+        g = torch.Generator()
+        g.manual_seed(self.epoch)
+        indices = torch.randperm(len(self.dataset), generator=g).tolist()
+    else:
+        indices = torch.arange(len(self.dataset)).tolist()
+    indices += indices[:(self.total_size - len(indices))]
+    assert (len(indices) == self.total_size)
+    indices = indices[self.rank:self.total_size:self.num_replicas]
+    assert (len(indices) == self.num_samples)
+    return iter(indices)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ( ... ):
+    if:
+         ...  = torch
+         ...  =  ... .randperm
+
+idx = 23:------------------- similar code ------------------ index = 11, score = 4.0 
+def random_choice(self, gallery, num):
+    'Random select some elements from the gallery.\n\n        If `gallery` is a Tensor, the returned indices will be a Tensor;\n        If `gallery` is a ndarray or list, the returned indices will be a\n        ndarray.\n\n        Args:\n            gallery (Tensor | ndarray | list): indices pool.\n            num (int): expected sample num.\n\n        Returns:\n            Tensor or ndarray: sampled indices.\n        '
+    assert (len(gallery) >= num)
+    is_tensor = isinstance(gallery, torch.Tensor)
+    if (not is_tensor):
+        gallery = torch.tensor(gallery, dtype=torch.long, device=torch.cuda.current_device())
+    perm = torch.randperm(gallery.numel(), device=gallery.device)[:num]
+    rand_inds = gallery[perm]
+    if (not is_tensor):
+        rand_inds = rand_inds.cpu().numpy()
+    return rand_inds
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+     ...  =  ... ( ... , torch)
+     ...  =  ... .randperm
+
+idx = 24:------------------- similar code ------------------ index = 17, score = 4.0 
+def __iter__(self):
+    rand_num = (torch.randperm(self.num_per_batch).view((- 1), 1) * self.batch_size)
+    self.rand_num = (rand_num.expand(self.num_per_batch, self.batch_size) + self.range)
+    self.rand_num_view = self.rand_num.view((- 1))
+    if self.leftover_flag:
+        self.rand_num_view = torch.cat((self.rand_num_view, self.leftover), 0)
+    return iter(self.rand_num_view)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  = (torch.randperm *)
+
+idx = 25:------------------- similar code ------------------ index = 6, score = 4.0 
+def __iter__(self):
+    rand_num = (torch.randperm(self.num_per_batch).view((- 1), 1) * self.batch_size)
+    self.rand_num = (rand_num.expand(self.num_per_batch, self.batch_size) + self.range)
+    self.rand_num_view = self.rand_num.view((- 1))
+    if self.leftover_flag:
+        self.rand_num_view = torch.cat((self.rand_num_view, self.leftover), 0)
+    return iter(self.rand_num_view)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  = (torch.randperm *)
+
+idx = 26:------------------- similar code ------------------ index = 25, score = 4.0 
+def __iter__(self):
+    rand_num = (torch.randperm(self.num_per_batch).view((- 1), 1) * self.batch_size)
+    self.rand_num = (rand_num.expand(self.num_per_batch, self.batch_size) + self.range)
+    self.rand_num_view = self.rand_num.view((- 1))
+    if self.leftover_flag:
+        self.rand_num_view = torch.cat((self.rand_num_view, self.leftover), 0)
+    return iter(self.rand_num_view)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  = (torch.randperm *)
+
+idx = 27:------------------- similar code ------------------ index = 23, score = 3.0 
+def forward_train(self, img, img_meta, gt_bboxes, gt_labels, gt_bboxes_ignore=None, gt_masks=None, proposals=None):
+    x = self.extract_feat(img)
+    losses = dict()
+    if self.with_rpn:
+        rpn_outs = self.rpn_head(x)
+        rpn_loss_inputs = (rpn_outs + (gt_bboxes, img_meta, self.train_cfg.rpn))
+        rpn_losses = self.rpn_head.loss(*rpn_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+        losses.update(rpn_losses)
+        proposal_cfg = self.train_cfg.get('rpn_proposal', self.test_cfg.rpn)
+        proposal_inputs = (rpn_outs + (img_meta, proposal_cfg))
+        proposal_list = self.rpn_head.get_bboxes(*proposal_inputs)
+    else:
+        proposal_list = proposals
+    if self.with_bbox:
+        bbox_assigner = build_assigner(self.train_cfg.rcnn.assigner)
+        bbox_sampler = build_sampler(self.train_cfg.rcnn.sampler, context=self)
+        num_imgs = img.size(0)
+        if (gt_bboxes_ignore is None):
+            gt_bboxes_ignore = [None for _ in range(num_imgs)]
+        sampling_results = []
+        for i in range(num_imgs):
+            assign_result = bbox_assigner.assign(proposal_list[i], gt_bboxes[i], gt_bboxes_ignore[i], gt_labels[i])
+            sampling_result = bbox_sampler.sample(assign_result, proposal_list[i], gt_bboxes[i], gt_labels[i], feats=[lvl_feat[i][None] for lvl_feat in x])
+            sampling_results.append(sampling_result)
+        rois = bbox2roi([res.bboxes for res in sampling_results])
+        bbox_feats = self.bbox_roi_extractor(x[:self.bbox_roi_extractor.num_inputs], rois)
+        if self.with_shared_head:
+            bbox_feats = self.shared_head(bbox_feats)
+        (cls_score, bbox_pred) = self.bbox_head(bbox_feats)
+        bbox_targets = self.bbox_head.get_target(sampling_results, gt_bboxes, gt_labels, self.train_cfg.rcnn)
+        loss_bbox = self.bbox_head.loss(cls_score, bbox_pred, *bbox_targets)
+        losses.update(loss_bbox)
+        sampling_results = self._random_jitter(sampling_results, img_meta)
+        pos_rois = bbox2roi([res.pos_bboxes for res in sampling_results])
+        grid_feats = self.grid_roi_extractor(x[:self.grid_roi_extractor.num_inputs], pos_rois)
+        if self.with_shared_head:
+            grid_feats = self.shared_head(grid_feats)
+        max_sample_num_grid = self.train_cfg.rcnn.get('max_num_grid', 192)
+        sample_idx = torch.randperm(grid_feats.shape[0])[:min(grid_feats.shape[0], max_sample_num_grid)]
+        grid_feats = grid_feats[sample_idx]
+        grid_pred = self.grid_head(grid_feats)
+        grid_targets = self.grid_head.get_target(sampling_results, self.train_cfg.rcnn)
+        grid_targets = grid_targets[sample_idx]
+        loss_grid = self.grid_head.loss(grid_pred, grid_targets)
+        losses.update(loss_grid)
+    return losses
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    if:
+         ...  = torch.randperm
+
+idx = 28:------------------- similar code ------------------ index = 4, score = 3.0 
+def _construct_new_file_names(self, length):
+    assert isinstance(length, int)
+    files_len = len(self._file_names)
+    new_file_names = (self._file_names * (length // files_len))
+    rand_indices = torch.randperm(files_len).tolist()
+    new_indices = rand_indices[:(length % files_len)]
+    new_file_names += [self._file_names[i] for i in new_indices]
+    return new_file_names
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 29:------------------- similar code ------------------ index = 14, score = 3.0 
+def learn_batch(self, train_loader, val_loader=None):
+    if self.skip_memory_concatenation:
+        new_train_loader = train_loader
+    else:
+        dataset_list = []
+        for storage in self.task_memory.values():
+            dataset_list.append(storage)
+        dataset_list *= max((len(train_loader.dataset) // self.memory_size), 1)
+        dataset_list.append(train_loader.dataset)
+        dataset = torch.utils.data.ConcatDataset(dataset_list)
+        new_train_loader = torch.utils.data.DataLoader(dataset, batch_size=train_loader.batch_size, shuffle=True, num_workers=train_loader.num_workers)
+    super(Naive_Rehearsal, self).learn_batch(new_train_loader, val_loader)
+    self.task_count += 1
+    num_sample_per_task = (self.memory_size // self.task_count)
+    num_sample_per_task = min(len(train_loader.dataset), num_sample_per_task)
+    for storage in self.task_memory.values():
+        storage.reduce(num_sample_per_task)
+    randind = torch.randperm(len(train_loader.dataset))[:num_sample_per_task]
+    self.task_memory[self.task_count] = Storage(train_loader.dataset, randind)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = torch.randperm
+
+idx = 30:------------------- similar code ------------------ index = 30, score = 3.0 
+def forward_train(self, img, img_metas, gt_bboxes, gt_labels, gt_bboxes_ignore=None, gt_masks=None, proposals=None):
+    x = self.extract_feat(img)
+    losses = dict()
+    if self.with_rpn:
+        rpn_outs = self.rpn_head(x)
+        rpn_loss_inputs = (rpn_outs + (gt_bboxes, img_metas, self.train_cfg.rpn))
+        rpn_losses = self.rpn_head.loss(*rpn_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+        losses.update(rpn_losses)
+        proposal_cfg = self.train_cfg.get('rpn_proposal', self.test_cfg.rpn)
+        proposal_inputs = (rpn_outs + (img_metas, proposal_cfg))
+        proposal_list = self.rpn_head.get_bboxes(*proposal_inputs)
+    else:
+        proposal_list = proposals
+    if self.with_bbox:
+        bbox_assigner = build_assigner(self.train_cfg.rcnn.assigner)
+        bbox_sampler = build_sampler(self.train_cfg.rcnn.sampler, context=self)
+        num_imgs = img.size(0)
+        if (gt_bboxes_ignore is None):
+            gt_bboxes_ignore = [None for _ in range(num_imgs)]
+        sampling_results = []
+        for i in range(num_imgs):
+            assign_result = bbox_assigner.assign(proposal_list[i], gt_bboxes[i], gt_bboxes_ignore[i], gt_labels[i])
+            sampling_result = bbox_sampler.sample(assign_result, proposal_list[i], gt_bboxes[i], gt_labels[i], feats=[lvl_feat[i][None] for lvl_feat in x])
+            sampling_results.append(sampling_result)
+        rois = bbox2roi([res.bboxes for res in sampling_results])
+        bbox_feats = self.bbox_roi_extractor(x[:self.bbox_roi_extractor.num_inputs], rois)
+        if self.with_shared_head:
+            bbox_feats = self.shared_head(bbox_feats)
+        (cls_score, bbox_pred) = self.bbox_head(bbox_feats)
+        bbox_targets = self.bbox_head.get_target(sampling_results, gt_bboxes, gt_labels, self.train_cfg.rcnn)
+        loss_bbox = self.bbox_head.loss(cls_score, bbox_pred, *bbox_targets)
+        losses.update(loss_bbox)
+        sampling_results = self._random_jitter(sampling_results, img_metas)
+        pos_rois = bbox2roi([res.pos_bboxes for res in sampling_results])
+        grid_feats = self.grid_roi_extractor(x[:self.grid_roi_extractor.num_inputs], pos_rois)
+        if self.with_shared_head:
+            grid_feats = self.shared_head(grid_feats)
+        max_sample_num_grid = self.train_cfg.rcnn.get('max_num_grid', 192)
+        sample_idx = torch.randperm(grid_feats.shape[0])[:min(grid_feats.shape[0], max_sample_num_grid)]
+        grid_feats = grid_feats[sample_idx]
+        grid_pred = self.grid_head(grid_feats)
+        grid_targets = self.grid_head.get_target(sampling_results, self.train_cfg.rcnn)
+        grid_targets = grid_targets[sample_idx]
+        loss_grid = self.grid_head.loss(grid_pred, grid_targets)
+        losses.update(loss_grid)
+    return losses
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    if:
+         ...  = torch.randperm
+

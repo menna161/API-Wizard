@@ -1,0 +1,2371 @@
+------------------------- example 1 ------------------------ 
+def perturb(self):
+    torch.randn(self.epsilon_input.size(), out=self.epsilon_input)
+    torch.randn(self.epsilon_output.size(), out=self.epsilon_output)
+
+------------------------- example 2 ------------------------ 
+@pytest.fixture
+def input_cifar10():
+    return torch.randn(1, 3, 32, 32)
+
+------------------------- example 3 ------------------------ 
+@pytest.fixture
+def input_tinyimagenet200():
+    return torch.randn(1, 3, 64, 64)
+
+------------------------- example 4 ------------------------ 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+// your code ...
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+// your code ...
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+// your code ...
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+// your code ...
+    if (not os.path.exists(args.checkpoints)):
+// your code ...
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+// your code ...
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+// your code ...
+
+------------------------- example 5 ------------------------ 
+def test_reshape():
+    backend = TorchBackend
+    x = torch.randn(3, 5, 16)
+    y = backend.reshape_input(x, signal_shape=(16,))
+    xbis = backend.reshape_output(y, batch_shape=(3, 5), n_kept_dims=1)
+// your code ...
+    assert torch.allclose(x, xbis)
+    x = torch.randn(3, 5, 16, 16)
+// your code ...
+    assert torch.allclose(x, xbis)
+    x = torch.randn(3, 5, 16, 16, 16)
+// your code ...
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        3         ||         0        ||        0.6666666666666666         
+example2  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example3  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example4  ||          10           ||        15         ||         7        ||        0.06666666666666667         
+example5  ||          5           ||        9         ||         3        ||        0.3333333333333333         
+
+avg       ||          1.6666666666666667           ||        6.6         ||         2.0        ||         34.666666666666664        
+
+idx = 0:------------------- similar code ------------------ index = 64, score = 7.0 
+def perturb(self):
+    torch.randn(self.epsilon_input.size(), out=self.epsilon_input)
+    torch.randn(self.epsilon_output.size(), out=self.epsilon_output)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    torch.randn
+
+idx = 1:------------------- similar code ------------------ index = 138, score = 7.0 
+def perturb(self):
+    torch.randn(self.epsilon_weight.size(), out=self.epsilon_weight)
+    if (self.bias is not None):
+        torch.randn(self.epsilon_bias.size(), out=self.epsilon_bias)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    torch.randn
+
+idx = 2:------------------- similar code ------------------ index = 101, score = 6.0 
+@pytest.fixture
+def input_cifar10():
+    return torch.randn(1, 3, 32, 32)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return torch.randn
+
+idx = 3:------------------- similar code ------------------ index = 47, score = 6.0 
+def sample(self, num_samples):
+    return torch.randn(((num_samples,) + self.shape), device=self.base_measure.device, dtype=self.base_measure.dtype)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return torch.randn
+
+idx = 4:------------------- similar code ------------------ index = 48, score = 6.0 
+@pytest.mark.parametrize('device', devices)
+@pytest.mark.parametrize('backend', backends)
+def test_differentiability_scattering(device, backend, random_state=42):
+    '\n    It simply tests whether it is really differentiable or not.\n    This does NOT test whether the gradients are correct.\n    '
+    if backend.name.endswith('_skcuda'):
+        pytest.skip("The skcuda backend does not pass differentiabilitytests, but that's ok (for now).")
+    torch.manual_seed(random_state)
+    J = 6
+    Q = 8
+    T = (2 ** 12)
+    scattering = Scattering1D(J, T, Q, frontend='torch', backend=backend).to(device)
+    x = torch.randn(2, T, requires_grad=True, device=device)
+    s = scattering.forward(x)
+    loss = torch.sum(torch.abs(s))
+    loss.backward()
+    assert (torch.max(torch.abs(x.grad)) > 0.0)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    torch
+     ...  =  ... .randn
+
+idx = 5:------------------- similar code ------------------ index = 189, score = 6.0 
+@pytest.mark.parametrize('backend', backends)
+def test_scattering_GPU_CPU(backend, random_state=42):
+    '\n    This function tests whether the CPU computations are equivalent to\n    the GPU ones\n    '
+    if (torch.cuda.is_available() and (not backend.name.endswith('_skcuda'))):
+        torch.manual_seed(random_state)
+        J = 6
+        Q = 8
+        T = (2 ** 12)
+        scattering = Scattering1D(J, T, Q, backend=backend, frontend='torch').cpu()
+        x = torch.randn(2, T)
+        s_cpu = scattering(x)
+        scattering = scattering.cuda()
+        x_gpu = x.clone().cuda()
+        s_gpu = scattering(x_gpu).cpu()
+        Warning('Tolerance has been slightly lowered here...')
+        assert torch.allclose(s_cpu, s_gpu, atol=1e-07)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        torch
+         ...  =  ... .randn
+
+idx = 6:------------------- similar code ------------------ index = 97, score = 6.0 
+@pytest.fixture
+def input_tinyimagenet200():
+    return torch.randn(1, 3, 64, 64)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return torch.randn
+
+idx = 7:------------------- similar code ------------------ index = 55, score = 6.0 
+@pytest.fixture
+def input_cifar100():
+    return torch.randn(1, 3, 32, 32)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return torch.randn
+
+idx = 8:------------------- similar code ------------------ index = 54, score = 6.0 
+def test_differentiability_jtfs_torch(random_state=42):
+    device = 'cpu'
+    J = 8
+    J_fr = 3
+    shape = (4096,)
+    Q = 8
+    S = TimeFrequencyScatteringTorch(J=J, J_fr=J_fr, shape=shape, Q=Q, T=0, F=0).to(device)
+    S.build()
+    S.create_filters()
+    S.load_filters()
+    backend = S.backend
+    torch.manual_seed(random_state)
+    x = torch.randn(shape, requires_grad=True, device=device)
+    x_shape = backend.shape(x)
+    (_, signal_shape) = (x_shape[:(- 1)], x_shape[(- 1):])
+    x_reshaped = backend.reshape_input(x, signal_shape)
+    U_0_in = backend.pad(x_reshaped, pad_left=S.pad_left, pad_right=S.pad_right)
+    filters = [S.phi_f, S.psi1_f, S.psi2_f]
+    jtfs_gen = joint_timefrequency_scattering(U_0_in, backend, filters, S.log2_stride, (S.average == 'local'), S.filters_fr, S.log2_stride_fr, (S.average_fr == 'local'))
+    S_0 = next(jtfs_gen)
+    loss = torch.linalg.norm(S_0['coef'])
+    loss.backward(retain_graph=True)
+    assert (torch.abs(loss) >= 0.0)
+    grad = x.grad
+    assert (torch.max(torch.abs(grad)) > 0.0)
+    for S in jtfs_gen:
+        loss = torch.linalg.norm(S['coef'])
+        loss.backward(retain_graph=True)
+        assert (torch.abs(loss) >= 0.0)
+        grad = x.grad
+        assert (torch.max(torch.abs(grad)) > 0.0)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    torch
+     ...  =  ... .randn
+
+idx = 9:------------------- similar code ------------------ index = 125, score = 6.0 
+@pytest.mark.parametrize('device', devices)
+@pytest.mark.parametrize('backend', backends)
+def test_pad_1d(device, backend, random_state=42):
+    '\n    Tests the correctness and differentiability of pad_1d\n    '
+    torch.manual_seed(random_state)
+    N = 128
+    for pad_left in range(0, (N - 16), 16):
+        for pad_right in [pad_left, (pad_left + 16)]:
+            x = torch.randn(2, 4, N, requires_grad=True, device=device)
+            x_pad = backend.pad(x, pad_left, pad_right)
+            x_pad = x_pad.reshape(x_pad.shape[:(- 1)])
+            x2 = x.clone()
+            x_pad2 = x_pad.clone()
+            for t in range(1, (pad_left + 1)):
+                assert torch.allclose(x_pad2[(..., (pad_left - t))], x2[(..., t)])
+            for t in range(x.shape[(- 1)]):
+                assert torch.allclose(x_pad2[(..., (pad_left + t))], x2[(..., t)])
+            for t in range(1, (pad_right + 1)):
+                assert torch.allclose(x_pad2[(..., (((x_pad.shape[(- 1)] - 1) - pad_right) + t))], x2[(..., ((x.shape[(- 1)] - 1) - t))])
+            for t in range(1, (pad_right + 1)):
+                assert torch.allclose(x_pad2[(..., (((x_pad.shape[(- 1)] - 1) - pad_right) - t))], x2[(..., ((x.shape[(- 1)] - 1) - t))])
+            loss = (0.5 * torch.sum((x_pad ** 2)))
+            loss.backward()
+            x_grad_original = x.clone()
+            x_grad = x_grad_original.new(x_grad_original.shape).fill_(0.0)
+            x_grad += x_grad_original
+            for t in range(1, (pad_left + 1)):
+                x_grad[(..., t)] += x_grad_original[(..., t)]
+            for t in range(1, (pad_right + 1)):
+                t0 = ((x.shape[(- 1)] - 1) - t)
+                x_grad[(..., t0)] += x_grad_original[(..., t0)]
+            assert torch.allclose(x.grad, x_grad)
+    with pytest.raises(ValueError) as ve:
+        backend.pad(x, x.shape[(- 1)], 0)
+    assert ('padding size' in ve.value.args[0])
+    with pytest.raises(ValueError) as ve:
+        backend.pad(x, 0, x.shape[(- 1)])
+    assert ('padding size' in ve.value.args[0])
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    torch
+    for  ...  in:
+        for  ...  in:
+             ...  =  ... .randn
+
+idx = 10:------------------- similar code ------------------ index = 73, score = 6.0 
+def jit_sample_normal(num: int, mean: torch.Tensor, cholesky_precisions: torch.Tensor, covariance_type: str) -> torch.Tensor:
+    samples = torch.randn(num, mean.size(0), dtype=mean.dtype, device=mean.device)
+    chol_covariance = _cholesky_covariance(cholesky_precisions, covariance_type)
+    if (covariance_type in ('tied', 'full')):
+        scale = chol_covariance.matmul(samples.unsqueeze((- 1))).squeeze((- 1))
+    else:
+        scale = (chol_covariance * samples)
+    return (mean + scale)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... () -> torch:
+     ...  =  ... .randn
+
+idx = 11:------------------- similar code ------------------ index = 120, score = 6.0 
+@pytest.mark.parametrize('device', devices)
+@pytest.mark.parametrize('backend', backends)
+def test_modulus(device, backend, random_state=42):
+    '\n    Tests the stability and differentiability of modulus\n    '
+    if (backend.name.endswith('_skcuda') and (device == 'cpu')):
+        with pytest.raises(TypeError) as re:
+            x_bad = torch.randn((4, 2)).cpu()
+            backend.modulus(x_bad)
+        assert ('for CPU tensors' in re.value.args[0])
+        return
+    torch.manual_seed(random_state)
+    x = torch.randn(2, 4, 128, 2, requires_grad=True, device=device)
+    x_abs = backend.modulus(x).squeeze((- 1))
+    assert (len(x_abs.shape) == len(x.shape[:(- 1)]))
+    x_abs2 = x_abs.clone()
+    x2 = x.clone()
+    assert torch.allclose(x_abs2, torch.sqrt(((x2[(..., 0)] ** 2) + (x2[(..., 1)] ** 2))))
+    with pytest.raises(TypeError) as te:
+        x_bad = torch.randn(4).to(device)
+        backend.modulus(x_bad)
+    assert ('should be complex' in te.value.args[0])
+    if backend.name.endswith('_skcuda'):
+        pytest.skip("The skcuda backend does not pass differentiabilitytests, but that's ok (for now).")
+    loss = torch.sum(x_abs)
+    loss.backward()
+    x_grad = (x2 / x_abs2[(..., None)])
+    assert torch.allclose(x.grad, x_grad)
+    x0 = torch.zeros(100, 4, 128, 2, requires_grad=True, device=device)
+    x_abs0 = backend.modulus(x0)
+    loss0 = torch.sum(x_abs0)
+    loss0.backward()
+    assert (torch.max(torch.abs(x0.grad)) <= 1e-07)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    torch
+     ...  =  ... .randn
+
+idx = 12:------------------- similar code ------------------ index = 114, score = 6.0 
+@pytest.mark.parametrize('device', devices)
+@pytest.mark.parametrize('backend', backends)
+def test_output_size(device, backend, random_state=42):
+    '\n    Tests that S.output_size() returns the same size as S.scattering(x)\n    '
+    torch.manual_seed(random_state)
+    J = 6
+    Q = 8
+    N = (2 ** 12)
+    scattering = Scattering1D(J, N, Q, out_type='dict', backend=backend, frontend='torch')
+    x = torch.randn(2, N)
+    scattering.to(device)
+    x = x.to(device)
+    if ((not backend.name.endswith('_skcuda')) or (device != 'cpu')):
+        for max_order in [1, 2]:
+            scattering.max_order = max_order
+            s_dico = scattering(x)
+            for detail in [True, False]:
+                size = scattering.output_size(detail=detail)
+                if detail:
+                    num_orders = {0: 0, 1: 0, 2: 0}
+                    for k in s_dico.keys():
+                        if (k == ()):
+                            num_orders[0] += 1
+                        elif (len(k) == 1):
+                            num_orders[1] += 1
+                        elif (len(k) == 2):
+                            num_orders[2] += 1
+                    todo = (2 if (max_order == 2) else 1)
+                    for i in range(todo):
+                        assert (num_orders[i] == size[i])
+                else:
+                    assert (len(s_dico) == size)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    torch
+     ...  =  ... .randn
+
+idx = 13:------------------- similar code ------------------ index = 142, score = 6.0 
+def test_list(self):
+    torch.manual_seed(1)
+    states = State(torch.randn(3, STATE_DIM), torch.tensor([1, 0, 1]))
+    dist = self.policy(states)
+    actions = dist.sample()
+    log_probs = dist.log_prob(actions)
+    tt.assert_equal(actions, torch.tensor([1, 2, 1]))
+    loss = (- (torch.tensor([[1, 2, 3]]) * log_probs).mean())
+    self.policy.reinforce(loss)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    torch
+     ...  =  ... ( ... .randn,)
+
+idx = 14:------------------- similar code ------------------ index = 111, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info(f'creating model {args.network_name}')
+    model = denset161backbone(args.pretrained, args.num_classes)
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network_name}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    (conv_and_fc_param_list, bn_param_list) = ([], [])
+    (conv_and_fc_param_name_list, bn_param_name_list) = ([], [])
+    for (name, param) in model.named_parameters():
+        if ('norm' in name):
+            bn_param_list.append(param)
+            bn_param_name_list.append(name)
+        else:
+            conv_and_fc_param_list.append(param)
+            conv_and_fc_param_name_list.append(name)
+    logger.info(f'{conv_and_fc_param_name_list}')
+    logger.info(f'{bn_param_name_list}')
+    weight_decay_setting_list = [{'params': conv_and_fc_param_list, 'weight_decay': args.weight_decay}, {'params': bn_param_list, 'weight_decay': 0.0}]
+    model = model.cuda()
+    optimizer = torch.optim.Adam(weight_decay_setting_list, lr=args.lr)
+    warm_up_with_multistep_lr = (lambda epoch: ((epoch / args.warm_up_epochs) if (epoch <= args.warm_up_epochs) else (0.1 ** len([m for m in args.milestones if (m <= epoch)]))))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warm_up_with_multistep_lr)
+    criterion_list = {'id_loss': nn.CrossEntropyLoss().cuda(), 'triplet_loss': TripletLoss(margin=0.3), 'center_loss': CenterLoss(num_classes=args.num_classes).cuda()}
+    model = nn.DataParallel(model)
+    (best_map, best_top1) = (0.0, 0.0)
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        (best_map, best_top1) = (checkpoint['best_map'], checkpoint['best_top1'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%,best_map: {checkpoint['best_map']},best_top1:{checkpoint['best_top1']}")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, losses: {losses:.2f}')
+        if ((epoch >= 60) and ((epoch % 2) == 0)):
+            (dists, query_features, gallery_features) = get_dist_feature(Config.val_loader, model, epoch, norm_feature=True)
+            txt = generate_result_txt(dists, query_features, gallery_features, Config.val_dataset_pkl, color_bias=400, type_bias=400, group_threhold=0.05, group_rerank=True)
+            evl = Evaluator(Config.val_dataset_pkl)
+            effi = evl.eval_from_txt(txt)
+            logger.info(f"epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+            if ((effi['mAP'] > best_map) and (effi['CMC_1'] > best_top1)):
+                logger.info(f"best model update,epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+                (best_map, best_top1) = (effi['mAP'], effi['CMC_1'])
+                logger.info('update best_map and best_top1')
+                pickle.dump(dists, open(os.path.join(args.checkpoints, '{}_best_dist.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(query_features, open(os.path.join(args.checkpoints, '{}_best_query_f.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(gallery_features, open(os.path.join(args.checkpoints, '{}_best_gallery_f.pkl'.format(args.network_name)), 'wb'))
+                with open(os.path.join(args.checkpoints, '{}_best_result.txt'.format(args.network_name)), 'w') as f:
+                    f.write(txt)
+                torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}_best_model.pth'.format(args.network_name)))
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 15:------------------- similar code ------------------ index = 23, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info(f'creating model {args.network_name}')
+    model = denset161backbone(args.pretrained, args.num_classes)
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network_name}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    (conv_and_fc_param_list, bn_param_list) = ([], [])
+    (conv_and_fc_param_name_list, bn_param_name_list) = ([], [])
+    for (name, param) in model.named_parameters():
+        if ('norm' in name):
+            bn_param_list.append(param)
+            bn_param_name_list.append(name)
+        else:
+            conv_and_fc_param_list.append(param)
+            conv_and_fc_param_name_list.append(name)
+    logger.info(f'{conv_and_fc_param_name_list}')
+    logger.info(f'{bn_param_name_list}')
+    weight_decay_setting_list = [{'params': conv_and_fc_param_list, 'weight_decay': args.weight_decay}, {'params': bn_param_list, 'weight_decay': 0.0}]
+    model = model.cuda()
+    optimizer = torch.optim.Adam(weight_decay_setting_list, lr=args.lr)
+    warm_up_with_multistep_lr = (lambda epoch: ((epoch / args.warm_up_epochs) if (epoch <= args.warm_up_epochs) else (0.1 ** len([m for m in args.milestones if (m <= epoch)]))))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warm_up_with_multistep_lr)
+    criterion_list = {'id_loss': nn.CrossEntropyLoss().cuda(), 'triplet_loss': TripletLoss(margin=0.3), 'center_loss': CenterLoss(num_classes=args.num_classes).cuda()}
+    model = nn.DataParallel(model)
+    (best_map, best_top1) = (0.0, 0.0)
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        (best_map, best_top1) = (checkpoint['best_map'], checkpoint['best_top1'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%,best_map: {checkpoint['best_map']},best_top1:{checkpoint['best_top1']}")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, losses: {losses:.2f}')
+        if ((epoch >= 60) and ((epoch % 2) == 0)):
+            (dists, query_features, gallery_features) = get_dist_feature(Config.val_loader, model, epoch, norm_feature=True)
+            txt = generate_result_txt(dists, query_features, gallery_features, Config.val_dataset_pkl, color_bias=400, type_bias=400, group_threhold=0.05, group_rerank=True)
+            evl = Evaluator(Config.val_dataset_pkl)
+            effi = evl.eval_from_txt(txt)
+            logger.info(f"epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+            if ((effi['mAP'] > best_map) and (effi['CMC_1'] > best_top1)):
+                logger.info(f"best model update,epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+                (best_map, best_top1) = (effi['mAP'], effi['CMC_1'])
+                logger.info('update best_map and best_top1')
+                pickle.dump(dists, open(os.path.join(args.checkpoints, '{}_best_dist.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(query_features, open(os.path.join(args.checkpoints, '{}_best_query_f.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(gallery_features, open(os.path.join(args.checkpoints, '{}_best_gallery_f.pkl'.format(args.network_name)), 'wb'))
+                with open(os.path.join(args.checkpoints, '{}_best_result.txt'.format(args.network_name)), 'w') as f:
+                    f.write(txt)
+                torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}_best_model.pth'.format(args.network_name)))
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 16:------------------- similar code ------------------ index = 25, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info(f'creating model {args.network_name}')
+    model = hrnetw18backbone(args.pretrained, args.num_classes)
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network_name}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    (conv_and_fc_param_list, bn_param_list) = ([], [])
+    (conv_and_fc_param_name_list, bn_param_name_list) = ([], [])
+    for (name, param) in model.named_parameters():
+        if ('bn' in name):
+            bn_param_list.append(param)
+            bn_param_name_list.append(name)
+        else:
+            conv_and_fc_param_list.append(param)
+            conv_and_fc_param_name_list.append(name)
+    logger.info(f'{conv_and_fc_param_name_list}')
+    logger.info(f'{bn_param_name_list}')
+    weight_decay_setting_list = [{'params': conv_and_fc_param_list, 'weight_decay': args.weight_decay}, {'params': bn_param_list, 'weight_decay': 0.0}]
+    model = model.cuda()
+    optimizer = torch.optim.Adam(weight_decay_setting_list, lr=args.lr)
+    warm_up_with_multistep_lr = (lambda epoch: ((epoch / args.warm_up_epochs) if (epoch <= args.warm_up_epochs) else (0.1 ** len([m for m in args.milestones if (m <= epoch)]))))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warm_up_with_multistep_lr)
+    criterion_list = {'id_loss': nn.CrossEntropyLoss().cuda(), 'triplet_loss': TripletLoss(margin=0.3), 'center_loss': CenterLoss(num_classes=args.num_classes).cuda()}
+    model = nn.DataParallel(model)
+    (best_map, best_top1) = (0.0, 0.0)
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        (best_map, best_top1) = (checkpoint['best_map'], checkpoint['best_top1'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%,best_map: {checkpoint['best_map']},best_top1:{checkpoint['best_top1']}")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, losses: {losses:.2f}')
+        if ((epoch >= 60) and ((epoch % 2) == 0)):
+            (dists, query_features, gallery_features) = get_dist_feature(Config.val_loader, model, epoch, norm_feature=True)
+            txt = generate_result_txt(dists, query_features, gallery_features, Config.val_dataset_pkl, color_bias=400, type_bias=400, group_threhold=0.05, group_rerank=True)
+            evl = Evaluator(Config.val_dataset_pkl)
+            effi = evl.eval_from_txt(txt)
+            logger.info(f"epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+            if ((effi['mAP'] > best_map) and (effi['CMC_1'] > best_top1)):
+                logger.info(f"best model update,epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+                (best_map, best_top1) = (effi['mAP'], effi['CMC_1'])
+                logger.info('update best_map and best_top1')
+                pickle.dump(dists, open(os.path.join(args.checkpoints, '{}_best_dist.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(query_features, open(os.path.join(args.checkpoints, '{}_best_query_f.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(gallery_features, open(os.path.join(args.checkpoints, '{}_best_gallery_f.pkl'.format(args.network_name)), 'wb'))
+                with open(os.path.join(args.checkpoints, '{}_best_result.txt'.format(args.network_name)), 'w') as f:
+                    f.write(txt)
+                torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}_best_model.pth'.format(args.network_name)))
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 17:------------------- similar code ------------------ index = 199, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info('start loading data')
+    train_loader = DataLoader(Config.train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    val_loader = DataLoader(Config.val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    logger.info('finish loading data')
+    logger.info(f"creating model '{args.network}'")
+    model = densenet161(**{'pretrained': args.pretrained, 'num_classes': args.num_classes})
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    model = model.cuda()
+    criterion = nn.CrossEntropyLoss().cuda()
+    optimizer = torch.optim.SGD(model.parameters(), args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.milestones, gamma=0.1)
+    if args.apex:
+        (model, optimizer) = amp.initialize(model, optimizer, opt_level='O1')
+    model = nn.DataParallel(model)
+    if args.evaluate:
+        if (not os.path.isfile(args.evaluate)):
+            raise Exception(f'{args.resume} is not a file, please check it again')
+        logger.info('start only evaluating')
+        logger.info(f'start resuming model from {args.evaluate}')
+        checkpoint = torch.load(args.evaluate, map_location=torch.device('cpu'))
+        model.load_state_dict(checkpoint['model_state_dict'])
+        (acc1, acc5, throughput) = validate(val_loader, model, args)
+        logger.info(f"epoch {checkpoint['epoch']:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, throughput: {throughput:.2f}sample/s")
+        return
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, acc5, losses) = train(train_loader, model, criterion, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, losses: {losses:.2f}')
+        (acc1, acc5, throughput) = validate(val_loader, model, args)
+        logger.info(f'val: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, throughput: {throughput:.2f}sample/s')
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+        if (epoch == args.epochs):
+            torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}-epoch{}-acc{}.pth'.format(args.network, epoch, acc1)))
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 18:------------------- similar code ------------------ index = 148, score = 6.0 
+def test_reshape():
+    backend = TorchBackend
+    x = torch.randn(3, 5, 16)
+    y = backend.reshape_input(x, signal_shape=(16,))
+    xbis = backend.reshape_output(y, batch_shape=(3, 5), n_kept_dims=1)
+    assert (backend.shape(x) == x.shape)
+    assert (y.shape == (15, 1, 16))
+    assert torch.allclose(x, xbis)
+    x = torch.randn(3, 5, 16, 16)
+    y = backend.reshape_input(x, signal_shape=(16, 16))
+    xbis = backend.reshape_output(y, batch_shape=(3, 5), n_kept_dims=2)
+    assert (backend.shape(x) == x.shape)
+    assert (y.shape == (15, 1, 16, 16))
+    assert torch.allclose(x, xbis)
+    x = torch.randn(3, 5, 16, 16, 16)
+    y = backend.reshape_input(x, signal_shape=(16, 16, 16))
+    xbis = backend.reshape_output(y, batch_shape=(3, 5), n_kept_dims=3)
+    assert (backend.shape(x) == x.shape)
+    assert (y.shape == (15, 1, 16, 16, 16))
+    assert torch.allclose(x, xbis)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 19:------------------- similar code ------------------ index = 94, score = 6.0 
+def _get_jittered_box(self, box, mode):
+    " Jitter the input box\n        args:\n            box - input bounding box\n            mode - string 'train' or 'test' indicating train or test data\n\n        returns:\n            torch.Tensor - jittered box\n        "
+    jittered_size = (box[2:4] * torch.exp((torch.randn(2) * self.scale_jitter_factor[mode])))
+    max_offset = (jittered_size.prod().sqrt() * self.center_jitter_factor[mode]).item()
+    jittered_center = ((box[0:2] + (0.5 * box[2:4])) + (max_offset * (torch.rand(2) - 0.5)))
+    return torch.cat(((jittered_center - (0.5 * jittered_size)), jittered_size), dim=0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( *  ... . ... ((torch.randn *)))
+
+idx = 20:------------------- similar code ------------------ index = 152, score = 6.0 
+def _get_jittered_box(self, box, mode):
+    jittered_size = (box[2:4] * torch.exp((torch.randn(2) * self.scale_jitter_factor[mode])))
+    max_offset = (jittered_size.prod().sqrt() * self.center_jitter_factor[mode]).item()
+    jittered_center = ((box[0:2] + (0.5 * box[2:4])) + (max_offset * (torch.rand(2) - 0.5)))
+    return torch.cat(((jittered_center - (0.5 * jittered_size)), jittered_size), dim=0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( *  ... . ... ((torch.randn *)))
+
+idx = 21:------------------- similar code ------------------ index = 95, score = 6.0 
+@pytest.mark.parametrize('backend_device', backends_devices)
+def test_Pad(self, backend_device):
+    (backend, device) = backend_device
+    pad = backend.Pad((2, 2, 2, 2), (4, 4))
+    x = torch.randn(1, 4, 4)
+    x = x.to(device)
+    z = pad(x)
+    assert (z.shape == (1, 8, 8, 1))
+    assert torch.allclose(z[(0, 2, 2)], x[(0, 0, 0)])
+    assert torch.allclose(z[(0, 1, 0)], x[(0, 1, 2)])
+    assert torch.allclose(z[(0, 1, 1)], x[(0, 1, 1)])
+    assert torch.allclose(z[(0, 1, 2)], x[(0, 1, 0)])
+    assert torch.allclose(z[(0, 1, 3)], x[(0, 1, 1)])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 22:------------------- similar code ------------------ index = 57, score = 6.0 
+def contraction_torch(d, D):
+    print('----- Pytorch -----')
+    A = torch.randn(d, D, D, dtype=torch.float64)
+    start = time.time()
+    Gong = torch.einsum('kij,kmn->imjn', A, A).reshape((D ** 2), (D ** 2))
+    end = time.time()
+    print('constructig Gong: (~ D^4 * d)\t', (end - start))
+    r = torch.randn(D, D, dtype=torch.float64)
+    r_flat = r.reshape((D ** 2))
+    start = time.time()
+    '\n        method1: matrix multiplication.\n        ~ D^4\n    '
+    result1 = Gong.matmul(r_flat)
+    end = time.time()
+    print('method1: (~ D^4)\t\t', (end - start))
+    start = time.time()
+    '\n        method2: (manual) optimized einsum.\n        ~ D^3 * d\n    '
+    intermediate = torch.einsum('kij,jn->kin', A, r)
+    result2 = torch.einsum('kin,kmn->im', intermediate, A).reshape((D ** 2))
+    end = time.time()
+    print('method2: (~D^3 * d)\t\t', (end - start))
+    start = time.time()
+    '\n        method3: native torch einsum (not optimized).\n        ~ D^4 * d + D^4. i.e., roughly equal to the cost of the construction of the \n    matrix Gong and the matrix multiplication process(method 1).\n    '
+    result3 = torch.einsum('kij,kmn,jn->im', A, A, r).reshape((D ** 2))
+    end = time.time()
+    print('method3: (~ D^4 * d + D^4)\t', (end - start))
+    assert torch.allclose(result1, result2)
+    assert torch.allclose(result1, result3)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 23:------------------- similar code ------------------ index = 185, score = 6.0 
+def sample_params(self, shape, device='cpu'):
+    shape = (torch.Size(shape) + torch.Size([self.dim]))
+    mu = (3.0 * torch.randn(shape).to(device))
+    sigma = (math.log(0.25) + (0.1 * torch.randn(shape))).exp().to(device)
+    return torch.cat([mu, sigma], (- 1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( + ( ...  * torch.randn))
+
+idx = 24:------------------- similar code ------------------ index = 84, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info('start loading data')
+    train_loader = DataLoader(Config.train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    val_loader = DataLoader(Config.val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    logger.info('finish loading data')
+    logger.info(f"creating model '{args.network}'")
+    model = resnet50(**{'pretrained': args.pretrained, 'num_classes': args.num_classes})
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    model = model.cuda()
+    criterion = nn.CrossEntropyLoss().cuda()
+    optimizer = torch.optim.SGD(model.parameters(), args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.milestones, gamma=0.1)
+    if args.apex:
+        (model, optimizer) = amp.initialize(model, optimizer, opt_level='O1')
+    model = nn.DataParallel(model)
+    if args.evaluate:
+        if (not os.path.isfile(args.evaluate)):
+            raise Exception(f'{args.resume} is not a file, please check it again')
+        logger.info('start only evaluating')
+        logger.info(f'start resuming model from {args.evaluate}')
+        checkpoint = torch.load(args.evaluate, map_location=torch.device('cpu'))
+        model.load_state_dict(checkpoint['model_state_dict'])
+        (acc1, acc5, throughput) = validate(val_loader, model, args)
+        logger.info(f"epoch {checkpoint['epoch']:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, throughput: {throughput:.2f}sample/s")
+        return
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, acc5, losses) = train(train_loader, model, criterion, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, losses: {losses:.2f}')
+        (acc1, acc5, throughput) = validate(val_loader, model, args)
+        logger.info(f'val: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, top5 acc: {acc5:.2f}%, throughput: {throughput:.2f}sample/s')
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+        if (epoch == args.epochs):
+            torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}-epoch{}-acc{}.pth'.format(args.network, epoch, acc1)))
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 25:------------------- similar code ------------------ index = 19, score = 6.0 
+def test_fullrank():
+    import numpy as np
+    from scipy.stats import ortho_group
+    n = 100
+    diagonal = (1.0 + (10.0 * np.random.rand(n)))
+    U = ortho_group.rvs(n)
+    '\n        A is randomly generated as a real, symmetric, positive definite matrix\n    of size n*n.\n    '
+    A = U.dot(np.diag(diagonal)).dot(U.T)
+    A = torch.from_numpy(A).to(torch.float64)
+    print('\n----- test_fullrank -----')
+    print(('----- Dimension of matrix A: %d -----' % n))
+    b = torch.randn(n, dtype=torch.float64)
+    initialx = torch.randn(n, dtype=torch.float64)
+    start = time.time()
+    x = CG_torch(A, b, initialx)
+    end = time.time()
+    print('CG_torch time: ', (end - start))
+    assert torch.allclose(A.matmul(x), b)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 26:------------------- similar code ------------------ index = 169, score = 6.0 
+def sample_params(self, shape, device='cpu'):
+    v = (math.log(0.1) + (0.1 * torch.randn(shape))).to(device).exp()
+    shape = (torch.Size(shape) + torch.Size([self.dim]))
+    mu = (4.0 * torch.randn(shape).to(device))
+    W = (0.25 * torch.randn(shape).to(device))
+    return torch.cat([mu, v.unsqueeze((- 1)), W], (- 1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( + ( ...  * torch.randn))
+
+idx = 27:------------------- similar code ------------------ index = 2, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info(f'creating model {args.network_name}')
+    model = resnet50backbone(args.pretrained, args.num_classes)
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network_name}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    (conv_and_fc_param_list, bn_param_list) = ([], [])
+    (conv_and_fc_param_name_list, bn_param_name_list) = ([], [])
+    for (name, param) in model.named_parameters():
+        if ('bn' in name):
+            bn_param_list.append(param)
+            bn_param_name_list.append(name)
+        else:
+            conv_and_fc_param_list.append(param)
+            conv_and_fc_param_name_list.append(name)
+    logger.info(f'{conv_and_fc_param_name_list}')
+    logger.info(f'{bn_param_name_list}')
+    weight_decay_setting_list = [{'params': conv_and_fc_param_list, 'weight_decay': args.weight_decay}, {'params': bn_param_list, 'weight_decay': 0.0}]
+    model = model.cuda()
+    optimizer = torch.optim.Adam(weight_decay_setting_list, lr=args.lr)
+    warm_up_with_multistep_lr = (lambda epoch: ((epoch / args.warm_up_epochs) if (epoch <= args.warm_up_epochs) else (0.1 ** len([m for m in args.milestones if (m <= epoch)]))))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warm_up_with_multistep_lr)
+    criterion_list = {'id_loss': nn.CrossEntropyLoss().cuda(), 'triplet_loss': TripletLoss(margin=0.3), 'center_loss': CenterLoss(num_classes=args.num_classes).cuda()}
+    model = nn.DataParallel(model)
+    (best_map, best_top1) = (0.0, 0.0)
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        (best_map, best_top1) = (checkpoint['best_map'], checkpoint['best_top1'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%,best_map: {checkpoint['best_map']},best_top1:{checkpoint['best_top1']}")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, losses: {losses:.2f}')
+        if ((epoch >= 60) and ((epoch % 2) == 0)):
+            (dists, query_features, gallery_features) = get_dist_feature(Config.val_loader, model, epoch, norm_feature=True)
+            txt = generate_result_txt(dists, query_features, gallery_features, Config.val_dataset_pkl, color_bias=400, type_bias=400, group_threhold=0.05, group_rerank=True)
+            evl = Evaluator(Config.val_dataset_pkl)
+            effi = evl.eval_from_txt(txt)
+            logger.info(f"epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+            if ((effi['mAP'] > best_map) and (effi['CMC_1'] > best_top1)):
+                logger.info(f"best model update,epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+                (best_map, best_top1) = (effi['mAP'], effi['CMC_1'])
+                logger.info('update best_map and best_top1')
+                pickle.dump(dists, open(os.path.join(args.checkpoints, '{}_best_dist.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(query_features, open(os.path.join(args.checkpoints, '{}_best_query_f.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(gallery_features, open(os.path.join(args.checkpoints, '{}_best_gallery_f.pkl'.format(args.network_name)), 'wb'))
+                with open(os.path.join(args.checkpoints, '{}_best_result.txt'.format(args.network_name)), 'w') as f:
+                    f.write(txt)
+                torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}_best_model.pth'.format(args.network_name)))
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 28:------------------- similar code ------------------ index = 118, score = 6.0 
+@pytest.mark.skipif((not torch.cuda.is_available()), reason='No GPU support in online test envionment')
+def test_fullrank_gpu():
+    import numpy as np
+    from scipy.stats import ortho_group
+    n = 100
+    diagonal = (1.0 + (10.0 * np.random.rand(n)))
+    U = ortho_group.rvs(n)
+    '\n        A is randomly generated as a real, symmetric, positive definite matrix\n    of size n*n.\n    '
+    A = U.dot(np.diag(diagonal)).dot(U.T)
+    cuda = torch.device('cuda')
+    dtype = torch.float64
+    A = torch.from_numpy(A).to(cuda, dtype=dtype)
+    b = torch.randn(n, device=cuda, dtype=dtype)
+    initialx = torch.randn(n, device=cuda, dtype=dtype)
+    x = CG_torch(A, b, initialx)
+    groundtruth = torch.inverse(A).matmul(b)
+    assert torch.allclose(x, groundtruth)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 29:------------------- similar code ------------------ index = 9, score = 6.0 
+def test_modulus(random_state=42):
+    '\n    Tests the stability and differentiability of modulus\n    '
+    backend = TorchBackend
+    x = torch.randn(100, 4, 128, 2, requires_grad=True)
+    x_grad = x.clone()
+    x_abs = backend.modulus(x)[(..., 0)]
+    x_grad[(..., 0)] = (x[(..., 0)] / x_abs)
+    x_grad[(..., 1)] = (x[(..., 1)] / x_abs)
+
+    class FakeContext():
+
+        def save_for_backward(self, *args):
+            self.saved_tensors = args
+    ctx = FakeContext()
+    y = ModulusStable.forward(ctx, x)
+    y_grad = torch.ones_like(y)
+    x_grad_manual = ModulusStable.backward(ctx, y_grad)
+    assert torch.allclose(x_grad_manual, x_grad)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 30:------------------- similar code ------------------ index = 117, score = 6.0 
+def test_eigs_gradient():
+    D = 5
+    d = 2
+    A = np.random.randn(d, D, D)
+    Gong = np.einsum('kij,kmn->imjn', A, A.conj()).reshape((D ** 2), (D ** 2))
+    Gong = torch.from_numpy(Gong)
+    Gong.requires_grad_()
+    k = 25
+    a = torch.randn(1, dtype=torch.float64)
+    Arandom = torch.randn((D ** 2), (D ** 2), dtype=torch.float64)
+    dominant_eig = DominantEig.apply
+
+    def func(A, k):
+        (eigval, lefteigvector, righteigvector) = dominant_eig(A, k)
+        result = ((a * eigval) + lefteigvector.matmul(Arandom).matmul(righteigvector))
+        return result
+    torch.autograd.gradcheck(func, (Gong, k))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 31:------------------- similar code ------------------ index = 13, score = 6.0 
+def setUp(self, max_abs_diff=0.001, max_rel_diff=1, iters=7):
+    self.max_abs_diff = max_abs_diff
+    self.max_rel_diff = max_rel_diff
+    self.iters = iters
+    torch.cuda.manual_seed(13337)
+    (N, D_in, D_out) = (64, 1024, 16)
+    self.N = N
+    self.D_in = D_in
+    self.D_out = D_out
+    self.x = torch.randn((N, D_in), dtype=torch.float16, device='cuda')
+    self.ref_model = torch.nn.Linear(D_in, D_out).cuda().half()
+    self.tst_model = torch.nn.Linear(D_in, D_out).cuda().half()
+    for (p, q) in zip(self.tst_model.parameters(), self.ref_model.parameters()):
+        p.data.copy_(q.data)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = torch.randn
+
+idx = 32:------------------- similar code ------------------ index = 71, score = 6.0 
+@pytest.mark.parametrize('backend_device', backends_devices)
+def test_unpad(self, backend_device):
+    (backend, device) = backend_device
+    x = torch.randn(4, 4, 1)
+    x = x.to(device)
+    y = backend.unpad(x)
+    assert (y.shape == (2, 2))
+    assert torch.allclose(y[(0, 0)], x[(1, 1, 0)])
+    assert torch.allclose(y[(0, 1)], x[(1, 2, 0)])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 33:------------------- similar code ------------------ index = 172, score = 6.0 
+def main(logger, args):
+    if (not torch.cuda.is_available()):
+        raise Exception('need gpu to train network!')
+    if (args.seed is not None):
+        random.seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        cudnn.deterministic = True
+    gpus = torch.cuda.device_count()
+    logger.info(f'use {gpus} gpus')
+    logger.info(f'args: {args}')
+    cudnn.benchmark = True
+    cudnn.enabled = True
+    start_time = time.time()
+    logger.info(f'creating model {args.network_name}')
+    model = resnet50attrbackbone(args.pretrained, args.id_num_classes, args.color_num_classes, args.type_num_classes)
+    flops_input = torch.randn(1, 3, args.input_image_size, args.input_image_size)
+    (flops, params) = profile(model, inputs=(flops_input,))
+    (flops, params) = clever_format([flops, params], '%.3f')
+    logger.info(f"model: '{args.network_name}', flops: {flops}, params: {params}")
+    for (name, param) in model.named_parameters():
+        logger.info(f'{name},{param.requires_grad}')
+    (conv_and_fc_param_list, bn_param_list) = ([], [])
+    (conv_and_fc_param_name_list, bn_param_name_list) = ([], [])
+    for (name, param) in model.named_parameters():
+        if ('bn' in name):
+            bn_param_list.append(param)
+            bn_param_name_list.append(name)
+        else:
+            conv_and_fc_param_list.append(param)
+            conv_and_fc_param_name_list.append(name)
+    logger.info(f'{conv_and_fc_param_name_list}')
+    logger.info(f'{bn_param_name_list}')
+    weight_decay_setting_list = [{'params': conv_and_fc_param_list, 'weight_decay': args.weight_decay}, {'params': bn_param_list, 'weight_decay': 0.0}]
+    model = model.cuda()
+    optimizer = torch.optim.Adam(weight_decay_setting_list, lr=args.lr)
+    warm_up_with_multistep_lr = (lambda epoch: ((epoch / args.warm_up_epochs) if (epoch <= args.warm_up_epochs) else (0.1 ** len([m for m in args.milestones if (m <= epoch)]))))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=warm_up_with_multistep_lr)
+    criterion_list = {'color_loss': nn.CrossEntropyLoss().cuda(), 'type_loss': nn.CrossEntropyLoss().cuda(), 'id_loss': nn.CrossEntropyLoss().cuda(), 'triplet_loss': TripletLoss(margin=0.3), 'center_loss': CenterLoss(num_classes=args.id_num_classes).cuda()}
+    model = nn.DataParallel(model)
+    (best_map, best_top1) = (0.0, 0.0)
+    start_epoch = 1
+    if os.path.exists(args.resume):
+        logger.info(f'start resuming model from {args.resume}')
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        start_epoch += checkpoint['epoch']
+        (best_map, best_top1) = (checkpoint['best_map'], checkpoint['best_top1'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        logger.info(f"finish resuming model from {args.resume}, epoch {checkpoint['epoch']}, loss: {checkpoint['loss']:3f}, lr: {checkpoint['lr']:.6f}, top1_acc: {checkpoint['acc1']}%,best_map: {checkpoint['best_map']},best_top1:{checkpoint['best_top1']}")
+    if (not os.path.exists(args.checkpoints)):
+        os.makedirs(args.checkpoints)
+    logger.info('start training')
+    for epoch in range(start_epoch, (args.epochs + 1)):
+        (acc1, losses) = train(Config.train_loader, model, criterion_list, optimizer, scheduler, epoch, logger, args)
+        logger.info(f'train: epoch {epoch:0>3d}, top1 acc: {acc1:.2f}%, losses: {losses:.2f}')
+        if ((epoch >= 60) and ((epoch % 2) == 0)):
+            (dists, query_features, gallery_features) = get_dist_feature(Config.val_loader, model, epoch, norm_feature=True)
+            txt = generate_result_txt(dists, query_features, gallery_features, Config.val_dataset_pkl, color_bias=400, type_bias=400, group_threhold=0.05, group_rerank=True)
+            evl = Evaluator(Config.val_dataset_pkl)
+            effi = evl.eval_from_txt(txt)
+            logger.info(f"epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+            if ((effi['mAP'] > best_map) and (effi['CMC_1'] > best_top1)):
+                logger.info(f"best model update,epoch:{epoch},mAP:{effi['mAP']},CMC_1:{effi['CMC_1']}")
+                (best_map, best_top1) = (effi['mAP'], effi['CMC_1'])
+                logger.info('update best_map and best_top1')
+                pickle.dump(dists, open(os.path.join(args.checkpoints, '{}_best_dist.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(query_features, open(os.path.join(args.checkpoints, '{}_best_query_f.pkl'.format(args.network_name)), 'wb'))
+                pickle.dump(gallery_features, open(os.path.join(args.checkpoints, '{}_best_gallery_f.pkl'.format(args.network_name)), 'wb'))
+                with open(os.path.join(args.checkpoints, '{}_best_result.txt'.format(args.network_name)), 'w') as f:
+                    f.write(txt)
+                torch.save(model.module.state_dict(), os.path.join(args.checkpoints, '{}_best_model.pth'.format(args.network_name)))
+        torch.save({'epoch': epoch, 'acc1': acc1, 'loss': losses, 'best_map': best_map, 'best_top1': best_top1, 'lr': scheduler.get_lr()[0], 'model_state_dict': model.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict': scheduler.state_dict()}, os.path.join(args.checkpoints, 'latest.pth'))
+    logger.info(f'finish training, best_map: {best_map:.4f}, best_top1:{best_top1:.4f}')
+    training_time = ((time.time() - start_time) / 3600)
+    logger.info(f'finish training, total training time: {training_time:.2f} hours')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 34:------------------- similar code ------------------ index = 96, score = 5.0 
+def sample(self, n):
+    '\n        Samples from the model.\n        args:\n            n:          int\n        returns:\n            x:          torch.Tensor (n, d)\n            y:          torch.Tensor (n)\n        '
+    counts = torch.distributions.multinomial.Multinomial(total_count=n, probs=self.pi.squeeze()).sample()
+    x = torch.empty(0, device=counts.device)
+    y = torch.cat([torch.full([int(sample)], j, device=counts.device) for (j, sample) in enumerate(counts)])
+    for k in np.arange(self.n_components)[(counts > 0)]:
+        if (self.covariance_type == 'diag'):
+            x_k = (self.mu[(0, k)] + (torch.randn(int(counts[k]), self.n_features, device=x.device) * torch.sqrt(self.var[(0, k)])))
+        elif (self.covariance_type == 'full'):
+            d_k = torch.distributions.multivariate_normal.MultivariateNormal(self.mu[(0, k)], self.var[(0, k)])
+            x_k = torch.stack([d_k.sample() for _ in range(int(counts[k]))])
+        x = torch.cat((x, x_k), dim=0)
+    return (x, y)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        if:
+             ...  = ( + (torch.randn *))
+
+idx = 35:------------------- similar code ------------------ index = 90, score = 5.0 
+def __call__(self, sample):
+    m = (torch.eye(3) + (torch.randn(3, 3) * self._pertubation_factor))
+    if self._flip:
+        m[(0, 0)] *= (- 1)
+    pos_idx = [a for a in dir(sample) if ('pos' in a)]
+    for pos_id in pos_idx:
+        sample[pos_id] = (sample[pos_id] @ m)
+    return sample
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = ( + (torch.randn *))
+
+idx = 36:------------------- similar code ------------------ index = 87, score = 5.0 
+def test_eval_actions(self):
+    states = State(torch.randn(3, STATE_DIM))
+    Action.set_action_space(action_space)
+    actions = Action(torch.tensor([1, 2, 0]).unsqueeze(1))
+    result = self.q.eval(states, actions)
+    self.assertEqual(result.shape, torch.Size([3]))
+    tt.assert_almost_equal(result, torch.tensor([(- 0.7262873), 0.3484948, (- 0.0296164)]))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 37:------------------- similar code ------------------ index = 86, score = 5.0 
+def train(model, train_loader, lam, norm_coeff, latent_noise, optimizer, armotized, epoch):
+    avg_nce_loss = 0.0
+    avg_consis_loss = 0.0
+    avg_cur_loss = 0.0
+    avg_center_loss = 0.0
+    avg_norm_2_loss = 0.0
+    avg_loss = 0.0
+    num_batches = len(train_loader)
+    model.train()
+    start = time.time()
+    for (iter, (x, u, x_next)) in enumerate(train_loader):
+        x = x.to(device).double()
+        u = u.to(device).double()
+        x_next = x_next.to(device).double()
+        optimizer.zero_grad()
+        (z_enc, z_next_trans_dist, z_next_enc) = model(x, u, x_next)
+        noise = (torch.randn(size=z_next_enc.size()) * latent_noise)
+        if next(model.encoder.parameters()).is_cuda:
+            noise = noise.cuda()
+        z_next_enc += noise
+        (nce_loss, consis_loss, cur_loss, center_loss, norm_2, loss) = compute_loss(model, armotized, u, z_enc, z_next_trans_dist, z_next_enc, lam=lam, norm_coeff=norm_coeff)
+        loss.backward()
+        optimizer.step()
+        avg_nce_loss += nce_loss.item()
+        avg_consis_loss += consis_loss.item()
+        avg_cur_loss += cur_loss.item()
+        avg_center_loss += center_loss.item()
+        avg_norm_2_loss += norm_2.item()
+        avg_loss += loss.item()
+    avg_nce_loss /= num_batches
+    avg_consis_loss /= num_batches
+    avg_cur_loss /= num_batches
+    avg_center_loss /= num_batches
+    avg_norm_2_loss /= num_batches
+    avg_loss /= num_batches
+    if (((epoch + 1) % 1) == 0):
+        print(('Epoch %d' % (epoch + 1)))
+        print(('NCE loss: %f' % avg_nce_loss))
+        print(('Consistency loss: %f' % avg_consis_loss))
+        print(('Curvature loss: %f' % avg_cur_loss))
+        print(('Center loss: %f' % avg_center_loss))
+        print(('Map scale: %f' % avg_norm_2_loss))
+        print(('Training loss: %f' % avg_loss))
+        print(('Training time: %f' % (time.time() - start)))
+        print('--------------------------------------')
+    return (avg_nce_loss, avg_consis_loss, avg_cur_loss, avg_loss)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = (torch.randn *  ... )
+
+idx = 38:------------------- similar code ------------------ index = 102, score = 5.0 
+def _random_sampling(self, y_labels):
+    '\n        Randomly sample tokens given a specified probability, in order to bring\n        training closer to inference.\n\n        pseudo:\n        1. sample U random numbers c from uniform distribution (0,1) [B, T, c]\n        2. create vector of 1 and 0 with c > specified probability [B, T, 1 or 0]\n        3. Sample vector Z of tokens (uniform distribution over tokens excl. eos) [B,T,token]\n        4. Calc: Y_hat = R o Z + (1-R) o Y (Y being teacher forced tokens)\n\n        Args:\n            y_labels: (torch tensor) [B, T, V] - tensor of groundtruth tokens\n        Returns\n            tensor of tokens, partially groundtruth partially sampled\n        '
+    sampled_tensor = torch.randn(size=y_labels.size())
+    sampled_tensor[(sampled_tensor > self.sampling_prob)] = 1
+    sampled_tensor[(sampled_tensor < self.sampling_prob)] = 0
+    sampled_tensor = sampled_tensor.type(dtype=torch.long)
+    sampled_tokens = torch.randint(high=(len(self.labels) - 2), low=0, size=y_labels.size()).type(dtype=torch.long)
+    ones = torch.ones(y_labels.shape).type(dtype=torch.long)
+    if CUDA_ENABLED:
+        sampled_tensor = sampled_tensor.cuda()
+        sampled_tokens = sampled_tokens.cuda()
+        ones = ones.cuda()
+    y_sampled = ((sampled_tensor * sampled_tokens) + ((ones - sampled_tensor) * y_labels))
+    return y_sampled
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 39:------------------- similar code ------------------ index = 98, score = 5.0 
+def test_focal_loss():
+    loss = FocalLoss()
+    input = Variable(torch.randn(3, 5), requires_grad=True)
+    target = Variable(torch.LongTensor(3).random_(5))
+    print(input)
+    print(target)
+    output = loss(input, target)
+    print(output)
+    output.backward()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... (torch.randn,)
+
+idx = 40:------------------- similar code ------------------ index = 99, score = 5.0 
+def test_criterion_cifar10(criterion, label_cifar10):
+    criterion = SoftTreeSupLoss(dataset='CIFAR10', criterion=criterion, hierarchy='induced')
+    criterion(torch.randn((1, 10)), label_cifar10)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ... (torch.randn,  ... )
+
+idx = 41:------------------- similar code ------------------ index = 100, score = 5.0 
+def test_create_state_debug(benchmark):
+    init.enable_debug_mode()
+    assert init.is_debug_mode()
+    raw = torch.randn(3, 4)
+    benchmark.pedantic(State, kwargs={'raw': raw}, rounds=100, iterations=5)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randn
+
+idx = 42:------------------- similar code ------------------ index = 78, score = 5.0 
+@staticmethod
+def forward(ctx, g, E0, b, alpha):
+    Aprime = (lambda v: (A(v) - (E0 * v)))
+    initialx = torch.randn(b.shape[0], device=b.device, dtype=b.dtype)
+    initialx = (initialx - (torch.matmul(alpha, initialx) * alpha))
+    x = CG_torch(Aprime, b, initialx, sparse=True)
+    ctx.g = g
+    ctx.save_for_backward(E0, alpha, x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 43:------------------- similar code ------------------ index = 106, score = 5.0 
+def test_from_list(set_continuous_action_space):
+    action1 = Action(torch.randn(1, 2))
+    action2 = Action(torch.randn(1, 2))
+    action3 = Action(torch.randn(1, 2))
+    action = Action.from_list([action1, action2, action3])
+    tt.assert_equal(action.raw, torch.cat((action1.raw, action2.raw, action3.raw)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 44:------------------- similar code ------------------ index = 107, score = 5.0 
+def test_step_one(self):
+    state = State(torch.randn(1, STATE_DIM))
+    self.policy(state)
+    self.policy.step()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 45:------------------- similar code ------------------ index = 108, score = 5.0 
+def test():
+    net = ResNet18()
+    y = net(torch.randn(1, 3, 32, 32))
+    print(y.size())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... (torch.randn)
+
+idx = 46:------------------- similar code ------------------ index = 110, score = 5.0 
+def benchmark_inference(model, opts):
+    'Benchmarks inference phase.\n\n    :param obj model: A model to benchmark\n    :param dict opts: A dictionary of parameters.\n    :rtype: tuple\n    :return: A tuple of (model_name, list of batch times)\n    '
+    if (opts['phase'] != 'inference'):
+        raise ("Phase in benchmark_inference func is '%s'" % opts['phase'])
+    if ((opts['device'] == 'gpu') and (opts['world_size'] != 1)):
+        raise ('GPU inference can only be used with one GPU (world_size: %d).' % opts['world_size'])
+    data = autograd.Variable(torch.randn(((opts['batch_size'],) + model.input_shape)))
+    if (opts['device'] == 'gpu'):
+        cudnn.benchmark = opts['cudnn_benchmark']
+        cudnn.fastest = opts['cudnn_fastest']
+        data = data.cuda()
+        model = model.cuda()
+    if (opts['dtype'] == 'float16'):
+        data = data.half()
+        model = model.half()
+    model.eval()
+    for i in range(opts['num_warmup_batches']):
+        model(data)
+    batch_times = np.zeros(opts['num_batches'])
+    for i in range(opts['num_batches']):
+        start_time = timeit.default_timer()
+        model(data)
+        batch_times[i] = (timeit.default_timer() - start_time)
+    return (model.name, batch_times)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... (torch.randn)
+
+idx = 47:------------------- similar code ------------------ index = 221, score = 5.0 
+def test_output_shape(setUp):
+    policy = setUp
+    state = State(torch.randn(1, STATE_DIM))
+    (action, _) = policy(state)
+    assert (action.shape == (1, ACTION_DIM))
+    state = State(torch.randn(5, STATE_DIM))
+    (action, _) = policy(state)
+    assert (action.shape == (5, ACTION_DIM))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 48:------------------- similar code ------------------ index = 112, score = 5.0 
+def test_torch_log_normal_full(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    A = torch.randn(50, 1000, 100)
+    covars = A.permute(0, 2, 1).bmm(A)
+    cholesky = torch.linalg.cholesky(covars)
+    distribution = MultivariateNormal(means, scale_tril=cholesky, validate_args=False)
+    benchmark(distribution.log_prob, data.unsqueeze(1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 49:------------------- similar code ------------------ index = 115, score = 5.0 
+def train(model, option, train_loader, lam, latent_noise, optimizer, armotized, epoch):
+    avg_nce_loss = 0.0
+    avg_consis_loss = 0.0
+    avg_cur_loss = 0.0
+    avg_norm_loss = 0.0
+    avg_norm_2_loss = 0.0
+    avg_loss = 0.0
+    num_batches = len(train_loader)
+    model.train()
+    start = time.time()
+    for (iter, (x, u, x_next)) in enumerate(train_loader):
+        x = x.to(device).double()
+        u = u.to(device).double()
+        x_next = x_next.to(device).double()
+        optimizer.zero_grad()
+        (z_enc, z_next_trans_dist, z_next_enc) = model(x, u, x_next)
+        noise = (torch.randn(size=z_next_enc.size()) * latent_noise)
+        if next(model.encoder.parameters()).is_cuda:
+            noise = noise.cuda()
+        z_next_enc += noise
+        (nce_loss, consis_loss, cur_loss, norm_loss, norm_2, loss) = compute_loss(model, armotized, u, z_enc, z_next_trans_dist, z_next_enc, option, lam=lam)
+        loss.backward()
+        optimizer.step()
+        avg_nce_loss += nce_loss.item()
+        avg_consis_loss += consis_loss.item()
+        avg_cur_loss += cur_loss.item()
+        avg_norm_loss += norm_loss.item()
+        avg_norm_2_loss += norm_2.item()
+        avg_loss += loss.item()
+    avg_nce_loss /= num_batches
+    avg_consis_loss /= num_batches
+    avg_cur_loss /= num_batches
+    avg_norm_loss /= num_batches
+    avg_norm_2_loss /= num_batches
+    avg_loss /= num_batches
+    if (((epoch + 1) % 1) == 0):
+        print(('Epoch %d' % (epoch + 1)))
+        print(('NCE loss: %f' % avg_nce_loss))
+        print(('Consistency loss: %f' % avg_consis_loss))
+        print(('Curvature loss: %f' % avg_cur_loss))
+        print(('Normalization loss: %f' % avg_norm_loss))
+        print(('Norma 2 loss: %f' % avg_norm_2_loss))
+        print(('Training loss: %f' % avg_loss))
+        print(('Training time: %f' % (time.time() - start)))
+        print('--------------------------------------')
+    return (avg_nce_loss, avg_consis_loss, avg_cur_loss, avg_loss)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = (torch.randn *  ... )
+
+idx = 50:------------------- similar code ------------------ index = 116, score = 5.0 
+def test_log_normal_diag(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    precisions = cholesky_precision(torch.rand(50, 100), 'diag')
+    benchmark(log_normal, data, means, precisions, covariance_type='diag')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 51:------------------- similar code ------------------ index = 124, score = 5.0 
+def test_criterion_cifar100(criterion):
+    criterion = SoftTreeSupLoss(dataset='CIFAR100', criterion=criterion, hierarchy='induced')
+    criterion(torch.randn((1, 100)), torch.randint(100, (1,)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ... (torch.randn,)
+
+idx = 52:------------------- similar code ------------------ index = 81, score = 5.0 
+def test_continuous_action(set_continuous_action_space):
+    raw = torch.tensor([[0, 0], [2, 2], [(- 20), (- 20)]], dtype=torch.float32)
+    action = Action(raw)
+    tt.assert_equal(action.raw, raw)
+    tt.assert_equal(action.features, torch.tensor([[0, 0], [1, 2], [(- 1), (- 10)]], dtype=torch.float32))
+    with pytest.raises(AssertionError):
+        raw = torch.randn(3, 5)
+        action = Action(raw)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    with:
+         ...  = torch.randn
+
+idx = 53:------------------- similar code ------------------ index = 65, score = 5.0 
+def test_mse_loss_is_float(self):
+    shape = (self.b, self.h)
+    target = torch.randn(shape)
+    mod = nn.MSELoss()
+    m = (lambda x: mod(x, target))
+    f = ft.partial(F.mse_loss, target=target)
+    run_layer_test(self, [m], ALWAYS_FLOAT, shape)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randn
+
+idx = 54:------------------- similar code ------------------ index = 76, score = 5.0 
+if (__name__ == '__main__'):
+    im = torch.randn(1, 3, 572, 572)
+    model = SimpleUnet()
+    x = model(im)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = torch.randn
+
+idx = 55:------------------- similar code ------------------ index = 75, score = 5.0 
+def test_matmul_method_is_half(self):
+    other = torch.randn(self.h, self.h)
+    lhs = (lambda x: x.matmul(other))
+    rhs = (lambda x: other.matmul(x))
+    run_layer_test(self, [lhs, rhs], ALWAYS_HALF, (self.h, self.h))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randn
+
+idx = 56:------------------- similar code ------------------ index = 33, score = 5.0 
+@pytest.mark.skip
+def test_converge(self):
+    state = State(torch.randn(1, STATE_DIM))
+    vae_action = Action(torch.randn(1, ACTION_DIM))
+    target = (vae_action.features + torch.tensor([[0.25, 0.5, (- 0.5)]]))
+    for _ in range(0, 200):
+        action = self.policy(state, vae_action)
+        loss = ((target - action) ** 2).mean()
+        loss.backward()
+        self.policy.step()
+    self.assertLess(loss, 0.001)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 57:------------------- similar code ------------------ index = 27, score = 5.0 
+def test_cholesky_precision_full(benchmark: BenchmarkFixture):
+    A = torch.randn(50, 10000, 100)
+    covars = A.permute(0, 2, 1).bmm(A)
+    benchmark(cholesky_precision, covars, 'full')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 58:------------------- similar code ------------------ index = 22, score = 5.0 
+def test_sample_multiple(setUp):
+    policy = setUp
+    state = State(torch.randn(5, STATE_DIM))
+    (actions, raw_actions) = policy.sample_multiple(state, num_sample=10)
+    assert (actions.shape == (5, 10, ACTION_DIM))
+    assert (raw_actions.shape == (5, 10, ACTION_DIM))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 59:------------------- similar code ------------------ index = 17, score = 5.0 
+def test_converge(self):
+    state = State(torch.randn(1, STATE_DIM))
+    target = torch.tensor([0.25, 0.5, (- 0.5)])
+    for _ in range(0, 200):
+        action = self.policy(state)
+        loss = ((target - action) ** 2).mean()
+        self.policy.reinforce(loss)
+    self.assertLess(loss, 0.001)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 60:------------------- similar code ------------------ index = 16, score = 5.0 
+def test_categorical_dueling(setUp):
+    n_actions = 2
+    n_atoms = 3
+    value_model = nn.Linear(2, n_atoms)
+    advantage_model = nn.Linear(2, (n_actions * n_atoms))
+    model = nn.CategoricalDueling(value_model, advantage_model)
+    x = torch.randn((2, 2))
+    out = model(x)
+    assert (out.shape == (2, 6))
+    tt.assert_almost_equal(out, torch.tensor([[0.014, (- 0.691), 0.251, (- 0.055), (- 0.419), (- 0.03)], [0.057, (- 1.172), 0.568, (- 0.868), (- 0.482), (- 0.679)]]), decimal=3)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randn
+
+idx = 61:------------------- similar code ------------------ index = 15, score = 5.0 
+def __init__(self, input_size, fm_size):
+    super(CompressionFM, self).__init__()
+    self.LW = torch.nn.Linear(input_size, 1)
+    self.QV = torch.nn.Parameter(torch.randn(input_size, fm_size))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... (torch.randn)
+
+idx = 62:------------------- similar code ------------------ index = 14, score = 5.0 
+def __init__(self, genotype, feature_channel=256, weight_node=False, **kwargs):
+    '\n        :param genotype:\n            The Genotype is formatted as follow:\n            [\n                # for a node\n                [\n                    # for an operation\n                    (prim, number of the front node)\n                    # other ops\n                    ...\n                ]\n                # other nodes\n                ...\n            ]\n        :param feature_channel:\n        '
+    super(BiFPN_From_Genotype, self).__init__()
+    bn = True
+    if bn:
+        ops = BN_OPS
+        print('Retrain with BN - FPN.')
+    else:
+        ops = OPS
+        print('Retrain without BN - FPN.')
+    print(ops.keys())
+    self.feature_channel = feature_channel
+    self.genotype = genotype
+    self.node_weights_enable = weight_node
+    [self.conv1_td, self.conv1, self.conv2_td, self.conv2_du, self.conv2, self.conv3_td, self.conv3_du, self.conv3, self.conv4_td, self.conv4_du, self.conv4, self.conv5_td, self.conv5_du, self.conv5, self.conv6_du, self.conv6] = [ops[prim](feature_channel, 1, True) for node in self.genotype for (prim, _) in node]
+    [self.w1, self.w2, self.w3, self.w4, self.w5, self.w6] = [nn.Parameter((0.001 * torch.randn(len(node)))) for node in self.genotype]
+    self.out_layers = nn.ModuleList([nn.Conv2d(feature_channel, feature_channel, 1, 1, 0) for _ in range(6)])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = [ ... . ... (( ...  * torch.randn))]
+
+idx = 63:------------------- similar code ------------------ index = 12, score = 5.0 
+def test_list(setUp):
+    model = nn.Linear(2, 2)
+    net = nn.RLNetwork(model, (2,))
+    features = torch.randn((4, 2))
+    done = torch.tensor([1, 1, 0, 1], dtype=torch.bool)
+    out = net(State(features, done))
+    tt.assert_almost_equal(out, torch.tensor([[0.0479387, (- 0.2268031)], [0.2346841, 0.0743403], [0.0, 0.0], [0.2204496, 0.086818]]))
+    features = torch.randn(3, 2)
+    done = torch.tensor([1, 1, 1], dtype=torch.bool)
+    out = net(State(features, done))
+    tt.assert_almost_equal(out, torch.tensor([[0.4234636, 0.1039939], [0.6514298, 0.3354351], [(- 0.2543002), (- 0.2041451)]]))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = torch.randn
+
+idx = 64:------------------- similar code ------------------ index = 10, score = 5.0 
+def test_get_item():
+    action_space = gym.spaces.Box(low=np.array([(- 1), (- 2), (- 3), (- 4)]), high=np.array([1, 2, 3, 4]))
+    Action.set_action_space(action_space)
+    raw = torch.randn(3, 4)
+    actions = Action(raw)
+    action = actions[2]
+    tt.assert_equal(action.raw, raw[2].unsqueeze(0))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 65:------------------- similar code ------------------ index = 7, score = 5.0 
+def sample_data(counts: List[int], dims: List[int]) -> List[torch.Tensor]:
+    return [torch.randn(count, dim) for (count, dim) in zip(counts, dims)]
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... () ->:
+    return [torch.randn]
+
+idx = 66:------------------- similar code ------------------ index = 6, score = 5.0 
+@staticmethod
+def forward(ctx, A, b, alpha):
+    initialx = torch.randn(b.shape[0], device=b.device, dtype=b.dtype)
+    initialx = (initialx - (torch.matmul(alpha, initialx) * alpha))
+    x = CG_torch(A, b, initialx)
+    ctx.save_for_backward(A, alpha, x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 67:------------------- similar code ------------------ index = 4, score = 5.0 
+def test_torch_log_normal_diag(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    covars = torch.rand(50, 100)
+    covar_matrices = torch.stack([torch.diag(c) for c in covars])
+    cholesky = torch.linalg.cholesky(covar_matrices)
+    distribution = MultivariateNormal(means, scale_tril=cholesky, validate_args=False)
+    benchmark(distribution.log_prob, data.unsqueeze(1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 68:------------------- similar code ------------------ index = 3, score = 5.0 
+def __init__(self, size, fan_in, gain=numpy.sqrt(2)):
+    super(WScaleLayer, self).__init__()
+    self.scale = (gain / numpy.sqrt(fan_in))
+    self.b = nn.Parameter(torch.randn(size))
+    self.size = size
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... (torch.randn)
+
+idx = 69:------------------- similar code ------------------ index = 1, score = 5.0 
+def get_feat_size(block, spatial_size, ncolors=3):
+    "\n    Function to infer spatial dimensionality in intermediate stages of a model after execution of the specified block.\n\n    Parameters:\n        block (torch.nn.Module): Some part of the model, e.g. the encoder to determine dimensionality before flattening.\n        spatial_size (int): Quadratic input's spatial dimensionality.\n        ncolors (int): Number of dataset input channels/colors.\n    "
+    x = torch.randn(2, ncolors, spatial_size, spatial_size)
+    out = block(x)
+    num_feat = out.size(1)
+    spatial_dim_x = out.size(2)
+    spatial_dim_y = out.size(3)
+    return (num_feat, spatial_dim_x, spatial_dim_y)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 70:------------------- similar code ------------------ index = 34, score = 5.0 
+def test_log_normal_full(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    A = torch.randn(50, 1000, 100)
+    covars = A.permute(0, 2, 1).bmm(A)
+    precisions = cholesky_precision(covars, 'full')
+    benchmark(log_normal, data, means, precisions, covariance_type='full')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 71:------------------- similar code ------------------ index = 40, score = 5.0 
+def test_fit_automatic_config():
+    estimator = KMeans(4)
+    data = torch.cat([((torch.randn(1000, 3) * 0.1) - 100), ((torch.randn(1000, 3) * 0.1) + 100)])
+    estimator.fit(data)
+    assert (estimator.model_.config.num_clusters == 4)
+    assert (estimator.model_.config.num_features == 3)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... ([((torch.randn *  ... ) -  ... ),])
+
+idx = 72:------------------- similar code ------------------ index = 41, score = 5.0 
+def test_criterion_tinyimagenet200(criterion):
+    criterion = SoftTreeSupLoss(dataset='TinyImagenet200', criterion=criterion, hierarchy='induced')
+    criterion(torch.randn((1, 200)), torch.randint(200, (1,)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ... (torch.randn,)
+
+idx = 73:------------------- similar code ------------------ index = 58, score = 5.0 
+def test_fit_num_iter():
+    data = torch.cat([((torch.randn(1000, 4) * 0.1) - 100), ((torch.randn(1000, 4) * 0.1) + 100)])
+    estimator = KMeans(2)
+    estimator.fit(data)
+    assert (estimator.num_iter_ == 1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... ([((torch.randn *  ... ) -  ... ),])
+
+idx = 74:------------------- similar code ------------------ index = 70, score = 5.0 
+def add_layer(self, name, shape, positions=None, weights=None, colors=None):
+    try:
+        len(shape)
+    except:
+        shape = [shape]
+    layer_units = np.prod(shape)
+    indices = torch.arange(self.num_units, (self.num_units + layer_units), dtype=torch.long)
+    indices = indices.view(shape)
+    self._num_units += layer_units
+    self.layers[name] = indices
+    self.layer_connections[name] = []
+    if (positions is None):
+        positions = torch.randn([layer_units, self.num_dim])
+    if (weights is None):
+        weights = torch.ones(layer_units)
+    if (colors is None):
+        colors = torch.ones([layer_units, 4])
+    if (self.positions is None):
+        self.positions = positions
+    else:
+        self.positions = torch.cat([self.positions, positions], dim=0)
+    if (self.weights is None):
+        self.weights = weights
+    else:
+        self.weights = torch.cat([self.weights, weights], dim=0)
+    if (self.colors is None):
+        self.colors = colors
+    else:
+        self.colors = torch.cat([self.colors, colors], dim=0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = torch.randn
+
+idx = 75:------------------- similar code ------------------ index = 69, score = 5.0 
+def test_constructor_defaults():
+    raw = torch.randn(3, 4)
+    state = State(raw)
+    tt.assert_equal(state.features, raw)
+    tt.assert_equal(state.mask, torch.ones(3, dtype=torch.bool))
+    tt.assert_equal(state.raw, raw)
+    assert (state.info == ([None] * 3))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 76:------------------- similar code ------------------ index = 66, score = 5.0 
+def test_reinforce(self):
+
+    def loss(log_probs):
+        return (- log_probs.mean())
+    states = State(torch.randn(3, STATE_DIM), torch.tensor([1, 1, 1]))
+    actions = self.policy.eval(states).sample()
+    log_probs = self.policy(states).log_prob(actions)
+    tt.assert_almost_equal(log_probs, torch.tensor([(- 0.84), (- 0.62), (- 0.757)]), decimal=3)
+    self.policy.reinforce(loss(log_probs))
+    log_probs = self.policy(states).log_prob(actions)
+    tt.assert_almost_equal(log_probs, torch.tensor([(- 0.811), (- 0.561), (- 0.701)]), decimal=3)
+    self.policy.reinforce(loss(log_probs))
+    log_probs = self.policy(states).log_prob(actions)
+    tt.assert_almost_equal(log_probs, torch.tensor([(- 0.785), (- 0.51), (- 0.651)]), decimal=3)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+
+     ...  =  ... (torch.randn,)
+
+idx = 77:------------------- similar code ------------------ index = 129, score = 5.0 
+def test_reinforce_one(self):
+    state = State(torch.randn(1, STATE_DIM))
+    dist = self.policy(state)
+    action = dist.sample()
+    log_prob1 = dist.log_prob(action)
+    loss = (- log_prob1.mean())
+    self.policy.reinforce(loss)
+    dist = self.policy(state)
+    log_prob2 = dist.log_prob(action)
+    self.assertGreater(log_prob2.item(), log_prob1.item())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 78:------------------- similar code ------------------ index = 63, score = 5.0 
+def __init__(self, num_classes, feat_dim, size_average=True):
+    super(DiscCentroidsLoss, self).__init__()
+    self.num_classes = num_classes
+    self.centroids = nn.Parameter(torch.randn(num_classes, feat_dim))
+    self.disccentroidslossfunc = DiscCentroidsLossFunc.apply
+    self.feat_dim = feat_dim
+    self.size_average = size_average
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... (torch.randn)
+
+idx = 79:------------------- similar code ------------------ index = 61, score = 5.0 
+def __init__(self, task: str, vocabulary, input_dim: int, device: str, loss_weight: float=1.0, metric: str='las', topn: int=1, tag_representation_dim: int=256, arc_representation_dim: int=768, **kwargs) -> None:
+    super().__init__(task, vocabulary, loss_weight, metric, device, **kwargs)
+    self.input_dim = input_dim
+    arc_representation_dim = arc_representation_dim
+    self.head_arc_feedforward = torch.nn.Linear(self.input_dim, arc_representation_dim).to(self.device)
+    self.child_arc_feedforward = copy.deepcopy(self.head_arc_feedforward)
+    self.arc_attention = BilinearMatrixAttention(arc_representation_dim, arc_representation_dim, use_input_biases=True).to(self.device)
+    num_labels = len(self.vocabulary.get_vocab(task))
+    self.topn = topn
+    self.head_tag_feedforward = torch.nn.Linear(self.input_dim, tag_representation_dim).to(self.device)
+    self.child_tag_feedforward = copy.deepcopy(self.head_tag_feedforward)
+    self.tag_bilinear = torch.nn.modules.Bilinear(tag_representation_dim, tag_representation_dim, num_labels).to(self.device)
+    self._head_sentinel = torch.nn.Parameter(torch.randn([1, 1, self.input_dim], device=self.device))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... () -> None:
+ =  ... . ... (torch.randn)
+
+idx = 80:------------------- similar code ------------------ index = 56, score = 5.0 
+def test_done():
+    raw = torch.randn(1, 4)
+    state = State(raw, mask=DONE)
+    assert state.done
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 81:------------------- similar code ------------------ index = 42, score = 5.0 
+def __init__(self, qs, encoder, decoder, policy, kernel_type='laplacian', num_samples_match=5, mmd_sigma=10.0, discount_factor=0.99, lambda_q=0.75, _lambda=0.4, delta_conf=0.1, minibatch_size=32):
+    self.qs = qs
+    self.encoder = encoder
+    self.decoder = decoder
+    self.policy = policy
+    self.replay_buffer = get_replay_buffer()
+    self.device = get_device()
+    self.writer = get_writer()
+    self.kernel_type = kernel_type
+    self.mmd_sigma = mmd_sigma
+    self.num_samples_match = num_samples_match
+    self.minibatch_size = minibatch_size
+    self.discount_factor = discount_factor
+    self.lambda_q = lambda_q
+    self._lambda = _lambda
+    self.delta_conf = delta_conf
+    self.log_lagrange2 = torch.randn((), requires_grad=True, device=self.device)
+    self.lagrange2_opt = torch.optim.Adam([self.log_lagrange2], lr=0.001)
+    self._train_count = 0
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = torch.randn
+
+idx = 82:------------------- similar code ------------------ index = 53, score = 5.0 
+def test_cat_matches_widest(self):
+    shape = self.b
+    ys = [torch.randn(shape, dtype=torch.half) for _ in range(5)]
+    x_float = torch.randn(shape)
+    out = torch.cat((ys + [x_float]))
+    self.assertEqual(out.type(), FLOAT)
+    x_half = torch.randn(shape, dtype=torch.half)
+    out = torch.cat((ys + [x_half]))
+    self.assertEqual(out.type(), HALF)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = [torch.randn]
+
+idx = 83:------------------- similar code ------------------ index = 51, score = 5.0 
+def sample_means(counts: List[int], dims: List[int]) -> List[torch.Tensor]:
+    return [torch.randn(count, dim) for (count, dim) in zip(counts, dims)]
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... () ->:
+    return [torch.randn]
+
+idx = 84:------------------- similar code ------------------ index = 50, score = 5.0 
+def test_torch_log_normal_tied(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    A = torch.randn(1000, 100)
+    covars = A.t().mm(A)
+    cholesky = torch.linalg.cholesky(covars)
+    distribution = MultivariateNormal(means, scale_tril=cholesky, validate_args=False)
+    benchmark(distribution.log_prob, data.unsqueeze(1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 85:------------------- similar code ------------------ index = 49, score = 5.0 
+def run_binary_promote_test(self, fns, input_shape, x_inplace=False):
+    type_pairs = it.product(DTYPES, DTYPES)
+    for (fn, (xtype, ytype)) in it.product(fns, type_pairs):
+        x = torch.randn(input_shape, dtype=xtype).requires_grad_()
+        x_leaf = x
+        if x_inplace:
+            x = x.clone()
+        y = torch.randn(input_shape, dtype=ytype)
+        out = fn(x, y)
+        if x_inplace:
+            self.assertEqual(out.type(), x.type())
+        elif ((xtype == torch.float) or (ytype == torch.float)):
+            self.assertEqual(out.type(), FLOAT)
+        else:
+            self.assertEqual(out.type(), HALF)
+        out.float().sum().backward()
+        self.assertEqual(x_leaf.grad.dtype, xtype)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = torch.randn
+
+idx = 86:------------------- similar code ------------------ index = 45, score = 5.0 
+def test_log_normal_spherical(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    precisions = cholesky_precision(torch.rand(50), 'spherical')
+    benchmark(log_normal, data, means, precisions, covariance_type='spherical')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 87:------------------- similar code ------------------ index = 43, score = 5.0 
+def run():
+    for epoch in range(1, (args.epochs + 1)):
+        train(epoch)
+        test(epoch)
+        sample = Variable(torch.randn(64, 200))
+        if args.cuda:
+            sample = sample.cuda()
+        sample = model.decode(sample).cpu()
+        save_image(sample.data.view(64, 1, 28, 28), (('results/sample_' + str(epoch)) + '.png'))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  =  ... (torch.randn)
+
+idx = 88:------------------- similar code ------------------ index = 128, score = 5.0 
+def test_not_done():
+    state = State(torch.randn(1, 4))
+    assert (not state.done)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... (torch.randn)
+
+idx = 89:------------------- similar code ------------------ index = 222, score = 5.0 
+def __init__(self, num_classes, feat_dim=2048):
+    super(CenterLoss, self).__init__()
+    self.num_classes = num_classes
+    self.feat_dim = feat_dim
+    self.centers = nn.Parameter(torch.randn(self.num_classes, self.feat_dim))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... (torch.randn)
+
+idx = 90:------------------- similar code ------------------ index = 130, score = 5.0 
+def test():
+    net = ResNet18()
+    y = net(torch.randn(1, 3, 32, 32))
+    print(y.size())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... (torch.randn)
+
+idx = 91:------------------- similar code ------------------ index = 194, score = 5.0 
+def _init_params(self):
+    if (self.mu_init is not None):
+        assert (self.mu_init.size() == (1, self.n_components, self.n_features)), ('Input mu_init does not have required tensor dimensions (1, %i, %i)' % (self.n_components, self.n_features))
+        self.mu = torch.nn.Parameter(self.mu_init, requires_grad=False)
+    else:
+        self.mu = torch.nn.Parameter(torch.randn(1, self.n_components, self.n_features), requires_grad=False)
+    if (self.covariance_type == 'diag'):
+        if (self.var_init is not None):
+            assert (self.var_init.size() == (1, self.n_components, self.n_features)), ('Input var_init does not have required tensor dimensions (1, %i, %i)' % (self.n_components, self.n_features))
+            self.var = torch.nn.Parameter(self.var_init, requires_grad=False)
+        else:
+            self.var = torch.nn.Parameter(torch.ones(1, self.n_components, self.n_features), requires_grad=False)
+    elif (self.covariance_type == 'full'):
+        if (self.var_init is not None):
+            assert (self.var_init.size() == (1, self.n_components, self.n_features, self.n_features)), ('Input var_init does not have required tensor dimensions (1, %i, %i, %i)' % (self.n_components, self.n_features, self.n_features))
+            self.var = torch.nn.Parameter(self.var_init, requires_grad=False)
+        else:
+            self.var = torch.nn.Parameter(torch.eye(self.n_features).reshape(1, 1, self.n_features, self.n_features).repeat(1, self.n_components, 1, 1), requires_grad=False)
+    self.pi = torch.nn.Parameter(torch.Tensor(1, self.n_components, 1), requires_grad=False).fill_((1.0 / self.n_components))
+    self.params_fitted = False
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:    else:
+ =  ... . ... (torch.randn,)
+
+idx = 92:------------------- similar code ------------------ index = 155, score = 5.0 
+def __init__(self, n_channels, n_classes, vec_len, normalize=False):
+    super().__init__()
+    if normalize:
+        target_scale = 0.06
+        self.embedding_scale = target_scale
+        self.normalize_scale = target_scale
+    else:
+        self.embedding_scale = 0.001
+        self.normalize_scale = None
+    self.embedding0 = nn.Parameter((torch.randn(n_channels, n_classes, vec_len, requires_grad=True) * self.embedding_scale))
+    self.offset = (torch.arange(n_channels).cuda() * n_classes)
+    self.n_classes = n_classes
+    self.after_update()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ =  ... . ... ((torch.randn *))
+
+idx = 93:------------------- similar code ------------------ index = 204, score = 5.0 
+def test_torch_log_normal_spherical(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    covars = torch.rand(50)
+    covar_matrices = torch.stack([(torch.eye(means.size((- 1))) * c) for c in covars])
+    cholesky = torch.linalg.cholesky(covar_matrices)
+    distribution = MultivariateNormal(means, scale_tril=cholesky, validate_args=False)
+    benchmark(distribution.log_prob, data.unsqueeze(1))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 94:------------------- similar code ------------------ index = 179, score = 5.0 
+def setUp(self):
+    (N, D_in, D_out) = (64, 1024, 16)
+    self.N = N
+    self.D_in = D_in
+    self.D_out = D_out
+    self.x = torch.randn((N, D_in), dtype=torch.float16, device='cuda')
+    self.y = torch.randn((N, D_out), dtype=torch.float16, device='cuda')
+    self.model = torch.nn.Linear(D_in, D_out).cuda().half()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+ = torch.randn
+
+idx = 95:------------------- similar code ------------------ index = 158, score = 5.0 
+def test_output_shape(self):
+    state = State(torch.randn(1, STATE_DIM))
+    action = self.policy(state)
+    self.assertEqual(action.shape, (1, ACTION_DIM))
+    state = State(torch.randn(5, STATE_DIM))
+    action = self.policy(state)
+    self.assertEqual(action.shape, (5, ACTION_DIM))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  =  ... (torch.randn)
+
+idx = 96:------------------- similar code ------------------ index = 159, score = 5.0 
+def test_log_normal_tied(benchmark: BenchmarkFixture):
+    data = torch.randn(10000, 100)
+    means = torch.randn(50, 100)
+    A = torch.randn(1000, 100)
+    covars = A.t().mm(A)
+    precisions = cholesky_precision(covars, 'tied')
+    benchmark(log_normal, data, means, precisions, covariance_type='tied')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = torch.randn
+
+idx = 97:------------------- similar code ------------------ index = 92, score = 5.0 
+def test_rnn_packed_sequence(self):
+    num_layers = 2
+    rnn = nn.RNN(input_size=self.h, hidden_size=self.h, num_layers=num_layers)
+    for typ in [torch.float, torch.half]:
+        x = torch.randn((self.t, self.b, self.h), dtype=typ).requires_grad_()
+        lens = sorted([random.randint((self.t // 2), self.t) for _ in range(self.b)], reverse=True)
+        torch.set_default_tensor_type(torch.FloatTensor)
+        lens = torch.tensor(lens, dtype=torch.int64, device=torch.device('cpu'))
+        packed_seq = nn.utils.rnn.pack_padded_sequence(x, lens)
+        torch.set_default_tensor_type(torch.cuda.FloatTensor)
+        hidden = torch.zeros((num_layers, self.b, self.h), dtype=typ)
+        (output, _) = rnn(packed_seq, hidden)
+        self.assertEqual(output.data.type(), HALF)
+        output.data.float().sum().backward()
+        self.assertEqual(x.grad.dtype, x.dtype)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ( ... ):
+    for  ...  in:
+         ...  =  ... .randn
+        torch
+
+idx = 98:------------------- similar code ------------------ index = 24, score = 5.0 
+if (__name__ == '__main__'):
+    DEBUGER_ON = True
+    NUM_GAMES = 80000
+    MAX_EPISODE_STEPS = 400
+    TARGET_MODEL_UPDATE_INTERVAL = 50
+    EPSILON_MIN = 0.05
+    EPSILON_START = 0.25
+    EPSLILON_COUNT = 1000
+    INITIAL_RANDOM_STEPS = 5000
+    RANDOM_GAME_EVERY = 10
+    NOISY_AGENT_GAME_EVERY = 3
+    CRITIC_TRAINING_ITTERATIONS = 8
+    TRAIN_CRITIC_EVERY_N_STEP = 15
+    CRITIC_TRAINING_SAMPLE_SIZE = 1
+    TRAIN_ACTOR_EVERY_N_STEP = 50
+    TRAIN_ACTOR_EVERY_N_GAME = 1
+    ACTOR_TRAINING_SAMPLE_SIZE = 1
+    ACTOR_TRAINING_ITTERTIONS = 8
+    LAST_EPISODE_TRAINING_SAMPLE_SIZE = 8
+    PRINT_EVERY = 1
+    RENDER_ENV = False
+    LOAD_MODEL = False
+    SAVE_MODEL = True
+    MODEL_FILE_NAME = 'TDQN_RL_MODEL.trl'
+    MODEL_ID = '01'
+    SAVE_MODEL_EVERY = 10
+    epsilon = EPSILON_START
+    env = gym.make('LunarLanderContinuous-v2')
+    observation = env.reset()
+    rb = ReplayBuffer(400000)
+    print('env action space ', env.action_space.shape)
+    am = ActorModel(env.observation_space.shape, env.action_space.shape, lr=0.000101)
+    cm = CriticModel(env.observation_space.shape, env.action_space.shape, lr=0.0001)
+    agent = DQNAgent(am, cm)
+    n_am = ActorModel(env.observation_space.shape, env.action_space.shape, lr=0.008)
+    n_cm = CriticModel(env.observation_space.shape, env.action_space.shape, lr=0.01)
+    noisy_agent = DQNAgent(n_am, n_cm)
+    if LOAD_MODEL:
+        agent.actor_model.load_state_dict(torch.load((('actor' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.critic_model.load_state_dict(torch.load((('critic' + MODEL_ID) + MODEL_FILE_NAME)))
+        agent.actor_model.eval()
+        agent.critic_model.eval()
+    step_counter = 0
+    avg_reward = []
+    action = []
+    all_scores = []
+    for game in range(NUM_GAMES):
+        score = 0
+        episode_sars = []
+        if ((game % NOISY_AGENT_GAME_EVERY) == 0):
+            print('adding param noise')
+            noisy_agent.actor_model.load_state_dict(agent.actor_model.state_dict())
+            with torch.no_grad():
+                for param in noisy_agent.actor_model.parameters():
+                    param.add_((torch.randn(param.size()).to(noisy_agent.actor_model.device) * 0.02))
+        for step in range(MAX_EPISODE_STEPS):
+            if RENDER_ENV:
+                env.render()
+            action = []
+            if ((step_counter < INITIAL_RANDOM_STEPS) or (random() < epsilon) or ((game % RANDOM_GAME_EVERY) == 0)):
+                action = env.action_space.sample()
+            elif ((step_counter >= INITIAL_RANDOM_STEPS) and ((game % NOISY_AGENT_GAME_EVERY) == 0)):
+                if ((step % 100) == 0):
+                    print('noisy agent acting')
+                action = noisy_agent.get_actions(observation).cpu().detach().numpy()
+            else:
+                action = agent.get_actions(observation).cpu().detach().numpy()
+            (observation_next, reward, done, info) = env.step(action)
+            if (step >= MAX_EPISODE_STEPS):
+                done = True
+            _sars = sars(observation, action, reward, observation_next, done, 0.0)
+            episode_sars.append(_sars)
+            avg_reward.append([reward])
+            score += reward
+            if ((rb.index > INITIAL_RANDOM_STEPS) and ((step_counter % TRAIN_CRITIC_EVERY_N_STEP) == 0)):
+                for s in range(CRITIC_TRAINING_ITTERATIONS):
+                    samples = rb.sample(CRITIC_TRAINING_SAMPLE_SIZE, step)
+                    train_critic(agent.critic_model, samples, env.action_space.shape[0])
+            if ((rb.index > INITIAL_RANDOM_STEPS) and ((step_counter % TRAIN_ACTOR_EVERY_N_STEP) == 0)):
+                for s in range(ACTOR_TRAINING_ITTERTIONS):
+                    samples = rb.sample(ACTOR_TRAINING_SAMPLE_SIZE, 0)
+                    if ((rb.index > INITIAL_RANDOM_STEPS) and ((game % TRAIN_ACTOR_EVERY_N_GAME) == 0)):
+                        train_actor(agent.actor_model, agent.critic_model, noisy_agent.actor_model, samples, ACTOR_TRAINING_SAMPLE_SIZE, env.action_space.shape[0])
+            observation = observation_next
+            step_counter += 1
+            if done:
+                episode_sars = update_Qs(episode_sars, step_counter, step, len(episode_sars))
+                for j in range(len(episode_sars)):
+                    rb.insert(episode_sars[j])
+                if (SAVE_MODEL and ((game % SAVE_MODEL_EVERY) == 0) and (game > 50)):
+                    torch.save(agent.actor_model, (('A2C_actor' + MODEL_ID) + MODEL_FILE_NAME))
+                    torch.save(agent.critic_model, (('A2C_critic' + MODEL_ID) + MODEL_FILE_NAME))
+                break
+        observation = env.reset()
+        for s in range(ACTOR_TRAINING_ITTERTIONS):
+            samples = rb.sample(ACTOR_TRAINING_SAMPLE_SIZE, 0)
+            if ((rb.index > INITIAL_RANDOM_STEPS) and ((game % TRAIN_ACTOR_EVERY_N_GAME) == 0)):
+                train_actor(agent.actor_model, agent.critic_model, noisy_agent.actor_model, samples, ACTOR_TRAINING_SAMPLE_SIZE, env.action_space.shape[0])
+        if ((rb.index > INITIAL_RANDOM_STEPS) and ((step_counter % TRAIN_CRITIC_EVERY_N_STEP) == 0)):
+            for s in range(CRITIC_TRAINING_ITTERATIONS):
+                samples = rb.sample(CRITIC_TRAINING_SAMPLE_SIZE, step)
+                train_critic(agent.critic_model, samples, env.action_space.shape[0])
+        epsilon = max(EPSILON_MIN, (epsilon - ((EPSILON_START - EPSILON_MIN) / EPSLILON_COUNT)))
+        all_scores.append(score)
+        if ((game % PRINT_EVERY) == 0):
+            plot_score(all_scores)
+            print('episide ', game, 'score', score, 'episode_len', len(episode_sars), 'buffer', min(rb.index, rb.buffer_size), 'score', np.average(avg_reward), 'epsilon', epsilon)
+        avg_reward = []
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+if:
+    for  ...  in:
+        if:
+            with:
+                for  ...  in:
+                     ... . ... (( ... .randn *  ... ))
+        for  ...  in:
+            if  ... :
+                if:
+                    torch
+                break
+
+idx = 99:------------------- similar code ------------------ index = 126, score = 5.0 
+def save_graph(opt, model):
+    '\n    Generate Network Graph.\n    NOTE: Requires the installation of the graphviz library on you system.\n\n    Args:\n        opt:   argparse.Namespace, contains all training-specific parameters.\n        model: PyTorch Network, network for which the computational graph should be visualized.\n    Returns:\n        Nothing!\n    '
+    inp = torch.randn((1, 3, 224, 224)).to(opt.device)
+    network_output = model(inp)
+    if isinstance(network_output, dict):
+        network_output = network_output['Class']
+    from graphviz import Digraph
+
+    def make_dot(var, savename, params=None):
+        '\n        Generate a symbolic representation of the network graph.\n        '
+        if (params is not None):
+            assert all((isinstance(p, Variable) for p in params.values()))
+            param_map = {id(v): k for (k, v) in params.items()}
+        node_attr = dict(style='filled', shape='box', align='left', fontsize='6', ranksep='0.1', height='0.6', width='1')
+        dot = Digraph(node_attr=node_attr, format='svg', graph_attr=dict(size='40,10', rankdir='LR', rank='same'))
+        seen = set()
+
+        def size_to_str(size):
+            return (('(' + ', '.join([('%d' % v) for v in size])) + ')')
+
+        def add_nodes(var):
+            replacements = ['Backward', 'Th', 'Cudnn']
+            color_assigns = {'Convolution': 'orange', 'ConvolutionTranspose': 'lightblue', 'Add': 'red', 'Cat': 'green', 'Softmax': 'yellow', 'Sigmoid': 'yellow', 'Copys': 'yellow'}
+            if (var not in seen):
+                op1 = torch.is_tensor(var)
+                op2 = ((not torch.is_tensor(var)) and (str(type(var).__name__) != 'AccumulateGrad'))
+                text = str(type(var).__name__)
+                for rep in replacements:
+                    text = text.replace(rep, '')
+                color = (color_assigns[text] if (text in color_assigns.keys()) else 'gray')
+                if ('Pool' in text):
+                    color = 'lightblue'
+                if (op1 or op2):
+                    if hasattr(var, 'next_functions'):
+                        count = 0
+                        for (i, u) in enumerate(var.next_functions):
+                            if (str(type(u[0]).__name__) == 'AccumulateGrad'):
+                                if (count == 0):
+                                    attr_text = '\nParameter Sizes:\n'
+                                attr_text += size_to_str(u[0].variable.size())
+                                count += 1
+                                attr_text += ' '
+                        if (count > 0):
+                            text += attr_text
+                if op1:
+                    dot.node(str(id(var)), size_to_str(var.size()), fillcolor='orange')
+                if op2:
+                    dot.node(str(id(var)), text, fillcolor=color)
+                seen.add(var)
+                if (op1 or op2):
+                    if hasattr(var, 'next_functions'):
+                        for u in var.next_functions:
+                            if (u[0] is not None):
+                                if (str(type(u[0]).__name__) != 'AccumulateGrad'):
+                                    dot.edge(str(id(u[0])), str(id(var)))
+                                    add_nodes(u[0])
+                    if hasattr(var, 'saved_tensors'):
+                        for t in var.saved_tensors:
+                            dot.edge(str(id(t)), str(id(var)))
+                            add_nodes(t)
+        add_nodes(var.grad_fn)
+        dot.save(savename)
+        return dot
+    if (not os.path.exists(opt.save_path)):
+        raise Exception('No save folder {} available!'.format(opt.save_path))
+    viz_graph = make_dot(network_output, ((opt.save_path + '/Network_Graphs') + '/{}_network_graph'.format(opt.arch)))
+    viz_graph.format = 'svg'
+    viz_graph.render()
+    torch.cuda.empty_cache()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = torch.randn
+

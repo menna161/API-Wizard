@@ -1,0 +1,471 @@
+------------------------- example 1 ------------------------ 
+def GetCategoryOne(self, resp):
+    '获取大类链接'
+// your code ...
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_nav = soup.find('div', id='dict_nav_list')
+    dict_nav_lists = dict_nav.find_all('a')
+    for dict_nav_list in dict_nav_lists:
+// your code ...
+
+------------------------- example 2 ------------------------ 
+
+def parse_html(cls, soup, paper_id):
+    put_dummy_anchors(soup)
+    abstract = soup.select('div.ltx_abstract')
+    author = soup.select('div.ltx_authors')
+    p = cls(title=get_text(soup.title), authors=get_text(*author), abstract=clean_abstract(get_text(*abstract)), meta={'id': paper_id})
+    for el in (abstract + author):
+// your code ...
+    doc = soup.find('article')
+    if doc:
+        footnotes = doc.select('.ltx_role_footnote > .ltx_note_outer')
+// your code ...
+        idx = 0
+        for (idx, idx2, section_header, content) in group_content(doc):
+            content = content.strip()
+            if ((p.abstract == '') and ('abstract' in section_header.lower())):
+                p.abstract = clean_abstract(content)
+            else:
+                order = (((idx + 1) * 1000) + idx2)
+// your code ...
+                fragments.append(f)
+        idx += 1
+        idx2 = 0
+        for ft in footnotes:
+            order = (((idx + 1) * 1000) + idx2)
+            f = Fragment(paper_id=paper_id, order=order, header='xxanchor-footnotes Footnotes', text=get_text(ft), meta={'id': f'{paper_id}-{order}'})
+            fragments.append(f)
+            idx2 += 1
+    else:
+// your code ...
+
+------------------------- example 3 ------------------------ 
+def get_count_of_servings(self):
+    servings = self.soup.find('div', {'class': 'servings'})
+    if servings:
+// your code ...
+
+------------------------- example 4 ------------------------ 
+def is_valid(self):
+    ingredients_div = self.soup.find('div', 'field field-name-field-skladniki field-type-text-long field-label-hidden')
+    return bool(ingredients_div)
+
+------------------------- example 5 ------------------------ 
+def get_recipe_title(self):
+    title = self.soup.find('h1', {'class': 'recipe-title'})
+    return title.get_text().strip()
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        6         ||         2        ||        0.3333333333333333         
+example2  ||          3           ||        26         ||         4        ||        0.15384615384615385         
+example3  ||          4           ||        3         ||         1        ||        0.3333333333333333         
+example4  ||          3           ||        3         ||         0        ||        0.3333333333333333         
+example5  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+
+avg       ||          13.999999999999998           ||        8.2         ||         1.4        ||         29.743589743589737        
+
+idx = 0:------------------- similar code ------------------ index = 19, score = 6.0 
+@classmethod
+def create_session(cls):
+    if cls.is_connected():
+        if SessionObject.is_logged_in():
+            raise NautaPreLoginException('Hay una sessión abierta')
+        else:
+            raise NautaPreLoginException('Hay una conexión activa')
+    session = SessionObject()
+    resp = session.requests_session.get(LOGIN_URL)
+    if (not resp.ok):
+        raise NautaPreLoginException('Failed to create session')
+    soup = bs4.BeautifulSoup(resp.text, 'html.parser')
+    action = LOGIN_URL
+    data = cls._get_inputs(soup)
+    resp = session.requests_session.post(action, data)
+    soup = bs4.BeautifulSoup(resp.text, 'html.parser')
+    form_soup = soup.find('form', id='formulario')
+    session.login_action = form_soup['action']
+    data = cls._get_inputs(form_soup)
+    session.csrfhw = data['CSRFHW']
+    session.wlanuserip = data['wlanuserip']
+    return session
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    soup
+     ...  =  ... .find
+
+idx = 1:------------------- similar code ------------------ index = 18, score = 6.0 
+def GetPage(self, resp):
+    '获取页码'
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_div_lists = soup.find('div', id='dict_page_list')
+    dict_td_lists = dict_div_lists.find_all('a')
+    page = dict_td_lists[(- 2)].string
+    return int(page)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    soup
+     ...  =  ... .find
+
+idx = 2:------------------- similar code ------------------ index = 4, score = 6.0 
+def get_temp_credentials(metadata_id, idp_host, ssh_args=None):
+    "\n    Use SAML SSO to get a set of credentials that can be used for API access to an AWS account.\n\n    Example:\n      from openshift_tools import saml_aws_creds\n      creds = saml_aws_creds.get_temp_credentials(\n          metadata_id='urn:amazon:webservices:123456789012',\n          idp_host='login.saml.example.com',\n          ssh_args=['-i', '/path/to/id_rsa', '-o', 'StrictHostKeyChecking=no'])\n\n      client = boto3.client(\n          'iam',\n          aws_access_key_id=creds['AccessKeyId'],\n          aws_secret_access_key=creds['SecretAccessKey'],\n          aws_session_token=creds['SessionToken'],\n          )\n    "
+    ssh_cmd = ['ssh', '-p', '2222', '-a', '-l', 'user', '-o', 'ProxyCommand=bash -c "exec openssl s_client -servername %h -connect %h:443 -quiet 2>/dev/null \\\n                   < <(echo -en \'CONNECT 127.0.0.1:%p HTTP/1.1\\r\\nHost: %h:443\\r\\n\\r\\n\'; cat -)"']
+    if ssh_args:
+        ssh_cmd.extend(ssh_args)
+    ssh_cmd.extend([idp_host, metadata_id])
+    ssh = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (html_saml_assertion, ssh_error) = ssh.communicate()
+    if (ssh.returncode != 0):
+        raise ValueError(('Error connecting to SAML IdP:\nSTDERR:\n' + ssh_error))
+    assertion = None
+    soup = BeautifulSoup(html_saml_assertion)
+    for inputtag in soup.find_all('input'):
+        if (inputtag.get('name') == 'SAMLResponse'):
+            assertion = inputtag.get('value')
+    if (not assertion):
+        error_msg = soup.find('div', {'id': 'content'})
+        if error_msg:
+            error_msg = error_msg.get_text()
+        else:
+            error_msg = html_saml_assertion
+        raise ValueError(('Error retrieving SAML token: ' + error_msg))
+    role = None
+    principal = None
+    xmlroot = ET.fromstring(base64.b64decode(assertion))
+    for saml2attribute in xmlroot.iter('{urn:oasis:names:tc:SAML:2.0:assertion}Attribute'):
+        if (saml2attribute.get('Name') == 'https://aws.amazon.com/SAML/Attributes/Role'):
+            for saml2attributevalue in saml2attribute.iter('{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue'):
+                (role, principal) = saml2attributevalue.text.split(',')
+    client = boto3.client('sts')
+    response = client.assume_role_with_saml(RoleArn=role, PrincipalArn=principal, SAMLAssertion=assertion)
+    if (not response['Credentials']):
+        raise ValueError('No Credentials returned')
+    return response['Credentials']
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    soup
+    if:
+         ...  =  ... .find
+
+idx = 3:------------------- similar code ------------------ index = 15, score = 6.0 
+def GetCategoryOne(self, resp):
+    '获取大类链接'
+    categoryOneUrls = []
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_nav = soup.find('div', id='dict_nav_list')
+    dict_nav_lists = dict_nav.find_all('a')
+    for dict_nav_list in dict_nav_lists:
+        dict_nav_url = ('https://pinyin.sogou.com' + dict_nav_list['href'])
+        categoryOneUrls.append(dict_nav_url)
+    return categoryOneUrls
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    soup
+     ...  =  ... .find
+
+idx = 4:------------------- similar code ------------------ index = 6, score = 6.0 
+def findImage(entry):
+    if ('description' not in entry):
+        return
+    soup = bs4.BeautifulSoup(entry.description, 'html.parser')
+    img = soup.find('img')
+    if img:
+        img = img['src']
+        if (len(img) == 0):
+            return
+        if (img[0] == '/'):
+            p = urllib.parse.urlparse(entry.id)
+            img = (f'{p.scheme}://{p.netloc}' + img)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    soup
+     ...  =  ... .find
+
+idx = 5:------------------- similar code ------------------ index = 7, score = 6.0 
+@staticmethod
+def __get_supported_langs() -> dict:
+    supported_langs = {}
+    response = requests.get('https://context.reverso.net/translation/', headers=HEADERS)
+    soup = BeautifulSoup(response.content, features='lxml')
+    src_selector = soup.find('div', id='src-selector')
+    trg_selector = soup.find('div', id='trg-selector')
+    for (selector, attribute) in ((src_selector, 'source_lang'), (trg_selector, 'target_lang')):
+        dd_spans = selector.find(class_='drop-down').find_all('span')
+        langs = [span.get('data-value') for span in dd_spans]
+        langs = [lang for lang in langs if (isinstance(lang, str) and (len(lang) == 2))]
+        supported_langs[attribute] = tuple(langs)
+    return supported_langs
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... () ->  ... :
+    soup
+     ...  =  ... .find
+
+idx = 6:------------------- similar code ------------------ index = 1, score = 6.0 
+@classmethod
+def parse_html(cls, soup, paper_id):
+    put_dummy_anchors(soup)
+    abstract = soup.select('div.ltx_abstract')
+    author = soup.select('div.ltx_authors')
+    p = cls(title=get_text(soup.title), authors=get_text(*author), abstract=clean_abstract(get_text(*abstract)), meta={'id': paper_id})
+    for el in (abstract + author):
+        el.extract()
+    fragments = Fragments()
+    doc = soup.find('article')
+    if doc:
+        footnotes = doc.select('.ltx_role_footnote > .ltx_note_outer')
+        for ft in footnotes:
+            ft.extract()
+        idx = 0
+        for (idx, idx2, section_header, content) in group_content(doc):
+            content = content.strip()
+            if ((p.abstract == '') and ('abstract' in section_header.lower())):
+                p.abstract = clean_abstract(content)
+            else:
+                order = (((idx + 1) * 1000) + idx2)
+                f = Fragment(paper_id=paper_id, order=order, header=section_header, text=content, meta={'id': f'{paper_id}-{order}'})
+                fragments.append(f)
+        idx += 1
+        idx2 = 0
+        for ft in footnotes:
+            order = (((idx + 1) * 1000) + idx2)
+            f = Fragment(paper_id=paper_id, order=order, header='xxanchor-footnotes Footnotes', text=get_text(ft), meta={'id': f'{paper_id}-{order}'})
+            fragments.append(f)
+            idx2 += 1
+    else:
+        print(f'No article found for {paper_id}', file=sys.stderr)
+    p.fragments = fragments
+    return p
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = soup.find
+
+idx = 7:------------------- similar code ------------------ index = 11, score = 6.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = soup.find
+
+idx = 8:------------------- similar code ------------------ index = 10, score = 6.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = soup.find
+
+idx = 9:------------------- similar code ------------------ index = 13, score = 5.0 
+def decrypt_url(url, scraper: cfscrape.CloudflareScraper):
+    urlr = scraper.get(url)
+    soup = BeautifulSoup(urlr.content, 'html.parser')
+    ouo_url = soup.find('form')['action']
+    furl = bypass_ouo(ouo_url)
+    return get_urls(furl)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    soup
+     ...  =  ... .find
+
+idx = 10:------------------- similar code ------------------ index = 0, score = 4.0 
+def get_count_of_servings(self):
+    servings = self.soup.find('div', {'class': 'servings'})
+    if servings:
+        return int(servings.find('input')['value'])
+    return 1
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+
+idx = 11:------------------- similar code ------------------ index = 14, score = 3.0 
+def is_valid(self):
+    ingredients_div = self.soup.find('div', 'field field-name-field-skladniki field-type-text-long field-label-hidden')
+    return bool(ingredients_div)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+
+idx = 12:------------------- similar code ------------------ index = 16, score = 3.0 
+def get_count_of_servings(self):
+    servings_div = self.soup.find('div', 'field field-name-field-ilosc-porcji field-type-text field-label-hidden')
+    if servings_div:
+        for w in servings_div.get_text().strip().split(' '):
+            if w.isnumeric():
+                return int(w)
+    return 1
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+
+idx = 13:------------------- similar code ------------------ index = 3, score = 3.0 
+def get_recipe_title(self):
+    title = self.soup.find('h1', {'class': 'recipe-title'})
+    return title.get_text().strip()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+
+idx = 14:------------------- similar code ------------------ index = 17, score = 3.0 
+def get_list_of_ingredients(self):
+    ingredients_div = self.soup.find('div', 'field field-name-field-skladniki field-type-text-long field-label-hidden')
+    ingredient_list = ingredients_div.find_all('li')
+    return [ing.get_text().strip() for ing in ingredient_list]
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+
+idx = 15:------------------- similar code ------------------ index = 9, score = 3.0 
+def get_recipe_title(self):
+    title = self.soup.find('h1', {'class': 'przepis page-header'})
+    return title.get_text().strip()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .soup.find
+

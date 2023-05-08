@@ -1,118 +1,955 @@
 ------------------------- example 1 ------------------------ 
-def plot_assets(self, symbols=None, ax=None, show=False):
-    'Plot assets\n\n        Args:\n            symbols: (list: str) the symbols to include, defaults to all\n            ax: (Axis) where to plot, defaults to pandas\n            show: (bool) display the plot\n        '
-// your code ...
-
-    df = self.log_as_dataframe()
-    df[[('end_owned_' + symbol) for symbol in self.symbols]].plot(ax=ax)
-    if show:
-        plt.show()
-
-------------------------- example 2 ------------------------ 
-def view3d_image(input_im, cmap='gray', title='', spacing=None, slice_axis=0):
-    if (spacing is None):
-        spacing = [1, 1, 1]
-    if isinstance(input_im, sitk.Image):
-        input_numpy = sitk.GetArrayFromImage(input_im)
-        spacing = input_im.GetSpacing()[::(- 1)]
-    else:
-// your code ...
-
-    if (slice_axis == 0):
-        aspect = (spacing[1] / spacing[2])
-    elif (slice_axis == 1):
-        input_numpy = np.transpose(input_numpy, [1, 0, 2])
-        aspect = (spacing[0] / spacing[2])
-    elif (slice_axis == 2):
-        input_numpy = np.transpose(input_numpy, [2, 0, 1])
-        aspect = (spacing[0] / spacing[1])
-    else:
-// your code ...
-
-    (fig, ax) = plt.subplots(1, 1)
-    tracker = IndexTracker(ax, input_numpy, cmap=cmap, title=title, aspect=aspect)
-    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+def plot3d(P, *args, **kwargs):
+    ax = axis3d()
+    plot3d_(ax, P)
     plt.show()
 
-------------------------- example 3 ------------------------ 
-def klBacktest(self):
-    wLimit = self.getInputParamByName('wLimit')
-// your code ...
+------------------------- example 2 ------------------------ 
+def plot_masks(nrows, ncols, generation_order, masks, k=3, out_path=None):
+    import time
+    (fig, axes) = plt.subplots(nrows, ncols)
+    plt.suptitle(f'Kernel masks')
+    for (row_major_index, ((r, c), mask)) in enumerate(zip(generation_order, masks)):
+        axes[((row_major_index // your code ... ncols), (row_major_index % ncols))].imshow(mask, vmin=0, vmax=1)
+    plt.setp(axes, xticks=[], yticks=[])
+    if out_path:
+        plt.savefig(out_path)
+    else:
+        plt.show()
 
-    signals = np.array(self.signalsOpen)
-    (caps, poss) = plotSigCaps(signals, markets, cLimit, wLimit, size=size)
-    plt.plot(range(len(caps)), caps)
+------------------------- example 3 ------------------------ 
+def show_cat(cat_batch):
+    print('cat shape before transfo', cat_batch.shape)
+    cat = np.squeeze(cat_batch, axis=0)
+    print('cat.shape', cat.shape)
+    plt.imshow(cat)
     plt.show()
 
 ------------------------- example 4 ------------------------ 
-def read_time(driver, port, idn):
-    " Read the entire control table of the DXL MX-64AT device 'N' times and plot the mean & percentile time taken. "
-// your code ...
 
-    plt.figure()
-    plt.plot(times)
-    plt.show()
+def main(config_path, audio_path, plot):
+    config = parse_yaml(config_path)['infer']
+// your code ...
+    with torch.no_grad():
+        (out, output_lens, attention) = model(spect, lens)
+// your code ...
+        if plot:
+            import matplotlib.pyplot as plt
+            plt.matshow(attention[0].numpy())
+            plt.show()
 
 ------------------------- example 5 ------------------------ 
-def plot_core_sample_complexity():
-    path = 'core/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19'
+def animate(self, save=False, interval=50, dpi=80, marker='', repeat=False, fps=50):
+    (fig, ax) = plt.subplots()
+    ax.set_aspect('equal')
+    x_vals = [s[0] for s in self.trajectory]
+    max_x = np.max(x_vals)
+// your code ...
+    y_vals = [s[1] for s in self.trajectory]
+    max_y = np.max(y_vals)
 // your code ...
 
-    ax = plt.gca()
-    (x, y, *yerr) = get_stage_data(path, 0, 'n_train', 'stopping_criteria', 'ci95', (lambda error: (1 - error)))
-    label = 'test'
+    def update(t):
+        plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
+        if ((t == (len(self.trajectory) - 1)) and repeat):
+            ax.clear()
+            ax.xaxis.set_ticklabels([])
+            ax.yaxis.set_ticklabels([])
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.xlim(min_x, max_x)
 // your code ...
-
+    ani = animation.FuncAnimation(fig, update, frames=len(self.trajectory), interval=interval, save_count=len(self.trajectory), repeat=repeat)
+    plt.xlim(min_x, max_x)
+// your code ...
     plt.show()
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        7         ||         1        
-example2  ||          2           ||        22         ||         2        
-example3  ||          2           ||        7         ||         1        
-example4  ||          3           ||        6         ||         1        
-example5  ||          3           ||        8         ||         2        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        4         ||         0        ||        0.25         
+example2  ||          3           ||        10         ||         1        ||        0.2         
+example3  ||          3           ||        6         ||         0        ||        0.16666666666666666         
+example4  ||          2           ||        9         ||         2        ||        0.1111111111111111         
+example5  ||          2           ||        18         ||         4        ||        0.05555555555555555         
 
-avg       ||          2.6           ||        10.0         ||         1.4        
+avg       ||          1.4723926380368098           ||        9.4         ||         1.4        ||         15.666666666666668        
 
-idx = 0:------------------- similar code ------------------ index = 48, score = 7.0 
-def animate_hex(trajectory, title='', shape=None, save=False, interval=50, colormap='Greys', vmin=None, vmax=None, edgecolor=None):
-    activities = get_activities_over_time_as_list(trajectory)
-    if (shape is not None):
-        activities = np.reshape(activities, (len(activities), shape[0], shape[1]))
-    triples = _get_triples(activities[0])
-    has_odd_rows = ((len(activities[0]) % 2) != 0)
-    (fig, ax) = plt.subplots(1)
-    ax.set_aspect('equal')
-    m = _get_scaled_colormap(triples, colormap, vmin, vmax)
-    patches = []
-    for t in triples:
-        (x, y) = (_oddr_offset_to_pixel(t[0], t[1]) if has_odd_rows else _evenr_offset_to_pixel(t[0], t[1]))
-        hex = RegularPolygon((x, y), numVertices=6, radius=1.0, orientation=np.radians(60), edgecolor=edgecolor)
-        patches.append(hex)
-    p = PatchCollection(patches, match_original=True, cmap=m.get_cmap())
-    ax.add_collection(p)
-    i = {'index': 0}
-
-    def update(*args):
-        i['index'] += 1
-        if (i['index'] == len(activities)):
-            i['index'] = 0
-        new_triples = _get_triples(activities[i['index']])
-        p.set_array(np.array([tr[2] for tr in new_triples]))
-        return (p,)
-    ax.scatter([t[0] for t in triples], [t[1] for t in triples], marker='')
-    plt.gca().invert_yaxis()
-    plt.title(title)
-    ani = animation.FuncAnimation(fig, update, interval=interval, blit=True, save_count=len(activities))
-    if save:
-        ani.save('evolved.gif', dpi=80, writer='imagemagick')
+idx = 0:------------------- similar code ------------------ index = 117, score = 7.0 
+def plot3d(P, *args, **kwargs):
+    ax = axis3d()
+    plot3d_(ax, P)
     plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
     plt.show()
 
-idx = 1:------------------- similar code ------------------ index = 23, score = 7.0 
+idx = 1:------------------- similar code ------------------ index = 61, score = 7.0 
+def plot_masks(nrows, ncols, generation_order, masks, k=3, out_path=None):
+    import time
+    (fig, axes) = plt.subplots(nrows, ncols)
+    plt.suptitle(f'Kernel masks')
+    for (row_major_index, ((r, c), mask)) in enumerate(zip(generation_order, masks)):
+        axes[((row_major_index // ncols), (row_major_index % ncols))].imshow(mask, vmin=0, vmax=1)
+    plt.setp(axes, xticks=[], yticks=[])
+    if out_path:
+        plt.savefig(out_path)
+    else:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :    else:
+        plt.show()
+
+idx = 2:------------------- similar code ------------------ index = 31, score = 7.0 
+def show_cat(cat_batch):
+    print('cat shape before transfo', cat_batch.shape)
+    cat = np.squeeze(cat_batch, axis=0)
+    print('cat.shape', cat.shape)
+    plt.imshow(cat)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 3:------------------- similar code ------------------ index = 32, score = 7.0 
+@click.command()
+@click.option('-c', '--config_path', default='../sonosco/config/infer.yaml', type=click.STRING, help='Path to infer configuration file.')
+@click.option('-a', '--audio_path', default='audio.wav', type=click.STRING, help='Path to an audio file.')
+@click.option('-p', '--plot', default=False, is_flag=True, help='Show plots.')
+def main(config_path, audio_path, plot):
+    config = parse_yaml(config_path)['infer']
+    device = torch.device(('cuda' if CUDA_ENABLED else 'cpu'))
+    loader = Deserializer()
+    model = loader.deserialize(TDSSeq2Seq, config['model_checkpoint_path'])
+    model.to(device)
+    model.eval()
+    decoder = GreedyDecoder(model.decoder.labels)
+    processor = AudioDataProcessor(**config)
+    (spect, lens) = processor.parse_audio_for_inference(audio_path)
+    spect = spect.to(device)
+    with torch.no_grad():
+        (out, output_lens, attention) = model(spect, lens)
+        (decoded_output, decoded_offsets) = decoder.decode(out, output_lens)
+        LOGGER.info(decoded_output)
+        if plot:
+            import matplotlib.pyplot as plt
+            plt.matshow(attention[0].numpy())
+            plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    with:
+        if  ... :
+            plt.show()
+
+idx = 4:------------------- similar code ------------------ index = 33, score = 7.0 
+def animate(self, save=False, interval=50, dpi=80, marker='', repeat=False, fps=50):
+    (fig, ax) = plt.subplots()
+    ax.set_aspect('equal')
+    x_vals = [s[0] for s in self.trajectory]
+    max_x = np.max(x_vals)
+    min_x = np.min(x_vals)
+    max_x += (0.05 * (max_x - min_x))
+    min_x -= (0.05 * (max_x - min_x))
+    y_vals = [s[1] for s in self.trajectory]
+    max_y = np.max(y_vals)
+    min_y = np.min(y_vals)
+    max_y += (0.05 * (max_y - min_y))
+    min_y -= (0.05 * (max_y - min_y))
+
+    def update(t):
+        plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
+        if ((t == (len(self.trajectory) - 1)) and repeat):
+            ax.clear()
+            ax.xaxis.set_ticklabels([])
+            ax.yaxis.set_ticklabels([])
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.xlim(min_x, max_x)
+            plt.ylim(min_y, max_y)
+    ani = animation.FuncAnimation(fig, update, frames=len(self.trajectory), interval=interval, save_count=len(self.trajectory), repeat=repeat)
+    plt.xlim(min_x, max_x)
+    plt.ylim(min_y, max_y)
+    plt.gca().axes.xaxis.set_ticklabels([])
+    plt.gca().axes.yaxis.set_ticklabels([])
+    plt.xticks([])
+    plt.yticks([])
+    if save:
+        ani.save('turtle.gif', dpi=dpi, writer='imagemagick', fps=fps)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 5:------------------- similar code ------------------ index = 34, score = 7.0 
+def plot_comparison(extension):
+    yolo_air_path = os.path.join(data_dir, 'comparison/run_search_yolo-air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=yolo-air_duration=long_seed=0_2018_07_16_13_46_48/')
+    air_path = os.path.join(data_dir, 'comparison/run_search_air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_24_13_02_34')
+    dair_path = os.path.join(data_dir, 'comparison/run_search_dair-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_10_09_22_24')
+    baseline_path = os.path.join(data_dir, 'comparison/run_search_comparison-baseline_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=baseline_duration=oak_seed=0_2018_07_20_11_15_24/')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    y_func = (lambda y: (100 * y))
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR', marker='o', ls='-')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR', marker='^', ls='-.')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([dair_path], 'n_digits', 'AP', 0, 'ci95', y_func=y_func)
+    line = ax.errorbar(x, y, yerr=yerr, label='DAIR', marker='v', ls='--')
+    line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([baseline_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
+    ax.plot(x, y, label='ConnComp', marker='s', ls=':')
+    ax.set_ylabel('Average Precision', fontsize=12)
+    ax.set_xlabel('\\# Digits in Image', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 105.0))
+    ax.set_xticks(x)
+    plt.legend(loc='upper right', handlelength=4)
+    plt.subplots_adjust(left=0.12, bottom=0.13, right=0.99, top=0.99)
+    plot_path = os.path.join(plot_dir, ('comparison/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 6:------------------- similar code ------------------ index = 36, score = 7.0 
+def animate_network(trajectory, save=False, interval=50, dpi=80, layout='shell', with_labels=True, with_arrows=True, node_color='b', node_size=30, with_timestep=False, show=True):
+    (fig, ax) = plt.subplots()
+
+    def update(arg):
+        ax.clear()
+        (i, state) = arg
+        if with_timestep:
+            ax.set_title(('timestep: %s' % (i + 1)))
+        color = (node_color[i] if (type(node_color) == dict) else node_color)
+        network = state.network
+        G = nx.MultiDiGraph()
+        for n in network.nodes:
+            G.add_node(n)
+        for edge in network.edges:
+            G.add_edge(edge[0], edge[1])
+        state_layout = (layout[i] if ((type(layout) == list) or (type(layout) == tuple)) else layout)
+        if (state_layout == 'shell'):
+            nx.draw_shell(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
+        elif (state_layout == 'spring'):
+            nx.draw_spring(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
+        elif (state_layout == 'planar'):
+            nx.draw_planar(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
+        elif (state_layout == 'kamada-kawai'):
+            nx.draw_kamada_kawai(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
+        elif isinstance(state_layout, dict):
+            nx.draw(G, pos=state_layout, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
+        else:
+            raise Exception(('unsupported layout: %s' % state_layout))
+    ani = animation.FuncAnimation(fig, update, frames=list(enumerate(trajectory)), interval=interval, save_count=len(trajectory))
+    if save:
+        ani.save('evolved.gif', dpi=dpi, writer='imagemagick')
+    if show:
+        plt.show()
+    return ani
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 7:------------------- similar code ------------------ index = 37, score = 7.0 
+@staticmethod
+def show_plot(h):
+    plt.style.use('ggplot')
+    plt.figure()
+    plt.plot(np.arange(0, ep), h.history['loss'], label='train_loss')
+    plt.plot(np.arange(0, ep), h.history['val_loss'], label='val_loss')
+    plt.plot(np.arange(0, ep), h.history['acc'], label='acc')
+    plt.plot(np.arange(0, ep), h.history['val_acc'], label='val_acc')
+    plt.title('AMINJAMAL')
+    plt.xlabel('Epoch #')
+    plt.ylabel('Loss/ACC')
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 8:------------------- similar code ------------------ index = 38, score = 7.0 
+def show_cat(cat_batch):
+    print('cat shape before transfo', cat_batch.shape)
+    cat = np.squeeze(cat_batch, axis=0)
+    print('cat.shape', cat.shape)
+    plt.imshow(cat)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 9:------------------- similar code ------------------ index = 40, score = 7.0 
+def plot_distance_hist(origin, moved):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title('moved distance')
+    ax.hist(np.sum(np.power((moved - origin), 2), axis=1), bins=20)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 10:------------------- similar code ------------------ index = 41, score = 7.0 
+def plot(self, columns=['end_portfolio_value', 'end_cash'], ax=None, show=False):
+    'Plot money\n\n        Args:\n            columns: (list: str) the columns to plot, use .log to find columns\n            ax: (Axis) where to plot, defaults to pandas\n            show: (bool) display the plot\n        '
+    df = self.log_as_dataframe()
+    df[columns].plot(ax=ax)
+    if show:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 11:------------------- similar code ------------------ index = 42, score = 7.0 
+def plot_depth_hist(depths, n_bins=100):
+    (fig, axs) = plt.subplots(1, depths.shape[0], sharey=True, tight_layout=True)
+    for (i, ax) in enumerate(axs):
+        ax.hist(depths[i], bins=n_bins)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 12:------------------- similar code ------------------ index = 43, score = 7.0 
+def plot_addition(extension):
+    air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_58/')
+    baseline_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_21/')
+    ground_truth_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_14/')
+    simple_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_18/')
+    yolo_air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_04/')
+    baseline_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=baseline-math_duration=long_seed=0_2018_07_28_22_00_58/')
+    ground_truth_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_01_56/')
+    simple_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=simple-math_duration=long_seed=0_2018_07_28_22_02_59/')
+    air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_32/')
+    baseline_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_39/')
+    ground_truth_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_30/')
+    simple_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_41/')
+    yolo_air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_21/')
+    fig = plt.figure(figsize=(5, 4.5))
+    ax = plt.gca()
+    (x, y, *yerr) = get_arithmetic_data([baseline_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='ConnComp', marker='o', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([ground_truth_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='TrueBB', marker='^', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([simple_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='ConvNet', marker='v', ls='-')
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Fixed', marker='v', ls='-')
+    yolo_air_color = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([yolo_air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Unfixed', marker='v', ls='--', color=yolo_air_color)
+    (x, y, *yerr) = get_arithmetic_data([air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Fixed', marker='o', ls='-')
+    air_color = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Unfixed', marker='o', ls='--', color=air_color)
+    ax.set_ylabel('Accuracy')
+    ax.set_xlabel('\\# Training Examples / 1000')
+    ax.tick_params(axis='both')
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xscale('log')
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='lower center', handlelength=2.5, bbox_to_anchor=(0.5, 1.01), ncol=3, columnspacing=1)
+    plt.subplots_adjust(left=0.1, bottom=0.1, right=0.99, top=0.82)
+    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 13:------------------- similar code ------------------ index = 44, score = 7.0 
+def draw_summary(stats_arg, show_plot, x_tick=10):
+    (fig, (ax1, ax2, ax3)) = plt.subplots(3, 1, figsize=(16, 10))
+    set_ax_mean_population_state_daily(ax1, stats_arg, x_tick)
+    set_ax_new_daily_cases(ax2, stats_arg, x_tick)
+    set_ax_specific_population_state_daily(ax3, stats_arg, x_tick)
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax2.set_title('')
+    ax3.set_title('')
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-summ-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 14:------------------- similar code ------------------ index = 45, score = 7.0 
+def show(image):
+    plt.figure(figsize=(15, 15))
+    plt.imshow(image, interpolation='nearest')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 15:------------------- similar code ------------------ index = 46, score = 7.0 
+def plot_core_sample_complexity():
+    path = 'core/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19'
+    path = os.path.join(data_dir, path)
+    ax = plt.gca()
+    (x, y, *yerr) = get_stage_data(path, 0, 'n_train', 'stopping_criteria', 'ci95', (lambda error: (1 - error)))
+    label = 'test'
+    ax.errorbar(x, y, yerr=yerr, label=label, ls='--')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 16:------------------- similar code ------------------ index = 48, score = 7.0 
+if (__name__ == '__main__'):
+    (xmin, xmax, N) = ((- 1.0), 1.0, 300)
+    xmesh = np.linspace(xmin, xmax, num=N, endpoint=False)
+    k = 300
+    target = np.zeros(N)
+    idx = (np.abs(xmesh) < 0.5)
+    target[idx] = (1.0 - np.abs(xmesh[idx]))
+    target /= np.linalg.norm(target)
+    xmesh = torch.from_numpy(xmesh).to(torch.float64)
+    target = torch.from_numpy(target).to(torch.float64)
+    model = Schrodinger1D(xmin, xmax, N, xmesh)
+    optimizer = torch.optim.LBFGS(model.parameters(), max_iter=10, tolerance_change=1e-07, tolerance_grad=1e-07, line_search_fn='strong_wolfe')
+
+    def closure():
+        import time
+        optimizer.zero_grad()
+        start1 = time.time()
+        loss = model.forward_sparseAD(target, k)
+        end1 = time.time()
+        start2 = time.time()
+        loss.backward()
+        end2 = time.time()
+        print('forward time: ', (end1 - start1), 'backward time: ', (end2 - start2))
+        return loss
+    plt.ion()
+    for i in range(50):
+        loss = optimizer.step(closure)
+        print(i, loss.item())
+        model.plot(target)
+        plt.pause(0.01)
+    plt.ioff()
+    model.plot(target)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 17:------------------- similar code ------------------ index = 49, score = 7.0 
+def get_equity_data():
+    'Displays a pie chart of your portfolio holdings\n    '
+    holdings_data = r.build_holdings()
+    equity_data = {}
+    for (key, value) in holdings_data.items():
+        equity_data[key] = {}
+        equity_data[key][name] = value.get('name')
+        equity_data[key][percentage] = value.get('percentage')
+        equity_data[key][type]
+    (fig1, ax1) = plt.subplots()
+    ax1.pie(equities, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    ax1.axis('equal')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 18:------------------- similar code ------------------ index = 50, score = 7.0 
+def draw_meta_simulation(death_stat_arg, show_plot):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_meta_simulation(ax, death_stat_arg)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-meta-%d-%d.png' % (ts, death_stat_arg['dea'].shape[0], np.max(death_stat_arg['dea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 19:------------------- similar code ------------------ index = 51, score = 7.0 
+def klBacktest(self):
+    wLimit = self.getInputParamByName('wLimit')
+    cLimit = self.getInputParamByName('cLimit')
+    size = self.getInputParamByName('size')
+    sLippage = self.getInputParamByName('sLippage')
+    tickers = pd.DataFrame()
+    tickers['bidPrice1'] = (self.pdBars['open'] - sLippage)
+    tickers['askPrice1'] = (self.pdBars['open'] + sLippage)
+    markets = tickers.values
+    signals = np.array(self.signalsOpen)
+    (caps, poss) = plotSigCaps(signals, markets, cLimit, wLimit, size=size)
+    plt.plot(range(len(caps)), caps)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 20:------------------- similar code ------------------ index = 52, score = 7.0 
+def plot(self, marker=''):
+    (fig, ax) = plt.subplots()
+    ax.set_aspect('equal')
+    for state in self.trajectory:
+        plt.plot(state[0], state[1], marker=marker, color='black')
+    plt.gca().axes.xaxis.set_ticklabels([])
+    plt.gca().axes.yaxis.set_ticklabels([])
+    plt.xticks([])
+    plt.yticks([])
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 21:------------------- similar code ------------------ index = 53, score = 7.0 
+def visualize_outlierscore(value, label, contamination, path=None):
+    '\n    Visualize the predicted outlier score.\n\n    Parameters\n    ----------\n    value: numpy array of shape (n_test, )\n        The outlier score of the test data.\n    label: numpy array of shape (n_test, )\n        The label of test data produced by the algorithm.\n    contamination : float in (0., 0.5), optional (default=0.1)\n        The amount of contamination of the data set,\n        i.e. the proportion of outliers in the data set. Used when fitting to\n        define the threshold on the decision function.\n    path: string\n        The saving path for result figures.\n    '
+    sns.set(style='darkgrid')
+    ts = np.arange(len(value))
+    outlier_label = []
+    for i in range(len(ts)):
+        if (label[i] == 1):
+            outlier_label.append('inlier')
+        else:
+            outlier_label.append('outlier')
+    X_outlier = pd.DataFrame({'ts': ts, 'Outlier_score': value, 'outlier_label': np.array(outlier_label)})
+    pal = dict(inlier='#4CB391', outlier='gray')
+    g = sns.FacetGrid(X_outlier, hue='outlier_label', palette=pal, height=5)
+    g.map(plt.scatter, 'ts', 'Outlier_score', s=30, alpha=0.7, linewidth=0.5, edgecolor='white')
+    ranking = np.sort(value)
+    threshold = ranking[int(((1 - contamination) * len(ranking)))]
+    plt.hlines(threshold, xmin=0, xmax=(len(X_outlier) - 1), colors='g', zorder=100, label='Threshold')
+    threshold = ranking[int((contamination * len(ranking)))]
+    plt.hlines(threshold, xmin=0, xmax=(len(X_outlier) - 1), colors='g', zorder=100, label='Threshold2')
+    if path:
+        plt.savefig((path + '/visualize_outlierscore.png'))
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 22:------------------- similar code ------------------ index = 55, score = 7.0 
+def plot_relative_error(data_dir='heterogeneous_example_data'):
+    if (data_dir[(- 1)] != '/'):
+        data_dir += '/'
+    data_filename = (data_dir + 'heterogeneous_example_error_data.json')
+    data = json.load(open(data_filename))
+    plotting_data = []
+    for n in data.keys():
+        for i in data[n].keys():
+            d = {'Sample Size': int(n), 'Iteration': int(i)}
+            true_effects = data[n][str(i)]['true_effects']
+            estimated_effects = data[n][str(i)]['estimated_effects']
+            error = (np.array(true_effects) - np.array(estimated_effects))
+            relative_error = (np.linalg.norm(error) / np.linalg.norm(true_effects))
+            d['Relative Error'] = relative_error
+            plotting_data.append(d)
+    plotting_df = pd.DataFrame(plotting_data)
+    plt.figure(figsize=(18, 8))
+    ax = plt.gca()
+    grid = sns.lineplot(x='Sample Size', y='Relative Error', data=plotting_df, marker='o', ax=ax)
+    sample_sizes = [int(n) for n in data.keys()]
+    ax.set_xticks(sample_sizes)
+    ax.set_xticklabels(([''] + sample_sizes[1:]), rotation=45)
+    ax.set_xlim([0, (max(sample_sizes) + 100)])
+    sns.despine()
+    plt.title('Relative Error of Causal Forest')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 23:------------------- similar code ------------------ index = 56, score = 7.0 
+if (__name__ == '__main__'):
+    HOME = os.environ['HOME']
+    rgbdir = (HOME + '/myDataset/NYU_v2/')
+    depdir = (HOME + '/myDataset/NYU_v2/')
+    trainrgb = '../datasets/nyu_path/train_rgb_12k.txt'
+    traindep = '../datasets/nyu_path/train_depth_12k.txt'
+    valrgb = '../datasets/nyu_path/valid_rgb.txt'
+    valdep = '../datasets/nyu_path/valid_depth.txt'
+    kwargs = {'min_depth': 0.72, 'max_depth': 10.0, 'flip': True, 'scale': True, 'rotate': True, 'jitter': True, 'crop': True}
+    train_dataset = NYUDataset(rgbdir, depdir, trainrgb, traindep, mode='train', **kwargs)
+    val_dataset = NYUDataset(rgbdir, depdir, valrgb, valdep, mode='val', **kwargs)
+    trainloader = DataLoader(train_dataset, 20, shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
+    valloader = DataLoader(val_dataset, 20, shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
+    (image, label) = train_dataset[2000]
+    image_npy = image.numpy().transpose(1, 2, 0)
+    label_npy = label.numpy().squeeze()
+    print(image.shape, label.shape)
+    print(label.max())
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.imshow(image_npy)
+    plt.subplot(1, 2, 2)
+    plt.imshow(label_npy, cmap='jet')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 24:------------------- similar code ------------------ index = 57, score = 7.0 
+def show_latent_map(model, mdp):
+    true_map = get_true_map(mdp)
+    latent_map = draw_latent_map(model, mdp)
+    latent_map = (np.array(latent_map) / 255.0)
+    (f, axarr) = plt.subplots(1, 2, figsize=(15, 15))
+    axarr[0].imshow(true_map)
+    axarr[1].imshow(latent_map)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 25:------------------- similar code ------------------ index = 116, score = 7.0 
+def plot_tour(self, G, pos):
+    '\n        Renders the points and tour.\n        :param G: a NetworkX Graph representing the points and the tour\n        :param pos: a dictionary defining the NetworkX positions for the Graph\n        '
+    nx.draw_networkx(G, pos)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 26:------------------- similar code ------------------ index = 59, score = 7.0 
+def draw_r0_daily_evolution(stats_arg, show_plot, x_tick=10):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_r0(ax, stats_arg['R0d'], 'R0 Daily', x_tick=10)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-R0-daily-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 27:------------------- similar code ------------------ index = 30, score = 7.0 
+def plot_degree_distribution(network, xlabel='Node degree', ylabel_freq='Frequency', ylabel_prob='Probability', in_degree=False, out_degree=False, equation=None, equation_x=0.51, equation_y=0.76, equation_text='', equation_color='r', color='r', title=None):
+    "\n    Create a node degree distribution plot for the given network.\n\n    :param network: A Netomaton Network instance.\n\n    :param xlabel: The x-axis label.\n\n    :param ylabel_freq: The frequency y-axis label.\n\n    :param ylabel_prob: The probability y-axis label.\n\n    :param in_degree: If True, the in-degree will be used. (default is False)\n\n    :param out_degree: If True, the out-degree will be used. (default is False)\n\n    :param equation: A callable that computes the degree distribution, given a node degree.\n\n    :param equation_x: The equation's x coordinate.\n\n    :param equation_y: The equation's y coordinate.\n\n    :param equation_text: The equation to display.\n\n    :param equation_color: The equation text's color. It must be a valid Matplotlib color.\n\n    :param color: The color to use for the plot. It must be a valid Matplotlib color.\n\n    :param title: The plot's title.\n    "
+    degree_counts = {}
+    for node in network.nodes:
+        if in_degree:
+            degree = network.in_degree(node)
+        elif out_degree:
+            degree = network.out_degree(node)
+        else:
+            degree = network.degree(node)
+        if (degree not in degree_counts):
+            degree_counts[degree] = 0
+        degree_counts[degree] += 1
+    x = [i for i in range(1, (max(degree_counts) + 1))]
+    height = [(degree_counts[i] if (i in degree_counts) else 0) for i in x]
+    plt.bar(x, height)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel_freq)
+    if equation:
+        y = [equation(k) for k in x]
+        plt.twinx()
+        plt.plot(x, y, color=color)
+        plt.ylabel(ylabel_prob)
+        plt.text(equation_x, equation_y, equation_text, transform=plt.gca().transAxes, color=equation_color)
+    if title:
+        plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 28:------------------- similar code ------------------ index = 29, score = 7.0 
+def plot_action_mask(plot_env, meta_actor_critic, hidden_size, device):
+    meta_recurrent_hidden_states = torch.zeros(1, hidden_size, device=device)
+    masks = torch.zeros(1, 1, device=device)
+    base_heat_map = np.zeros((plot_env.height, plot_env.width))
+    arm_heat_map = np.zeros((plot_env.height, plot_env.width))
+    plot_env.reset()
+    plot_env.agent_orientation = 3
+    plot_env.target_pos = np.array([3, 5])
+    for col in range(1, (plot_env.width - 1)):
+        if (col == (plot_env.width // 2)):
+            continue
+        if (col > (plot_env.width // 2)):
+            plot_env.door_state = plot_env.door_max_state
+        for row in range(1, (plot_env.height - 1)):
+            plot_env.agent_pos = np.array([row, col])
+            observations = [plot_env.get_state()]
+            batch = batch_obs(observations)
+            for sensor in batch:
+                batch[sensor] = batch[sensor].to(device)
+            with torch.no_grad():
+                (_, _, _, _, _, _, action_mask_probs) = meta_actor_critic.act(batch, meta_recurrent_hidden_states, masks)
+            base_heat_map[(row, col)] = (action_mask_probs[0][0].item() + action_mask_probs[0][2].item())
+            arm_heat_map[(row, col)] = (action_mask_probs[0][1].item() + action_mask_probs[0][2].item())
+            print(row, col, action_mask_probs)
+    print(arm_heat_map)
+    plt.figure(0)
+    plt.imshow(base_heat_map, cmap='hot', interpolation='nearest')
+    plt.figure(1)
+    plt.imshow(arm_heat_map, cmap='hot', interpolation='nearest')
+    plt.show()
+    assert False
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+    assert False
+
+idx = 29:------------------- similar code ------------------ index = 27, score = 7.0 
+def plot_spec(M):
+    M = np.flip(M, axis=0)
+    plt.figure(figsize=(18, 4))
+    plt.imshow(M, interpolation='nearest', aspect='auto')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 30:------------------- similar code ------------------ index = 13, score = 7.0 
+def animate_plot1D(x, y, save=False, interval=50, dpi=80):
+    if isinstance(y[0], State):
+        y = get_activities_over_time_as_list(y)
+    fig1 = plt.figure()
+    (line,) = plt.plot(x, y[0])
+
+    def update_line(activity):
+        line.set_data(x, activity)
+        return (line,)
+    ani = animation.FuncAnimation(fig1, update_line, frames=y, blit=True, interval=interval)
+    if save:
+        ani.save('plot.gif', dpi=dpi, writer='imagemagick')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 31:------------------- similar code ------------------ index = 1, score = 7.0 
+def plot_loss_change(self, sma=1, n_skip_beginning=10, n_skip_end=5, y_lim=((- 0.01), 0.01)):
+    '\n        Plots rate of change of the loss function.\n        Parameters:\n            sma - number of batches for simple moving average to smooth out the curve.\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n            y_lim - limits for the y axis.\n        '
+    derivatives = self.get_derivatives(sma)[n_skip_beginning:(- n_skip_end)]
+    lrs = self.lrs[n_skip_beginning:(- n_skip_end)]
+    plt.ylabel('rate of loss change')
+    plt.xlabel('learning rate (log scale)')
+    plt.plot(lrs, derivatives)
+    plt.xscale('log')
+    plt.ylim(y_lim)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 32:------------------- similar code ------------------ index = 2, score = 7.0 
+if (__name__ == '__main__'):
+    import matplotlib.pyplot as plt
+    import time
+    n = 4
+    x = torch.linspace((- 7), 7, 100, requires_grad=True)
+    bessel = Bessel.apply
+    for i in range(18):
+        start = time.time()
+        if (i == 0):
+            y = bessel(n, x)
+        else:
+            (y,) = torch.autograd.grad(y, x, grad_outputs=torch.ones(y.shape[0]), create_graph=True)
+        end = time.time()
+        print(('The %dth derivative: %f' % (i, (end - start))))
+        plt.plot(x.detach().numpy(), y.detach().numpy(), '-', label=('$%g$' % i))
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 33:------------------- similar code ------------------ index = 3, score = 7.0 
+def plot_arithmetic(extension):
+    yolo_path = os.path.join(data_dir, 'arithmetic/2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_2stage_duration=long_seed=0_2018_05_15_00_32_28')
+    simple_path = os.path.join(data_dir, 'arithmetic/simple/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_duration=long_seed=0_2018_05_15_00_01_16')
+    simple_2stage_path = os.path.join(data_dir, 'arithmetic/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([yolo_path], 'n_train', measure, 1, 'ci95')
+    label = 'SI-AIR'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv - 2stage'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('# Training Samples / 1000', fontsize=12)
+    ax.set_title('Arithmetic - Between 1 and 11 numbers', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='upper left')
+    plot_path = os.path.join(plot_dir, ('arithmetic/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 34:------------------- similar code ------------------ index = 4, score = 7.0 
+def draw_voxel_model(voxels, is_show=True, save_path=None):
+    import matplotlib.pyplot as plt
+    if (not is_show):
+        import matplotlib
+        matplotlib.use('Agg')
+    from mpl_toolkits.mplot3d import Axes3D
+    from matplotlib.colors import LightSource
+    import seaborn as sns
+    color_num = voxels.max()
+    current_palette = sns.color_palette(as_cmap=True)
+    colors = np.empty(voxel.shape, dtype=object)
+    for i in range(color_num):
+        colors[(voxel == (i + 1))] = current_palette[i]
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.voxels(voxels, facecolors=colors, lightsource=LightSource(azdeg=315, altdeg=45))
+    if is_show:
+        plt.show()
+    if (save_path is not None):
+        plt.savefig(save_path, transparent=True)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 35:------------------- similar code ------------------ index = 5, score = 7.0 
+def bifurcation_plot(x, trajectories, timesteps, xlabel=None, ylabel=None, title=None):
+    '\n    Create a bifurcation plot.\n\n    :param x: A list representing the values of the x-axis.\n\n    :param trajectories: A list of lists. Each inner list is a sequence of activities representing a trajectory.\n\n    :param timesteps: The number of timesteps in the trajectory to consider, starting from the end.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string representing the label of the y-axis.\n\n    :param title: The plot title.\n    '
+    y = []
+    for t in trajectories:
+        y.append(np.unique(t[(- timesteps):]))
+    for (x_e, y_e) in zip(x, y):
+        plt.scatter(([x_e] * len(y_e)), y_e, color='b', s=1)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+    if title:
+        plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 36:------------------- similar code ------------------ index = 6, score = 7.0 
+def plot_masked_keypoints(X, mask, true_label, false_label):
+    (fig, ax) = plt.subplots()
+    ax.scatter(X[(mask, 0)], X[(mask, 1)], label=true_label, color='b', marker='.')
+    ax.scatter(X[((~ mask), 0)], X[((~ mask), 1)], label=false_label, color='r', marker='.')
+    ax.grid(True)
+    ax.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 37:------------------- similar code ------------------ index = 7, score = 7.0 
+def plot_grid(activities, shape=None, slice=(- 1), title='', colormap='Greys', vmin=None, vmax=None, node_annotations=None, show_grid=False):
+    if (shape is not None):
+        activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
+    cmap = plt.get_cmap(colormap)
+    plt.title(title)
+    plt.imshow(activities, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
+    if (node_annotations is not None):
+        for i in range(len(node_annotations)):
+            for j in range(len(node_annotations[i])):
+                plt.text(j, i, node_annotations[i][j], ha='center', va='center', color='grey', fontdict={'weight': 'bold', 'size': 6})
+    if show_grid:
+        plt.grid(which='major', axis='both', linestyle='-', color='grey', linewidth=0.5)
+        plt.xticks(np.arange((- 0.5), len(activities[0]), 1), '')
+        plt.yticks(np.arange((- 0.5), len(activities), 1), '')
+        plt.tick_params(axis='both', which='both', length=0)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 38:------------------- similar code ------------------ index = 9, score = 7.0 
+if (__name__ == '__main__'):
+    n_neurons = 784
+    n_timesteps = 4
+    initial_conditions = read_image_activities('./mnist-class3.csv')
+    initial_weights = read_weights('./mlp_layer1-2_weights.csv')
+    timestep_to_weights = {1: read_weights('./mlp_layer2-3_weights.csv'), 2: read_weights('./mlp_layer3-4_weights.csv'), 3: {}}
+    timestep_to_activation = {1: relu, 2: relu, 3: identity}
+    network = ntm.Network()
+    [network.add_edge(i, j) for i in range(n_neurons) for j in range(n_neurons)]
+    set_weights(network, initial_weights)
+
+    def activity_rule(ctx):
+        V = 0
+        for neighbour_label in ctx.neighbour_labels:
+            V += (ctx.connection_states[neighbour_label][0]['weight'] * ctx.activities[neighbour_label])
+        activity = timestep_to_activation[ctx.timestep](V)
+        return activity
+
+    def topology_rule(ctx):
+        curr_network = ctx.network
+        new_weights = timestep_to_weights[ctx.timestep]
+        set_weights(curr_network, new_weights)
+        return curr_network
+    trajectory = ntm.evolve(network, initial_conditions=initial_conditions, activity_rule=activity_rule, topology_rule=topology_rule, update_order=ntm.UpdateOrder.ACTIVITIES_FIRST, timesteps=n_timesteps)
+    vals = [trajectory[(- 1)].activities[i] for i in range(10)]
+    plt.title(('predicted class: %s' % np.argmax(np.log(softmax(vals)))))
+    plt.imshow(np.array([initial_conditions[i] for i in range(n_neurons)]).reshape((28, 28)), cmap='gray_r')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 39:------------------- similar code ------------------ index = 10, score = 7.0 
 if (__name__ == '__main__'):
     from contextlib import ExitStack
     with NumpySeed(100000):
@@ -167,958 +1004,52 @@ if:
         print()
         plt.show()
 
-idx = 2:------------------- similar code ------------------ index = 21, score = 7.0 
-def plot_ablation(extension):
-    yolo_path_n_lookback_0 = os.path.join(data_dir, 'ablation/run_search_yolo-air-ablation-n-lookback=0_env=task=scatter_alg=yolo-air-transfer_duration=long_seed=0_2018_09_03_08_52_37/')
-    yolo_path_n_lookback_1 = os.path.join(data_dir, 'ablation/run_search_yolo-air-ablation-n-lookback=1_env=task=scatter_alg=yolo-air-transfer_duration=long_seed=0_2018_09_03_09_00_25/')
-    (fig, axes) = plt.subplots(1, 3, figsize=(8, 2.2))
-    ax = axes[0]
-    y_func = (lambda y: (100 * y))
-    measure = '_test_AP'
-    key_filter = (lambda key: (key.min_chars not in [1, 6]))
-    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95', y_func=y_func)
-    for ((x, y, *yerr), key) in nb0_data:
-        if (not key_filter(key)):
-            continue
-        label = 'No Lateral Conns, {}--{} digits'.format(key.min_chars, key.max_chars)
-        ax.errorbar(x, y, yerr=yerr, label=label)
-    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95', y_func=y_func)
-    for ((x, y, *yerr), key) in nb1_data:
-        if (not key_filter(key)):
-            continue
-        label = 'With Lateral Conns, {}--{} digits'.format(key.min_chars, key.max_chars)
-        ax.errorbar(x, y, yerr=yerr, label=label)
-    fontsize = None
-    labelsize = None
-    ax.set_ylabel('Average Precision', fontsize=fontsize)
-    ax.tick_params(axis='both', labelsize=labelsize)
-    ax.set_ylim((0.0, 105.0))
-    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
-    ax.set_xticks([0, 5, 10, 15, 20])
-    ax.legend(loc='lower left', fontsize=8)
-    ax = axes[1]
-    measure = '_test_count_1norm'
-    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95')
-    for ((x, y, *yerr), key) in nb0_data:
-        if (not key_filter(key)):
-            continue
-        ax.errorbar(x, y, yerr=yerr)
-    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95')
-    for ((x, y, *yerr), key) in nb1_data:
-        if (not key_filter(key)):
-            continue
-        ax.errorbar(x, y, yerr=yerr)
-    ax.set_ylabel('Count Absolute Error', fontsize=fontsize)
-    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
-    ax.tick_params(axis='both', labelsize=labelsize)
-    ax.set_ylim((0.0, 4.0))
-    ax.set_xticks([0, 5, 10, 15, 20])
-    ax = axes[2]
-    measure = '_test_count_error'
-    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95')
-    for ((x, y, *yerr), key) in nb0_data:
-        if (not key_filter(key)):
-            continue
-        ax.errorbar(x, y, yerr=yerr)
-    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95')
-    for ((x, y, *yerr), key) in nb1_data:
-        if (not key_filter(key)):
-            continue
-        ax.errorbar(x, y, yerr=yerr)
-    ax.set_ylabel('Count 0-1 Error', fontsize=fontsize)
-    ax.tick_params(axis='both', labelsize=labelsize)
-    ax.set_ylim((0.0, 1.05))
-    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
-    ax.set_xticks([0, 5, 10, 15, 20])
-    plt.subplots_adjust(left=0.07, bottom=0.2, right=0.98, top=0.94, wspace=0.27)
-    plot_path = os.path.join(plot_dir, ('ablation/main.' + extension))
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    fig.savefig(plot_path)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 3:------------------- similar code ------------------ index = 20, score = 7.0 
-def plot_assets(self, symbols=None, ax=None, show=False):
-    'Plot assets\n\n        Args:\n            symbols: (list: str) the symbols to include, defaults to all\n            ax: (Axis) where to plot, defaults to pandas\n            show: (bool) display the plot\n        '
-    if (not symbols):
-        symbols = self.symbols
-    df = self.log_as_dataframe()
-    df[[('end_owned_' + symbol) for symbol in self.symbols]].plot(ax=ax)
-    if show:
-        plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    if  ... :
-        plt.show()
-
-idx = 4:------------------- similar code ------------------ index = 19, score = 7.0 
-def view3d_image(input_im, cmap='gray', title='', spacing=None, slice_axis=0):
-    if (spacing is None):
-        spacing = [1, 1, 1]
-    if isinstance(input_im, sitk.Image):
-        input_numpy = sitk.GetArrayFromImage(input_im)
-        spacing = input_im.GetSpacing()[::(- 1)]
-    else:
-        input_numpy = input_im
-    if (slice_axis == 0):
-        aspect = (spacing[1] / spacing[2])
-    elif (slice_axis == 1):
-        input_numpy = np.transpose(input_numpy, [1, 0, 2])
-        aspect = (spacing[0] / spacing[2])
-    elif (slice_axis == 2):
-        input_numpy = np.transpose(input_numpy, [2, 0, 1])
-        aspect = (spacing[0] / spacing[1])
-    else:
-        raise ValueError((('slice_axis = ' + str(slice_axis)) + ', but it should be in range of [0, 1, 2]'))
-    (fig, ax) = plt.subplots(1, 1)
-    tracker = IndexTracker(ax, input_numpy, cmap=cmap, title=title, aspect=aspect)
-    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 5:------------------- similar code ------------------ index = 18, score = 7.0 
-if (__name__ == '__main__'):
-    n_neurons = 784
-    n_timesteps = 4
-    initial_conditions = read_image_activities('./mnist-class3.csv')
-    initial_weights = read_weights('./mlp_layer1-2_weights.csv')
-    timestep_to_weights = {1: read_weights('./mlp_layer2-3_weights.csv'), 2: read_weights('./mlp_layer3-4_weights.csv'), 3: {}}
-    timestep_to_activation = {1: relu, 2: relu, 3: identity}
-    network = ntm.Network()
-    [network.add_edge(i, j) for i in range(n_neurons) for j in range(n_neurons)]
-    set_weights(network, initial_weights)
-
-    def activity_rule(ctx):
-        V = 0
-        for neighbour_label in ctx.neighbour_labels:
-            V += (ctx.connection_states[neighbour_label][0]['weight'] * ctx.activities[neighbour_label])
-        activity = timestep_to_activation[ctx.timestep](V)
-        return activity
-
-    def topology_rule(ctx):
-        curr_network = ctx.network
-        new_weights = timestep_to_weights[ctx.timestep]
-        set_weights(curr_network, new_weights)
-        return curr_network
-    trajectory = ntm.evolve(network, initial_conditions=initial_conditions, activity_rule=activity_rule, topology_rule=topology_rule, update_order=ntm.UpdateOrder.ACTIVITIES_FIRST, timesteps=n_timesteps)
-    vals = [trajectory[(- 1)].activities[i] for i in range(10)]
-    plt.title(('predicted class: %s' % np.argmax(np.log(softmax(vals)))))
-    plt.imshow(np.array([initial_conditions[i] for i in range(n_neurons)]).reshape((28, 28)), cmap='gray_r')
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-if:
-    plt.show()
-
-idx = 6:------------------- similar code ------------------ index = 17, score = 7.0 
-def klBacktest(self):
-    wLimit = self.getInputParamByName('wLimit')
-    cLimit = self.getInputParamByName('cLimit')
-    size = self.getInputParamByName('size')
-    sLippage = self.getInputParamByName('sLippage')
-    tickers = pd.DataFrame()
-    tickers['bidPrice1'] = (self.pdBars['open'] - sLippage)
-    tickers['askPrice1'] = (self.pdBars['open'] + sLippage)
-    markets = tickers.values
-    signals = np.array(self.signalsOpen)
-    (caps, poss) = plotSigCaps(signals, markets, cLimit, wLimit, size=size)
-    plt.plot(range(len(caps)), caps)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 7:------------------- similar code ------------------ index = 16, score = 7.0 
-def read_time(driver, port, idn):
-    " Read the entire control table of the DXL MX-64AT device 'N' times and plot the mean & percentile time taken. "
-    times = []
-    for i in range(1000):
-        t1 = time.time()
-        dxl.read_vals(driver, port, idn)
-        times.append((time.time() - t1))
-    print(np.mean(times))
-    print(np.percentile(times, 99))
+idx = 40:------------------- similar code ------------------ index = 11, score = 7.0 
+def plot_learning_curve(self, estimator, title, X, y, ylim=None, cv=None, n_jobs=None, train_sizes=np.linspace(0.1, 1.0, 5)):
+    print('Drawing curve, depending on your datasets size, this may take several minutes to several hours.')
     plt.figure()
-    plt.plot(times)
+    plt.title(title)
+    if (ylim is not None):
+        plt.ylim(*ylim)
+    plt.xlabel('Training examples')
+    plt.ylabel('Score')
+    (train_sizes, train_scores, test_scores) = learning_curve(estimator, X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+    plt.grid()
+    plt.fill_between(train_sizes, (train_scores_mean - train_scores_std), (train_scores_mean + train_scores_std), alpha=0.1, color='r')
+    plt.fill_between(train_sizes, (test_scores_mean - test_scores_std), (test_scores_mean + test_scores_std), alpha=0.1, color='g')
+    plt.plot(train_sizes, train_scores_mean, 'o-', color='r', label='Training score')
+    plt.plot(train_sizes, test_scores_mean, 'o-', color='g', label='Cross-validation score')
+    plt.legend(loc='best')
     plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
     plt.show()
 
-idx = 8:------------------- similar code ------------------ index = 15, score = 7.0 
-def test(args):
-    model = Unet(3, 1)
-    model.load_state_dict(torch.load(args.ckpt, map_location='cpu'))
-    liver_dataset = LiverDataset('data/val', transform=x_transforms, target_transform=y_transforms)
-    dataloaders = DataLoader(liver_dataset, batch_size=1)
-    model.eval()
-    import matplotlib.pyplot as plt
-    plt.ion()
-    with torch.no_grad():
-        for (x, _) in dataloaders:
-            y = model(x).sigmoid()
-            img_y = torch.squeeze(y).numpy()
-            plt.imshow(img_y)
-            plt.pause(0.01)
-        plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    with:
-        plt.show()
-
-idx = 9:------------------- similar code ------------------ index = 14, score = 7.0 
-def plot_core_sample_complexity():
-    path = 'core/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19'
-    path = os.path.join(data_dir, path)
-    ax = plt.gca()
-    (x, y, *yerr) = get_stage_data(path, 0, 'n_train', 'stopping_criteria', 'ci95', (lambda error: (1 - error)))
-    label = 'test'
-    ax.errorbar(x, y, yerr=yerr, label=label, ls='--')
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 10:------------------- similar code ------------------ index = 13, score = 7.0 
-def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
-    '\n    Visualize the scores of correlation metrics with respect to k-worst bpes you tried\n    :param spearman_scores: The spearman correlation scores of Q1 and k-worst bpes each time\n    :param kendall_scores: The Kendall correlation scores of Q1 and k-worst bpes each time\n    :param pearson_scores: The Pearson correlation scores of Q1 and k-worst bpes each time\n    :param model_name: Name of Language Model you used (BERT or GPT2). It is used on the output file name\n    :param year: The corresponding year of the data\n    '
-    x_ticks = [i for i in range(1, (MAX_BPES_TO_SEARCH + 1))]
-    plt.figure(figsize=(26, 8))
-    y_max = max(spearman_scores)
-    x_pos = spearman_scores.index(y_max)
-    x_max = x_ticks[x_pos]
-    plt.subplot(1, 3, 1)
-    plt.plot(x_ticks, spearman_scores, 'bo')
-    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
-    plt.title('Spearman')
-    plt.xlabel('# of worst words')
-    y_max = max(kendall_scores)
-    x_pos = kendall_scores.index(y_max)
-    x_max = x_ticks[x_pos]
-    plt.subplot(1, 3, 2)
-    plt.plot(x_ticks, kendall_scores, 'bo')
-    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
-    plt.title('Kendall')
-    plt.xlabel('# of worst words')
-    y_max = max(pearson_scores)
-    x_pos = pearson_scores.index(y_max)
-    x_max = x_ticks[x_pos]
-    plt.subplot(1, 3, 3)
-    plt.plot(x_ticks, pearson_scores, 'bo')
-    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, x_max), xytext=(x_max, (y_max + 0.005)))
-    plt.title('Pearson')
-    plt.xlabel('# of worst words')
-    path_to_save = os.path.join(OUTPUT_DIR, 'Q1 - {0:s}  {1:s}.png'.format(model_name, year))
-    plt.savefig(path_to_save)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 11:------------------- similar code ------------------ index = 12, score = 7.0 
-def plot_loss(self, n_skip_beginning=10, n_skip_end=5, x_scale='log'):
-    '\n        Plots the loss.\n        Parameters:\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n        '
-    plt.ylabel('loss')
-    plt.xlabel('learning rate (log scale)')
-    plt.plot(self.lrs[n_skip_beginning:(- n_skip_end)], self.losses[n_skip_beginning:(- n_skip_end)])
-    plt.xscale(x_scale)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 12:------------------- similar code ------------------ index = 11, score = 7.0 
-def animate_network(trajectory, save=False, interval=50, dpi=80, layout='shell', with_labels=True, with_arrows=True, node_color='b', node_size=30, with_timestep=False, show=True):
-    (fig, ax) = plt.subplots()
-
-    def update(arg):
-        ax.clear()
-        (i, state) = arg
-        if with_timestep:
-            ax.set_title(('timestep: %s' % (i + 1)))
-        color = (node_color[i] if (type(node_color) == dict) else node_color)
-        network = state.network
-        G = nx.MultiDiGraph()
-        for n in network.nodes:
-            G.add_node(n)
-        for edge in network.edges:
-            G.add_edge(edge[0], edge[1])
-        state_layout = (layout[i] if ((type(layout) == list) or (type(layout) == tuple)) else layout)
-        if (state_layout == 'shell'):
-            nx.draw_shell(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
-        elif (state_layout == 'spring'):
-            nx.draw_spring(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
-        elif (state_layout == 'planar'):
-            nx.draw_planar(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
-        elif (state_layout == 'kamada-kawai'):
-            nx.draw_kamada_kawai(G, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
-        elif isinstance(state_layout, dict):
-            nx.draw(G, pos=state_layout, with_labels=with_labels, node_color=color, node_size=node_size, arrows=with_arrows)
-        else:
-            raise Exception(('unsupported layout: %s' % state_layout))
-    ani = animation.FuncAnimation(fig, update, frames=list(enumerate(trajectory)), interval=interval, save_count=len(trajectory))
-    if save:
-        ani.save('evolved.gif', dpi=dpi, writer='imagemagick')
-    if show:
-        plt.show()
-    return ani
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    if  ... :
-        plt.show()
-
-idx = 13:------------------- similar code ------------------ index = 10, score = 7.0 
-def plot_xo_full_decoder_kind(extension):
-    attn_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=attn_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_29_32')
-    mlp_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=mlp_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_29')
-    seq_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=seq_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_00')
-    attn_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=attn_alg=simple-xo_duration=long_seed=0_2018_06_08_17_49_36')
-    mlp_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=mlp_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_40')
-    seq_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=seq_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_20')
-    plt.figure(figsize=(5, 3.5))
-    ax = plt.gca()
-    measure = 'math_accuracy'
-    (x, y, *yerr) = get_arithmetic_data([attn_yolo_path], 'n_train', measure, 1, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='attn-yolo')
-    attn_colour = line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([mlp_yolo_path], 'n_train', measure, 1, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='mlp-yolo')
-    mlp_colour = line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([seq_yolo_path], 'n_train', measure, 1, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='seq-yolo')
-    seq_colour = line.lines[0].get_c()
-    measure = 'math_accuracy'
-    (x, y, *yerr) = get_arithmetic_data([attn_simple_path], 'n_train', measure, 0, 'ci95')
-    ax.errorbar(x, y, yerr=yerr, label='attn-simple', c=attn_colour, ls='--')
-    (x, y, *yerr) = get_arithmetic_data([mlp_simple_path], 'n_train', measure, 0, 'ci95')
-    ax.errorbar(x, y, yerr=yerr, label='mlp-simple', c=mlp_colour, ls='--')
-    (x, y, *yerr) = get_arithmetic_data([seq_simple_path], 'n_train', measure, 0, 'ci95')
-    ax.errorbar(x, y, yerr=yerr, label='seq-simple', c=seq_colour, ls='--')
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_xlabel('\\# Training Samples', fontsize=12)
-    ax.tick_params(axis='both', labelsize=14)
-    ax.set_ylim((0.0, 1.05))
-    ax.set_xticks(x)
-    plt.legend()
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 14:------------------- similar code ------------------ index = 9, score = 7.0 
-def draw_voxel_model(voxels, is_show=True, save_path=None):
-    import matplotlib.pyplot as plt
-    if (not is_show):
-        import matplotlib
-        matplotlib.use('Agg')
-    from mpl_toolkits.mplot3d import Axes3D
-    from matplotlib.colors import LightSource
+idx = 41:------------------- similar code ------------------ index = 12, score = 7.0 
+def plot_distance_matrix(embeddings, labels=None, distance='cosine'):
     import seaborn as sns
-    color_num = voxels.max()
-    current_palette = sns.color_palette(as_cmap=True)
-    colors = np.empty(voxel.shape, dtype=object)
-    for i in range(color_num):
-        colors[(voxel == (i + 1))] = current_palette[i]
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.voxels(voxels, facecolors=colors, lightsource=LightSource(azdeg=315, altdeg=45))
-    if is_show:
-        plt.show()
-    if (save_path is not None):
-        plt.savefig(save_path, transparent=True)
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    if  ... :
-        plt.show()
-
-idx = 15:------------------- similar code ------------------ index = 8, score = 7.0 
-def animate_activities(trajectory_or_activities, title='', shape=None, save=False, interval=50, colormap='Greys', vmin=None, vmax=None, show_grid=False, show_margin=True, scale=0.6, dpi=80, blit=True, with_timestep=False):
-    if (len(trajectory_or_activities) is 0):
-        raise Exception('there are no activities')
-    if isinstance(trajectory_or_activities[0], State):
-        activities = get_activities_over_time_as_list(trajectory_or_activities)
-    else:
-        activities = trajectory_or_activities
-    if (shape is not None):
-        activities = _reshape_for_animation(activities, shape)
-    cmap = plt.get_cmap(colormap)
-    (fig, ax) = plt.subplots()
-    title_text = plt.title(title)
-    if (not show_margin):
-        fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
-    grid_linewidth = 0.0
-    if show_grid:
-        plt.xticks(np.arange((- 0.5), len(activities[0][0]), 1), '')
-        plt.yticks(np.arange((- 0.5), len(activities[0]), 1), '')
-        plt.tick_params(axis='both', which='both', length=0)
-        grid_linewidth = 0.5
-    vertical = np.arange((- 0.5), len(activities[0][0]), 1)
-    horizontal = np.arange((- 0.5), len(activities[0]), 1)
-    lines = ([[(x, y) for y in ((- 0.5), horizontal[(- 1)])] for x in vertical] + [[(x, y) for x in ((- 0.5), vertical[(- 1)])] for y in horizontal])
-    grid = mcoll.LineCollection(lines, linestyles='-', linewidths=grid_linewidth, color='grey')
-    ax.add_collection(grid)
-    im = plt.imshow(activities[0], animated=True, cmap=cmap, vmin=vmin, vmax=vmax)
-    if (not show_margin):
-        (baseheight, basewidth) = im.get_size()
-        fig.set_size_inches((basewidth * scale), (baseheight * scale), forward=True)
-    i = {'index': 0}
-
-    def updatefig(*args):
-        i['index'] += 1
-        if (i['index'] == len(activities)):
-            i['index'] = 0
-        im.set_array(activities[i['index']])
-        if with_timestep:
-            title_text.set_text(('timestep: %s' % (i['index'] + 1)))
-        return (im, grid, title_text)
-    ani = animation.FuncAnimation(fig, updatefig, interval=interval, blit=blit, save_count=len(activities))
-    if save:
-        ani.save('evolved.gif', dpi=dpi, writer='imagemagick')
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 16:------------------- similar code ------------------ index = 7, score = 7.0 
-def animate(self, save=False, interval=50, dpi=80, marker='', repeat=False, fps=50):
-    (fig, ax) = plt.subplots()
-    ax.set_aspect('equal')
-    x_vals = [s[0] for s in self.trajectory]
-    max_x = np.max(x_vals)
-    min_x = np.min(x_vals)
-    max_x += (0.05 * (max_x - min_x))
-    min_x -= (0.05 * (max_x - min_x))
-    y_vals = [s[1] for s in self.trajectory]
-    max_y = np.max(y_vals)
-    min_y = np.min(y_vals)
-    max_y += (0.05 * (max_y - min_y))
-    min_y -= (0.05 * (max_y - min_y))
-
-    def update(t):
-        plt.plot(self.trajectory[t][0], self.trajectory[t][1], marker=marker, color='black')
-        if ((t == (len(self.trajectory) - 1)) and repeat):
-            ax.clear()
-            ax.xaxis.set_ticklabels([])
-            ax.yaxis.set_ticklabels([])
-            ax.set_xticks([])
-            ax.set_yticks([])
-            plt.xlim(min_x, max_x)
-            plt.ylim(min_y, max_y)
-    ani = animation.FuncAnimation(fig, update, frames=len(self.trajectory), interval=interval, save_count=len(self.trajectory), repeat=repeat)
-    plt.xlim(min_x, max_x)
-    plt.ylim(min_y, max_y)
-    plt.gca().axes.xaxis.set_ticklabels([])
-    plt.gca().axes.yaxis.set_ticklabels([])
-    plt.xticks([])
-    plt.yticks([])
-    if save:
-        ani.save('turtle.gif', dpi=dpi, writer='imagemagick', fps=fps)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 17:------------------- similar code ------------------ index = 6, score = 7.0 
-@click.command()
-@click.option('-c', '--config_path', default='../sonosco/config/infer.yaml', type=click.STRING, help='Path to infer configuration file.')
-@click.option('-a', '--audio_path', default='audio.wav', type=click.STRING, help='Path to an audio file.')
-@click.option('-p', '--plot', default=False, is_flag=True, help='Show plots.')
-def main(config_path, audio_path, plot):
-    config = parse_yaml(config_path)['infer']
-    device = torch.device(('cuda' if CUDA_ENABLED else 'cpu'))
-    loader = Deserializer()
-    model = loader.deserialize(TDSSeq2Seq, config['model_checkpoint_path'])
-    model.to(device)
-    model.eval()
-    decoder = GreedyDecoder(model.decoder.labels)
-    processor = AudioDataProcessor(**config)
-    (spect, lens) = processor.parse_audio_for_inference(audio_path)
-    spect = spect.to(device)
-    with torch.no_grad():
-        (out, output_lens, attention) = model(spect, lens)
-        (decoded_output, decoded_offsets) = decoder.decode(out, output_lens)
-        LOGGER.info(decoded_output)
-        if plot:
-            import matplotlib.pyplot as plt
-            plt.matshow(attention[0].numpy())
-            plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    with:
-        if  ... :
-            plt.show()
-
-idx = 18:------------------- similar code ------------------ index = 5, score = 7.0 
-def imshow(img, title):
-    img = ((img / 2) + 0.5)
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.title(title)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 19:------------------- similar code ------------------ index = 4, score = 7.0 
-def plot(self, columns=['close'], symbols=None, ax=None, show=False):
-    'Plot\n\n        Args:\n            columns: (list: str) Columns to plot,\n                [open, high, low, close, relclose, relprevclose, volume]\n            symbols: (list: str) Symbols to include,\n                defaults to all in dataset\n            ax: (Axes) Where to plot, defaults to pandas default\n            show: (bool) Whether to run plt.show()\n        '
-    if (not symbols):
-        symbols = self.symbols
-    filter_ = [((col + '_') + symbol) for col in columns for symbol in symbols]
-    df = self.as_dataframe(symbols)[filter_].plot(ax=ax, title=str(self))
-    if show:
-        plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    if  ... :
-        plt.show()
-
-idx = 20:------------------- similar code ------------------ index = 3, score = 7.0 
-def animate_plot1D(x, y, save=False, interval=50, dpi=80):
-    if isinstance(y[0], State):
-        y = get_activities_over_time_as_list(y)
-    fig1 = plt.figure()
-    (line,) = plt.plot(x, y[0])
-
-    def update_line(activity):
-        line.set_data(x, activity)
-        return (line,)
-    ani = animation.FuncAnimation(fig1, update_line, frames=y, blit=True, interval=interval)
-    if save:
-        ani.save('plot.gif', dpi=dpi, writer='imagemagick')
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 21:------------------- similar code ------------------ index = 2, score = 7.0 
-def plot_loss_change(self, sma=1, n_skip_beginning=10, n_skip_end=5, y_lim=((- 0.01), 0.01)):
-    '\n        Plots rate of change of the loss function.\n        Parameters:\n            sma - number of batches for simple moving average to smooth out the curve.\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n            y_lim - limits for the y axis.\n        '
-    derivatives = self.get_derivatives(sma)[n_skip_beginning:(- n_skip_end)]
-    lrs = self.lrs[n_skip_beginning:(- n_skip_end)]
-    plt.ylabel('rate of loss change')
-    plt.xlabel('learning rate (log scale)')
-    plt.plot(lrs, derivatives)
-    plt.xscale('log')
-    plt.ylim(y_lim)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 22:------------------- similar code ------------------ index = 1, score = 7.0 
-def plot1D(x, y, color=None, label=None, xlabel=None, ylabel=None, xlim=None, ylim=None, twinx=False, legend=None, tight_layout=None, title=None):
-    '\n    Creates a 1D plot of the given x and y values.\n\n    :param x: A list representing the values of the x-axis.\n\n    :param y: A list representing the values of the y-axis. If the values of this list are also lists, then each will\n              be plotted as a separate series on the y-axis.\n\n    :param color: A string, representing the color of the series, or a list of colors, representing the color of each\n                   series to be plotted. The number of colors must match the number of series. The color values must\n                   be recognizable by Matplotlib.\n\n    :param label: A string or number, or a list of strings or numbers, representing the labels of each series to be\n                  plotted. The number of labels must match the number of series.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string, or list of at most two strings, representing the label(s) of the y-axis.\n\n    :param xlim: A 2-tuple of numbers, representing the limits of the x-axis.\n\n    :param ylim: A 2-tuple of numbers, or a list of at most two 2-tuples of numbers, representing the\n                 limits of the y-axis.\n\n    :param twinx: If True, the provided y series will be plotted on two separate y-axes, and there must\n                  be at least two series of y values provided. If there are more than two series of y values,\n                  then each series will be plotted on alternating y-axes. (Default is False)\n\n    :param legend: A dict, or a list of at most two dicts, representing the arguments to the legend\n                   function of Matplotlib.\n\n    :param tight_layout: A dict representing the arguments to the tight_layout function of Matplotlib.\n\n    :param title: The plot title.\n    '
-    axes = []
-    (fig, ax1) = plt.subplots()
-    axes.append(ax1)
-    if twinx:
-        axes.append(ax1.twinx())
-        if (len(y) < 2):
-            raise Exception('there must be at least two series of y values provided')
-        for _y in y:
-            if (not isinstance(_y, (list, np.ndarray))):
-                raise Exception('an item in y must be a list representing a y series')
-    current_axis_idx = 0
-    is_multiseries = isinstance(y[0], (list, np.ndarray))
-
-    def _get_item(items, i):
-        if isinstance(items, str):
-            return items
-        if isinstance(items, collections.Sequence):
-            return items[i]
-        return items
-    if (not is_multiseries):
-        y = [y]
-    for (i, y_series) in enumerate(y):
-        current_axis = axes[(current_axis_idx % len(axes))]
-        plot_args = {}
-        if label:
-            plot_args['label'] = _get_item(label, i)
-        if color:
-            plot_args['color'] = _get_item(color, i)
-        current_axis.plot(x, y_series, **plot_args)
-        if xlabel:
-            current_axis.set_xlabel(xlabel)
-        if ylabel:
-            ylabel_args = {}
-            if color:
-                ylabel_args['color'] = _get_item(color, i)
-            current_axis.set_ylabel(_get_item(ylabel, (i % 2)), **ylabel_args)
-        if xlim:
-            current_axis.set_xlim(xlim)
-        if ylim:
-            current_axis.set_ylim(_get_item(ylim, (i % 2)))
-        if legend:
-            current_axis.legend(**legend)
-        current_axis_idx += 1
-    if tight_layout:
-        plt.tight_layout(**tight_layout)
-    if title:
-        plt.title(title)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 23:------------------- similar code ------------------ index = 22, score = 7.0 
-def plot_addition_old(extension):
-    yolo_path = os.path.join(data_dir, 'addition/2stage/run_search_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=long_cedar_seed=0_2018_05_14_03_04_29')
-    yolo_supplement_path = os.path.join(data_dir, 'addition/2stage/run_search_supplement_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=supplement_seed=0_2018_05_14_14_18_26')
-    simple_path = os.path.join(data_dir, 'addition/simple/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_duration=long_seed=0_2018_05_14_23_59_50')
-    simple_2stage_path = os.path.join(data_dir, 'addition/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_55_38')
-    fig = plt.figure(figsize=(5, 3.5))
-    ax = plt.gca()
-    measure = 'math_accuracy'
-    (x, y, *yerr) = get_arithmetic_data([yolo_path, yolo_supplement_path], 'n_train', measure, 1, 'ci95')
-    label = 'SI-AIR'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
-    label = 'Conv'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
-    label = 'Conv - 2stage'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_xlabel('\\# Training Samples / 1000', fontsize=12)
-    ax.set_title('Addition - Between 1 and 11 numbers', fontsize=12)
-    ax.tick_params(axis='both', labelsize=14)
-    ax.set_ylim((0.0, 1.05))
-    ax.set_xticks(x)
-    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
-    plt.legend(loc='upper left')
-    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
-    fig.savefig(plot_path)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 24:------------------- similar code ------------------ index = 24, score = 7.0 
-def plot_addition(extension):
-    air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_58/')
-    baseline_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_21/')
-    ground_truth_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_14/')
-    simple_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_18/')
-    yolo_air_fixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=fixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_04/')
-    baseline_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=baseline-math_duration=long_seed=0_2018_07_28_22_00_58/')
-    ground_truth_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_01_56/')
-    simple_raw_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=raw_alg=simple-math_duration=long_seed=0_2018_07_28_22_02_59/')
-    air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=air-math_duration=long_seed=0_2018_07_29_09_58_32/')
-    baseline_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=baseline-math_duration=long_seed=0_2018_07_28_22_01_39/')
-    ground_truth_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=ground-truth-math_duration=long_seed=0_2018_07_28_22_02_30/')
-    simple_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=simple-math_duration=long_seed=0_2018_07_28_22_03_41/')
-    yolo_air_unfixed_path = os.path.join(data_dir, 'addition/stage2/run_search_addition-stage2_env=task=arithmetic2_run-kind=unfixed_alg=yolo-air-math_duration=long_seed=0_2018_07_28_22_04_21/')
-    fig = plt.figure(figsize=(5, 4.5))
-    ax = plt.gca()
-    (x, y, *yerr) = get_arithmetic_data([baseline_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='ConnComp', marker='o', ls='-')
-    (x, y, *yerr) = get_arithmetic_data([ground_truth_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='TrueBB', marker='^', ls='-')
-    (x, y, *yerr) = get_arithmetic_data([simple_raw_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='ConvNet', marker='v', ls='-')
-    (x, y, *yerr) = get_arithmetic_data([yolo_air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Fixed', marker='v', ls='-')
-    yolo_air_color = line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([yolo_air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR - Unfixed', marker='v', ls='--', color=yolo_air_color)
-    (x, y, *yerr) = get_arithmetic_data([air_fixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Fixed', marker='o', ls='-')
-    air_color = line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([air_unfixed_path], 'n_train', '_test_math_accuracy', 0, 'ci95')
-    line = ax.errorbar(x, y, yerr=yerr, label='AIR - Unfixed', marker='o', ls='--', color=air_color)
-    ax.set_ylabel('Accuracy')
-    ax.set_xlabel('\\# Training Examples / 1000')
-    ax.tick_params(axis='both')
-    ax.set_ylim((0.0, 1.05))
-    ax.set_xscale('log')
-    ax.set_xticks(x)
-    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
-    plt.legend(loc='lower center', handlelength=2.5, bbox_to_anchor=(0.5, 1.01), ncol=3, columnspacing=1)
-    plt.subplots_adjust(left=0.1, bottom=0.1, right=0.99, top=0.82)
-    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    fig.savefig(plot_path)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 25:------------------- similar code ------------------ index = 47, score = 7.0 
-def run(device, show_plots, process_data=None, **get_data_kwargs):
-    with NumpySeed(100):
-        data = get_data(**get_data_kwargs)
-        if (process_data is None):
-            process_data = (lambda *x: x)
-        (sprites, scales, offsets, backgrounds) = process_data(*data)
-        with tf.device('/{}:0'.format(device)):
-            images = render_sprites.render_sprites(sprites, scales, offsets, backgrounds)
-            sess = get_session()
-            result = sess.run(images)
-        result = np.clip(result, 1e-06, (1 - 1e-06))
-    if show_plots:
-        import matplotlib.pyplot as plt
-        (fig, (ax1, ax2)) = plt.subplots(1, 2)
-        ax1.imshow(result[0])
-        ax2.imshow(result[1])
-        plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    if  ... :
-        plt.show()
-
-idx = 26:------------------- similar code ------------------ index = 25, score = 7.0 
-def random_torque(driver, port, idn):
-    " Read the entire control table and randomly sampled torque commands to the DXL.\n\n    This is done 'N' times and timed. Relevant data is plotted.\n    "
-    dxl.write_torque_mode_enable(driver, port, idn, 1)
-    times = []
-    vals_dict = {'present_pos': ((2 * pi) / 3.0), 'current': 0}
-    actions = []
-    currents = []
-    for i in range(1000):
-        t1 = time.time()
-        if (vals_dict['present_pos'] < (pi / 3.0)):
-            action = 1000
-            dxl.write_torque(driver, port, idn, action)
-            time.sleep(0.001)
-        elif (vals_dict['present_pos'] > pi):
-            action = (- 1000)
-            dxl.write_torque(driver, port, idn, action)
-            time.sleep(0.001)
-        else:
-            action = int((np.random.uniform((- 1), 1) * 1000))
-        dxl.write_torque(driver, port, idn, action)
-        vals_dict = dxl.read_vals(driver, port, idn)
-        actions.append(action)
-        currents.append(vals_dict['current'])
-        times.append((time.time() - t1))
-    dxl.write_torque(driver, port, idn, 0)
-    print(np.mean(times))
-    print(currents[:10])
-    plt.xcorr(currents, actions)
-    plt.figure()
-    plt.plot(np.cumsum(times), actions, label='actions')
-    plt.plot(np.cumsum(times), currents, label='currents')
-    plt.legend()
-    plt.figure()
-    plt.plot(times)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 27:------------------- similar code ------------------ index = 46, score = 7.0 
-def poincare_plot(activities, timesteps, xlabel=None, ylabel=None, xlim=None, ylim=None, title=None):
-    '\n    Create a Poincaré plot.\n\n    :param activities: A list of activities. If the values of this list are also lists, then each will\n                       be plotted as a separate series.\n\n    :param timesteps: The number of timesteps in the trajectory to consider, starting from the end.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string representing the label of the y-axis.\n\n    :param xlim: A 2-tuple of numbers, representing the limits of the x-axis.\n\n    :param ylim: A 2-tuple of numbers, or a list of at most two 2-tuples of numbers, representing the\n                 limits of the y-axis.\n\n    :param title: The plot title.\n    '
-    cm = plt.get_cmap('gist_rainbow')
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    is_multiseries = isinstance(activities[0], (list, np.ndarray))
-    if is_multiseries:
-        ax.set_prop_cycle(color=[cm(((1.0 * i) / len(activities))) for i in range(len(activities))])
-    else:
-        activities = [activities]
-    for a in activities:
-        x = []
-        y = []
-        for t in range((timesteps - 1)):
-            x.append(a[(- timesteps):][t])
-            y.append(a[(- timesteps):][(t + 1)])
-        plt.scatter(x, y, s=1)
-    if xlim:
-        plt.xlim(xlim)
-    if ylim:
-        plt.ylim(ylim)
-    if xlabel:
-        plt.xlabel(xlabel)
-    if ylabel:
-        plt.ylabel(ylabel)
-    if title:
-        plt.title(title)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 28:------------------- similar code ------------------ index = 45, score = 7.0 
-def plot_spec(M):
-    M = np.flip(M, axis=0)
-    plt.figure(figsize=(18, 4))
-    plt.imshow(M, interpolation='nearest', aspect='auto')
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 29:------------------- similar code ------------------ index = 44, score = 7.0 
-if (__name__ == '__main__'):
-    import os
-    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-    os.environ['CUDA_VISIBLE_DEVICES'] = ''
-    x = tf.random.normal((4, 100, 100, 3))
-    x = (x - tf.math.reduce_min(x))
-    x = (x / tf.math.reduce_max(x))
-    x_aug = transform(x)
-    (fig, axes) = plt.subplots(4, 2)
-    for b in range(4):
-        img = x[b]
-        img_aug = x_aug[b]
-        axes[b][0].imshow(img)
-        axes[b][1].imshow(img_aug)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-if:
-    plt.show()
-
-idx = 30:------------------- similar code ------------------ index = 43, score = 7.0 
-def plot_hex_grid(trajectory, shape=None, slice=(- 1), title='', colormap='Greys', vmin=None, vmax=None, edgecolor=None):
-    activities = get_activities_over_time_as_list(trajectory)
-    if (shape is not None):
-        activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
-    triples = _get_triples(activities)
-    has_odd_rows = ((len(activities) % 2) != 0)
-    (fig, ax) = plt.subplots(1)
-    ax.set_aspect('equal')
-    m = _get_scaled_colormap(triples, colormap, vmin, vmax)
-    for t in triples:
-        (x, y) = (_oddr_offset_to_pixel(t[0], t[1]) if has_odd_rows else _evenr_offset_to_pixel(t[0], t[1]))
-        hex = RegularPolygon((x, y), numVertices=6, radius=1.0, orientation=np.radians(60), facecolor=m.to_rgba(t[2]), edgecolor=edgecolor)
-        ax.add_patch(hex)
-    ax.scatter([t[0] for t in triples], [t[1] for t in triples], marker='')
-    plt.gca().invert_yaxis()
-    plt.title(title)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 31:------------------- similar code ------------------ index = 42, score = 7.0 
-def plot(self, marker=''):
-    (fig, ax) = plt.subplots()
-    ax.set_aspect('equal')
-    for state in self.trajectory:
-        plt.plot(state[0], state[1], marker=marker, color='black')
-    plt.gca().axes.xaxis.set_ticklabels([])
-    plt.gca().axes.yaxis.set_ticklabels([])
-    plt.xticks([])
-    plt.yticks([])
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 32:------------------- similar code ------------------ index = 41, score = 7.0 
-def bifurcation_plot(x, trajectories, timesteps, xlabel=None, ylabel=None, title=None):
-    '\n    Create a bifurcation plot.\n\n    :param x: A list representing the values of the x-axis.\n\n    :param trajectories: A list of lists. Each inner list is a sequence of activities representing a trajectory.\n\n    :param timesteps: The number of timesteps in the trajectory to consider, starting from the end.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string representing the label of the y-axis.\n\n    :param title: The plot title.\n    '
-    y = []
-    for t in trajectories:
-        y.append(np.unique(t[(- timesteps):]))
-    for (x_e, y_e) in zip(x, y):
-        plt.scatter(([x_e] * len(y_e)), y_e, color='b', s=1)
-    if xlabel:
-        plt.xlabel(xlabel)
-    if ylabel:
-        plt.ylabel(ylabel)
-    if title:
-        plt.title(title)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 33:------------------- similar code ------------------ index = 40, score = 7.0 
-if (__name__ == '__main__'):
-    unittest.main()
-    cs = CS.ConfigurationSpace()
-    cs.add_hyperparameter(CS.UniformFloatHyperparameter('w', lower=(- 5), upper=5))
-    X = np.random.uniform((- 5), 5, 100)
-    y = np.random.normal(X, 1)
-    opt_func = (lambda x, y, w, budget: np.mean(((y[:int(budget)] - (w * x[:int(budget)])) ** 2)))
-    for w in cs.sample_configuration(size=3):
-        print('W: {} --> {}'.format(w['w'], opt_func(X, y, **w, budget=3)))
-    (inc_value, inc_cfg, result) = fmin(opt_func, cs, func_args=(X, y), min_budget=3, max_budget=len(X), num_iterations=3, num_workers=1)
-    id2config = result.get_id2config_mapping()
-    incumbent = result.get_incumbent_id()
-    traj = result.get_incumbent_trajectory()
-    budgets = [b for b in traj['budgets']]
-    values = [id2config[id]['config'] for id in traj['config_ids']]
+    from scipy.cluster.hierarchy import linkage
+    from scipy.spatial.distance import squareform
+    import pandas as pd
     import matplotlib.pyplot as plt
-    plt.scatter(X, y)
-    plt.xlim((- 5), 5)
-    plt.ylim((- 5), 5)
-    for i in range(len(values)):
-        plt.plot(X, (values[i]['w'] * X), label='{}. W: {:.2f}'.format((i + 1), values[i]['w']))
-    plt.legend(loc=1)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-if:
-    plt.show()
-
-idx = 34:------------------- similar code ------------------ index = 39, score = 7.0 
-def plot_tour(self, G, pos):
-    '\n        Renders the points and tour.\n        :param G: a NetworkX Graph representing the points and the tour\n        :param pos: a dictionary defining the NetworkX positions for the Graph\n        '
-    nx.draw_networkx(G, pos)
+    distance_matrix = pdist(embeddings, distance=distance)
+    cond_distance_matrix = squareform(distance_matrix, checks=False)
+    linkage_matrix = linkage(cond_distance_matrix, method='complete', optimal_ordering=True)
+    if (labels is not None):
+        distance_matrix = pd.DataFrame(distance_matrix, index=labels, columns=labels)
+    sns.clustermap(distance_matrix, row_linkage=linkage_matrix, col_linkage=linkage_matrix, cmap='viridis_r')
     plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
     plt.show()
 
-idx = 35:------------------- similar code ------------------ index = 38, score = 7.0 
-def plot_network(network, layout='shell', with_labels=True, node_color='#1f78b4', node_size=300):
-    G = network.to_networkx()
-    if (layout == 'shell'):
-        nx.draw_shell(G, with_labels=with_labels, node_color=node_color, node_size=node_size)
-    elif (layout == 'spring'):
-        nx.draw_spring(G, with_labels=with_labels, node_color=node_color, node_size=node_size)
-    elif isinstance(layout, dict):
-        nx.draw(G, pos=layout, with_labels=with_labels, node_color=node_color, node_size=node_size)
-    else:
-        raise Exception(('unsupported layout: %s' % layout))
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 36:------------------- similar code ------------------ index = 37, score = 7.0 
+idx = 42:------------------- similar code ------------------ index = 14, score = 7.0 
 def plot_xo_2stage_decoder_kind(extension):
     attn_yolo_path = os.path.join(data_dir, 'xo/pretrained/yolo/run_search_yolo-xo-continue_env=xo_decoder-kind=attn_alg=yolo-xo-continue_duration=long_seed=0_2018_06_07_12_12_19')
     mlp_yolo_path = os.path.join(data_dir, 'xo/pretrained/yolo/run_search_yolo-xo-continue_env=xo_decoder-kind=mlp_alg=yolo-xo-continue_duration=long_seed=0_2018_06_07_12_17_35')
@@ -1157,20 +1088,132 @@ def plot_xo_2stage_decoder_kind(extension):
 def  ... ( ... ):
     plt.show()
 
-idx = 37:------------------- similar code ------------------ index = 36, score = 7.0 
-def plot(self, columns=['end_portfolio_value', 'end_cash'], ax=None, show=False):
-    'Plot money\n\n        Args:\n            columns: (list: str) the columns to plot, use .log to find columns\n            ax: (Axis) where to plot, defaults to pandas\n            show: (bool) display the plot\n        '
-    df = self.log_as_dataframe()
-    df[columns].plot(ax=ax)
-    if show:
-        plt.show()
+idx = 43:------------------- similar code ------------------ index = 26, score = 7.0 
+def plot_image_grid(images_np, nrow=8, factor=1, interpolation='lanczos'):
+    'Draws images in a grid\n    \n    Args:\n        images_np: list of images, each image is np.array of size 3xHxW of 1xHxW\n        nrow: how many images will be in one row\n        factor: size if the plt.figure \n        interpolation: interpolation used in plt.imshow\n    '
+    n_channels = max((x.shape[0] for x in images_np))
+    assert ((n_channels == 3) or (n_channels == 1)), 'images should have 1 or 3 channels'
+    images_np = [(x if (x.shape[0] == n_channels) else np.concatenate([x, x, x], axis=0)) for x in images_np]
+    grid = get_image_grid(images_np, nrow)
+    plt.figure(figsize=((len(images_np) + factor), (12 + factor)))
+    if (images_np[0].shape[0] == 1):
+        plt.imshow(grid[0], cmap='gray', interpolation=interpolation)
+    else:
+        plt.imshow(grid.transpose(1, 2, 0), interpolation=interpolation)
+    plt.show()
+    return grid
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
-    if  ... :
-        plt.show()
+    plt.show()
 
-idx = 38:------------------- similar code ------------------ index = 35, score = 7.0 
+idx = 44:------------------- similar code ------------------ index = 15, score = 7.0 
+def plot_loss(self, n_skip_beginning=10, n_skip_end=5, x_scale='log'):
+    '\n        Plots the loss.\n        Parameters:\n            n_skip_beginning - number of batches to skip on the left.\n            n_skip_end - number of batches to skip on the right.\n        '
+    plt.ylabel('loss')
+    plt.xlabel('learning rate (log scale)')
+    plt.plot(self.lrs[n_skip_beginning:(- n_skip_end)], self.losses[n_skip_beginning:(- n_skip_end)])
+    plt.xscale(x_scale)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 45:------------------- similar code ------------------ index = 16, score = 7.0 
+def plot_pop(filename, country_code):
+    urb_pop_reader = pd.read_csv(filename, chunksize=1000)
+    data = pd.DataFrame()
+    for df_urb_pop in urb_pop_reader:
+        df_pop_ceb = df_urb_pop[(df_urb_pop['CountryCode'] == country_code)]
+        pops = zip(df_pop_ceb['Total Population'], df_pop_ceb['Urban population (% of total)'])
+        pops_list = list(pops)
+        df_pop_ceb['Total Urban Population'] = [int((tup[0] * tup[1])) for tup in pops_list]
+        data = data.append(df_pop_ceb)
+    data.plot(kind='scatter', x='Year', y='Total Urban Population')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 46:------------------- similar code ------------------ index = 17, score = 7.0 
+if (__name__ == '__main__'):
+    N = 10
+    device = torch.device('cpu')
+    model = TFIM(N, device)
+    k = 300
+    Npoints = 100
+    gs = np.linspace(0.5, 1.5, num=Npoints)
+    E0s_analytic = np.empty(Npoints)
+    E0s_torchAD = np.empty(Npoints)
+    E0s_matrixAD = np.empty(Npoints)
+    E0s_sparseAD = np.empty(Npoints)
+    dE0s_analytic = np.empty(Npoints)
+    dE0s_torchAD = np.empty(Npoints)
+    dE0s_matrixAD = np.empty(Npoints)
+    dE0s_sparseAD = np.empty(Npoints)
+    d2E0s_analytic = np.empty(Npoints)
+    d2E0s_torchAD = np.empty(Npoints)
+    d2E0s_matrixAD = np.empty(Npoints)
+    d2E0s_sparseAD = np.empty(Npoints)
+    print('g    E0_analytic    E0_torchAD    E0_matrixAD    E0_sparseAD    dE0_analytic    dE0_torchAD    dE0_matrixAD    dE0_sparseAD    d2E0_analytic    d2E0_torchAD    d2E0_matrixAD    d2E0_sparseAD')
+    for i in range(Npoints):
+        model.g = torch.Tensor([gs[i]]).to(model.device, dtype=torch.float64)
+        model.g.requires_grad_(True)
+        (E0s_analytic[i], dE0s_analytic[i], d2E0s_analytic[i]) = E0_analytic(model)
+        model.setHmatrix()
+        (E0s_torchAD[i], dE0s_torchAD[i], d2E0s_torchAD[i]) = E0_torchAD(model)
+        (E0s_matrixAD[i], dE0s_matrixAD[i], d2E0s_matrixAD[i]) = E0_matrixAD(model, k)
+        (E0s_sparseAD[i], dE0s_sparseAD[i], d2E0s_sparseAD[i]) = E0_sparseAD(model, k)
+        print(gs[i], E0s_analytic[i], E0s_torchAD[i], E0s_matrixAD[i], E0s_sparseAD[i], dE0s_analytic[i], dE0s_torchAD[i], dE0s_matrixAD[i], dE0s_sparseAD[i], d2E0s_analytic[i], d2E0s_torchAD[i], d2E0s_matrixAD[i], d2E0s_sparseAD[i])
+    import matplotlib.pyplot as plt
+    plt.plot(gs, E0s_analytic, label='Analytic result')
+    plt.plot(gs, E0s_torchAD, label='AD: torch')
+    plt.plot(gs, E0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, E0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{E_0}{N}$')
+    plt.title(('Ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+    plt.plot(gs, dE0s_analytic, label='Analytic result')
+    plt.plot(gs, dE0s_torchAD, label='AD: torch')
+    plt.plot(gs, dE0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, dE0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{1}{N} \\frac{\\partial E_0}{\\partial g}$')
+    plt.title(('1st derivative w.r.t. $g$ of ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+    plt.plot(gs, d2E0s_analytic, label='Analytic result')
+    plt.plot(gs, d2E0s_torchAD, label='AD: torch')
+    plt.plot(gs, d2E0s_matrixAD, label='AD: normal representation')
+    plt.plot(gs, d2E0s_sparseAD, label='AD: sparse representation')
+    plt.legend()
+    plt.xlabel('$g$')
+    plt.ylabel('$\\frac{1}{N} \\frac{\\partial^2 E_0}{\\partial g^2}$')
+    plt.title(('2nd derivative w.r.t. $g$ of ground state energy per site of 1D TFIM\n$H = - \\sum_{i=0}^{N-1} (g\\sigma_i^x + \\sigma_i^z \\sigma_{i+1}^z)$\n$N=%d$' % model.N))
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt
+     ... .show()
+
+idx = 47:------------------- similar code ------------------ index = 18, score = 7.0 
+def plot_curvature(image, curvature):
+    plt.subplot(121)
+    plt.imshow(image, cmap='gray')
+    plt.subplot(122)
+    plt.imshow(curvature, cmap='gray')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 48:------------------- similar code ------------------ index = 19, score = 7.0 
 if (__name__ == '__main__'):
     num_boids = 10
     timesteps = 500
@@ -1254,31 +1297,439 @@ if (__name__ == '__main__'):
 if:
     plt.show()
 
-idx = 39:------------------- similar code ------------------ index = 34, score = 7.0 
-def plot_degree_distribution(network, xlabel='Node degree', ylabel_freq='Frequency', ylabel_prob='Probability', in_degree=False, out_degree=False, equation=None, equation_x=0.51, equation_y=0.76, equation_text='', equation_color='r', color='r', title=None):
-    "\n    Create a node degree distribution plot for the given network.\n\n    :param network: A Netomaton Network instance.\n\n    :param xlabel: The x-axis label.\n\n    :param ylabel_freq: The frequency y-axis label.\n\n    :param ylabel_prob: The probability y-axis label.\n\n    :param in_degree: If True, the in-degree will be used. (default is False)\n\n    :param out_degree: If True, the out-degree will be used. (default is False)\n\n    :param equation: A callable that computes the degree distribution, given a node degree.\n\n    :param equation_x: The equation's x coordinate.\n\n    :param equation_y: The equation's y coordinate.\n\n    :param equation_text: The equation to display.\n\n    :param equation_color: The equation text's color. It must be a valid Matplotlib color.\n\n    :param color: The color to use for the plot. It must be a valid Matplotlib color.\n\n    :param title: The plot's title.\n    "
-    degree_counts = {}
-    for node in network.nodes:
-        if in_degree:
-            degree = network.in_degree(node)
-        elif out_degree:
-            degree = network.out_degree(node)
+idx = 49:------------------- similar code ------------------ index = 20, score = 7.0 
+def visualize(img, perturbations, levels, show):
+    'Visualize all specified perturbations and levels for a given image.\n\n    Args:\n        img (Image): PIL image for which to plot perturbations\n        perturbations (dict): maps name (str) -> mapping function (function)\n        levels (list): list of each level (int) to plot\n        show (bool): whether to show the final figure\n\n    Returns:\n        (None)\n\n    '
+    import matplotlib
+    if (not show):
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    out_dir = Path('output')
+    out_dir.mkdir(exist_ok=True, parents=True)
+    if ('identity' in perturbations):
+        perturbations = perturbations.copy()
+        del perturbations['identity']
+    (fig, ax) = plt.subplots(nrows=len(levels), ncols=len(perturbations), gridspec_kw={'wspace': 0, 'hspace': 0}, figsize=FIG_SIZE)
+    names = sorted(list(perturbations.keys()))
+    for (iname, name) in enumerate(names):
+        print(('Generating visuals for "%s"...' % name))
+        mapping_fn = perturbations[name]
+        for (ilevel, level) in enumerate(levels):
+            perturbed_img = mapping_fn(level, img)
+            perturbed_img_name = ('%s_%d.png' % (name, level))
+            perturbed_img.save((out_dir / perturbed_img_name))
+            ax[(ilevel, iname)].imshow(perturbed_img)
+            ax[(ilevel, iname)].set_yticklabels([])
+            ax[(ilevel, iname)].set_xticklabels([])
+            ax[(ilevel, iname)].tick_params(axis='both', which='both', length=0)
+            if (not iname):
+                ax[(ilevel, iname)].set_ylabel(('Level %d' % level), rotation=90, size='large')
+            if (not ilevel):
+                ax[(ilevel, iname)].set_title(name)
+    if show:
+        plt.show()
+    plt.savefig((out_dir / 'visualization.png'))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 50:------------------- similar code ------------------ index = 21, score = 7.0 
+def plot_grid_multiple(ca_list, shape=None, slice=(- 1), titles=None, colormap='Greys', vmin=None, vmax=None):
+    cmap = plt.get_cmap(colormap)
+    for i in range(0, len(ca_list)):
+        plt.figure(i)
+        if (titles is not None):
+            plt.title(titles[i])
+        activities = list(ca_list[i])
+        if (shape is not None):
+            activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
+        plt.imshow(activities, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 51:------------------- similar code ------------------ index = 22, score = 7.0 
+if (__name__ == '__main__'):
+    unittest.main()
+    cs = CS.ConfigurationSpace()
+    cs.add_hyperparameter(CS.UniformFloatHyperparameter('w', lower=(- 5), upper=5))
+    X = np.random.uniform((- 5), 5, 100)
+    y = np.random.normal(X, 1)
+    opt_func = (lambda x, y, w, budget: np.mean(((y[:int(budget)] - (w * x[:int(budget)])) ** 2)))
+    for w in cs.sample_configuration(size=3):
+        print('W: {} --> {}'.format(w['w'], opt_func(X, y, **w, budget=3)))
+    (inc_value, inc_cfg, result) = fmin(opt_func, cs, func_args=(X, y), min_budget=3, max_budget=len(X), num_iterations=3, num_workers=1)
+    id2config = result.get_id2config_mapping()
+    incumbent = result.get_incumbent_id()
+    traj = result.get_incumbent_trajectory()
+    budgets = [b for b in traj['budgets']]
+    values = [id2config[id]['config'] for id in traj['config_ids']]
+    import matplotlib.pyplot as plt
+    plt.scatter(X, y)
+    plt.xlim((- 5), 5)
+    plt.ylim((- 5), 5)
+    for i in range(len(values)):
+        plt.plot(X, (values[i]['w'] * X), label='{}. W: {:.2f}'.format((i + 1), values[i]['w']))
+    plt.legend(loc=1)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 52:------------------- similar code ------------------ index = 23, score = 7.0 
+def draw_new_daily_cases(stats_arg, show_plot, x_tick=10):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_new_daily_cases(ax, stats_arg, x_tick)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-new-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 53:------------------- similar code ------------------ index = 24, score = 7.0 
+def random_torque(driver, port, idn):
+    " Read the entire control table and randomly sampled torque commands to the DXL.\n\n    This is done 'N' times and timed. Relevant data is plotted.\n    "
+    dxl.write_torque_mode_enable(driver, port, idn, 1)
+    times = []
+    vals_dict = {'present_pos': ((2 * pi) / 3.0), 'current': 0}
+    actions = []
+    currents = []
+    for i in range(1000):
+        t1 = time.time()
+        if (vals_dict['present_pos'] < (pi / 3.0)):
+            action = 1000
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
+        elif (vals_dict['present_pos'] > pi):
+            action = (- 1000)
+            dxl.write_torque(driver, port, idn, action)
+            time.sleep(0.001)
         else:
-            degree = network.degree(node)
-        if (degree not in degree_counts):
-            degree_counts[degree] = 0
-        degree_counts[degree] += 1
-    x = [i for i in range(1, (max(degree_counts) + 1))]
-    height = [(degree_counts[i] if (i in degree_counts) else 0) for i in x]
-    plt.bar(x, height)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel_freq)
-    if equation:
-        y = [equation(k) for k in x]
-        plt.twinx()
-        plt.plot(x, y, color=color)
-        plt.ylabel(ylabel_prob)
-        plt.text(equation_x, equation_y, equation_text, transform=plt.gca().transAxes, color=equation_color)
+            action = int((np.random.uniform((- 1), 1) * 1000))
+        dxl.write_torque(driver, port, idn, action)
+        vals_dict = dxl.read_vals(driver, port, idn)
+        actions.append(action)
+        currents.append(vals_dict['current'])
+        times.append((time.time() - t1))
+    dxl.write_torque(driver, port, idn, 0)
+    print(np.mean(times))
+    print(currents[:10])
+    plt.xcorr(currents, actions)
+    plt.figure()
+    plt.plot(np.cumsum(times), actions, label='actions')
+    plt.plot(np.cumsum(times), currents, label='currents')
+    plt.legend()
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 54:------------------- similar code ------------------ index = 25, score = 7.0 
+if (__name__ == '__main__'):
+    HOME = os.environ['HOME']
+    rgbdir = (HOME + '/myDataset/KITTI/raw_data_KITTI/')
+    depdir = (HOME + '/myDataset/KITTI/datasets_KITTI/')
+    trainrgb = '../datasets/kitti_path/eigen_train_files.txt'
+    traindep = '../datasets/kitti_path/eigen_train_depth_files.txt'
+    valrgb = '../datasets/kitti_path/eigen_test_files.txt'
+    valdep = '../datasets/kitti_path/eigen_test_depth_files.txt'
+    kwargs = {'min_depth': 1.8, 'max_depth': 80.0, 'flip': True, 'scale': True, 'rotate': True, 'jitter': True, 'crop': True}
+    train_dataset = KITTIDataset(rgbdir, depdir, trainrgb, traindep, mode='train', **kwargs)
+    val_dataset = KITTIDataset(rgbdir, depdir, valrgb, valdep, mode='val', **kwargs)
+    trainloader = DataLoader(train_dataset, 10, shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
+    valloader = DataLoader(val_dataset, 10, shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
+    (image, label) = train_dataset[400]
+    image_npy = image.numpy().transpose(1, 2, 0)
+    label_npy = label.numpy().squeeze()
+    print(image.shape, label.shape)
+    print(label.max())
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.imshow(image_npy)
+    plt.subplot(1, 2, 2)
+    plt.imshow(label_npy, cmap='plasma')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 55:------------------- similar code ------------------ index = 60, score = 7.0 
+def plot_map(poses, points, colors=None, camera_scale=1.0):
+    ax = axis3d()
+    plot3d_(ax, points, colors)
+    plot_cameras_(ax, poses, camera_scale)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 56:------------------- similar code ------------------ index = 58, score = 7.0 
+def plot_masked_points(P, mask, true_label, false_label):
+    ax = axis3d()
+    ax.scatter(P[(mask, 0)], P[(mask, 1)], P[(mask, 2)], 'b.', label=true_label)
+    ax.scatter(P[((~ mask), 0)], P[((~ mask), 1)], P[((~ mask), 2)], 'r.', label=false_label)
+    ax.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 57:------------------- similar code ------------------ index = 62, score = 7.0 
+def show(image):
+    plt.figure(figsize=(15, 15))
+    plt.imshow(image, interpolation='nearest')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 58:------------------- similar code ------------------ index = 101, score = 7.0 
+def plot(self, columns=['close'], symbols=None, ax=None, show=False):
+    'Plot\n\n        Args:\n            columns: (list: str) Columns to plot,\n                [open, high, low, close, relclose, relprevclose, volume]\n            symbols: (list: str) Symbols to include,\n                defaults to all in dataset\n            ax: (Axes) Where to plot, defaults to pandas default\n            show: (bool) Whether to run plt.show()\n        '
+    if (not symbols):
+        symbols = self.symbols
+    filter_ = [((col + '_') + symbol) for col in columns for symbol in symbols]
+    df = self.as_dataframe(symbols)[filter_].plot(ax=ax, title=str(self))
+    if show:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 59:------------------- similar code ------------------ index = 90, score = 7.0 
+def show_plot(price, firstIndicator, secondIndicator, dates, symbol='', label1='', label2=''):
+    "Displays a chart of the price and indicators for a stock\n\n    Args:\n        price(Pandas series): Series containing a stock's prices\n        firstIndicator(Pandas series): Series containing a technical indicator, such as 50-day moving average\n        secondIndicator(Pandas series): Series containing a technical indicator, such as 200-day moving average\n        dates(Pandas series): Series containing the dates that correspond to the prices and indicators\n        label1(str): Chart label of the first technical indicator\n        label2(str): Chart label of the first technical indicator\n\n    Returns:\n        True if the stock's current price is higher than it was five years ago, or the stock IPO'd within the last five years\n        False otherwise\n    "
+    plt.figure(figsize=(10, 5))
+    plt.title(symbol)
+    plt.plot(dates, price, label='Closing prices')
+    plt.plot(dates, firstIndicator, label=label1)
+    plt.plot(dates, secondIndicator, label=label2)
+    plt.yticks(np.arange(price.min(), price.max(), step=((price.max() - price.min()) / 15.0)))
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 60:------------------- similar code ------------------ index = 91, score = 7.0 
+def read_time(driver, port, idn):
+    " Read the entire control table of the DXL MX-64AT device 'N' times and plot the mean & percentile time taken. "
+    times = []
+    for i in range(1000):
+        t1 = time.time()
+        dxl.read_vals(driver, port, idn)
+        times.append((time.time() - t1))
+    print(np.mean(times))
+    print(np.percentile(times, 99))
+    plt.figure()
+    plt.plot(times)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 61:------------------- similar code ------------------ index = 92, score = 7.0 
+def draw_r0_evolution(stats_arg, show_plot, window_size=3, x_tick=10):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    slid_new = np.array([np.convolve(sn, np.ones(window_size, dtype=int), 'valid') for sn in stats_arg['new']])
+    slid_con = np.array([rolling_max(sc, window_size) for sc in (1 + stats_arg['con'])])
+    set_ax_r0(ax, (slid_new / slid_con), '2 weeks sliding R0', x_tick=10)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-R0-evo-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 62:------------------- similar code ------------------ index = 93, score = 7.0 
+def view3d_image(input_im, cmap='gray', title='', spacing=None, slice_axis=0):
+    if (spacing is None):
+        spacing = [1, 1, 1]
+    if isinstance(input_im, sitk.Image):
+        input_numpy = sitk.GetArrayFromImage(input_im)
+        spacing = input_im.GetSpacing()[::(- 1)]
+    else:
+        input_numpy = input_im
+    if (slice_axis == 0):
+        aspect = (spacing[1] / spacing[2])
+    elif (slice_axis == 1):
+        input_numpy = np.transpose(input_numpy, [1, 0, 2])
+        aspect = (spacing[0] / spacing[2])
+    elif (slice_axis == 2):
+        input_numpy = np.transpose(input_numpy, [2, 0, 1])
+        aspect = (spacing[0] / spacing[1])
+    else:
+        raise ValueError((('slice_axis = ' + str(slice_axis)) + ', but it should be in range of [0, 1, 2]'))
+    (fig, ax) = plt.subplots(1, 1)
+    tracker = IndexTracker(ax, input_numpy, cmap=cmap, title=title, aspect=aspect)
+    fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 63:------------------- similar code ------------------ index = 94, score = 7.0 
+def plot_assets(self, symbols=None, ax=None, show=False):
+    'Plot assets\n\n        Args:\n            symbols: (list: str) the symbols to include, defaults to all\n            ax: (Axis) where to plot, defaults to pandas\n            show: (bool) display the plot\n        '
+    if (not symbols):
+        symbols = self.symbols
+    df = self.log_as_dataframe()
+    df[[('end_owned_' + symbol) for symbol in self.symbols]].plot(ax=ax)
+    if show:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 64:------------------- similar code ------------------ index = 95, score = 7.0 
+def showsave_plot():
+    'Show or save plot.'
+    if ARGS.outf:
+        plt.savefig(ARGS.outf, bbox_inches='tight')
+    else:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if:    else:
+        plt.show()
+
+idx = 65:------------------- similar code ------------------ index = 96, score = 7.0 
+def visualize_correlation_metrics(spearman_scores, kendall_scores, pearson_scores, model_name, year):
+    '\n    Visualize the scores of correlation metrics with respect to k-worst bpes you tried\n    :param spearman_scores: The spearman correlation scores of Q1 and k-worst bpes each time\n    :param kendall_scores: The Kendall correlation scores of Q1 and k-worst bpes each time\n    :param pearson_scores: The Pearson correlation scores of Q1 and k-worst bpes each time\n    :param model_name: Name of Language Model you used (BERT or GPT2). It is used on the output file name\n    :param year: The corresponding year of the data\n    '
+    x_ticks = [i for i in range(1, (MAX_BPES_TO_SEARCH + 1))]
+    plt.figure(figsize=(26, 8))
+    y_max = max(spearman_scores)
+    x_pos = spearman_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 1)
+    plt.plot(x_ticks, spearman_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Spearman')
+    plt.xlabel('# of worst words')
+    y_max = max(kendall_scores)
+    x_pos = kendall_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 2)
+    plt.plot(x_ticks, kendall_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, y_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Kendall')
+    plt.xlabel('# of worst words')
+    y_max = max(pearson_scores)
+    x_pos = pearson_scores.index(y_max)
+    x_max = x_ticks[x_pos]
+    plt.subplot(1, 3, 3)
+    plt.plot(x_ticks, pearson_scores, 'bo')
+    plt.annotate('{0:.2f} K={1:d}'.format(y_max, x_max), xy=(x_max, x_max), xytext=(x_max, (y_max + 0.005)))
+    plt.title('Pearson')
+    plt.xlabel('# of worst words')
+    path_to_save = os.path.join(OUTPUT_DIR, 'Q1 - {0:s}  {1:s}.png'.format(model_name, year))
+    plt.savefig(path_to_save)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 66:------------------- similar code ------------------ index = 97, score = 7.0 
+def draw_lockdown_state_daily(stats_arg, show_plot, x_tick=10):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_lockdown_state_daily(ax, stats_arg['loc'], x_tick)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-lock-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 67:------------------- similar code ------------------ index = 98, score = 7.0 
+def plot_hex_grid(trajectory, shape=None, slice=(- 1), title='', colormap='Greys', vmin=None, vmax=None, edgecolor=None):
+    activities = get_activities_over_time_as_list(trajectory)
+    if (shape is not None):
+        activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
+    triples = _get_triples(activities)
+    has_odd_rows = ((len(activities) % 2) != 0)
+    (fig, ax) = plt.subplots(1)
+    ax.set_aspect('equal')
+    m = _get_scaled_colormap(triples, colormap, vmin, vmax)
+    for t in triples:
+        (x, y) = (_oddr_offset_to_pixel(t[0], t[1]) if has_odd_rows else _evenr_offset_to_pixel(t[0], t[1]))
+        hex = RegularPolygon((x, y), numVertices=6, radius=1.0, orientation=np.radians(60), facecolor=m.to_rgba(t[2]), edgecolor=edgecolor)
+        ax.add_patch(hex)
+    ax.scatter([t[0] for t in triples], [t[1] for t in triples], marker='')
+    plt.gca().invert_yaxis()
+    plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 68:------------------- similar code ------------------ index = 99, score = 7.0 
+def resize_cat(cat):
+    cat = scipy.misc.imresize(cat, size=((cat.shape[0] / 2), (cat.shape[1] / 2)))
+    plt.imshow(cat)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 69:------------------- similar code ------------------ index = 100, score = 7.0 
+def poincare_plot(activities, timesteps, xlabel=None, ylabel=None, xlim=None, ylim=None, title=None):
+    '\n    Create a Poincaré plot.\n\n    :param activities: A list of activities. If the values of this list are also lists, then each will\n                       be plotted as a separate series.\n\n    :param timesteps: The number of timesteps in the trajectory to consider, starting from the end.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string representing the label of the y-axis.\n\n    :param xlim: A 2-tuple of numbers, representing the limits of the x-axis.\n\n    :param ylim: A 2-tuple of numbers, or a list of at most two 2-tuples of numbers, representing the\n                 limits of the y-axis.\n\n    :param title: The plot title.\n    '
+    cm = plt.get_cmap('gist_rainbow')
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    is_multiseries = isinstance(activities[0], (list, np.ndarray))
+    if is_multiseries:
+        ax.set_prop_cycle(color=[cm(((1.0 * i) / len(activities))) for i in range(len(activities))])
+    else:
+        activities = [activities]
+    for a in activities:
+        x = []
+        y = []
+        for t in range((timesteps - 1)):
+            x.append(a[(- timesteps):][t])
+            y.append(a[(- timesteps):][(t + 1)])
+        plt.scatter(x, y, s=1)
+    if xlim:
+        plt.xlim(xlim)
+    if ylim:
+        plt.ylim(ylim)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
     if title:
         plt.title(title)
     plt.show()
@@ -1287,7 +1738,159 @@ def plot_degree_distribution(network, xlabel='Node degree', ylabel_freq='Frequen
 def  ... ():
     plt.show()
 
-idx = 40:------------------- similar code ------------------ index = 33, score = 7.0 
+idx = 70:------------------- similar code ------------------ index = 103, score = 7.0 
+def plot_addition_old(extension):
+    yolo_path = os.path.join(data_dir, 'addition/2stage/run_search_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=long_cedar_seed=0_2018_05_14_03_04_29')
+    yolo_supplement_path = os.path.join(data_dir, 'addition/2stage/run_search_supplement_sample_complexity_experiment_yolo_air_VS_nips_2018_addition_14x14_kind=supplement_seed=0_2018_05_14_14_18_26')
+    simple_path = os.path.join(data_dir, 'addition/simple/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_duration=long_seed=0_2018_05_14_23_59_50')
+    simple_2stage_path = os.path.join(data_dir, 'addition/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=addition_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_55_38')
+    fig = plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([yolo_path, yolo_supplement_path], 'n_train', measure, 1, 'ci95')
+    label = 'SI-AIR'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
+    label = 'Conv - 2stage'
+    ax.errorbar(x, y, yerr=yerr, label=label)
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples / 1000', fontsize=12)
+    ax.set_title('Addition - Between 1 and 11 numbers', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
+    plt.legend(loc='upper left')
+    plot_path = os.path.join(plot_dir, ('addition/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 71:------------------- similar code ------------------ index = 87, score = 7.0 
+if (__name__ == '__main__'):
+    img = cv2.imread('./../docs/output.png')
+    print('img: ', img.shape)
+    img = np.array(img)
+    bbox = np.array([[50, 50, 200, 200]])
+    label = np.array(['toan'])
+    score = np.array([100])
+    (ax, fig) = vis_bbox(img=img, bbox=bbox, label=label, score=score, label_names=label_names)
+    fig.savefig('kaka.png')
+    fig.show()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 72:------------------- similar code ------------------ index = 104, score = 7.0 
+def __call__(self, u_key, depth_key):
+    u_ref = self.warp(u_key, depth_key)
+    fig = plt.figure()
+    ax = fig.add_subplot(121)
+    ax.set_title('keyframe')
+    ax.imshow(self.image_key)
+    ax.scatter(u_key[0], u_key[1], c='red')
+    ax = fig.add_subplot(122)
+    ax.set_title('reference frame')
+    ax.imshow(self.image_ref)
+    ax.scatter(u_ref[0], u_ref[1], c='red')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 73:------------------- similar code ------------------ index = 105, score = 7.0 
+if (__name__ == '__main__'):
+    N = 300
+    ks = np.arange(10, (N + 1), step=2)
+    Hmatrix = H1(N)
+    (E0s, _) = torch.symeig(Hmatrix, eigenvectors=True)
+    E0_groundtruth = E0s[0].item()
+    E0s_lanczos = np.empty(ks.size)
+    relative_error = np.empty(ks.size)
+    for i in range(ks.size):
+        (E0s_lanczos[i], _) = symeigLanczos(Hmatrix, ks[i], extreme='min')
+        relative_error[i] = np.log10((np.abs((E0s_lanczos[i] - E0_groundtruth)) / np.abs(E0_groundtruth)))
+        print('k = ', ks[i], relative_error[i])
+    import matplotlib.pyplot as plt
+    plt.plot(ks, relative_error)
+    plt.title(('Log relative error of the minimum eigenvalue using various numbers of Lanczos vectors $k$\nDimension of the matrix being diagonalized: %d' % N))
+    plt.xlabel('$k$')
+    plt.ylabel('Log relative error')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 74:------------------- similar code ------------------ index = 107, score = 7.0 
+def klHeatmap(self):
+    start = self.getInputParamByName('wLimit')
+    step = self.getInputParamByName('cLimit')
+    sLippage = self.getInputParamByName('sLippage')
+    size = self.getInputParamByName('size')
+    tickers = pd.DataFrame()
+    tickers['bidPrice1'] = (self.pdBars['open'] - sLippage)
+    tickers['askPrice1'] = (self.pdBars['open'] + sLippage)
+    markets = tickers.values
+    signals = np.array(self.signalsOpen)
+    plotSigHeats(signals, markets, start=start, step=step, size=size, iters=6)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 75:------------------- similar code ------------------ index = 108, score = 7.0 
+def plot_prior(image, depth_map_true, depth_map_pred, variance_map_pred, image_cmap='gray', depth_cmap='RdBu'):
+    fig = plt.figure()
+    fig.suptitle('Prior')
+    vmin = min(np.min(depth_map_true), np.min(depth_map_pred))
+    vmax = max(np.max(depth_map_true), np.max(depth_map_pred))
+    norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
+    mapper = ScalarMappable(norm=norm, cmap=depth_cmap)
+    ax = fig.add_subplot(221)
+    ax.set_title('frame')
+    ax.imshow(image, cmap=image_cmap)
+    ax = fig.add_subplot(222)
+    ax.set_title('ground truth depth map')
+    im = ax.imshow(depth_map_true, norm=norm, cmap=depth_cmap)
+    ax = fig.add_subplot(223)
+    ax.set_title('prior depth map')
+    im = ax.imshow(depth_map_pred, norm=norm, cmap=depth_cmap)
+    plot_with_bar(ax, im)
+    ax = fig.add_subplot(224)
+    ax.set_title('prior variance map')
+    im = ax.imshow(variance_map_pred, cmap=depth_cmap)
+    plot_with_bar(ax, im)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 76:------------------- similar code ------------------ index = 109, score = 7.0 
+def show_ann(coco, img, ann_info):
+    plt.imshow(mmcv.bgr2rgb(img))
+    plt.axis('off')
+    coco.showAnns(ann_info)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 77:------------------- similar code ------------------ index = 110, score = 7.0 
 def plot_transfer(extension):
     yolo_path = os.path.join(data_dir, 'transfer/run_search_yolo-air-transfer_env=size=14-in-colour=False-task=scatter_alg=yolo-air-transfer_duration=long_seed=0_2018_07_19_14_21_39/')
     baseline_path_ap = os.path.join(data_dir, 'transfer/run_search_transfer-baseline_env=size=14-in-colour=False-task=scatter_alg=baseline_duration=oak_seed=0_2018_07_20_11_27_19/')
@@ -1347,43 +1950,447 @@ def plot_transfer(extension):
 def  ... ( ... ):
     plt.show()
 
-idx = 41:------------------- similar code ------------------ index = 32, score = 7.0 
-def show_latent_map(model, mdp):
-    true_map = get_true_map(mdp)
-    latent_map = draw_latent_map(model, mdp)
-    latent_map = (np.array(latent_map) / 255.0)
-    (f, axarr) = plt.subplots(1, 2, figsize=(15, 15))
-    axarr[0].imshow(true_map)
-    axarr[1].imshow(latent_map)
+idx = 78:------------------- similar code ------------------ index = 111, score = 7.0 
+def run(device, show_plots, process_data=None, **get_data_kwargs):
+    with NumpySeed(100):
+        data = get_data(**get_data_kwargs)
+        if (process_data is None):
+            process_data = (lambda *x: x)
+        (sprites, scales, offsets, backgrounds) = process_data(*data)
+        with tf.device('/{}:0'.format(device)):
+            images = render_sprites.render_sprites(sprites, scales, offsets, backgrounds)
+            sess = get_session()
+            result = sess.run(images)
+        result = np.clip(result, 1e-06, (1 - 1e-06))
+    if show_plots:
+        import matplotlib.pyplot as plt
+        (fig, (ax1, ax2)) = plt.subplots(1, 2)
+        ax1.imshow(result[0])
+        ax2.imshow(result[1])
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 79:------------------- similar code ------------------ index = 112, score = 7.0 
+def plot_warp(warp2d, gray_image0, depth_map0, gray_image1):
+    from tadataka.interpolation import interpolation
+    from tadataka.coordinates import image_coordinates
+    from tadataka.utils import is_in_image_range
+    from matplotlib import pyplot as plt
+    us0 = image_coordinates(depth_map0.shape)
+    depths0 = depth_map0.flatten()
+    (us1, depths1) = warp2d(us0, depths0)
+    mask = is_in_image_range(us1, depth_map0.shape)
+    fig = plt.figure()
+    E = photometric_error(warp2d, gray_image0, depth_map0, gray_image1)
+    fig.suptitle('photometric error = {:.3f}'.format(E))
+    ax = fig.add_subplot(221)
+    ax.set_title('t0 intensities')
+    ax.imshow(gray_image0, cmap='gray')
+    ax = fig.add_subplot(223)
+    ax.set_title('t0 depth')
+    ax.imshow(depth_map0, cmap='gray')
+    ax = fig.add_subplot(222)
+    ax.set_title('t1 intensities')
+    ax.imshow(gray_image1, cmap='gray')
+    ax = fig.add_subplot(224)
+    ax.set_title('predicted t1 intensities')
+    (height, width) = gray_image1.shape
+    ax.scatter(us1[(mask, 0)], us1[(mask, 1)], c=gray_image0[(us0[(mask, 1)], us0[(mask, 0)])], s=0.5, cmap='gray')
+    ax.set_xlim(0, width)
+    ax.set_ylim(height, 0)
+    ax.set_aspect('equal')
     plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
     plt.show()
 
-idx = 42:------------------- similar code ------------------ index = 30, score = 7.0 
-def plot_grid(activities, shape=None, slice=(- 1), title='', colormap='Greys', vmin=None, vmax=None, node_annotations=None, show_grid=False):
+idx = 80:------------------- similar code ------------------ index = 113, score = 7.0 
+def draw_specific_population_state_daily(stats_arg, show_plot, x_tick=10, style='P'):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_specific_population_state_daily(ax, stats_arg, x_tick, style)
+    if show_plot:
+        plt.show()
+    else:
+        plt.savefig(('images/output/%d-style-%s-%d-%d.png' % (ts, style, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 81:------------------- similar code ------------------ index = 114, score = 7.0 
+def plot_xo_full_decoder_kind(extension):
+    attn_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=attn_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_29_32')
+    mlp_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=mlp_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_29')
+    seq_yolo_path = os.path.join(data_dir, 'xo/full/2stage/run_search_yolo-xo-2stage_env=xo_decoder-kind=seq_alg=yolo-xo-2stage_duration=long_seed=0_2018_06_07_12_30_00')
+    attn_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=attn_alg=simple-xo_duration=long_seed=0_2018_06_08_17_49_36')
+    mlp_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=mlp_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_40')
+    seq_simple_path = os.path.join(data_dir, 'xo/full/simple/run_search_conv-xo_env=xo_decoder-kind=seq_alg=simple-xo_duration=long_seed=0_2018_06_08_17_50_20')
+    plt.figure(figsize=(5, 3.5))
+    ax = plt.gca()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='attn-yolo')
+    attn_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([mlp_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='mlp-yolo')
+    mlp_colour = line.lines[0].get_c()
+    (x, y, *yerr) = get_arithmetic_data([seq_yolo_path], 'n_train', measure, 1, 'ci95')
+    line = ax.errorbar(x, y, yerr=yerr, label='seq-yolo')
+    seq_colour = line.lines[0].get_c()
+    measure = 'math_accuracy'
+    (x, y, *yerr) = get_arithmetic_data([attn_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='attn-simple', c=attn_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([mlp_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='mlp-simple', c=mlp_colour, ls='--')
+    (x, y, *yerr) = get_arithmetic_data([seq_simple_path], 'n_train', measure, 0, 'ci95')
+    ax.errorbar(x, y, yerr=yerr, label='seq-simple', c=seq_colour, ls='--')
+    ax.set_ylabel('Accuracy', fontsize=12)
+    ax.set_xlabel('\\# Training Samples', fontsize=12)
+    ax.tick_params(axis='both', labelsize=14)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xticks(x)
+    plt.legend()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 82:------------------- similar code ------------------ index = 115, score = 7.0 
+if (__name__ == '__main__'):
+    import os
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    x = tf.random.normal((4, 100, 100, 3))
+    x = (x - tf.math.reduce_min(x))
+    x = (x / tf.math.reduce_max(x))
+    x_aug = transform(x)
+    (fig, axes) = plt.subplots(4, 2)
+    for b in range(4):
+        img = x[b]
+        img_aug = x_aug[b]
+        axes[b][0].imshow(img)
+        axes[b][1].imshow(img_aug)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+if:
+    plt.show()
+
+idx = 83:------------------- similar code ------------------ index = 89, score = 7.0 
+def run_training_loop(env, n_iter=200, max_episode_length=100, batch_size=512, learning_rate=0.01):
+    'Trains a neural network policy using policy gradients.\n\n    Parameters\n    ----------\n    n_iter: number of training iterations\n    max_episode_length: episode length, up to 400\n    batch_size: number of steps used in each iteration\n    learning_rate: learning rate for the Adam optimizer\n\n    Returns\n    -------\n    A Policy instance, the trained policy.\n    '
+    total_timesteps = 0
+    agent = PolicyGradientAgent(env=env, learning_rate=learning_rate)
+    avg_rewards = np.zeros(n_iter)
+    avg_episode_lengths = np.zeros(n_iter)
+    loss = np.zeros(n_iter)
+    for itr in range(n_iter):
+        if ((itr % 10) == 0):
+            print(f'*****Iteration {itr}*****')
+        (trajectories, timesteps_this_itr) = sample_trajectories_by_batch_size(env, agent.actor, batch_size, max_episode_length)
+        total_timesteps += timesteps_this_itr
+        avg_rewards[itr] = np.mean([get_trajectory_total_reward(tau) for tau in trajectories])
+        avg_episode_lengths[itr] = np.mean([get_trajectory_len(tau) for tau in trajectories])
+        loss[itr] = agent.train(trajectories).item()
+        agent.actor.epsilon = np.maximum(0.05, (agent.actor.epsilon * 0.97))
+    (fig, (ax1, ax2, ax3)) = plt.subplots(3, 1, sharex=True, figsize=[9, 9])
+    ax1.plot(avg_rewards)
+    ax1.set_xlabel('number of iterations')
+    ax1.set_ylabel('average total reward')
+    ax1.set_ylim(avg_rewards.min(), avg_rewards.max())
+    ax2.plot(loss)
+    ax2.set_xlabel('number of iterations')
+    ax2.set_ylabel('training loss')
+    ax2.set_ylim(loss.min(), loss.max())
+    ax3.plot(avg_episode_lengths)
+    ax3.set_xlabel('number of iterations')
+    ax3.set_ylabel('average episode length')
+    ax3.set_ylim(avg_episode_lengths.min(), avg_episode_lengths.max())
+    plt.show()
+    agent.actor.epsilon = 0.0
+    return agent.actor
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 84:------------------- similar code ------------------ index = 88, score = 7.0 
+def animate_activities(trajectory_or_activities, title='', shape=None, save=False, interval=50, colormap='Greys', vmin=None, vmax=None, show_grid=False, show_margin=True, scale=0.6, dpi=80, blit=True, with_timestep=False):
+    if (len(trajectory_or_activities) is 0):
+        raise Exception('there are no activities')
+    if isinstance(trajectory_or_activities[0], State):
+        activities = get_activities_over_time_as_list(trajectory_or_activities)
+    else:
+        activities = trajectory_or_activities
     if (shape is not None):
-        activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
+        activities = _reshape_for_animation(activities, shape)
     cmap = plt.get_cmap(colormap)
-    plt.title(title)
-    plt.imshow(activities, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
-    if (node_annotations is not None):
-        for i in range(len(node_annotations)):
-            for j in range(len(node_annotations[i])):
-                plt.text(j, i, node_annotations[i][j], ha='center', va='center', color='grey', fontdict={'weight': 'bold', 'size': 6})
+    (fig, ax) = plt.subplots()
+    title_text = plt.title(title)
+    if (not show_margin):
+        fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+    grid_linewidth = 0.0
     if show_grid:
-        plt.grid(which='major', axis='both', linestyle='-', color='grey', linewidth=0.5)
-        plt.xticks(np.arange((- 0.5), len(activities[0]), 1), '')
-        plt.yticks(np.arange((- 0.5), len(activities), 1), '')
+        plt.xticks(np.arange((- 0.5), len(activities[0][0]), 1), '')
+        plt.yticks(np.arange((- 0.5), len(activities[0]), 1), '')
         plt.tick_params(axis='both', which='both', length=0)
+        grid_linewidth = 0.5
+    vertical = np.arange((- 0.5), len(activities[0][0]), 1)
+    horizontal = np.arange((- 0.5), len(activities[0]), 1)
+    lines = ([[(x, y) for y in ((- 0.5), horizontal[(- 1)])] for x in vertical] + [[(x, y) for x in ((- 0.5), vertical[(- 1)])] for y in horizontal])
+    grid = mcoll.LineCollection(lines, linestyles='-', linewidths=grid_linewidth, color='grey')
+    ax.add_collection(grid)
+    im = plt.imshow(activities[0], animated=True, cmap=cmap, vmin=vmin, vmax=vmax)
+    if (not show_margin):
+        (baseheight, basewidth) = im.get_size()
+        fig.set_size_inches((basewidth * scale), (baseheight * scale), forward=True)
+    i = {'index': 0}
+
+    def updatefig(*args):
+        i['index'] += 1
+        if (i['index'] == len(activities)):
+            i['index'] = 0
+        im.set_array(activities[i['index']])
+        if with_timestep:
+            title_text.set_text(('timestep: %s' % (i['index'] + 1)))
+        return (im, grid, title_text)
+    ani = animation.FuncAnimation(fig, updatefig, interval=interval, blit=blit, save_count=len(activities))
+    if save:
+        ani.save('evolved.gif', dpi=dpi, writer='imagemagick')
     plt.show()
 
 ------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
     plt.show()
 
-idx = 43:------------------- similar code ------------------ index = 29, score = 7.0 
+idx = 85:------------------- similar code ------------------ index = 74, score = 7.0 
+def plot_matches(image1, image2, keypoints1, keypoints2, matches12, **kwargs):
+    (fig, ax) = plt.subplots()
+    plot_matches_(ax, image1, image2, xy_to_yx(keypoints1), xy_to_yx(keypoints2), matches12, **kwargs)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 86:------------------- similar code ------------------ index = 76, score = 7.0 
+def plot_cycle_lr():
+    xvals = list(range(1000))
+    yvals = [cycle_lr(i, 100, 1e-06, 0.001) for i in xvals]
+    plt.plot(xvals, yvals)
+    plt.show()
+    plt.savefig('/home/fabian/temp.png')
+    plt.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 87:------------------- similar code ------------------ index = 64, score = 7.0 
+def plot_ablation(extension):
+    yolo_path_n_lookback_0 = os.path.join(data_dir, 'ablation/run_search_yolo-air-ablation-n-lookback=0_env=task=scatter_alg=yolo-air-transfer_duration=long_seed=0_2018_09_03_08_52_37/')
+    yolo_path_n_lookback_1 = os.path.join(data_dir, 'ablation/run_search_yolo-air-ablation-n-lookback=1_env=task=scatter_alg=yolo-air-transfer_duration=long_seed=0_2018_09_03_09_00_25/')
+    (fig, axes) = plt.subplots(1, 3, figsize=(8, 2.2))
+    ax = axes[0]
+    y_func = (lambda y: (100 * y))
+    measure = '_test_AP'
+    key_filter = (lambda key: (key.min_chars not in [1, 6]))
+    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95', y_func=y_func)
+    for ((x, y, *yerr), key) in nb0_data:
+        if (not key_filter(key)):
+            continue
+        label = 'No Lateral Conns, {}--{} digits'.format(key.min_chars, key.max_chars)
+        ax.errorbar(x, y, yerr=yerr, label=label)
+    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95', y_func=y_func)
+    for ((x, y, *yerr), key) in nb1_data:
+        if (not key_filter(key)):
+            continue
+        label = 'With Lateral Conns, {}--{} digits'.format(key.min_chars, key.max_chars)
+        ax.errorbar(x, y, yerr=yerr, label=label)
+    fontsize = None
+    labelsize = None
+    ax.set_ylabel('Average Precision', fontsize=fontsize)
+    ax.tick_params(axis='both', labelsize=labelsize)
+    ax.set_ylim((0.0, 105.0))
+    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
+    ax.set_xticks([0, 5, 10, 15, 20])
+    ax.legend(loc='lower left', fontsize=8)
+    ax = axes[1]
+    measure = '_test_count_1norm'
+    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95')
+    for ((x, y, *yerr), key) in nb0_data:
+        if (not key_filter(key)):
+            continue
+        ax.errorbar(x, y, yerr=yerr)
+    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95')
+    for ((x, y, *yerr), key) in nb1_data:
+        if (not key_filter(key)):
+            continue
+        ax.errorbar(x, y, yerr=yerr)
+    ax.set_ylabel('Count Absolute Error', fontsize=fontsize)
+    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
+    ax.tick_params(axis='both', labelsize=labelsize)
+    ax.set_ylim((0.0, 4.0))
+    ax.set_xticks([0, 5, 10, 15, 20])
+    ax = axes[2]
+    measure = '_test_count_error'
+    nb0_data = get_transfer_data(yolo_path_n_lookback_0, 'n_train', measure, 'ci95')
+    for ((x, y, *yerr), key) in nb0_data:
+        if (not key_filter(key)):
+            continue
+        ax.errorbar(x, y, yerr=yerr)
+    nb1_data = get_transfer_data(yolo_path_n_lookback_1, 'n_train', measure, 'ci95')
+    for ((x, y, *yerr), key) in nb1_data:
+        if (not key_filter(key)):
+            continue
+        ax.errorbar(x, y, yerr=yerr)
+    ax.set_ylabel('Count 0-1 Error', fontsize=fontsize)
+    ax.tick_params(axis='both', labelsize=labelsize)
+    ax.set_ylim((0.0, 1.05))
+    ax.set_xlabel('\\# Digits in Test Image', fontsize=fontsize)
+    ax.set_xticks([0, 5, 10, 15, 20])
+    plt.subplots_adjust(left=0.07, bottom=0.2, right=0.98, top=0.94, wspace=0.27)
+    plot_path = os.path.join(plot_dir, ('ablation/main.' + extension))
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    fig.savefig(plot_path)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    plt.show()
+
+idx = 88:------------------- similar code ------------------ index = 65, score = 7.0 
+def plot_orders(generation_idx_list, obs, size=5, plot_rows=4, out_path=None, **kwargs):
+    'Plot multiple generation coordinate lists in a single figure. A star on the curve\n    denotes the pixel generated last. obs is a three-tuple of input image dimensions,\n    (input-channels-unused, num_rows, num_cols)'
+    num = len(generation_idx_list)
+    plot_cols = int(math.ceil((num / 4)))
+    (fig, axes) = plt.subplots(plot_rows, plot_cols, figsize=((size * plot_cols), (size * plot_rows)))
+    (pr, pc) = (0, 0)
+    for generation_idx in generation_idx_list:
+        ax = (axes[(pr, pc)] if (len(generation_idx_list) > 1) else axes)
+        ax.hlines((np.arange((- 1), obs[1]) + 0.5), xmin=(- 0.5), xmax=(obs[2] - 0.5), alpha=0.5)
+        ax.vlines((np.arange((- 1), obs[2]) + 0.5), ymin=(- 0.5), ymax=(obs[1] - 0.5), alpha=0.5)
+        (rows, cols) = zip(*generation_idx)
+        ax.plot(cols, rows, color='r')
+        ax.scatter([cols[(- 1)]], [rows[(- 1)]], marker='*', s=100, c='k')
+        ax.axis('equal')
+        ax.invert_yaxis()
+        pc = ((pc + 1) % plot_cols)
+        if (pc == 0):
+            pr += 1
+    if out_path:
+        plt.savefig(out_path, **kwargs)
+    else:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :    else:
+        plt.show()
+
+idx = 89:------------------- similar code ------------------ index = 66, score = 7.0 
+def plot_action_mask(plot_env, meta_actor_critic, hidden_size, device):
+    meta_recurrent_hidden_states = torch.zeros(1, hidden_size, device=device)
+    masks = torch.zeros(1, 1, device=device)
+    base_heat_map = np.zeros((plot_env.height, plot_env.width))
+    arm_heat_map = np.zeros((plot_env.height, plot_env.width))
+    plot_env.reset()
+    plot_env.agent_orientation = 3
+    plot_env.target_pos = np.array([3, 5])
+    for col in range(1, (plot_env.width - 1)):
+        if (col == (plot_env.width // 2)):
+            continue
+        if (col > (plot_env.width // 2)):
+            plot_env.door_state = plot_env.door_max_state
+        for row in range(1, (plot_env.height - 1)):
+            plot_env.agent_pos = np.array([row, col])
+            observations = [plot_env.get_state()]
+            batch = batch_obs(observations)
+            for sensor in batch:
+                batch[sensor] = batch[sensor].to(device)
+            with torch.no_grad():
+                (_, _, _, _, _, _, action_mask_probs) = meta_actor_critic.act(batch, meta_recurrent_hidden_states, masks)
+            base_heat_map[(row, col)] = (action_mask_probs[0][0].item() + action_mask_probs[0][2].item())
+            arm_heat_map[(row, col)] = (action_mask_probs[0][1].item() + action_mask_probs[0][2].item())
+            print(row, col, action_mask_probs)
+    print(arm_heat_map)
+    plt.figure(0)
+    plt.imshow(base_heat_map, cmap='hot', interpolation='nearest')
+    plt.figure(1)
+    plt.imshow(arm_heat_map, cmap='hot', interpolation='nearest')
+    plt.show()
+    assert False
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+    assert False
+
+idx = 90:------------------- similar code ------------------ index = 67, score = 7.0 
+def plot_curve(log_dicts, args):
+    if (args.backend is not None):
+        plt.switch_backend(args.backend)
+    sns.set_style(args.style)
+    legend = args.legend
+    if (legend is None):
+        legend = []
+        for json_log in args.json_logs:
+            for metric in args.keys:
+                legend.append('{}_{}'.format(json_log, metric))
+    assert (len(legend) == (len(args.json_logs) * len(args.keys)))
+    metrics = args.keys
+    num_metrics = len(metrics)
+    for (i, log_dict) in enumerate(log_dicts):
+        epochs = list(log_dict.keys())
+        for (j, metric) in enumerate(metrics):
+            print('plot curve of {}, metric is {}'.format(args.json_logs[i], metric))
+            assert (metric in log_dict[epochs[0]]), '{} does not contain metric {}'.format(args.json_logs[i], metric)
+            if ('mAP' in metric):
+                xs = np.arange(1, (max(epochs) + 1))
+                ys = []
+                for epoch in epochs:
+                    ys += log_dict[epoch][metric]
+                ax = plt.gca()
+                ax.set_xticks(xs)
+                plt.xlabel('epoch')
+                plt.plot(xs, ys, label=legend[((i * num_metrics) + j)], marker='o')
+            else:
+                xs = []
+                ys = []
+                num_iters_per_epoch = log_dict[epochs[0]]['iter'][(- 1)]
+                for epoch in epochs:
+                    iters = log_dict[epoch]['iter']
+                    if (log_dict[epoch]['mode'][(- 1)] == 'val'):
+                        iters = iters[:(- 1)]
+                    xs.append((np.array(iters) + ((epoch - 1) * num_iters_per_epoch)))
+                    ys.append(np.array(log_dict[epoch][metric][:len(iters)]))
+                xs = np.concatenate(xs)
+                ys = np.concatenate(ys)
+                plt.xlabel('iter')
+                plt.plot(xs, ys, label=legend[((i * num_metrics) + j)], linewidth=0.5)
+            plt.legend()
+        if (args.title is not None):
+            plt.title(args.title)
+    if (args.out is None):
+        plt.show()
+    else:
+        print('save curve to: {}'.format(args.out))
+        plt.savefig(args.out)
+        plt.cla()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if:
+        plt.show()
+
+idx = 91:------------------- similar code ------------------ index = 69, score = 7.0 
 if (__name__ == '__main__'):
     import tensorflow as tf
     import matplotlib.pyplot as plt
@@ -1405,136 +2412,213 @@ if (__name__ == '__main__'):
 if:
     plt.show()
 
-idx = 44:------------------- similar code ------------------ index = 28, score = 7.0 
-def plot_grid_multiple(ca_list, shape=None, slice=(- 1), titles=None, colormap='Greys', vmin=None, vmax=None):
-    cmap = plt.get_cmap(colormap)
-    for i in range(0, len(ca_list)):
-        plt.figure(i)
-        if (titles is not None):
-            plt.title(titles[i])
-        activities = list(ca_list[i])
-        if (shape is not None):
-            activities = np.array(activities).reshape((len(activities), shape[0], shape[1]))[slice]
-        plt.imshow(activities, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ():
-    plt.show()
-
-idx = 45:------------------- similar code ------------------ index = 27, score = 7.0 
-def plot_comparison(extension):
-    yolo_air_path = os.path.join(data_dir, 'comparison/run_search_yolo-air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=yolo-air_duration=long_seed=0_2018_07_16_13_46_48/')
-    air_path = os.path.join(data_dir, 'comparison/run_search_air-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_24_13_02_34')
-    dair_path = os.path.join(data_dir, 'comparison/run_search_dair-run_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=attend-infer-repeat_duration=long_seed=0_2018_07_10_09_22_24')
-    baseline_path = os.path.join(data_dir, 'comparison/run_search_comparison-baseline_env=size=14-in-colour=False-task=arithmetic-ops=addition_alg=baseline_duration=oak_seed=0_2018_07_20_11_15_24/')
-    fig = plt.figure(figsize=(5, 3.5))
-    ax = plt.gca()
-    y_func = (lambda y: (100 * y))
-    (x, y, *yerr) = get_arithmetic_data([yolo_air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
-    line = ax.errorbar(x, y, yerr=yerr, label='SPAIR', marker='o', ls='-')
-    line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([air_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
-    line = ax.errorbar(x, y, yerr=yerr, label='AIR', marker='^', ls='-.')
-    line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([dair_path], 'n_digits', 'AP', 0, 'ci95', y_func=y_func)
-    line = ax.errorbar(x, y, yerr=yerr, label='DAIR', marker='v', ls='--')
-    line.lines[0].get_c()
-    (x, y, *yerr) = get_arithmetic_data([baseline_path], 'n_digits', '_test_AP', 0, 'ci95', y_func=y_func)
-    ax.plot(x, y, label='ConnComp', marker='s', ls=':')
-    ax.set_ylabel('Average Precision', fontsize=12)
-    ax.set_xlabel('\\# Digits in Image', fontsize=12)
-    ax.tick_params(axis='both', labelsize=14)
-    ax.set_ylim((0.0, 105.0))
-    ax.set_xticks(x)
-    plt.legend(loc='upper right', handlelength=4)
-    plt.subplots_adjust(left=0.12, bottom=0.13, right=0.99, top=0.99)
-    plot_path = os.path.join(plot_dir, ('comparison/main.' + extension))
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    fig.savefig(plot_path)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 46:------------------- similar code ------------------ index = 26, score = 7.0 
-def klHeatmap(self):
-    start = self.getInputParamByName('wLimit')
-    step = self.getInputParamByName('cLimit')
-    sLippage = self.getInputParamByName('sLippage')
-    size = self.getInputParamByName('size')
-    tickers = pd.DataFrame()
-    tickers['bidPrice1'] = (self.pdBars['open'] - sLippage)
-    tickers['askPrice1'] = (self.pdBars['open'] + sLippage)
-    markets = tickers.values
-    signals = np.array(self.signalsOpen)
-    plotSigHeats(signals, markets, start=start, step=step, size=size, iters=6)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 47:------------------- similar code ------------------ index = 0, score = 7.0 
-def plot_arithmetic(extension):
-    yolo_path = os.path.join(data_dir, 'arithmetic/2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_2stage_duration=long_seed=0_2018_05_15_00_32_28')
-    simple_path = os.path.join(data_dir, 'arithmetic/simple/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_duration=long_seed=0_2018_05_15_00_01_16')
-    simple_2stage_path = os.path.join(data_dir, 'arithmetic/simple_2stage/run_search_sample_complexity-size=14_colour=False_task=arithmetic_alg=yolo_math_simple_2stage_duration=long_seed=0_2018_05_15_12_59_19')
-    fig = plt.figure(figsize=(5, 3.5))
-    ax = plt.gca()
-    measure = 'math_accuracy'
-    (x, y, *yerr) = get_arithmetic_data([yolo_path], 'n_train', measure, 1, 'ci95')
-    label = 'SI-AIR'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    (x, y, *yerr) = get_arithmetic_data([simple_path], 'n_train', measure, 0, 'ci95')
-    label = 'Conv'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    (x, y, *yerr) = get_arithmetic_data([simple_2stage_path], 'n_train', measure, 0, 'ci95')
-    label = 'Conv - 2stage'
-    ax.errorbar(x, y, yerr=yerr, label=label)
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_xlabel('# Training Samples / 1000', fontsize=12)
-    ax.set_title('Arithmetic - Between 1 and 11 numbers', fontsize=12)
-    ax.tick_params(axis='both', labelsize=14)
-    ax.set_ylim((0.0, 1.05))
-    ax.set_xticks(x)
-    ax.set_xticklabels((np.array(x) / 1000).astype('i'))
-    plt.legend(loc='upper left')
-    plot_path = os.path.join(plot_dir, ('arithmetic/main.' + extension))
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    plt.subplots_adjust(left=0.12, bottom=0.14, right=0.98, top=0.91)
-    fig.savefig(plot_path)
-    plt.show()
-
-------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
-def  ... ( ... ):
-    plt.show()
-
-idx = 48:------------------- similar code ------------------ index = 31, score = 5.0 
-def show_all_imgs(self, pause=False, time=0):
-    if (not self.ipynb):
-        for (i, v) in self.imgs.items():
-            cv2.imshow('{}'.format(i), v)
-        if (cv2.waitKey((0 if pause else 1)) == 27):
-            import sys
-            sys.exit(0)
+idx = 92:------------------- similar code ------------------ index = 70, score = 7.0 
+def draw_population_state_daily(stats_arg, show_plot, x_tick=10):
+    (fig, ax) = plt.subplots(figsize=(15, 10))
+    set_ax_mean_population_state_daily(ax, stats_arg, x_tick)
+    if show_plot:
+        plt.show()
     else:
-        self.ax = None
-        nImgs = len(self.imgs)
-        fig = self.plt.figure(figsize=((nImgs * 10), 10))
-        nCols = nImgs
-        nRows = (nImgs // nCols)
-        for (i, (k, v)) in enumerate(self.imgs.items()):
-            fig.add_subplot(1, nImgs, (i + 1))
-            if (len(v.shape) == 3):
-                self.plt.imshow(cv2.cvtColor(v, cv2.COLOR_BGR2RGB))
-            else:
-                self.plt.imshow(v)
-        self.plt.show()
+        plt.savefig(('images/output/%d-pop-%d-%d.png' % (ts, stats_arg['hea'].shape[0], np.max(stats_arg['hea']))))
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
 def  ... ():
-    if:    else:
-         ... .plt.show()
+    if  ... :
+        plt.show()
+
+idx = 93:------------------- similar code ------------------ index = 71, score = 7.0 
+def plot_random_spec_img(pic, true_label):
+    '\n    Take first hyperspectral image from dataset and plot spectral data distribution\n    Arguements pic = list of images in size (?, height, width, bands), where ? represents any number > 0\n                true_labels = lists of ground truth corrospond to pic\n    '
+    pic = pic[0]
+    from matplotlib import pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from numpy import mean, argmax
+    print(('Image Shape: ' + str(pic.shape)))
+    print(('Label of this image is -> ' + str(true_label[0])))
+    title = argmax(true_label[0], axis=0)
+    mean_value = mean(pic)
+    pic[(pic < mean_value)] = 0
+    x = []
+    y = []
+    z = []
+    for z1 in range(pic.shape[0]):
+        for x1 in range(pic.shape[1]):
+            for y1 in range(pic.shape[2]):
+                if (pic[(z1, x1, y1)] != 0):
+                    z.append(z1)
+                    x.append(x1)
+                    y.append(y1)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_title(('True class = ' + str(title)))
+    ax.scatter(x, y, z, color='#0606aa', marker='o', s=0.5)
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Spectral Label')
+    ax.set_zlabel('Y Label')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 94:------------------- similar code ------------------ index = 72, score = 7.0 
+def test(args):
+    model = Unet(3, 1)
+    model.load_state_dict(torch.load(args.ckpt, map_location='cpu'))
+    liver_dataset = LiverDataset('data/val', transform=x_transforms, target_transform=y_transforms)
+    dataloaders = DataLoader(liver_dataset, batch_size=1)
+    model.eval()
+    import matplotlib.pyplot as plt
+    plt.ion()
+    with torch.no_grad():
+        for (x, _) in dataloaders:
+            y = model(x).sigmoid()
+            img_y = torch.squeeze(y).numpy()
+            plt.imshow(img_y)
+            plt.pause(0.01)
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ( ... ):
+    with:
+        plt.show()
+
+idx = 95:------------------- similar code ------------------ index = 73, score = 7.0 
+def imshow(img, title):
+    img = ((img / 2) + 0.5)
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 96:------------------- similar code ------------------ index = 85, score = 7.0 
+def plot_network(network, layout='shell', with_labels=True, node_color='#1f78b4', node_size=300):
+    G = network.to_networkx()
+    if (layout == 'shell'):
+        nx.draw_shell(G, with_labels=with_labels, node_color=node_color, node_size=node_size)
+    elif (layout == 'spring'):
+        nx.draw_spring(G, with_labels=with_labels, node_color=node_color, node_size=node_size)
+    elif isinstance(layout, dict):
+        nx.draw(G, pos=layout, with_labels=with_labels, node_color=node_color, node_size=node_size)
+    else:
+        raise Exception(('unsupported layout: %s' % layout))
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
+
+idx = 97:------------------- similar code ------------------ index = 75, score = 7.0 
+def save_and_show(fig, ax, save, show, close, file_format, dpi, axis_off, filename=''):
+    "\n    Save a figure to disk and show it, as specified.\n    Parameters\n    ----------\n    fig : figure\n    ax : axis\n    save : bool\n        whether to save the figure to disk or not\n    show : bool\n        whether to display the figure or not\n    close : bool\n        close the figure (only if show equals False) to prevent display\n    filename : string\n        the name of the file to save\n    file_format : string\n        the format of the file to save (e.g., 'jpg', 'png', 'svg')\n    dpi : int\n        the resolution of the image file if saving\n    axis_off : bool\n        if True matplotlib axis was turned off by plot_graph so constrain the\n        saved figure's extent to the interior of the axis\n    Returns\n    -------\n    fig, ax : tuple\n    "
+    if save:
+        start_time = time.time()
+        path_filename = filename
+        if (file_format == 'svg'):
+            ax.axis('off')
+            ax.set_position([0, 0, 1, 1])
+            ax.patch.set_alpha(0.0)
+            fig.patch.set_alpha(0.0)
+            if (len(filename) > 0):
+                fig.savefig(path_filename, bbox_inches=0, format=file_format, facecolor=fig.get_facecolor(), transparent=True)
+        else:
+            if axis_off:
+                extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            else:
+                extent = 'tight'
+            if (len(filename) > 0):
+                fig.savefig(path_filename, dpi=dpi, bbox_inches=extent, format=file_format, facecolor=fig.get_facecolor(), transparent=True)
+    if show:
+        start_time = time.time()
+        plt.show()
+    elif close:
+        plt.close()
+    return (fig, ax)
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :
+        plt.show()
+
+idx = 98:------------------- similar code ------------------ index = 0, score = 7.0 
+def plot_order(generation_idx, obs, out_path=None):
+    'Plot generation coordinate list. A star on the curve\n    denotes the pixel generated last. obs is a three-tuple of input image dimensions,\n    (input-channels-unused, num_rows, num_cols)'
+    plt.figure(figsize=(3, 3))
+    plt.hlines((np.arange((- 1), obs[1]) + 0.5), xmin=(- 0.5), xmax=(obs[2] - 0.5), alpha=0.5)
+    plt.vlines((np.arange((- 1), obs[2]) + 0.5), ymin=(- 0.5), ymax=(obs[1] - 0.5), alpha=0.5)
+    (rows, cols) = zip(*generation_idx)
+    plt.plot(cols, rows, color='r')
+    plt.scatter([cols[(- 1)]], [rows[(- 1)]], marker='*', s=100, c='k')
+    plt.xticks(np.arange(obs[1]))
+    plt.axis('equal')
+    plt.gca().invert_yaxis()
+    if out_path:
+        plt.savefig(out_path)
+    else:
+        plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    if  ... :    else:
+        plt.show()
+
+idx = 99:------------------- similar code ------------------ index = 82, score = 7.0 
+def plot1D(x, y, color=None, label=None, xlabel=None, ylabel=None, xlim=None, ylim=None, twinx=False, legend=None, tight_layout=None, title=None):
+    '\n    Creates a 1D plot of the given x and y values.\n\n    :param x: A list representing the values of the x-axis.\n\n    :param y: A list representing the values of the y-axis. If the values of this list are also lists, then each will\n              be plotted as a separate series on the y-axis.\n\n    :param color: A string, representing the color of the series, or a list of colors, representing the color of each\n                   series to be plotted. The number of colors must match the number of series. The color values must\n                   be recognizable by Matplotlib.\n\n    :param label: A string or number, or a list of strings or numbers, representing the labels of each series to be\n                  plotted. The number of labels must match the number of series.\n\n    :param xlabel: A string representing the label of the x-axis.\n\n    :param ylabel: A string, or list of at most two strings, representing the label(s) of the y-axis.\n\n    :param xlim: A 2-tuple of numbers, representing the limits of the x-axis.\n\n    :param ylim: A 2-tuple of numbers, or a list of at most two 2-tuples of numbers, representing the\n                 limits of the y-axis.\n\n    :param twinx: If True, the provided y series will be plotted on two separate y-axes, and there must\n                  be at least two series of y values provided. If there are more than two series of y values,\n                  then each series will be plotted on alternating y-axes. (Default is False)\n\n    :param legend: A dict, or a list of at most two dicts, representing the arguments to the legend\n                   function of Matplotlib.\n\n    :param tight_layout: A dict representing the arguments to the tight_layout function of Matplotlib.\n\n    :param title: The plot title.\n    '
+    axes = []
+    (fig, ax1) = plt.subplots()
+    axes.append(ax1)
+    if twinx:
+        axes.append(ax1.twinx())
+        if (len(y) < 2):
+            raise Exception('there must be at least two series of y values provided')
+        for _y in y:
+            if (not isinstance(_y, (list, np.ndarray))):
+                raise Exception('an item in y must be a list representing a y series')
+    current_axis_idx = 0
+    is_multiseries = isinstance(y[0], (list, np.ndarray))
+
+    def _get_item(items, i):
+        if isinstance(items, str):
+            return items
+        if isinstance(items, collections.Sequence):
+            return items[i]
+        return items
+    if (not is_multiseries):
+        y = [y]
+    for (i, y_series) in enumerate(y):
+        current_axis = axes[(current_axis_idx % len(axes))]
+        plot_args = {}
+        if label:
+            plot_args['label'] = _get_item(label, i)
+        if color:
+            plot_args['color'] = _get_item(color, i)
+        current_axis.plot(x, y_series, **plot_args)
+        if xlabel:
+            current_axis.set_xlabel(xlabel)
+        if ylabel:
+            ylabel_args = {}
+            if color:
+                ylabel_args['color'] = _get_item(color, i)
+            current_axis.set_ylabel(_get_item(ylabel, (i % 2)), **ylabel_args)
+        if xlim:
+            current_axis.set_xlim(xlim)
+        if ylim:
+            current_axis.set_ylim(_get_item(ylim, (i % 2)))
+        if legend:
+            current_axis.legend(**legend)
+        current_axis_idx += 1
+    if tight_layout:
+        plt.tight_layout(**tight_layout)
+    if title:
+        plt.title(title)
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    plt.show()
 

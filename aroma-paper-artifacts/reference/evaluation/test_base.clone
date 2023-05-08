@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root base.clone/snippets.json base.clone"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root base.clone/test.json base.clone/test.py"
+time python3 src/main/python/similar.py -c base.clone/snippets.json -d base.clone/tmpout
+time python3 src/main/python/similar.py -d base.clone/tmpout -f base.clone/test.json -o base.clone/output.txt

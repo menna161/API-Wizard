@@ -12,7 +12,6 @@ def pick_move_probabilistically(pi):
     s = 0
     for move in range(len(pi)):
 // your code ...
-
     return np.argmax(pi)
 
 ------------------------- example 4 ------------------------ 
@@ -29,14 +28,14 @@ def get_most_frequent_category(cat_array):
         cats[i] = len(cat_array[(cat_array == i)])
     return np.argmax(cats)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        2         ||         0        
-example2  ||          2           ||        2         ||         0        
-example3  ||          2           ||        6         ||         1        
-example4  ||          2           ||        5         ||         0        
-example5  ||          2           ||        5         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        2         ||         0        ||        0.5         
+example2  ||          2           ||        2         ||         0        ||        0.5         
+example3  ||          2           ||        5         ||         1        ||        0.2         
+example4  ||          2           ||        5         ||         0        ||        0.2         
+example5  ||          2           ||        5         ||         0        ||        0.2         
 
-avg       ||          2.0           ||        4.0         ||         0.2        
+avg       ||          1.1173184357541899           ||        3.8         ||         0.2        ||         31.999999999999996        
 
 idx = 0:------------------- similar code ------------------ index = 21, score = 6.0 
 def pick_move_greedily(pi):

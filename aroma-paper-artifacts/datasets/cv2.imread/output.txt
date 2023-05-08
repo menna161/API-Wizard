@@ -1,88 +1,195 @@
 ------------------------- example 1 ------------------------ 
 def pull_image(self, index):
     'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
-    img_id = self.ids[index]
-    return cv2.imread((self._imgpath % img_id), cv2.IMREAD_COLOR)
+    return cv2.imread(self.img_ids[index], cv2.IMREAD_COLOR)
 
 ------------------------- example 2 ------------------------ 
-def create_mask(img_id, data_dir):
-    labels_dir = os.path.join(data_dir, 'labels')
-// your code ...
-
-    labels = cv2.imread(path.join(labels_dir, '{0}.tif'.format(img_id)), cv2.IMREAD_UNCHANGED)
-    final_mask = np.zeros((labels.shape[0], labels.shape[1], 3))
-    if (np.sum(labels) == 0):
-// your code ...
-
-    if (ships_num > 0):
-        for i in range(1, (ships_num + 1)):
-// your code ...
-
-    final_mask[(..., 2)] = create_separation(labels)
-// your code ...
-
+def pull_image(self, index):
+    'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            cv2 img\n        '
+    img_id = self.ids[index]
+    path = self.coco.loadImgs(img_id)[0]['file_name']
+    return cv2.imread(osp.join(self.root, path), cv2.IMREAD_COLOR)
 
 ------------------------- example 3 ------------------------ 
-def test(self):
-    for i in range(1, 9):
-        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
-        now = datetime.now()
-// your code ...
-
-        for bbox in bboxes:
-            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
-        if (max(im.shape[:2]) > 1440):
-// your code ...
-
+def cv2_loader(img_str):
+    return cv2.imread(img_str, cv2.IMREAD_COLOR)
 
 ------------------------- example 4 ------------------------ 
-def save_mask_and_label(image_name):
-    mask_path = os.path.join('train_labels', 'masks', image_name)
-    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
-    (labeled_array, _) = label(mask)
-    label_path = os.path.join('train_labels', 'labels', image_name)
-    os.makedirs(os.path.join('train_labels', 'labels'), exist_ok=True)
-    cv2.imwrite(label_path, labeled_array)
+if (__name__ == '__main__'):
+    import cv2
+    img = cv2.imread('lenna_cropped.jpg', cv2.IMREAD_GRAYSCALE)
+    points = tf.cast(tf.convert_to_tensor(img), tf.float32)
 // your code ...
-
 
 ------------------------- example 5 ------------------------ 
-if (__name__ == '__main__'):
-    isp = ISP()
-    path = './figs/01_gt.png'
-    img = cv2.imread(path)
-    np.array(img, dtype='uint8')
-    img = (img.astype('double') / 255.0)
-    img_rgb = isp.BGR2RGB(img)
+def prepare_gt(root_folder=TRAIN_ROOT, out_path='gt'):
+    if (not os.path.exists(os.path.join(root_folder, out_path))):
+        print('----------creating groundtruth data for training./.val---------------')
 // your code ...
+        gt = (basname[0] + '.png')
+        for fname in basname:
+            gtz = np.zeros((512, 512), dtype=int)
+            for key in labels_folder.keys():
+                gt = (fname + '.png')
+                mask = (np.array((cv2.imread(os.path.join(root_folder, 'labels', key, gt), (- 1)) / 255), dtype=int) * labels_folder[key])
+                gtz[(gtz < 1)] = mask[(gtz < 1)]
+            for key in ['boundaries', 'masks']:
+                mask = np.array((cv2.imread(os.path.join(root_folder, key, gt), (- 1)) / 255), dtype=int)
+                gtz[(mask == 0)] = 255
+            cv2.imwrite(os.path.join(root_folder, out_path, gt), gtz)
 
-    show_img = np.concatenate((img, cv2.merge([(noise_map / 255), (noise_map / 255), (noise_map / 255)]), cv2.merge([noise, noise, noise])), axis=1)
-    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
-// your code ...
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example2  ||          2           ||        5         ||         0        ||        0.2         
+example3  ||          2           ||        2         ||         0        ||        0.5         
+example4  ||          7           ||        4         ||         1        ||        0.25         
+example5  ||          2           ||        14         ||         1        ||        0.14285714285714285         
 
-    cv2.waitKey(0)
-    "\n    img_Ibgr = isp.RGB2BGR(img_Irgb)\n    cv2.imwrite('./figs/01_inverse.png', img_Ibgr*255)\n    "
+avg       ||          1.4492753623188406           ||        5.6         ||         0.4        ||         28.52380952380952        
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        4         ||         0        
-example2  ||          5           ||        12         ||         4        
-example3  ||          3           ||        9         ||         2        
-example4  ||          4           ||        8         ||         1        
-example5  ||          4           ||        13         ||         2        
+idx = 0:------------------- similar code ------------------ index = 19, score = 6.0 
+def convert_images2bmp():
+    formats = ([x.lower() for x in img_formats] + [x.upper() for x in img_formats])
+    for path in ['../data/sm4/images', '../data/sm4/background']:
+        create_folder((path + 'bmp'))
+        for ext in formats:
+            for f in tqdm(glob.glob(('%s/*%s' % (path, ext))), desc=('Converting %s' % ext)):
+                cv2.imwrite(f.replace(ext.lower(), '.bmp').replace(path, (path + 'bmp')), cv2.imread(f))
+    for file in ['../data/sm4/out_train.txt', '../data/sm4/out_test.txt']:
+        with open(file, 'r') as f:
+            lines = f.read()
+            lines = lines.replace('/images', '/imagesbmp')
+            lines = lines.replace('/background', '/backgroundbmp')
+        for ext in formats:
+            lines = lines.replace(ext, '.bmp')
+        with open(file.replace('.txt', 'bmp.txt'), 'w') as f:
+            f.write(lines)
 
-avg       ||          3.8           ||        9.2         ||         1.8        
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    for  ...  in:
+        for  ...  in  ... :
+            for  ...  in:
+                cv2. ... (,  ... .imread)
 
-idx = 0:------------------- similar code ------------------ index = 20, score = 6.0 
+idx = 1:------------------- similar code ------------------ index = 97, score = 6.0 
 def pull_image(self, index):
     'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
-    img_id = self.ids[index]
-    return cv2.imread((self._imgpath % img_id), cv2.IMREAD_COLOR)
+    return cv2.imread(self.img_ids[index], cv2.IMREAD_COLOR)
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return cv2.imread
 
-idx = 1:------------------- similar code ------------------ index = 14, score = 6.0 
+idx = 2:------------------- similar code ------------------ index = 95, score = 6.0 
+def _get_road_buffer(geoJson, im_vis_file, output_raster, buffer_meters=2, burnValue=1, buffer_cap_style=6, useSpacenetLabels=False, plot_file='', figsize=(11, 3), fontsize=6, dpi=800, show_plot=False, valid_road_types=set([]), verbose=False):
+    "\n    Wrapper around create_buffer_geopandas(), with plots\n    Get buffer around roads defined by geojson and image files\n    valid_road_types serves as a filter of valid types (no filter if len==0)\n    https://wiki.openstreetmap.org/wiki/Key:highway\n    valid_road_types = set(['motorway', 'trunk', 'primary', 'secondary',\n                            'tertiary',\n                            'motorway_link', 'trunk_link', 'primary_link',\n                            'secondary_link', 'tertiary_link',\n                            'unclassified', 'residential', 'service' ])\n    "
+    try:
+        inGDF_raw = gpd.read_file(geoJson)
+    except:
+        mask_gray = np.zeros(cv2.imread(im_vis_file, 0).shape)
+        cv2.imwrite(output_raster, mask_gray)
+        return ([], [])
+    if useSpacenetLabels:
+        inGDF = inGDF_raw
+        try:
+            inGDF['type'] = inGDF['road_type'].values
+            inGDF['class'] = 'highway'
+            inGDF['highway'] = 'highway'
+        except:
+            pass
+    elif ((len(valid_road_types) > 0) and (len(inGDF_raw) > 0)):
+        if ('highway' in inGDF_raw.columns):
+            inGDF = inGDF_raw[inGDF_raw['highway'].isin(valid_road_types)]
+            inGDF['type'] = inGDF['highway'].values
+            inGDF['class'] = 'highway'
+        else:
+            inGDF = inGDF_raw[inGDF_raw['type'].isin(valid_road_types)]
+            inGDF['highway'] = inGDF['type'].values
+        if verbose:
+            print('gdf.type:', inGDF['type'])
+            if (len(inGDF) != len(inGDF_raw)):
+                print('len(inGDF), len(inGDF_raw)', len(inGDF), len(inGDF_raw))
+                print("gdf['type']:", inGDF['type'])
+    else:
+        inGDF = inGDF_raw
+        try:
+            inGDF['type'] = inGDF['highway'].values
+            inGDF['class'] = 'highway'
+        except:
+            pass
+    gdf_buffer = create_buffer_geopandas(inGDF, buffer_distance_meters=buffer_meters, buffer_cap_style=buffer_cap_style, dissolve_by='class', projectToUTM=True)
+    if (len(gdf_buffer) == 0):
+        mask_gray = np.zeros(cv2.imread(im_vis_file, 0).shape)
+        cv2.imwrite(output_raster, mask_gray)
+    else:
+        gdf_to_array(gdf_buffer, im_vis_file, output_raster, burnValue=burnValue)
+    mask_gray = cv2.imread(output_raster, 0)
+    if plot_file:
+        (fig, (ax0, ax1, ax2, ax3)) = plt.subplots(1, 4, figsize=figsize)
+        try:
+            gdfRoadLines = gpd.read_file(geoJson)
+            gdfRoadLines.plot(ax=ax0, marker='o', color='red')
+        except:
+            ax0.imshow(mask_gray)
+        ax0.axis('off')
+        ax0.set_aspect('equal')
+        ax0.set_title('Unfiltered Roads from GeoJson', fontsize=fontsize)
+        im_vis = cv2.imread(im_vis_file, 1)
+        img_mpl = cv2.cvtColor(im_vis, cv2.COLOR_BGR2RGB)
+        ax1.imshow(img_mpl)
+        ax1.axis('off')
+        ax1.set_title('Raw Image', fontsize=fontsize)
+        ax2.imshow(mask_gray)
+        ax2.axis('off')
+        ax2.set_title((('Roads Mask (' + str(np.round(buffer_meters))) + ' meter buffer)'), fontsize=fontsize)
+        ax3.imshow(img_mpl)
+        z = mask_gray.astype(float)
+        z[(z == 0)] = np.nan
+        palette = plt.cm.gray
+        palette.set_over('orange', 1.0)
+        ax3.imshow(z, cmap=palette, alpha=0.4, norm=matplotlib.colors.Normalize(vmin=0.5, vmax=0.9, clip=False))
+        ax3.set_title('Raw Image + Buffered Roads', fontsize=fontsize)
+        ax3.axis('off')
+        plt.savefig(plot_file, dpi=dpi)
+        if (not show_plot):
+            plt.close()
+    return (mask_gray, gdf_buffer)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    try:    except:
+        cv2
+        return ([], [])
+     ...  =  ... .imread
+
+idx = 3:------------------- similar code ------------------ index = 27, score = 6.0 
+def recursive_dataset2bmp(dataset='../data/sm4_bmp'):
+    formats = ([x.lower() for x in img_formats] + [x.upper() for x in img_formats])
+    for (a, b, files) in os.walk(dataset):
+        for file in tqdm(files, desc=a):
+            p = ((a + '/') + file)
+            s = Path(file).suffix
+            if (s == '.txt'):
+                with open(p, 'r') as f:
+                    lines = f.read()
+                for f in formats:
+                    lines = lines.replace(f, '.bmp')
+                with open(p, 'w') as f:
+                    f.write(lines)
+            elif (s in formats):
+                cv2.imwrite(p.replace(s, '.bmp'), cv2.imread(p))
+                if (s != '.bmp'):
+                    os.system(("rm '%s'" % p))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    for in:
+        for  ...  in:
+            if:            elif:
+                cv2. ... (,  ... .imread)
+
+idx = 4:------------------- similar code ------------------ index = 83, score = 6.0 
 def pull_image(self, index):
     'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            cv2 img\n        '
     img_id = self.ids[index]
@@ -93,16 +200,372 @@ def pull_image(self, index):
 def  ... ():
     return cv2.imread
 
-idx = 2:------------------- similar code ------------------ index = 16, score = 6.0 
+idx = 5:------------------- similar code ------------------ index = 78, score = 6.0 
+def cv2_loader(img_str):
+    return cv2.imread(img_str, cv2.IMREAD_COLOR)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return cv2.imread
+
+idx = 6:------------------- similar code ------------------ index = 37, score = 6.0 
+def cv2_loader(path):
+    return cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return cv2. ... ( ... .imread,)
+
+idx = 7:------------------- similar code ------------------ index = 45, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 2):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg'))
+        quit()
+    try:
+        date = get_date_of_image(param[1])
+        output_img = put_date(param[1], date)
+        cv2.imwrite(((date.replace(':', '_').replace(' ', '_') + '_') + param[1]), output_img)
+    except:
+        base_img_cv2 = cv2.imread(param[1])
+        cv2.imwrite(('nodate_' + param[1]), base_img_cv2)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+if:
+    try:
+        cv2
+    except:
+         ...  =  ... .imread
+
+idx = 8:------------------- similar code ------------------ index = 131, score = 6.0 
 def pull_image(self, index):
     'Returns the original image object at index in PIL form\n\n        Note: not using self.__getitem__(), as any transformations passed in\n        could mess up this functionality.\n\n        Argument:\n            index (int): index of img to show\n        Return:\n            PIL img\n        '
-    return cv2.imread(self.img_ids[index], cv2.IMREAD_COLOR)
+    img_id = self.ids[index]
+    return cv2.imread((self._imgpath % img_id), cv2.IMREAD_COLOR)
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return cv2.imread
 
-idx = 3:------------------- similar code ------------------ index = 13, score = 6.0 
+idx = 9:------------------- similar code ------------------ index = 66, score = 6.0 
+if (__name__ == '__main__'):
+    import cv2
+    img = cv2.imread('lenna_cropped.jpg', cv2.IMREAD_GRAYSCALE)
+    points = tf.cast(tf.convert_to_tensor(img), tf.float32)
+    print(points.shape)
+    centroids = k_means(points, 4)
+    sess = tf.InteractiveSession()
+    sess.run(tf.global_variables_initializer())
+    print(sess.run(centroids))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = cv2.imread
+
+idx = 10:------------------- similar code ------------------ index = 98, score = 6.0 
+def prepare_gt(root_folder=TRAIN_ROOT, out_path='gt'):
+    if (not os.path.exists(os.path.join(root_folder, out_path))):
+        print('----------creating groundtruth data for training./.val---------------')
+        check_mkdir(os.path.join(root_folder, out_path))
+        basname = [img_basename(f) for f in os.listdir(os.path.join(root_folder, 'images/rgb'))]
+        gt = (basname[0] + '.png')
+        for fname in basname:
+            gtz = np.zeros((512, 512), dtype=int)
+            for key in labels_folder.keys():
+                gt = (fname + '.png')
+                mask = (np.array((cv2.imread(os.path.join(root_folder, 'labels', key, gt), (- 1)) / 255), dtype=int) * labels_folder[key])
+                gtz[(gtz < 1)] = mask[(gtz < 1)]
+            for key in ['boundaries', 'masks']:
+                mask = np.array((cv2.imread(os.path.join(root_folder, key, gt), (- 1)) / 255), dtype=int)
+                gtz[(mask == 0)] = 255
+            cv2.imwrite(os.path.join(root_folder, out_path, gt), gtz)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+        for  ...  in  ... :
+            for  ...  in:
+                 ...  = ( ... . ... ((cv2.imread /  ... ),) *)
+
+idx = 11:------------------- similar code ------------------ index = 92, score = 6.0 
+if (__name__ == '__main__'):
+    dets = []
+    img_ids = coco.getImgIds()
+    num_images = len(img_ids)
+    for k in range(1, len(sys.argv)):
+        pred_path = sys.argv[k]
+        dets.append(coco.loadRes(pred_path))
+    for (i, img_id) in enumerate(img_ids):
+        img_info = coco.loadImgs(ids=[img_id])[0]
+        img_path = (IMG_PATH + img_info['file_name'])
+        img = cv2.imread(img_path)
+        gt_ids = coco.getAnnIds(imgIds=[img_id])
+        gts = coco.loadAnns(gt_ids)
+        gt_img = img.copy()
+        for (j, pred) in enumerate(gts):
+            bbox = _coco_box_to_bbox(pred['bbox'])
+            cat_id = pred['category_id']
+            gt_img = add_box(gt_img, bbox, 0, cat_id)
+        for k in range(len(dets)):
+            pred_ids = dets[k].getAnnIds(imgIds=[img_id])
+            preds = dets[k].loadAnns(pred_ids)
+            pred_img = img.copy()
+            for (j, pred) in enumerate(preds):
+                bbox = _coco_box_to_bbox(pred['bbox'])
+                sc = pred['score']
+                cat_id = pred['category_id']
+                if (sc > 0.2):
+                    pred_img = add_box(pred_img, bbox, sc, cat_id)
+            cv2.imshow('pred{}'.format(k), pred_img)
+        cv2.imshow('gt', gt_img)
+        cv2.waitKey()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    for in:
+         ...  = cv2.imread
+
+idx = 12:------------------- similar code ------------------ index = 91, score = 6.0 
+def amin():
+    image_path = args['image_path']
+    size = 50
+    sp = SimplePreprocessor(size, size)
+    iap = ImageToArrayPreprocessor()
+    sdl = SimpleDatasetLoader(preprocessors=[sp, iap])
+    (data, labels) = sdl.single_load(image_path)
+    data = (data.astype('float') / 255.0)
+    model = load_model('./SavedModel/amin.hdf5')
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    image = cv2.imread(image_path)
+    cv2.putText(image, 'Label: {}'.format(classLabels[preds[preds[0]]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    cv2.imshow('Image', image)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 13:------------------- similar code ------------------ index = 89, score = 6.0 
+def count(split):
+    coco = COCO.COCO((ANN_PATH + ANN_FILES[split]))
+    images = coco.getImgIds()
+    cnt = 0
+    obj = 0
+    for img_id in images:
+        ann_ids = coco.getAnnIds(imgIds=[img_id])
+        anns = coco.loadAnns(ids=ann_ids)
+        centers = []
+        obj += len(anns)
+        for ann in anns:
+            if (ann['iscrowd'] > 0):
+                continue
+            bbox = ann['bbox']
+            center = (((bbox[0] + (bbox[2] / 2)) // 4), ((bbox[1] + (bbox[3] / 2)) // 4), ann['category_id'], bbox)
+            for c in centers:
+                if ((center[0] == c[0]) and (center[1] == c[1]) and (center[2] == c[2]) and (iou(_coco_box_to_bbox(bbox), _coco_box_to_bbox(c[3])) < 2)):
+                    cnt += 1
+                    if DEBUG:
+                        file_name = coco.loadImgs(ids=[img_id])[0]['file_name']
+                        img = cv2.imread('{}/{}2017/{}'.format(IMG_PATH, split, file_name))
+                        (x1, y1) = (int(c[3][0]), int(c[3][1]))
+                        (x2, y2) = (int((c[3][0] + c[3][2])), int((c[3][1] + c[3][3])))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2, cv2.LINE_AA)
+                        (x1, y1) = (int(center[3][0]), int(center[3][1]))
+                        (x2, y2) = (int((center[3][0] + center[3][2])), int((center[3][1] + center[3][3])))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2, cv2.LINE_AA)
+                        cv2.imshow('img', img)
+                        cv2.waitKey()
+            centers.append(center)
+    print('find {} collisions of {} objects!'.format(cnt, obj))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in  ... :
+        for  ...  in  ... :
+            for  ...  in  ... :
+                if:
+                    if  ... :
+                         ...  = cv2.imread
+
+idx = 14:------------------- similar code ------------------ index = 29, score = 6.0 
+def test(self):
+    for i in range(1, 9):
+        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
+        now = datetime.now()
+        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
+        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
+        for bbox in bboxes:
+            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        if (max(im.shape[:2]) > 1440):
+            scale = (1440 / max(im.shape[:2]))
+            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
+        cv2.imshow('im', im)
+        cv2.waitKey(5000)
+        cv2.destroyAllWindows()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 15:------------------- similar code ------------------ index = 31, score = 6.0 
+def predicting(data, image_paths, model):
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    print(preds)
+    for (i, imagePath) in enumerate(image_paths):
+        image = cv2.imread(imagePath)
+        cv2.putText(image, 'Label: {}'.format(classLabels[preds[i]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.imshow('Image', image)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = cv2.imread
+
+idx = 16:------------------- similar code ------------------ index = 82, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 2):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    (markers, img) = watershed(input_img)
+    cv2.imwrite(('watershed_markers_' + param[1]), markers)
+    cv2.imwrite(('watershed_image_' + param[1]), img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 17:------------------- similar code ------------------ index = 81, score = 6.0 
+def saveVideo(self, videorequest=None, withanno=True, maxframe=None):
+    "\n        :param maxframe: maximum frame number for each video\n        :param withanno: add annotation on video to save or not\n        :param videorequest: list, sequence names you want to request, eg. ['1-HIT_Canteen_frames', ...]\n        :return:\n        "
+    if ((videorequest is None) or (not isinstance(videorequest, list))):
+        seqnames = self.seqnames
+    else:
+        seqnames = videorequest
+    for seqname in seqnames:
+        framespath = os.path.join(self.seqspath, seqname)
+        annopath = os.path.join(self.annopath, seqname, self.annofile)
+        seqinfopath = os.path.join(self.annopath, seqname, self.seqinfofile)
+        print('Loading annotation json file: {}'.format(annopath))
+        with open(annopath, 'r') as load_f:
+            anno = json.load(load_f)
+        with open(seqinfopath, 'r') as load_f:
+            seqinfo = json.load(load_f)
+        framerate = seqinfo['frameRate']
+        width = seqinfo['imWidth']
+        height = seqinfo['imHeight']
+        frames = seqinfo['imUrls']
+        save_height = int(((self.videowidth / width) * height))
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(os.path.join(self.savepath, (seqname + '.avi')), fourcc, framerate, (self.videowidth, save_height), True)
+        for (i, frame) in enumerate(frames):
+            print('writing frame {} to video.'.format(frame))
+            imgpath = os.path.join(framespath, frame)
+            img = cv2.imread(imgpath)
+            img = cv2.resize(img, (self.videowidth, save_height))
+            if withanno:
+                img = self.addanno(img, (i + 1), anno, (self.videowidth, save_height))
+            cv2.imwrite(os.path.join(self.savepath, (str(i) + '.jpg')), img)
+            out.write(img)
+            if (isinstance(maxframe, int) and ((i + 1) == maxframe)):
+                break
+        out.release()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in  ... :
+        for in:
+             ...  = cv2.imread
+
+idx = 18:------------------- similar code ------------------ index = 35, score = 6.0 
+def count_iou(split):
+    coco = COCO.COCO((ANN_PATH + ANN_FILES[split]))
+    images = coco.getImgIds()
+    cnt = 0
+    obj = 0
+    for img_id in images:
+        ann_ids = coco.getAnnIds(imgIds=[img_id])
+        anns = coco.loadAnns(ids=ann_ids)
+        bboxes = []
+        obj += len(anns)
+        for ann in anns:
+            if (ann['iscrowd'] > 0):
+                continue
+            bbox = (_coco_box_to_bbox(ann['bbox']).tolist() + [ann['category_id']])
+            for b in bboxes:
+                if ((iou(b, bbox) > 0.5) and (b[4] == bbox[4])):
+                    cnt += 1
+                    if DEBUG:
+                        file_name = coco.loadImgs(ids=[img_id])[0]['file_name']
+                        img = cv2.imread('{}/{}2017/{}'.format(IMG_PATH, split, file_name))
+                        (x1, y1) = (int(b[0]), int(b[1]))
+                        (x2, y2) = (int(b[2]), int(b[3]))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2, cv2.LINE_AA)
+                        (x1, y1) = (int(bbox[0]), int(bbox[1]))
+                        (x2, y2) = (int(bbox[2]), int(bbox[3]))
+                        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2, cv2.LINE_AA)
+                        cv2.imshow('img', img)
+                        print('cats', class_name[b[4]], class_name[bbox[4]])
+                        cv2.waitKey()
+            bboxes.append(bbox)
+    print('find {} collisions of {} objects!'.format(cnt, obj))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in  ... :
+        for  ...  in  ... :
+            for  ...  in  ... :
+                if:
+                    if  ... :
+                         ...  = cv2.imread
+
+idx = 19:------------------- similar code ------------------ index = 36, score = 6.0 
+if (__name__ == '__main__'):
+    phase = sys.argv[1]
+    model = ml_net_model(img_cols=shape_c, img_rows=shape_r, downsampling_factor_product=10)
+    sgd = SGD(lr=0.001, decay=0.0005, momentum=0.9, nesterov=True)
+    print('Compile ML-Net Model')
+    model.compile(sgd, loss)
+    if (phase == 'train'):
+        print('Training ML-Net')
+        model.fit_generator(generator(b_s=b_s), nb_imgs_train, nb_epoch=nb_epoch, validation_data=generator(b_s=b_s, phase_gen='val'), nb_val_samples=nb_imgs_val, callbacks=[EarlyStopping(patience=5), ModelCheckpoint('weights.mlnet.{epoch:02d}-{val_loss:.4f}.pkl', save_best_only=True)])
+    elif (phase == 'test'):
+        output_folder = ''
+        if (len(sys.argv) < 2):
+            raise SyntaxError
+        imgs_test_path = sys.argv[2]
+        file_names = [f for f in os.listdir(imgs_test_path) if f.endswith('.jpg')]
+        file_names.sort()
+        nb_imgs_test = len(file_names)
+        print('Load weights ML-Net')
+        model.load_weights('mlnet_salicon_weights.pkl')
+        print(('Predict saliency maps for ' + imgs_test_path))
+        predictions = model.predict_generator(generator_test(b_s=1, imgs_test_path=imgs_test_path), nb_imgs_test)
+        for (pred, name) in zip(predictions, file_names):
+            original_image = cv2.imread((imgs_test_path + name), 0)
+            res = postprocess_predictions(pred[0], original_image.shape[0], original_image.shape[1])
+            cv2.imwrite((output_folder + ('%s' % name)), res.astype(int))
+    else:
+        raise NotImplementedError
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    if:    elif:
+        for in:
+             ...  = cv2.imread
+
+idx = 20:------------------- similar code ------------------ index = 75, score = 6.0 
 def create_mask(img_id, data_dir):
     labels_dir = os.path.join(data_dir, 'labels')
     masks_dir = os.path.join(data_dir, 'masks_all')
@@ -137,7 +600,523 @@ def create_mask(img_id, data_dir):
 def  ... ():
      ...  = cv2.imread
 
-idx = 4:------------------- similar code ------------------ index = 3, score = 6.0 
+idx = 21:------------------- similar code ------------------ index = 71, score = 6.0 
+if (__name__ == '__main__'):
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+    print('Solving...')
+    solver = SudokuSolver(board)
+    solver.solve()
+    final = solver.board
+    if (0 in final):
+        print('Error occured while solving, try another image!')
+    else:
+        print(final)
+        solutionBoard = cv2.imread('./boards/blank.png')
+        solutionImage = displaySolution(solutionBoard, final, predictions)
+        print("Press 'q' to quit...")
+        while True:
+            cv2.imshow('Actual Image', image)
+            cv2.imshow('Warped Image', warpedImage)
+            cv2.imshow('Coords Image', coordsImage)
+            cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cv2.destroyAllWindows()
+                break
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    if:    else:
+         ...  = cv2.imread
+
+idx = 22:------------------- similar code ------------------ index = 67, score = 6.0 
+def resize_gt(pdf_name='Alford94'):
+    image_filelist = [file for file in os.listdir(os.path.join(image_dir, pdf_name)) if file.endswith('.png')]
+    math_filepath = os.path.join(math_dir, (pdf_name + '.math'))
+    math_file_present = os.path.isfile(math_filepath)
+    char_filepath = os.path.join(char_dir, (pdf_name + '.char'))
+    char_file_present = os.path.isfile(char_filepath)
+    if math_file_present:
+        math_file = open(math_filepath, 'r')
+        boxes = {}
+        for line in math_file:
+            box = line.split(',')
+            idx = (int(box[0]) + 1)
+            box = box[1:]
+            box = list(map(int, box))
+            if (idx not in boxes):
+                boxes[idx] = []
+            boxes[idx].append(box)
+    if char_file_present:
+        char_file = open(char_filepath, 'r')
+        char_boxes = {}
+        for line in char_file:
+            char_box = line.split(',')
+            idx = (int(char_box[0]) + 1)
+            char_box = char_box[2:]
+            if (idx not in char_boxes):
+                char_boxes[idx] = []
+            char_boxes[idx].append(char_box)
+    for image_filepath in image_filelist:
+        image = cv2.imread(os.path.join(image_dir, pdf_name, image_filepath))
+        basename = os.path.basename(image_filepath)
+        page_id = int(os.path.splitext(basename)[0])
+        original_width = image.shape[1]
+        original_height = image.shape[0]
+        resized_image = cv2.imread(os.path.join(resized_image_dir, pdf_name, image_filepath))
+        intermediate_width = resized_image.shape[1]
+        intermediate_height = resized_image.shape[0]
+        intermediate_width_ratio = (intermediate_width / original_width)
+        intermediate_height_ratio = (intermediate_height / original_height)
+        final_width_ratio = ((final_width * intermediate_width_ratio) / intermediate_width)
+        final_height_ratio = ((final_height * intermediate_height_ratio) / intermediate_height)
+        final_image = cv2.resize(resized_image, (final_height, final_width))
+        if math_file_present:
+            if (page_id in boxes):
+                current_boxes = boxes[page_id]
+            else:
+                current_boxes = []
+            for box in current_boxes:
+                box[0] = int(np.round((box[0] * final_width_ratio)))
+                box[1] = int(np.round((box[1] * final_height_ratio)))
+                box[2] = int(np.round((box[2] * final_width_ratio)))
+                box[3] = int(np.round((box[3] * final_height_ratio)))
+        if char_file_present:
+            if (page_id in char_boxes):
+                current_char_boxes = char_boxes[page_id]
+            else:
+                current_char_boxes = []
+            for box in current_char_boxes:
+                box[0] = int(np.round((float(box[0]) * final_width_ratio)))
+                box[1] = int(np.round((float(box[1]) * final_height_ratio)))
+                box[2] = int(np.round((float(box[2]) * final_width_ratio)))
+                box[3] = int(np.round((float(box[3]) * final_height_ratio)))
+        if (not os.path.exists(os.path.join(output_image_dir, pdf_name))):
+            os.makedirs(os.path.join(output_image_dir, pdf_name))
+        if (not os.path.exists(os.path.join(output_math_dir, pdf_name))):
+            os.makedirs(os.path.join(output_math_dir, pdf_name))
+        if (not os.path.exists(os.path.join(output_char_dir, pdf_name))):
+            os.makedirs(os.path.join(output_char_dir, pdf_name))
+        print('Processing image : ', pdf_name, '/', page_id)
+        cv2.imwrite(os.path.join(output_image_dir, pdf_name, (str(page_id) + '.png')), final_image)
+        if math_file_present:
+            out_math_file = os.path.join(output_math_dir, pdf_name, (str(page_id) + '.pmath'))
+            out_math = open(out_math_file, 'w')
+            for box in current_boxes:
+                out_math.write((','.join((str(x) for x in box)) + '\n'))
+            out_math.close()
+        if char_file_present:
+            out_char_file = os.path.join(output_char_dir, pdf_name, (str(page_id) + '.pchar'))
+            out_char = open(out_char_file, 'w')
+            for box in current_char_boxes:
+                out_char.write((','.join((str(x) for x in box)) + '\n'))
+            out_char.close()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in  ... :
+         ...  = cv2.imread
+
+idx = 23:------------------- similar code ------------------ index = 64, score = 6.0 
+def tta_real_test(nets, all=False, labels=land_classes, norm=False, test_set=None, stride=600, batch_size=5, window_size=(512, 512)):
+    test_files = loadtestimg(test_set)
+    idlist = loadids(test_set)
+    all_preds = []
+    num_class = len(labels)
+    ids = []
+    total_ids = 0
+    for k in test_set[IDS].keys():
+        total_ids += len(test_set[IDS][k])
+    for (img, id) in tqdm(zip(test_files, idlist), total=total_ids, leave=False):
+        img = np.asarray(img, dtype='float32')
+        img = st.ToTensor()(img)
+        img = (img / 255.0)
+        if norm:
+            img = st.Normalize(*mean_std)(img)
+        img = img.cpu().numpy().transpose((1, 2, 0))
+        stime = time.time()
+        with torch.no_grad():
+            pred = fusion_prediction(nets, image=img, scales=[1.0], batch_size=batch_size, num_class=num_class, wsize=window_size)
+        print('inference cost time: ', (time.time() - stime))
+        pred = np.argmax(pred, axis=(- 1))
+        for key in ['boundaries', 'masks']:
+            pred = (pred * np.array((cv2.imread(os.path.join('/media/liu/diskb/data/Agriculture-Vision/test', key, (id + '.png')), (- 1)) / 255), dtype=int))
+        filename = './{}.png'.format(id)
+        cv2.imwrite(os.path.join(output_path, filename), pred)
+        all_preds.append(pred)
+        ids.append(id)
+    if all:
+        return (all_preds, ids)
+    else:
+        return all_preds
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+        for  ...  in:
+             ...  = ( ...  *  ... . ... ((cv2.imread /  ... ),))
+
+idx = 24:------------------- similar code ------------------ index = 61, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 6):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg h_min, h_max, s_th, v_th'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    h_min = int(param[2])
+    h_max = int(param[3])
+    s_th = int(param[4])
+    v_th = int(param[5])
+    msk_img = extract_color(input_img, h_min, h_max, s_th, v_th)
+    output_img = cv2.bitwise_and(input_img, input_img, mask=msk_img)
+    cv2.imwrite(('extract_' + param[1]), output_img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 25:------------------- similar code ------------------ index = 60, score = 6.0 
+def val(epoch):
+    global best_val_loss
+    print('Val Epoch: {}'.format(epoch))
+    net.eval()
+    val_loss = 0
+    val_loss_seg = 0
+    val_loss_exist = 0
+    progressbar = tqdm(range(len(val_loader)))
+    with torch.no_grad():
+        for (batch_idx, sample) in enumerate(val_loader):
+            img = sample['img'].to(device)
+            segLabel = sample['segLabel'].to(device)
+            exist = sample['exist'].to(device)
+            (seg_pred, exist_pred, loss_seg, loss_exist, loss) = net(img, segLabel, exist)
+            if isinstance(net, torch.nn.DataParallel):
+                loss_seg = loss_seg.sum()
+                loss_exist = loss_exist.sum()
+                loss = loss.sum()
+            gap_num = 5
+            if (((batch_idx % gap_num) == 0) and (batch_idx < (50 * gap_num))):
+                origin_imgs = []
+                seg_pred = seg_pred.detach().cpu().numpy()
+                exist_pred = exist_pred.detach().cpu().numpy()
+                for b in range(len(img)):
+                    img_name = sample['img_name'][b]
+                    img = cv2.imread(img_name)
+                    img = transform_val_img({'img': img})['img']
+                    lane_img = np.zeros_like(img)
+                    color = np.array([[255, 125, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255]], dtype='uint8')
+                    coord_mask = np.argmax(seg_pred[b], axis=0)
+                    for i in range(0, 4):
+                        if (exist_pred[(b, i)] > 0.5):
+                            lane_img[(coord_mask == (i + 1))] = color[i]
+                    img = cv2.addWeighted(src1=lane_img, alpha=0.8, src2=img, beta=1.0, gamma=0.0)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    lane_img = cv2.cvtColor(lane_img, cv2.COLOR_BGR2RGB)
+                    cv2.putText(lane_img, '{}'.format([(1 if (exist_pred[(b, i)] > 0.5) else 0) for i in range(4)]), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (255, 255, 255), 2)
+                    origin_imgs.append(img)
+                    origin_imgs.append(lane_img)
+                tensorboard.image_summary('img_{}'.format(batch_idx), origin_imgs, epoch)
+            val_loss += loss.item()
+            val_loss_seg += loss_seg.item()
+            val_loss_exist += loss_exist.item()
+            progressbar.set_description('batch loss: {:.3f}'.format(loss.item()))
+            progressbar.update(1)
+    progressbar.close()
+    iter_idx = ((epoch + 1) * len(train_loader))
+    tensorboard.scalar_summary('val_loss', val_loss, iter_idx)
+    tensorboard.scalar_summary('val_loss_seg', val_loss_seg, iter_idx)
+    tensorboard.scalar_summary('val_loss_exist', val_loss_exist, iter_idx)
+    tensorboard.writer.flush()
+    print('------------------------\n')
+    if (val_loss < best_val_loss):
+        best_val_loss = val_loss
+        save_name = os.path.join(exp_dir, (exp_name + '.pth'))
+        copy_name = os.path.join(exp_dir, (exp_name + '_best.pth'))
+        shutil.copyfile(save_name, copy_name)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    with:
+        for in:
+            if:
+                for  ...  in:
+                     ...  = cv2.imread
+
+idx = 26:------------------- similar code ------------------ index = 58, score = 6.0 
+def main(args):
+    mtcnn = MTCNN('./mtcnn.pb')
+    img = cv2.imread(args.image)
+    (bbox, scores, landmarks) = mtcnn.detect(img)
+    print('total box:', len(bbox))
+    for (box, pts) in zip(bbox, landmarks):
+        box = box.astype('int32')
+        img = cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 3)
+        pts = pts.astype('int32')
+        for i in range(5):
+            img = cv2.circle(img, (pts[(i + 5)], pts[i]), 1, (0, 255, 0), 2)
+    cv2.imshow('image', img)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 27:------------------- similar code ------------------ index = 56, score = 6.0 
+def save_mask_and_label(image_name):
+    mask_path = os.path.join('train_labels', 'masks', image_name)
+    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+    (labeled_array, _) = label(mask)
+    label_path = os.path.join('train_labels', 'labels', image_name)
+    os.makedirs(os.path.join('train_labels', 'labels'), exist_ok=True)
+    cv2.imwrite(label_path, labeled_array)
+    create_mask(image_name[:(- 4)], 'train_labels')
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 28:------------------- similar code ------------------ index = 100, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 4):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg wide_ratio height_ratio'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except Exception as e:
+        print(e)
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    w_ratio = int(param[2])
+    h_ratio = int(param[3])
+    output_img = resize(input_img, w_ratio, h_ratio)
+    cv2.imwrite(param[1], output_img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 29:------------------- similar code ------------------ index = 26, score = 6.0 
+if (__name__ == '__main__'):
+    if (os.name == 'nt'):
+        os.system('cls')
+    else:
+        os.system('clear')
+    colorama.init(autoreset=True)
+    imdir = None
+    print(APP_INFO)
+    print((colorama.Fore.LIGHTBLACK_EX + '[DEBUG] Loading application... '), end='')
+    if RUN_FLAG:
+        print((colorama.Fore.LIGHTGREEN_EX + 'done'))
+    else:
+        print((colorama.Fore.LIGHTRED_EX + 'integrity failure'))
+    while RUN_FLAG:
+        image = launcher(imdir)
+        if (image is None):
+            print((colorama.Fore.LIGHTBLACK_EX + '[DEBUG] Exiting application...'))
+            break
+        elif (not os.path.isfile(image)):
+            print((colorama.Fore.LIGHTRED_EX + '[ERROR] File does not exist'))
+            continue
+        try:
+            image_orig = cv2.imread(image, cv2.IMREAD_COLOR)
+        except:
+            image_orig = None
+        if (image_orig is None):
+            print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to read image'))
+            continue
+        else:
+            print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Loaded new image from: {image}'))
+            imdir = os.path.dirname(image)
+        cv2.namedWindow('STEFANN')
+        grid = False
+        fscale = 1.0
+        points = []
+        thresh = 150
+        invert = 0
+        cntmin = 0
+        cntidx = 0
+        edited = False
+        step = 1
+        cv2.setMouseCallback('STEFANN', select_region, points)
+        image_scaled = image_orig.copy()
+        while (step == 1):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Operation canceled'))
+                break
+            elif ((key == 71) or (key == 103)):
+                grid = (not grid)
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Toggled grids -> {grid}'))
+            elif ((key == 82) or (key == 114)):
+                fscale = 1.0
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = image_orig.copy()
+                points.clear()
+            elif (key == 43):
+                fscale = round(min((fscale + DELTA_FSCALE), 5.0), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = cv2.resize(image_orig, None, fx=fscale, fy=fscale)
+                points.clear()
+            elif (key == 45):
+                fscale = round(max((fscale - DELTA_FSCALE), 0.2), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                image_scaled = cv2.resize(image_orig, None, fx=fscale, fy=fscale)
+                points.clear()
+            elif (key == 13):
+                step += 1
+            image_work = (draw_grid(image_scaled) if grid else image_scaled.copy())
+            image_work = draw_region(image_work, points)
+            cv2.imshow('STEFANN', image_work)
+        cv2.setMouseCallback('STEFANN', select_region, None)
+        image_edit = image_scaled.copy()
+        image_gray = cv2.cvtColor(image_scaled, cv2.COLOR_BGR2GRAY)
+        image_mask = binarize(image_gray, points, thresh, 255, invert)
+        (contours, bndboxes) = find_contours(image_mask, cntmin)
+        while (step == 2):
+            key = (cv2.waitKey(1) & 255)
+            if (key == 27):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Operation canceled'))
+                break
+            elif (key == 43):
+                thresh = min((thresh + DELTA_THRESH), 255)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Increased threshold -> {thresh}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 45):
+                thresh = max((thresh - DELTA_THRESH), 0)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Decreased threshold -> {thresh}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 9):
+                invert = int((not invert))
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Invert thresholding -> {invert}'))
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 42):
+                cntmin = min((cntmin + DELTA_CNTMIN), (image_mask.shape[0] * image_mask.shape[1]))
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Increased allowed contour area -> {cntmin}'))
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 47):
+                cntmin = max((cntmin - DELTA_CNTMIN), 0)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Decreased allowed contour area -> {cntmin}'))
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+            elif (key == 32):
+                cntidx = (((cntidx + 1) % len(contours)) if (len(contours) > 0) else (- 1))
+            elif (((key >= 65) and (key <= 90)) or ((key >= 97) and (key <= 122))):
+                if ((key >= 97) and (key <= 122)):
+                    key -= 32
+                print((colorama.Fore.CYAN + f'[DEBUG] Inserting character -> {chr(key)}'))
+                try:
+                    (image_mask, image_edit) = edit_char(image_edit, image_mask, contours, bndboxes, cntidx, chr(key), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', NET_F, NET_C)
+                except:
+                    print((colorama.Fore.LIGHTRED_EX + '[ERROR] Operation failed'))
+                    continue
+                image_gray = cv2.cvtColor(image_edit, cv2.COLOR_BGR2GRAY)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+                edited = True
+            elif (key == 8):
+                print((colorama.Fore.LIGHTRED_EX + '[DEBUG] Reset modifications'))
+                image_edit = image_scaled.copy()
+                image_gray = cv2.cvtColor(image_scaled, cv2.COLOR_BGR2GRAY)
+                image_mask = binarize(image_gray, points, thresh, 255, invert)
+                (contours, bndboxes) = find_contours(image_mask, cntmin)
+                edited = False
+            elif (key == 13):
+                step += 1
+            image_work = draw_contours(image_mask, contours, cntidx, (0, 255, 0), cv2.COLOR_GRAY2BGR)
+            cv2.imshow('STEFANN', image_work)
+        if edited:
+            image_edit = watermark(image_edit, 'Edited with STEFANN', alpha=0.3, position=3)
+            (root, ext) = os.path.splitext(image)
+            file_path = (((root + '_') + timestamp()) + ext)
+            try:
+                cv2.imwrite(file_path, image_edit)
+                print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Edited image saved as: {file_path}'))
+            except:
+                print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to write image'))
+        change = False
+        layout = 0
+        labels = False
+        fscale = 1.0
+        image_work = image_edit.copy()
+        while (step == 3):
+            key = (cv2.waitKey(1) & 255)
+            if ((key == 13) or (key == 27)):
+                break
+            elif (key == 32):
+                layout = ((layout + 1) % 6)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Select layout -> {layout}'))
+                change = True
+            elif (key == 9):
+                labels = (not labels)
+                print((colorama.Fore.LIGHTCYAN_EX + f'[DEBUG] Toggled label -> {labels}'))
+                change = True
+            elif (key == 43):
+                fscale = round(min((fscale + DELTA_FSCALE), 2.5), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif (key == 45):
+                fscale = round(max((fscale - DELTA_FSCALE), 0.2), 1)
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif ((key == 82) or (key == 114)):
+                fscale = 1.0
+                print((colorama.Fore.LIGHTBLACK_EX + f'[DEBUG] Updated scale -> {fscale}x'))
+                change = True
+            elif ((key == 83) or (key == 115)):
+                (root, ext) = os.path.splitext(image)
+                file_path = (((root + '_') + timestamp()) + ext)
+                try:
+                    cv2.imwrite(file_path, image_work)
+                    print((colorama.Fore.LIGHTGREEN_EX + f'[DEBUG] Image layout saved as: {file_path}'))
+                except:
+                    print((colorama.Fore.LIGHTRED_EX + '[ERROR] Failed to write image'))
+            if change:
+                image_work_0 = cv2.resize(image_scaled, None, fx=fscale, fy=fscale)
+                image_work_1 = cv2.resize(image_edit, None, fx=fscale, fy=fscale)
+                (rows, cols) = image_work_0.shape[:2]
+                h_bar_1 = numpy.zeros((10, cols, 3), numpy.uint8)
+                v_bar_1 = numpy.zeros((rows, 10, 3), numpy.uint8)
+                if labels:
+                    image_work_0 = watermark(image_work_0, 'ORIGINAL', 20, color=(255, 255, 0), alpha=0.7, position=4)
+                    image_work_1 = watermark(image_work_1, 'EDITED', 20, color=(0, 255, 0), alpha=0.7, position=4)
+                if (layout == 0):
+                    image_work = image_work_1.copy()
+                elif (layout == 1):
+                    image_work = image_work_0.copy()
+                elif (layout == 2):
+                    image_work = numpy.hstack((image_work_0, v_bar_1, image_work_1))
+                elif (layout == 3):
+                    image_work = numpy.hstack((image_work_1, v_bar_1, image_work_0))
+                elif (layout == 4):
+                    image_work = numpy.vstack((image_work_0, h_bar_1, image_work_1))
+                elif (layout == 5):
+                    image_work = numpy.vstack((image_work_1, h_bar_1, image_work_0))
+                change = False
+            cv2.imshow('STEFANN', image_work)
+        cv2.destroyAllWindows()
+    colorama.deinit()
+    time.sleep(2)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    while  ... :
+        try:
+             ...  = cv2.imread
+
+idx = 30:------------------- similar code ------------------ index = 18, score = 6.0 
 if (__name__ == '__main__'):
     t0 = timeit.default_timer()
     makedirs('/wdata/merged_pred', exist_ok=True)
@@ -161,28 +1140,276 @@ if:
         for  ...  in  ... :
              ...  = cv2.imread
 
-idx = 5:------------------- similar code ------------------ index = 5, score = 6.0 
-def test(self):
-    for i in range(1, 9):
-        im = cv2.imread('/home/lijc08/桌面/{}.jpg'.format(i))
-        now = datetime.now()
-        (bboxes, feature) = self.detector.predict(im, score_threshold=self.conf.score_threshold, top_k=self.conf.top_k, NMS_threshold=self.conf.NMS_threshold)
-        print('cost:{} sec'.format((datetime.now() - now).total_seconds()))
-        for bbox in bboxes:
-            cv2.rectangle(im, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
-        if (max(im.shape[:2]) > 1440):
-            scale = (1440 / max(im.shape[:2]))
-            im = cv2.resize(im, (0, 0), fx=scale, fy=scale)
-        cv2.imshow('im', im)
-        cv2.waitKey(5000)
-        cv2.destroyAllWindows()
+idx = 31:------------------- similar code ------------------ index = 127, score = 6.0 
+def create_speed_gdf(image_path, geojson_path, mask_path_out_gray, bin_conversion_func, mask_burn_val_key='burnValue', bufferDistanceMeters=2, bufferRoundness=1, dissolve_by='speed_m/s', bin_conversion_key='speed_mph', zero_frac_thresh=0.05, verbose=False):
+    'Create buffer around geojson for speeds, use bin_conversion_func to\n    assign values to the mask'
+    try:
+        inGDF = gpd.read_file(geojson_path)
+    except:
+        print("Can't read geosjson:", geojson_path)
+        (h, w) = cv2.imread(image_path, 0).shape[:2]
+        mask_gray = np.zeros((h, w)).astype(np.uint8)
+        skimage.io.imsave(mask_path_out_gray, mask_gray)
+        return []
+    if (len(inGDF) == 0):
+        print('Empty mask for path:', geojson_path)
+        (h, w) = cv2.imread(image_path, 0).shape[:2]
+        mask_gray = np.zeros((h, w)).astype(np.uint8)
+        skimage.io.imsave(mask_path_out_gray, mask_gray)
+        return []
+    projGDF = osmnx_funcs.project_gdf(inGDF)
+    if verbose:
+        print('inGDF.columns:', inGDF.columns)
+    gdf_utm_buffer = projGDF.copy()
+    gdf_utm_buffer['geometry'] = gdf_utm_buffer.buffer(bufferDistanceMeters, bufferRoundness)
+    gdf_utm_dissolve = gdf_utm_buffer.dissolve(by=dissolve_by)
+    gdf_utm_dissolve.crs = gdf_utm_buffer.crs
+    gdf_buffer = gdf_utm_dissolve.to_crs(inGDF.crs)
+    if verbose:
+        print("gdf_buffer['geometry'].values[0]:", gdf_buffer['geometry'].values[0])
+    speed_arr = gdf_buffer[bin_conversion_key].values
+    burnVals = [bin_conversion_func(s) for s in speed_arr]
+    gdf_buffer[mask_burn_val_key] = burnVals
+    apls_utils.gdf_to_array(gdf_buffer, image_path, mask_path_out_gray, mask_burn_val_key=mask_burn_val_key, verbose=verbose)
+    im_bgr = cv2.imread(image_path, 1)
+    im_gray = np.sum(im_bgr, axis=2)
+    zero_frac = (1.0 - (float(np.count_nonzero(im_gray)) / im_gray.size))
+    if (zero_frac >= zero_frac_thresh):
+        print('zero_frac:', zero_frac)
+        print('create_speed_gdf(): checking to ensure masks are null where image is null')
+        mask_gray = cv2.imread(mask_path_out_gray, 0)
+        zero_locs = np.where((im_gray == 0))
+        mask_gray[zero_locs] = 0
+        cv2.imwrite(mask_path_out_gray, mask_gray)
+    return gdf_buffer
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 32:------------------- similar code ------------------ index = 8, score = 6.0 
+if (__name__ == '__main__'):
+    images = []
+    predictions = []
+    filepath = raw_input('Enter an image filepath : ')
+    image = cv2.imread(filepath)
+    preprocess = cv2.resize(preprocessImage(image), (540, 540))
+    preprocess = cv2.bitwise_not(preprocess, preprocess)
+    coords = getCoords(preprocess)
+    preprocess = cv2.cvtColor(preprocess, cv2.COLOR_GRAY2BGR)
+    coordsImage = preprocess.copy()
+    for coord in coords:
+        cv2.circle(coordsImage, (coord[0], coord[1]), 5, (255, 0, 0), (- 1))
+    warpedImage = warp(preprocess, coords)
+    rects = displayGrid(warpedImage)
+    tiles = extractGrid(warpedImage, rects)
+    for (i, tile) in enumerate(tiles):
+        preprocess = preprocessImage(tile)
+        (flag, centered) = centeringImage(preprocess)
+        centeredImage = cv2.resize(centered, (32, 32))
+        images.append(centeredImage)
+        centeredImage = torch.Tensor(centeredImage).unsqueeze(dim=0).unsqueeze(dim=0)
+        preds = model(centeredImage)
+        (_, prediction) = torch.max(preds, dim=1)
+        if flag:
+            predictions.append((prediction.item() + 1))
+        else:
+            predictions.append(0)
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+    print('Solving...')
+    solver = SudokuSolver(board)
+    solver.solve()
+    final = solver.board
+    if (0 in final):
+        print('Error occured while solving, try another image!')
+    else:
+        print(final)
+        solutionBoard = cv2.imread('./boards/blank.png')
+        solutionImage = displaySolution(solutionBoard, final, predictions)
+        print("Press 'q' to quit...")
+        while True:
+            cv2.imshow('Original Image', image)
+            cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cv2.destroyAllWindows()
+                break
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = cv2.imread
+
+idx = 33:------------------- similar code ------------------ index = 4, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 2):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    output_img = color_swap(input_img)
+    cv2.imwrite(('swap_' + param[1]), output_img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 34:------------------- similar code ------------------ index = 115, score = 6.0 
+def main(args):
+    img = cv2.imread(args.image)
+    (bbox, scores, landmarks) = mtcnn_fun(img, 40, 0.7, [0.6, 0.7, 0.8])
+    (bbox, scores, landmarks) = (bbox.numpy(), scores.numpy(), landmarks.numpy())
+    print('total box:', len(bbox))
+    for (box, pts) in zip(bbox, landmarks):
+        box = box.astype('int32')
+        img = cv2.rectangle(img, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 3)
+        pts = pts.astype('int32')
+        for i in range(5):
+            img = cv2.circle(img, (pts[(i + 5)], pts[i]), 1, (0, 255, 0), 2)
+    cv2.imshow('image', img)
+    cv2.waitKey(0)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 35:------------------- similar code ------------------ index = 125, score = 6.0 
+def reduce_img_size(path='../data/sm4/images', img_size=1024):
+    path_new = (path + '_reduced')
+    create_folder(path_new)
+    for f in tqdm(glob.glob(('%s/*.*' % path))):
+        try:
+            img = cv2.imread(f)
+            (h, w) = img.shape[:2]
+            r = (img_size / max(h, w))
+            if (r < 1.0):
+                img = cv2.resize(img, (int((w * r)), int((h * r))), interpolation=cv2.INTER_AREA)
+            fnew = f.replace(path, path_new)
+            cv2.imwrite(fnew, img)
+        except:
+            print(('WARNING: image failure %s' % f))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
     for  ...  in:
+        try:
+             ...  = cv2.imread
+
+idx = 36:------------------- similar code ------------------ index = 112, score = 6.0 
+@ex.main
+def predict(_run, _log):
+    cfg = edict(_run.config)
+    torch.manual_seed(cfg.seed)
+    np.random.seed(cfg.seed)
+    random.seed(cfg.seed)
+    device = torch.device(('cuda' if torch.cuda.is_available() else 'cpu'))
+    network = UNet(cfg.model)
+    if (not (cfg.resume_dir == 'None')):
+        model_dict = torch.load(cfg.resume_dir, map_location=(lambda storage, loc: storage))
+        network.load_state_dict(model_dict)
+    if ((cfg.num_gpus > 1) and torch.cuda.is_available()):
+        network = torch.nn.DataParallel(network)
+    network.to(device)
+    network.eval()
+    transforms = tf.Compose([tf.ToTensor(), tf.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    bin_mean_shift = Bin_Mean_Shift(device=device)
+    k_inv_dot_xy1 = get_coordinate_map(device)
+    instance_parameter_loss = InstanceParameterLoss(k_inv_dot_xy1)
+    (h, w) = (192, 256)
+    with torch.no_grad():
+        image = cv2.imread(cfg.image_path)
+        image = cv2.resize(image, (w, h))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(image)
+        image = transforms(image)
+        image = image.to(device).unsqueeze(0)
+        (logit, embedding, _, _, param) = network(image)
+        prob = torch.sigmoid(logit[0])
+        (_, _, per_pixel_depth) = Q_loss(param, k_inv_dot_xy1, torch.ones_like(logit))
+        (segmentation, sampled_segmentation, sample_param) = bin_mean_shift.test_forward(prob, embedding[0], param, mask_threshold=0.1)
+        b = segmentation.t().view(1, (- 1), h, w)
+        pooling_b = torch.nn.functional.avg_pool2d(b, (7, 7), stride=1, padding=(3, 3))
+        b = pooling_b.view((- 1), (h * w)).t()
+        segmentation = b
+        (instance_loss, instance_depth, instance_abs_disntace, instance_parameter) = instance_parameter_loss(segmentation, sampled_segmentation, sample_param, torch.ones_like(logit), torch.ones_like(logit), False)
+        predict_segmentation = segmentation.cpu().numpy().argmax(axis=1)
+        predict_segmentation[(prob.cpu().numpy().reshape((- 1)) <= 0.1)] = 20
+        predict_segmentation = predict_segmentation.reshape(h, w)
+        image = tensor_to_image(image.cpu()[0])
+        mask = (prob > 0.1).float().cpu().numpy().reshape(h, w)
+        depth = instance_depth.cpu().numpy()[(0, 0)].reshape(h, w)
+        per_pixel_depth = per_pixel_depth.cpu().numpy()[(0, 0)].reshape(h, w)
+        depth = ((depth * (predict_segmentation != 20)) + (per_pixel_depth * (predict_segmentation == 20)))
+        predict_segmentation += 1
+        predict_segmentation[(predict_segmentation == 21)] = 0
+        pred_seg = cv2.resize(np.stack([colors[(predict_segmentation, 0)], colors[(predict_segmentation, 1)], colors[(predict_segmentation, 2)]], axis=2), (w, h))
+        blend_pred = ((pred_seg * 0.7) + (image * 0.3)).astype(np.uint8)
+        mask = cv2.resize((mask * 255).astype(np.uint8), (w, h))
+        mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        depth = (255 - np.clip(((depth / 5) * 255), 0, 255).astype(np.uint8))
+        depth = cv2.cvtColor(cv2.resize(depth, (w, h)), cv2.COLOR_GRAY2BGR)
+        image = np.concatenate((image, pred_seg, blend_pred, mask, depth), axis=1)
+        cv2.imshow('image', image)
+        cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
          ...  = cv2.imread
 
-idx = 6:------------------- similar code ------------------ index = 19, score = 6.0 
+idx = 37:------------------- similar code ------------------ index = 121, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 2):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    output_img = color_sepia(input_img)
+    cv2.imwrite(('sepia_' + param[1]), output_img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 38:------------------- similar code ------------------ index = 110, score = 6.0 
+if (__name__ == '__main__'):
+    import argparse
+    parser = argparse.ArgumentParser(description='Process an image.')
+    parser.add_argument('path', metavar='image_path', type=str, help='Path to source image')
+    args = parser.parse_args()
+    print('Source Path:', args.path)
+    net = Detector(bytes('cfg/yolov3.cfg', encoding='utf-8'), bytes('weights/yolov3.weights', encoding='utf-8'), 0, bytes('cfg/coco.data', encoding='utf-8'))
+    img = cv2.imread(args.path)
+    img2 = Image(img)
+    results = net.detect(img2)
+    print(results)
+    for (cat, score, bounds) in results:
+        (x, y, w, h) = bounds
+        cv2.rectangle(img, (int((x - (w / 2))), int((y - (h / 2)))), (int((x + (w / 2))), int((y + (h / 2)))), (255, 0, 0), thickness=2)
+        cv2.putText(img, cat, (int(x), int(y)), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 0))
+    cv2.imshow('output', img)
+    cv2.waitKey(0)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = cv2.imread
+
+idx = 39:------------------- similar code ------------------ index = 126, score = 6.0 
 def process_image(fid):
     fid = (fid + '.png')
     used_msks = []
@@ -201,21 +1428,50 @@ def  ... ( ... ):
     for  ...  in  ... :
          ...  = cv2.imread
 
-idx = 7:------------------- similar code ------------------ index = 12, score = 6.0 
-def save_mask_and_label(image_name):
-    mask_path = os.path.join('train_labels', 'masks', image_name)
-    mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
-    (labeled_array, _) = label(mask)
-    label_path = os.path.join('train_labels', 'labels', image_name)
-    os.makedirs(os.path.join('train_labels', 'labels'), exist_ok=True)
-    cv2.imwrite(label_path, labeled_array)
-    create_mask(image_name[:(- 4)], 'train_labels')
+idx = 40:------------------- similar code ------------------ index = 122, score = 6.0 
+def ensemble_image(params):
+    (file, dirs, ensembling_dir, strategy) = params
+    images = []
+    for dir in dirs:
+        file_path = os.path.join(dir, file)
+        images.append(cv2.imread(file_path, cv2.IMREAD_COLOR))
+    images = np.array(images)
+    if (strategy == 'average'):
+        ensembled = average_strategy(images)
+    elif (strategy == 'hard_voting'):
+        ensembled = hard_voting(images)
+    else:
+        raise ValueError('Unknown ensembling strategy')
+    cv2.imwrite(os.path.join(ensembling_dir, file), ensembled)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
-     ...  = cv2.imread
+    for  ...  in  ... :
+         ... . ... (cv2.imread)
 
-idx = 8:------------------- similar code ------------------ index = 0, score = 6.0 
+idx = 41:------------------- similar code ------------------ index = 3, score = 6.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 2):
+        print((('Usage: $ python ' + param[0]) + ' sample.jpg'))
+        quit()
+    try:
+        input_img = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    output_img = color_gray(input_img)
+    cv2.imwrite(('gray_' + param[1]), output_img)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 42:------------------- similar code ------------------ index = 2, score = 6.0 
 if (__name__ == '__main__'):
     isp = ISP()
     path = './figs/01_gt.png'
@@ -239,71 +1495,117 @@ if (__name__ == '__main__'):
 if:
      ...  = cv2.imread
 
-idx = 9:------------------- similar code ------------------ index = 18, score = 6.0 
-def ensemble_image(params):
-    (file, dirs, ensembling_dir, strategy) = params
-    images = []
-    for dir in dirs:
-        file_path = os.path.join(dir, file)
-        images.append(cv2.imread(file_path, cv2.IMREAD_COLOR))
-    images = np.array(images)
-    if (strategy == 'average'):
-        ensembled = average_strategy(images)
-    elif (strategy == 'hard_voting'):
-        ensembled = hard_voting(images)
-    else:
-        raise ValueError('Unknown ensembling strategy')
-    cv2.imwrite(os.path.join(ensembling_dir, file), ensembled)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-    for  ...  in  ... :
-         ... . ... (cv2.imread)
-
-idx = 10:------------------- similar code ------------------ index = 15, score = 5.0 
-def calc(f):
-    label = cv2.imread(os.path.join(preds_dir, f), cv2.IMREAD_UNCHANGED)
-    label_file = (('mask_' + '_'.join(f[:(- 4)].split('_')[(- 2):])) + '.tif')
-    gt_label = cv2.imread(os.path.join(labels_dir, label_file), cv2.IMREAD_UNCHANGED)
-    res = calc_score(gt_label, label)
-    nadir = int(f.split('_')[2].lstrip('nadir'))
-    return (nadir, res)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-     ...  = cv2.imread
-
-idx = 11:------------------- similar code ------------------ index = 11, score = 5.0 
-def check_id(id: str):
-    labels = cv2.imread(path.join(masks_folder, (('mask_' + '_'.join(id[:(- 4)].split('_')[(- 2):])) + '.tif')), cv2.IMREAD_UNCHANGED)
-    if (np.max(labels) > 255):
-        print('FUCK', str(np.max(labels)))
-    mask = cv2.imread(os.path.join(train_pred_folder, id), cv2.IMREAD_COLOR)[(..., 0)]
-    return (id if ((np.max(labels) > 1) and (np.sum(mask) > (200 * 255))) else None)
+idx = 43:------------------- similar code ------------------ index = 40, score = 5.0 
+def get_training_list(root_folder=TRAIN_ROOT, count_label=True):
+    dict_list = {}
+    basname = [img_basename(f) for f in os.listdir(os.path.join(root_folder, 'images/nir'))]
+    if count_label:
+        for key in labels_folder.keys():
+            no_zero_files = []
+            for fname in basname:
+                gt = np.array(cv2.imread(os.path.join(root_folder, 'labels', key, (fname + '.png')), (- 1)))
+                if np.count_nonzero(gt):
+                    no_zero_files.append(fname)
+                else:
+                    continue
+            dict_list[key] = no_zero_files
+    return (dict_list, basname)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-     ...  = cv2.imread
+    if  ... :
+        for  ...  in:
+            for  ...  in  ... :
+                 ...  =  ... . ... (cv2.imread)
 
-idx = 12:------------------- similar code ------------------ index = 9, score = 5.0 
-def __getitem__(self, idx):
-    imageid = self.image_ids[idx]
-    im = get_image(imageid, basepath=self.basepath, rgbdir='train_rgb')
-    assert (im is not None)
-    locid = '_'.join(imageid.split('_')[(- 2):])
-    mask = cv2.imread(f'{self.basepath}/masks/mask_{locid}.tif', cv2.IMREAD_GRAYSCALE)
-    assert (mask is not None)
-    augmented = self.aug(image=im, mask=mask)
-    mask_ = (augmented['mask'] > 0).astype(np.uint8)
-    mask_ = torch.from_numpy(np.expand_dims(mask_, 0)).float()
-    label_ = torch.from_numpy(np.expand_dims(augmented['mask'], 0)).float()
-    return (img_to_tensor(augmented['image']), mask_, label_, imageid)
+idx = 44:------------------- similar code ------------------ index = 5, score = 5.0 
+def split(args):
+    (gt_dir, pdf_name, out_dir, ext) = args
+    file_path = os.path.join(gt_dir, ((pdf_name + '.') + ext))
+    img_dir = '/home/psm2208/data/GTDB/images/'
+    map = {}
+    if (ext == 'math'):
+        file_ip = open(file_path, 'r')
+        for line in file_ip:
+            entries = line.strip().split(',')
+            if (entries[0] not in map):
+                map[entries[0]] = []
+            map[entries[0]].append(entries[1:])
+        for key in map:
+            boxes = map[key]
+            key = float(key)
+            img_file = os.path.join(img_dir, pdf_name, (str((int(key) + 1)) + '.png'))
+            img = cv2.imread(img_file)
+            (height, width, channels) = img.shape
+            width_ratio = 1
+            height_ratio = 1
+            file_op = open(((os.path.join(out_dir, pdf_name, str((int(key) + 1))) + '.p') + ext), 'w')
+            for box in boxes:
+                box[0] = (float(box[0]) * width_ratio)
+                box[1] = (float(box[1]) * height_ratio)
+                box[2] = (float(box[2]) * width_ratio)
+                box[3] = (float(box[3]) * height_ratio)
+                file_op.write((','.join((str(e) for e in box)) + '\n'))
+            file_op.close()
+            file_ip.close()
+    elif (ext == 'char'):
+        with open(file_path, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                if (row[0] not in map):
+                    map[row[0]] = []
+                map[row[0]].append(row)
+        for key in map:
+            boxes = map[key]
+            with open(((os.path.join(out_dir, pdf_name, str((int(key) + 1))) + '.p') + ext), 'w') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                for box in boxes:
+                    writer.writerow(box)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-     ...  = cv2.imread
+def  ... ( ... ):
+    if:
+        for  ...  in  ... :
+             ...  = cv2.imread
 
-idx = 13:------------------- similar code ------------------ index = 8, score = 5.0 
+idx = 45:------------------- similar code ------------------ index = 38, score = 5.0 
+def test(self):
+
+    def reader():
+        for img_info in self.img_infos:
+            img_path = os.path.join(self.img_prefix, img_info['filename'], img_info['frame'])
+            label = img_info['label']
+            label = (0 if (label > 1) else 1)
+            img = cv2.imread(img_path)
+            img = self.img_transform(img, self.img_scale)
+            (yield (img, label))
+    return reader
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+
+    def  ... ():
+        for  ...  in:
+             ...  = cv2.imread
+
+idx = 46:------------------- similar code ------------------ index = 50, score = 5.0 
+def get_data(self):
+    for (fname, label) in self.imglist:
+        fname = os.path.join(self.dir, fname)
+        im = cv2.imread(fname)
+        assert (im is not None), fname
+        with open(fname, 'rb') as f:
+            jpeg = f.read()
+        jpeg = np.asarray(bytearray(jpeg), dtype='uint8')
+        assert (len(jpeg) > 10)
+        (yield [jpeg, label])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for in:
+         ...  = cv2.imread
+
+idx = 47:------------------- similar code ------------------ index = 39, score = 5.0 
 def __getitem__(self, idx):
     try:
         img = tifffile.imread(os.path.join(self.data_path, self.names[idx]))
@@ -330,18 +1632,612 @@ def __getitem__(self, idx):
 def  ... ():
      ...  = cv2.imread
 
-idx = 14:------------------- similar code ------------------ index = 7, score = 5.0 
-def get_image(imageid, basepath='/wdata/dataset', rgbdir='train_rgb'):
-    fn = f'{basepath}/{rgbdir}/Pan-Sharpen_{imageid}.tif'
-    img = cv2.imread(fn, cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+idx = 48:------------------- similar code ------------------ index = 46, score = 5.0 
+def load_image(path):
+    if (not os.path.exists(path)):
+        print('File {} not exists'.format(path))
+    im = cv2.imread(path)
+    in_ = np.array(im, dtype=np.float32)
+    in_ -= np.array((104.00699, 116.66877, 122.67892))
+    in_ = in_.transpose((2, 0, 1))
+    return in_
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 49:------------------- similar code ------------------ index = 49, score = 5.0 
+def train(self, batch_size=None):
+    pos_infos = self.img_infos[:int((len(self.img_infos) / 2))]
+    neg_infos = self.img_infos[int((len(self.img_infos) / 2)):]
+    assert (len(pos_infos) == len(neg_infos))
+
+    def reader():
+        np.random.shuffle(pos_infos)
+        np.random.shuffle(neg_infos)
+        img_infos = []
+        for i in range(len(pos_infos)):
+            img_infos.append(pos_infos[i])
+            img_infos.append(neg_infos[i])
+        batch = []
+        for img_info in img_infos:
+            img_path = os.path.join(self.img_prefix, *[p for p in img_info['img_path'].split('/')[(- 7):]])
+            label = img_info['label']
+            img = cv2.imread(img_path)
+            mask = (self._get_mask(self.kp_dict[img_info['img_path']], img) if self.with_mask else np.zeros_like(img))
+            if self.crop_face:
+                (img, mask) = self._get_face(img, mask, thr=self.crop_face)
+            img = img.astype(np.float32)
+            (img, mask, label) = self.extra_aug(img, mask=mask, label=label)
+            flip = (True if (np.random.rand() < 0.5) else False)
+            (img, mask) = self.img_transform(img, self.img_scale, mask=mask, flip=flip)
+            if (batch_size is None):
+                (yield (img, mask, label))
+            else:
+                batch.append([img, mask, label])
+                if (len(batch) == batch_size):
+                    (yield batch)
+                    batch = []
+    return reader
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    def  ... ():
+        for  ...  in  ... :
+             ...  = cv2.imread
+
+idx = 50:------------------- similar code ------------------ index = 47, score = 5.0 
+def get_img_size(self):
+    img = cv2.imread(os.path.join(self.db_root_dir, self.img_list[0]))
+    return list(img.shape[:2])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 51:------------------- similar code ------------------ index = 43, score = 5.0 
+def __getitem__(self, idx):
+    imageid = self.image_ids[idx]
+    im = get_image(imageid, basepath=self.basepath, rgbdir='train_rgb')
+    assert (im is not None)
+    locid = '_'.join(imageid.split('_')[(- 2):])
+    mask = cv2.imread(f'{self.basepath}/masks/mask_{locid}.tif', cv2.IMREAD_GRAYSCALE)
+    assert (mask is not None)
+    augmented = self.aug(image=im, mask=mask)
+    mask_ = (augmented['mask'] > 0).astype(np.uint8)
+    mask_ = torch.from_numpy(np.expand_dims(mask_, 0)).float()
+    label_ = torch.from_numpy(np.expand_dims(augmented['mask'], 0)).float()
+    return (img_to_tensor(augmented['image']), mask_, label_, imageid)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 52:------------------- similar code ------------------ index = 1, score = 5.0 
+def loadImg(self, imgpath):
+    '\n        :param imgpath: the path of image to load\n        :return: loaded img object\n        '
+    print('filename:', imgpath)
+    if (not os.path.exists(imgpath)):
+        print('Can not find {}, please check local dataset!'.format(imgpath))
+        return None
+    img = cv2.imread(imgpath)
+    (imgheight, imgwidth) = img.shape[:2]
+    scale = (self.showwidth / imgwidth)
+    img = cv2.resize(img, (int((imgwidth * scale)), int((imgheight * scale))))
     return img
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = cv2.imread
 
-idx = 15:------------------- similar code ------------------ index = 6, score = 5.0 
+idx = 53:------------------- similar code ------------------ index = 44, score = 5.0 
+def imload(filename, gray=False, scale_rate=1.0, enhance=False):
+    if (not gray):
+        image = cv2.imread(filename)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        if (scale_rate != 1.0):
+            image = scale(image, scale_rate)
+        if enhance:
+            image = Image.fromarray(np.asarray(image, dtype='uint8'))
+            contrast = ImageEnhance.Contrast(image)
+            image = contrast.enhance(1.55)
+    else:
+        image = cv2.imread(filename, (- 1))
+        if (scale_rate != 1.0):
+            image = scale(image, scale_rate, interpolation=cv2.INTER_NEAREST)
+        image = np.asarray(image, dtype='uint8')
+    return image
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = cv2.imread
+
+idx = 54:------------------- similar code ------------------ index = 48, score = 5.0 
+def read_page_info(filename, annotations_dir, image_dir, gt_dir, char_gt):
+    pages_list = []
+    pdf_names = open(filename, 'r')
+    annotations_map = {}
+    char_annotations_map = {}
+    for pdf_name in pdf_names:
+        pdf_name = pdf_name.strip()
+        if (pdf_name != ''):
+            if (pdf_name not in annotations_map):
+                annotations_map[pdf_name] = {}
+            for (root, dirs, _) in os.walk(os.path.join(annotations_dir, pdf_name), topdown=False):
+                for dir in dirs:
+                    for filename in os.listdir(os.path.join(annotations_dir, pdf_name, dir)):
+                        if (filename.endswith('.csv') or filename.endswith('.pmath')):
+                            patch_num = os.path.splitext(filename)[0]
+                            page_num = os.path.basename(os.path.join(annotations_dir, pdf_name, dir))
+                            if (page_num not in annotations_map[pdf_name]):
+                                annotations_map[pdf_name][page_num] = []
+                            annotations_map[pdf_name][page_num].append(os.path.join(annotations_dir, pdf_name, dir, filename))
+            if (pdf_name not in char_annotations_map):
+                char_annotations_map[pdf_name] = {}
+            for filename in os.listdir(os.path.join(char_gt, pdf_name)):
+                if (filename.endswith('.csv') or filename.endswith('.pchar')):
+                    page_num = os.path.splitext(filename)[0]
+                    char_annotations_map[pdf_name][page_num] = os.path.join(char_gt, pdf_name, filename)
+            for (root, dirs, files) in os.walk(os.path.join(char_gt, pdf_name)):
+                for name in files:
+                    if name.endswith('.pchar'):
+                        page_num = os.path.splitext(name)[0]
+                        if (page_num in annotations_map[pdf_name]):
+                            image = cv2.imread(os.path.join(image_dir, pdf_name, (page_num + '.png')))
+                            pages_list.append((image, pdf_name, page_num, annotations_map[pdf_name][page_num]))
+    pdf_names.close()
+    return (pages_list, annotations_map, char_annotations_map)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in  ... :
+        if:
+            for in:
+                for  ...  in  ... :
+                    if:
+                        if:
+                             ...  = cv2.imread
+
+idx = 55:------------------- similar code ------------------ index = 41, score = 5.0 
+def put_date(file, date):
+    base_img_cv2 = cv2.imread(file)
+    base_img = Image.open(file).convert('RGBA')
+    txt = Image.new('RGB', base_img.size, (0, 0, 0))
+    draw = ImageDraw.Draw(txt)
+    fnt = ImageFont.truetype('./Arial Black.ttf', size=int(((base_img.size[0] + base_img.size[1]) / 100)))
+    (textw, texth) = draw.textsize(date, font=fnt)
+    draw.text((((base_img.size[0] * 0.95) - textw), ((base_img.size[1] * 0.95) - texth)), date, font=fnt, fill=font_color)
+    txt_array = np.array(txt)
+    output_img = cv2.addWeighted(base_img_cv2, 1.0, txt_array, 1.0, 0)
+    return output_img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 56:------------------- similar code ------------------ index = 34, score = 5.0 
+def load_image_test(path):
+    if (not os.path.exists(path)):
+        print('File {} not exists'.format(path))
+    im = cv2.imread(path)
+    in_ = np.array(im, dtype=np.float32)
+    im_size = tuple(in_.shape[:2])
+    in_ -= np.array((104.00699, 116.66877, 122.67892))
+    in_ = in_.transpose((2, 0, 1))
+    return (in_, im_size)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 57:------------------- similar code ------------------ index = 6, score = 5.0 
+def reader():
+    for img_info in self.img_infos:
+        img_path = os.path.join(self.img_prefix, *[p for p in img_info['img_path'].split('/')[(- 2):]])
+        label = img_info['label']
+        img = cv2.imread(img_path)
+        if self.crop_face:
+            img = self._get_face(img, thr=self.crop_face)
+        img = self.img_transform(img, self.img_scale)
+        (yield (img, label))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 58:------------------- similar code ------------------ index = 52, score = 5.0 
+def check_id(id: str):
+    labels = cv2.imread(path.join(masks_folder, (('mask_' + '_'.join(id[:(- 4)].split('_')[(- 2):])) + '.tif')), cv2.IMREAD_UNCHANGED)
+    if (np.max(labels) > 255):
+        print('FUCK', str(np.max(labels)))
+    mask = cv2.imread(os.path.join(train_pred_folder, id), cv2.IMREAD_COLOR)[(..., 0)]
+    return (id if ((np.max(labels) > 1) and (np.sum(mask) > (200 * 255))) else None)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 59:------------------- similar code ------------------ index = 21, score = 5.0 
+def light_test_oneimage():
+    cfg = widerface_640
+    num_classes = (len(WIDERFace_CLASSES) + 1)
+    net = build_ssd('test', cfg['min_dim'], num_classes)
+    net.load_state_dict(torch.load(args.trained_model))
+    net.cuda()
+    net.eval()
+    print('Finished loading model!')
+    cuda = args.cuda
+    transform = TestBaseTransform((104, 117, 123))
+    thresh = cfg['conf_thresh']
+    path = './data/yuebing.jpg'
+    img_id = 'result'
+    img = cv2.imread(path, cv2.IMREAD_COLOR)
+    shrink = 1
+    det = infer(net, img, transform, thresh, cuda, shrink)
+    vis_detections(img, det, img_id, 0.6)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 60:------------------- similar code ------------------ index = 22, score = 5.0 
+def load_image(filename):
+    ' Load a two/three dimensional image from given filename\n\n    Args:\n        filename (str)\n\n    Returns:\n        numpy.ndarray: An image\n        list of float: Spacing\n    '
+    (_, ext) = os.path.splitext(os.path.basename(filename))
+    if (ext in ('.mha', '.mhd')):
+        [img, img_header] = mhd.read(filename)
+        spacing = img_header['ElementSpacing']
+        img.flags.writeable = True
+        if (img.ndim == 3):
+            img = np.transpose(img, (1, 2, 0))
+    elif (ext in ('.png', '.jpg', '.bmp')):
+        img = cv2.imread(filename)
+        spacing = None
+    else:
+        raise NotImplementedError()
+    return (img, spacing)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    if:    elif:
+         ...  = cv2.imread
+
+idx = 61:------------------- similar code ------------------ index = 17, score = 5.0 
+def load_image(self, index):
+    img = self.imgs[index]
+    if (img is None):
+        img_path = self.img_files[index]
+        img = cv2.imread(img_path)
+        assert (img is not None), ('Image Not Found ' + img_path)
+        (h0, w0) = img.shape[:2]
+        r = (self.img_size / max(h0, w0))
+        if ((r < 1) or (self.augment and (r != 1))):
+            interp = (cv2.INTER_LINEAR if self.augment else cv2.INTER_AREA)
+            img = cv2.resize(img, (int((w0 * r)), int((h0 * r))), interpolation=interp)
+        return (img, (h0, w0), img.shape[:2])
+    else:
+        return (self.imgs[index], self.img_hw0[index], self.img_hw[index])
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+         ...  = cv2.imread
+
+idx = 62:------------------- similar code ------------------ index = 23, score = 5.0 
+def adjust(params):
+    '\n    Fit the bounding boxes to the characters\n    '
+    (args, math_regions, pdf_name, page_num) = params
+    print('Processing ', pdf_name, ' > ', page_num)
+    image = cv2.imread(os.path.join(args.home_images, pdf_name, (str(int((page_num + 1))) + '.png')))
+    im_bw = fit_box.convert_to_binary(image)
+    new_math = []
+    for math in math_regions:
+        box = fit_box.adjust_box(im_bw, math)
+        if ((feature_extractor.width(box) > 0) and (feature_extractor.height(box) > 0)):
+            new_math.append(box)
+    return new_math
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 63:------------------- similar code ------------------ index = 16, score = 5.0 
+def plot_graph_on_im(G_, im_test_file, figsize=(8, 8), show_endnodes=False, width_key='speed_m/s', width_mult=0.125, color='lime', title='', figname='', default_node_size=15, max_speeds_per_line=12, dpi=300, plt_save_quality=75, ax=None, verbose=False):
+    '\n    Overlay graph on image,\n    if width_key == int, use a constant width'
+    try:
+        im_cv2 = cv2.imread(im_test_file, 1)
+        img_mpl = cv2.cvtColor(im_cv2, cv2.COLOR_BGR2RGB)
+    except:
+        img_sk = skimage.io.imread(im_test_file)
+        if ((len(img_sk.shape) == 3) and (img_sk.shape[0] < 20)):
+            img_mpl = np.moveaxis(img_sk, 0, (- 1))
+        else:
+            img_mpl = img_sk
+    (h, w) = img_mpl.shape[:2]
+    (node_x, node_y, lines, widths, title_vals) = ([], [], [], [], [])
+    for (i, (u, v, edge_data)) in enumerate(G_.edges(data=True)):
+        if (type(edge_data['geometry_pix']) == str):
+            coords = list(shapely.wkt.loads(edge_data['geometry_pix']).coords)
+        else:
+            coords = list(edge_data['geometry_pix'].coords)
+        if verbose:
+            print('\n', i, u, v, edge_data)
+            print('edge_data:', edge_data)
+            print('  coords:', coords)
+        lines.append(coords)
+        node_x.append(coords[0][0])
+        node_x.append(coords[(- 1)][0])
+        node_y.append(coords[0][1])
+        node_y.append(coords[(- 1)][1])
+        if (type(width_key) == str):
+            if verbose:
+                print('edge_data[width_key]:', edge_data[width_key])
+            width = int(np.rint((edge_data[width_key] * width_mult)))
+            title_vals.append(int(np.rint(edge_data[width_key])))
+        else:
+            width = width_key
+        widths.append(width)
+    if (not ax):
+        (fig, ax) = plt.subplots(1, 1, figsize=figsize)
+    ax.imshow(img_mpl)
+    if show_endnodes:
+        ax.scatter(node_x, node_y, color=color, s=default_node_size, alpha=0.5)
+    lc = mpl_collections.LineCollection(lines, colors=color, linewidths=widths, alpha=0.4, zorder=2)
+    ax.add_collection(lc)
+    ax.axis('off')
+    if (len(title_vals) > 0):
+        if verbose:
+            print('title_vals:', title_vals)
+        title_strs = np.sort(np.unique(title_vals)).astype(str)
+        if (len(title_strs) > max_speeds_per_line):
+            (n, b) = (max_speeds_per_line, title_strs)
+            title_strs = np.insert(b, range(n, len(b), n), '\n')
+        if verbose:
+            print('title_strs:', title_strs)
+        title = ((((title + '\n') + width_key) + ' = ') + ' '.join(title_strs))
+    if title:
+        ax.set_title(title)
+    plt.tight_layout()
+    print('title:', title)
+    if title:
+        plt.subplots_adjust(top=0.96)
+    if verbose:
+        print('img_mpl.shape:', img_mpl.shape)
+    desired_dpi = int((np.max(img_mpl.shape) / np.max(figsize)))
+    if verbose:
+        print('desired dpi:', desired_dpi)
+    dpi = int(np.min([3500, desired_dpi]))
+    if verbose:
+        print('plot dpi:', dpi)
+    if figname:
+        plt.savefig(figname, dpi=dpi, quality=plt_save_quality)
+    return ax
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    try:
+         ...  = cv2.imread
+
+idx = 64:------------------- similar code ------------------ index = 15, score = 5.0 
+def load(self, image_paths, verbose=(- 1)):
+    data = []
+    labels = []
+    for (i, image_paths) in enumerate(image_paths):
+        image = cv2.imread(image_paths)
+        label = image_paths.split(os.path.sep)[(- 2)]
+        if (self.preprocessors is not None):
+            for p in self.preprocessors:
+                image = p.preprocess(image)
+        data.append(image)
+        labels.append(label)
+        if ((verbose > 0) and (i > 0) and (((i + 1) % verbose) == 0)):
+            print('[INFO] processed {}/{}'.format((i + 1), len(image_paths)))
+    return (np.array(data), np.array(labels))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = cv2.imread
+
+idx = 65:------------------- similar code ------------------ index = 24, score = 5.0 
+def reader():
+    for img_info in self.img_infos:
+        img_path = os.path.join(self.img_prefix, img_info['filename'], img_info['frame'])
+        label = img_info['label']
+        label = (0 if (label > 1) else 1)
+        img = cv2.imread(img_path)
+        img = self.img_transform(img, self.img_scale)
+        (yield (img, label))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 66:------------------- similar code ------------------ index = 14, score = 5.0 
+def get_metrics_det_boxes(model, timers, dataset_name):
+    model.eval()
+    (roidb, dataset, start_ind, end_ind, total_num_images) = get_roidb_and_dataset(dataset_name, None, None, True)
+    num_images = len(roidb)
+    all_results = [None for _ in range(num_images)]
+    for (i, entry) in enumerate(roidb):
+        box_proposals = None
+        im = cv2.imread(entry['image'])
+        im_results = im_detect_rels(model, im, dataset_name, box_proposals, False, timers)
+        im_results.update(dict(image=entry['image']))
+        im_results.update(dict(gt_sbj_boxes=entry['sbj_gt_boxes'], gt_sbj_labels=entry['sbj_gt_classes'], gt_obj_boxes=entry['obj_gt_boxes'], gt_obj_labels=entry['obj_gt_classes'], gt_prd_labels=entry['prd_gt_classes']))
+        all_results[i] = im_results
+    if ((dataset_name.find('vg') >= 0) or (dataset_name.find('vrd') >= 0)):
+        metrics = task_evaluation_vg_and_vrd.eval_rel_results(all_results, None, True)
+    else:
+        metrics = task_evaluation_sg.eval_rel_results(all_results, None, True)
+    return metrics
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = cv2.imread
+
+idx = 67:------------------- similar code ------------------ index = 25, score = 5.0 
+def mapf(dp):
+    (fname, cls) = dp
+    im = cv2.imread(fname, cv2.IMREAD_COLOR)
+    im = aug.augment(im)
+    return (im, cls)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 68:------------------- similar code ------------------ index = 13, score = 5.0 
+def demo(args, num, savename):
+    palette = np.random.randint(0, 256, (1000, 3)).astype(np.uint8)
+    with open(args.data_list) as f:
+        names = [x.strip() for x in f.readlines()]
+    demo_images = []
+    for name in names[:num]:
+        img = cv2.imread(os.path.join(args.image_root, (name + '.jpg')))
+        sp0 = cv2.imread(os.path.join(args.superpixel_root, (name + '.png'))).astype(np.int32)
+        sp1 = cv2.imread(os.path.join(args.save_superpixel_root, (name + '.png'))).astype(np.int32)
+        sp0 = ((sp0[(..., 0)] + (sp0[(..., 1)] * 256)) + (sp0[(..., 2)] * 65536))
+        sp1 = ((sp1[(..., 0)] + (sp1[(..., 1)] * 256)) + (sp1[(..., 2)] * 65536))
+        sp0 = palette[sp0.ravel()].reshape(img.shape)
+        sp1 = palette[sp1.ravel()].reshape(img.shape)
+        demo_images.append(imhstack([img, sp0, sp1], height=240))
+    demo_images = imvstack(demo_images)
+    imwrite(savename, demo_images)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 69:------------------- similar code ------------------ index = 7, score = 5.0 
+def solveSudoku(predictions, coords):
+    board = np.array(predictions).reshape((9, 9))
+    print(board)
+    print('Solving...')
+    solver = SudokuSolver(board)
+    solver.solve()
+    final = solver.board
+    if (0 in final):
+        print('Error occured while solving, try another image!')
+    else:
+        print(final)
+    solutionBoard = cv2.imread('./blank.png')
+    solutionImage = displaySolution(solutionBoard, final, predictions)
+    return solutionImage
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 70:------------------- similar code ------------------ index = 12, score = 5.0 
+def train(self, batch_size=None):
+
+    def reader():
+        batch = []
+        for img_info in self.img_infos:
+            img_path = img_info['img_path']
+            label = img_info['label']
+            img = cv2.imread(img_path)
+            (img, label) = self.extra_aug(img, label=label)
+            flip = (True if (np.random.rand() < 0.5) else False)
+            img = self.img_transform(img, self.img_scale, flip=flip)
+            if (batch_size is None):
+                (yield (img, label))
+            else:
+                batch.append([img, label])
+                if (len(batch) == batch_size):
+                    (yield batch)
+                    batch = []
+    return reader
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+        for  ...  in:
+             ...  = cv2.imread
+
+idx = 71:------------------- similar code ------------------ index = 28, score = 5.0 
+def test(self):
+
+    def reader():
+        for img_info in self.img_infos:
+            img_path = os.path.join(self.img_prefix, img_info['filename'], 'profile', img_info['frames'][(- 1)])
+            label = img_info['labels'][(- 1)]
+            img = cv2.imread(img_path)
+            img = self.img_transform(img, self.img_scale)
+            (yield (img, label))
+    return reader
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+
+    def  ... ():
+        for  ...  in:
+             ...  = cv2.imread
+
+idx = 72:------------------- similar code ------------------ index = 11, score = 5.0 
+def find_math(args):
+    try:
+        (pdf_name, image_file, char_file, page_num, output_file) = args
+        char_info = {}
+        char_map = {}
+        image = cv2.imread(image_file)
+        with open(char_file) as csvfile:
+            char_reader = csv.reader(csvfile, delimiter=',')
+            for row in char_reader:
+                char_info[row[1]] = row[2:]
+                if (row[(- 3)] != 'NONE'):
+                    if (row[1] not in char_map):
+                        char_map[row[1]] = set()
+                    char_map[row[1]].add(row[(- 2)])
+                    if (row[(- 2)] not in char_map):
+                        char_map[row[(- 2)]] = set()
+                    char_map[row[(- 2)]].add(row[1])
+                elif (row[(- 4)] == 'MATH_SYMBOL'):
+                    if (row[1] not in char_map):
+                        char_map[row[1]] = set()
+        math_regions_chars = group_math(char_map)
+        math_regions = create_bb(math_regions_chars, char_info)
+        multi_char_math = set({x for v in math_regions_chars for x in v})
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        writer = csv.writer(open(output_file, 'a'), delimiter=',')
+        for math_region in math_regions:
+            math_region.insert(0, (int(page_num) - 1))
+            writer.writerow(math_region)
+        print('Saved ', output_file, ' > ', page_num, ' math ->', len(math_regions))
+    except:
+        print('Exception while processing ', pdf_name, ' ', page_num, ' ', sys.exc_info())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    try:
+         ...  = cv2.imread
+
+idx = 73:------------------- similar code ------------------ index = 30, score = 5.0 
+def load_image(file):
+    orig_img = cv2.imread(file)
+    assert (orig_img.shape == (368, 300, 3))
+    orig_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2RGB)
+    assert (orig_img.shape == (368, 300, 3))
+    img = cv2.resize(orig_img, (512, 512))
+    assert (img.shape == (512, 512, 3))
+    img = np.transpose(img, (2, 0, 1))
+    assert (img.shape == (3, 512, 512))
+    img = (np.array([img]) / 255.0)
+    assert (img.shape == (1, 3, 512, 512))
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 74:------------------- similar code ------------------ index = 32, score = 5.0 
 if (__name__ == '__main__'):
     t0 = timeit.default_timer()
     sub_name = 'submission.csv'
@@ -368,53 +2264,7 @@ if:
     for  ...  in:
          ...  = cv2.imread
 
-idx = 16:------------------- similar code ------------------ index = 4, score = 5.0 
-def light_test_oneimage():
-    cfg = widerface_640
-    num_classes = (len(WIDERFace_CLASSES) + 1)
-    net = build_ssd('test', cfg['min_dim'], num_classes)
-    net.load_state_dict(torch.load(args.trained_model))
-    net.cuda()
-    net.eval()
-    print('Finished loading model!')
-    cuda = args.cuda
-    transform = TestBaseTransform((104, 117, 123))
-    thresh = cfg['conf_thresh']
-    path = './data/yuebing.jpg'
-    img_id = 'result'
-    img = cv2.imread(path, cv2.IMREAD_COLOR)
-    shrink = 1
-    det = infer(net, img, transform, thresh, cuda, shrink)
-    vis_detections(img, det, img_id, 0.6)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-     ...  = cv2.imread
-
-idx = 17:------------------- similar code ------------------ index = 2, score = 5.0 
-def demo(args, num, savename):
-    palette = np.random.randint(0, 256, (1000, 3)).astype(np.uint8)
-    with open(args.data_list) as f:
-        names = [x.strip() for x in f.readlines()]
-    demo_images = []
-    for name in names[:num]:
-        img = cv2.imread(os.path.join(args.image_root, (name + '.jpg')))
-        sp0 = cv2.imread(os.path.join(args.superpixel_root, (name + '.png'))).astype(np.int32)
-        sp1 = cv2.imread(os.path.join(args.save_superpixel_root, (name + '.png'))).astype(np.int32)
-        sp0 = ((sp0[(..., 0)] + (sp0[(..., 1)] * 256)) + (sp0[(..., 2)] * 65536))
-        sp1 = ((sp1[(..., 0)] + (sp1[(..., 1)] * 256)) + (sp1[(..., 2)] * 65536))
-        sp0 = palette[sp0.ravel()].reshape(img.shape)
-        sp1 = palette[sp1.ravel()].reshape(img.shape)
-        demo_images.append(imhstack([img, sp0, sp1], height=240))
-    demo_images = imvstack(demo_images)
-    imwrite(savename, demo_images)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    for  ...  in:
-         ...  = cv2.imread
-
-idx = 18:------------------- similar code ------------------ index = 1, score = 5.0 
+idx = 75:------------------- similar code ------------------ index = 10, score = 5.0 
 def _internal_test(mask_dir, out_file):
     fn_out = out_file
     with open(fn_out, 'w') as f:
@@ -438,7 +2288,62 @@ def  ... ():
         for in:
              ...  = cv2.imread
 
-idx = 19:------------------- similar code ------------------ index = 10, score = 5.0 
+idx = 76:------------------- similar code ------------------ index = 9, score = 5.0 
+def get_metrics_gt_boxes(model, timers, dataset_name):
+    model.eval()
+    (roidb, dataset, start_ind, end_ind, total_num_images) = get_roidb_and_dataset(dataset_name, None, None, True)
+    num_images = len(roidb)
+    all_results = [None for _ in range(num_images)]
+    for (i, entry) in enumerate(roidb):
+        box_proposals = None
+        im = cv2.imread(entry['image'])
+        im_results = im_detect_rels(model, im, dataset_name, box_proposals, False, timers, entry, True)
+        im_results.update(dict(image=entry['image']))
+        im_results.update(dict(gt_sbj_boxes=entry['sbj_gt_boxes'], gt_sbj_labels=entry['sbj_gt_classes'], gt_obj_boxes=entry['obj_gt_boxes'], gt_obj_labels=entry['obj_gt_classes'], gt_prd_labels=entry['prd_gt_classes']))
+        all_results[i] = im_results
+    if ((dataset_name.find('vg') >= 0) or (dataset_name.find('vrd') >= 0)):
+        metrics = task_evaluation_vg_and_vrd_k1.eval_rel_results(all_results, None, True)
+    else:
+        metrics = task_evaluation_sg.eval_rel_results(all_results, None, True)
+    return metrics
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for in:
+         ...  = cv2.imread
+
+idx = 77:------------------- similar code ------------------ index = 33, score = 5.0 
+def get_image(imageid, basepath='/wdata/dataset', rgbdir='train_rgb'):
+    fn = f'{basepath}/{rgbdir}/Pan-Sharpen_{imageid}.tif'
+    img = cv2.imread(fn, cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 78:------------------- similar code ------------------ index = 20, score = 5.0 
+def test_inference(dir, name, augs, batch=128):
+    ds = dataset.ILSVRC12Files(dir, name, shuffle=False, dir_structure='train')
+    aug = imgaug.AugmentorList(augs)
+
+    def mapf(dp):
+        (fname, cls) = dp
+        im = cv2.imread(fname, cv2.IMREAD_COLOR)
+        im = aug.augment(im)
+        return (im, cls)
+    ds = MultiThreadMapData(ds, 30, mapf, buffer_size=2000, strict=True)
+    ds = BatchData(ds, batch)
+    ds = MultiProcessRunnerZMQ(ds, 1)
+    return ds
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    def  ... ( ... ):
+         ...  = cv2.imread
+
+idx = 79:------------------- similar code ------------------ index = 51, score = 5.0 
 def _image(self, path):
     image = {}
     print(path)
@@ -453,43 +2358,447 @@ def _image(self, path):
 def  ... ():
      ...  = cv2.imread
 
-idx = 20:------------------- similar code ------------------ index = 17, score = 3.0 
-def compute_iou(names, num_cls, target_root, gt_root, num_threads=16, arr_=None):
-    _compute_iou = (lambda x: (np.diag(x) / (((x.sum(axis=0) + x.sum(axis=1)) - np.diag(x)) + 1e-10)))
-    if isinstance(names, str):
-        with open(names) as f:
-            names = [name.strip() for name in f.readlines()]
-    if (num_threads == 1):
-        mat = np.zeros((num_cls, num_cls), np.float32)
-        for name in names:
-            gt = cv2.imread(os.path.join(gt_root, (name + '.png')), 0).astype(np.int32)
-            pred = cv2.imread(os.path.join(target_root, (name + '.png')), 0).astype(np.int32)
-            if (gt.shape != pred.shape):
-                info(None, 'Name {}, gt.shape != pred.shape: [{} vs. {}]'.format(name, gt.shape, pred.shape))
-                continue
-            valid = ((gt < num_cls) & (pred < num_cls))
-            mat += np.bincount(((gt[valid] * num_cls) + pred[valid]), minlength=(num_cls ** 2)).reshape(num_cls, (- 1))
-        if (arr_ is not None):
-            arr_mat = np.frombuffer(arr_.get_obj(), np.float32)
-            arr_mat += mat.ravel()
-        else:
-            return _compute_iou(mat.copy())
-    else:
-        workload = np.full((num_threads,), (len(names) // num_threads), np.int32)
-        if (workload.sum() < len(names)):
-            workload[:(len(names) - workload.sum())] += 1
-        workload = np.cumsum(np.hstack([0, workload]))
-        names_split = [names[i:j] for (i, j) in zip(workload[:(- 1)], workload[1:])]
-        arr_ = mp.Array('f', np.zeros(((num_cls * num_cls),), np.float32))
-        mat = np.frombuffer(arr_.get_obj(), np.float32).reshape(num_cls, (- 1))
-        jobs = [mp.Process(target=compute_iou, args=(_names, num_cls, target_root, gt_root, 1, arr_)) for _names in names_split]
-        [job.start() for job in jobs]
-        [job.join() for job in jobs]
-        return _compute_iou(mat.copy())
+idx = 80:------------------- similar code ------------------ index = 133, score = 5.0 
+if (__name__ == '__main__'):
+    param = sys.argv
+    if (len(param) != 3):
+        print((('Usage: $ python ' + param[0]) + ' sample1.jpg sample2.jgp'))
+        quit()
+    try:
+        input_img1 = cv2.imread(param[1])
+    except:
+        print(('faild to load %s' % param[1]))
+        quit()
+    if (input_img1 is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    try:
+        input_img2 = cv2.imread(param[2])
+    except:
+        print(('faild to load %s' % param[2]))
+        quit()
+    if (input_img2 is None):
+        print(('faild to load %s' % param[1]))
+        quit()
+    gray = cv2.cvtColor(input_img1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(input_img2, cv2.COLOR_BGR2GRAY)
+    sift = cv2.SIFT()
+    (kp, des) = sift.detectAndCompute(gray, None)
+    (kp2, des2) = sift.detectAndCompute(gray2, None)
+    matcher = cv2.DescriptorMatcher_create('FlannBased')
+    matches = matcher.match(des, des2)
+    output_img = drawMatches(gray, kp, gray2, kp2, matches[:100])
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    try:
+         ...  = cv2.imread
+
+idx = 81:------------------- similar code ------------------ index = 53, score = 5.0 
+def convert_frames_to_video(args):
+    frame_array = []
+    files = []
+    for i in range(args.frames):
+        if args.const:
+            files.append((str(args.start_cnt) + args.ext))
+        elif (not args.reverse):
+            files.append((str((args.start_cnt + i)) + args.ext))
+        else:
+            files.append((str((((args.start_cnt + args.frames) - i) - 1)) + args.ext))
+    print(files)
+    for i in range(len(files)):
+        filename = (args.input + files[i])
+        img = cv2.imread(filename)
+        (height, width, layers) = img.shape
+        size = (width, height)
+        print(filename)
+        frame_array.append(img)
+    out = cv2.VideoWriter(args.out, cv2.VideoWriter_fourcc(*'DIVX'), args.fps, size)
+    for i in range(len(frame_array)):
+        out.write(frame_array[i])
+    out.release()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 82:------------------- similar code ------------------ index = 111, score = 5.0 
+def load_image(path):
+    if (not os.path.exists(path)):
+        print('File {} not exists'.format(path))
+    im = cv2.imread(path)
+    in_ = np.array(im, dtype=np.float32)
+    in_ -= np.array((104.00699, 116.66877, 122.67892))
+    in_ = in_.transpose((2, 0, 1))
+    return in_
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 83:------------------- similar code ------------------ index = 96, score = 5.0 
+def __getitem__(self, index):
+    '\n        Get item function used by the dataset loader\n        returns all the measurements with the desired image.\n\n        Args:\n            index:\n\n        Returns:\n\n        '
+    try:
+        img_path = os.path.join(self.root_dir, self.sensor_data_names[index].split('/')[(- 2)], self.sensor_data_names[index].split('/')[(- 1)])
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        if (self.transform is not None):
+            boost = 1
+            img = self.transform((self.batch_read_number * boost), img)
+        else:
+            img = img.transpose(2, 0, 1)
+        img = img.astype(np.float)
+        img = torch.from_numpy(img).type(torch.FloatTensor)
+        img = (img / 255.0)
+        measurements = self.measurements[index].copy()
+        for (k, v) in measurements.items():
+            v = torch.from_numpy(np.asarray([v]))
+            measurements[k] = v.float()
+        measurements['rgb'] = img
+        self.batch_read_number += 1
+    except AttributeError:
+        print('Blank IMAGE')
+        measurements = self.measurements[0].copy()
+        for (k, v) in measurements.items():
+            v = torch.from_numpy(np.asarray([v]))
+            measurements[k] = v.float()
+        measurements['steer'] = 0.0
+        measurements['throttle'] = 0.0
+        measurements['brake'] = 0.0
+        measurements['rgb'] = np.zeros(3, 88, 200)
+    return measurements
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    try:
+         ...  = cv2.imread
+
+idx = 84:------------------- similar code ------------------ index = 99, score = 5.0 
+def reader():
+    np.random.shuffle(pos_infos)
+    np.random.shuffle(neg_infos)
+    img_infos = []
+    for i in range(len(pos_infos)):
+        img_infos.append(pos_infos[i])
+        img_infos.append(neg_infos[i])
+    batch = []
+    for img_info in img_infos:
+        img_path = os.path.join(self.img_prefix, *[p for p in img_info['img_path'].split('/')[(- 7):]])
+        label = img_info['label']
+        img = cv2.imread(img_path)
+        mask = (self._get_mask(self.kp_dict[img_info['img_path']], img) if self.with_mask else np.zeros_like(img))
+        if self.crop_face:
+            (img, mask) = self._get_face(img, mask, thr=self.crop_face)
+        img = img.astype(np.float32)
+        (img, mask, label) = self.extra_aug(img, mask=mask, label=label)
+        flip = (True if (np.random.rand() < 0.5) else False)
+        (img, mask) = self.img_transform(img, self.img_scale, mask=mask, flip=flip)
+        if (batch_size is None):
+            (yield (img, mask, label))
+        else:
+            batch.append([img, mask, label])
+            if (len(batch) == batch_size):
+                (yield batch)
+                batch = []
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in  ... :
+         ...  = cv2.imread
+
+idx = 85:------------------- similar code ------------------ index = 101, score = 5.0 
+if (__name__ == '__main__'):
+    img = cv2.imread('./../docs/output.png')
+    print('img: ', img.shape)
+    img = np.array(img)
+    bbox = np.array([[50, 50, 200, 200]])
+    label = np.array(['toan'])
+    score = np.array([100])
+    (ax, fig) = vis_bbox(img=img, bbox=bbox, label=label, score=score, label_names=label_names)
+    fig.savefig('kaka.png')
+    fig.show()
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = cv2.imread
+
+idx = 86:------------------- similar code ------------------ index = 102, score = 5.0 
+def __getitem__(self, idx):
+    image_path = os.path.join(self.root_path, self.total_meta[idx]['image_path'])
+    image = cv2.imread(image_path)
+    if self.use_crop_box:
+        image = self.crop_box(image, self.total_meta[idx])
+    if self.transform:
+        image = self.transform(image)
+    return image
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 87:------------------- similar code ------------------ index = 103, score = 5.0 
+def load_image_test(path):
+    if (not os.path.exists(path)):
+        print('File {} not exists'.format(path))
+    im = cv2.imread(path)
+    in_ = np.array(im, dtype=np.float32)
+    im_size = tuple(in_.shape[:2])
+    in_ -= np.array((104.00699, 116.66877, 122.67892))
+    in_ = in_.transpose((2, 0, 1))
+    return (in_, im_size)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 88:------------------- similar code ------------------ index = 104, score = 5.0 
+def reader():
+    for img_info in self.img_infos:
+        img_path = os.path.join(self.img_prefix, img_info['filename'], 'profile', img_info['frames'][(- 1)])
+        label = img_info['labels'][(- 1)]
+        img = cv2.imread(img_path)
+        img = self.img_transform(img, self.img_scale)
+        (yield (img, label))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 89:------------------- similar code ------------------ index = 105, score = 5.0 
+@staticmethod
+def _open_image(filepath, mode=cv2.IMREAD_COLOR, dtype=None):
+    img = np.array(cv2.imread(filepath, mode), dtype=dtype)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  =  ... . ... (cv2.imread,)
+
+idx = 90:------------------- similar code ------------------ index = 106, score = 5.0 
+def __getitem__(self, idx):
+    sample = {}
+    image_path = os.path.join(self.root_path, self.metas[idx]['image_path'])
+    sample['image'] = cv2.imread(image_path)
+    sample['vehicle_id'] = self.metas[idx]['vehicle_id']
+    sample['color'] = int(self.metas[idx]['color'])
+    sample['type'] = int(self.metas[idx]['type'])
+    (origin_h, origin_w, _) = sample['image'].shape
+    sample['image_shape'] = [origin_h, origin_w]
+    if self.use_crop_box:
+        sample = self.crop_box(sample, self.metas[idx])
+    if self.use_background_substitution:
+        sample = self.background_substitution(sample, self.metas[idx])
+    del sample['image_shape']
+    if self.transform:
+        sample['image'] = self.transform(sample['image'])
+    return sample
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = cv2.imread
+
+idx = 91:------------------- similar code ------------------ index = 107, score = 5.0 
+def test(self):
+
+    def reader():
+        for img_info in self.img_infos:
+            img_path = os.path.join(self.img_prefix, *[p for p in img_info['img_path'].split('/')[(- 2):]])
+            label = img_info['label']
+            img = cv2.imread(img_path)
+            if self.crop_face:
+                img = self._get_face(img, thr=self.crop_face)
+            img = self.img_transform(img, self.img_scale)
+            (yield (img, label))
+    return reader
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+
+    def  ... ():
+        for  ...  in:
+             ...  = cv2.imread
+
+idx = 92:------------------- similar code ------------------ index = 108, score = 5.0 
+def loadImg(self, imgpath):
+    '\n        :param imgpath: the path of image to load\n        :return: loaded img object\n        '
+    print('filename:', imgpath)
+    if (not os.path.exists(imgpath)):
+        print('Can not find {}, please check local dataset!'.format(imgpath))
+        return None
+    img = cv2.imread(imgpath)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 93:------------------- similar code ------------------ index = 113, score = 5.0 
+def task(path):
+    pixel_num = 0
+    channel_sum = np.zeros(CHANNEL_NUM)
+    channel_sum_squared = np.zeros(CHANNEL_NUM)
+    print(('processing image ' + str(path)))
+    im = cv2.imread(path)
+    im = (im / 255.0)
+    pixel_num += (im.size / CHANNEL_NUM)
+    channel_sum += np.sum(im, axis=(0, 1))
+    channel_sum_squared += np.sum(np.square(im), axis=(0, 1))
+    return (pixel_num, channel_sum, channel_sum_squared)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = cv2.imread
+
+idx = 94:------------------- similar code ------------------ index = 54, score = 5.0 
+def get_val_dataflow(datadir, batch_size, augmentors=None, parallel=None, num_splits=None, split_index=None):
+    if (augmentors is None):
+        augmentors = fbresnet_augmentor(False)
+    assert (datadir is not None)
+    assert isinstance(augmentors, list)
+    if (parallel is None):
+        parallel = min(40, mp.cpu_count())
+    if (num_splits is None):
+        ds = dataset.ILSVRC12Files(datadir, 'val', shuffle=False)
+    else:
+        assert (split_index < num_splits)
+        files = dataset.ILSVRC12Files(datadir, 'val', shuffle=False)
+        files.reset_state()
+        files = list(files.get_data())
+        logger.info('Number of validation data = {}'.format(len(files)))
+        split_size = (len(files) // num_splits)
+        (start, end) = ((split_size * split_index), (split_size * (split_index + 1)))
+        end = min(end, len(files))
+        logger.info('Local validation split = {} - {}'.format(start, end))
+        files = files[start:end]
+        ds = DataFromList(files, shuffle=False)
+    aug = imgaug.AugmentorList(augmentors)
+
+    def mapf(dp):
+        (fname, cls) = dp
+        im = cv2.imread(fname, cv2.IMREAD_COLOR)
+        im = aug.augment(im)
+        return (im, cls)
+    ds = MultiThreadMapData(ds, parallel, mapf, buffer_size=min(2000, ds.size()), strict=True)
+    ds = BatchData(ds, batch_size, remainder=True)
+    return ds
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    def  ... ( ... ):
+         ...  = cv2.imread
+
+idx = 95:------------------- similar code ------------------ index = 114, score = 5.0 
+def __getitem__(self, index):
+    (image_path, label_path) = self.data_list[index]
+    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = np.float32(image)
+    label = np.array(Image.open(label_path))
+    if ((image.shape[0] != label.shape[0]) or (image.shape[1] != label.shape[1])):
+        raise RuntimeError((((('Image & label shape mismatch: ' + image_path) + ' ') + label_path) + '\n'))
+    if (self.transform is not None):
+        (image, label) = self.transform(image, label)
+    return (image, label)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 96:------------------- similar code ------------------ index = 116, score = 5.0 
+def load_custom_data_with_labels(datadir=None, img_shape=(64, 64)):
+    'Loads train with labels from a specified directory and returns a numpy array of train images and labels - used in CGAN\n\n    Args:\n        datadir (str): directory to load data from. Defaults to ``None``\n        img_shape (int, tuple, optional): shape of the image to be returned. Defaults to ``(64, 64)``\n\n    Return:\n        a numpy array of shape according to img_shape parameter\n    '
+    assert (datadir is not None), 'Enter a valid directory'
+    assert ((len(img_shape) == 2) and isinstance(img_shape, tuple)), 'img_shape must be a tuple of size 2'
+    train_data = []
+    labels = []
+    files = glob.glob(os.path.join(datadir, '*/*'))
+    for file in tqdm(files, desc='Loading images'):
+        try:
+            image = cv2.imread(file)
+            image = cv2.resize(image, img_shape, interpolation=cv2.INTER_AREA)
+            train_data.append(image)
+            label_name = int(file.split('/')[(- 2)])
+            labels.append(label_name)
+        except ValueError:
+            print('Ensure Directory is of following structure: \n {} \n {} -label 1(int type) \n {} -*.jpg \n {} -label 2(int type) \n {} -*.jpg \n {} ...'.format(datadir, (' ' * 2), (' ' * 4), (' ' * 2), (' ' * 4), (' ' * 2)))
+            break
+    assert (len(train_data) > 0), 'No images to load from directory'
+    train_data = np.array(train_data).astype('float32')
+    labels = np.array(labels)
+    labels = labels.reshape(((- 1), 1))
+    return (train_data, labels)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        try:
+             ...  = cv2.imread
+
+idx = 97:------------------- similar code ------------------ index = 117, score = 5.0 
+def __getitem__(self, index):
+    item = self.files[index]
+    name = item['name']
+    image = cv2.imread(os.path.join(self.root, item['img']), cv2.IMREAD_COLOR)
+    size = image.shape
+    label = cv2.imread(os.path.join(self.root, item['label']), cv2.IMREAD_GRAYSCALE)
+    label = self.convert_label(label)
+    if ('validation' in self.list_path):
+        image = self.input_transform(image)
+        image = image.transpose((2, 0, 1))
+        label = self.label_transform(label)
+    else:
+        (image, label) = self.resize_image_label(image, label, self.base_size)
+        (image, label) = self.gen_sample(image, label, self.multi_scale, self.flip, self.center_crop_test)
+    return (image.copy(), label.copy(), np.array(size), name)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = cv2.imread
+
+idx = 98:------------------- similar code ------------------ index = 118, score = 5.0 
+def reader():
+    batch = []
+    for img_info in self.img_infos:
+        img_path = img_info['img_path']
+        label = img_info['label']
+        img = cv2.imread(img_path)
+        (img, label) = self.extra_aug(img, label=label)
+        flip = (True if (np.random.rand() < 0.5) else False)
+        img = self.img_transform(img, self.img_scale, flip=flip)
+        if (batch_size is None):
+            (yield (img, label))
+        else:
+            batch.append([img, label])
+            if (len(batch) == batch_size):
+                (yield batch)
+                batch = []
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+         ...  = cv2.imread
+
+idx = 99:------------------- similar code ------------------ index = 119, score = 5.0 
+def load_test_image(image_path, img_width, img_height, img_channel):
+    if (img_channel == 1):
+        img = cv2.imread(image_path, flags=cv2.IMREAD_GRAYSCALE)
+    else:
+        img = cv2.imread(image_path, flags=cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, dsize=(img_width, img_height))
+    if (img_channel == 1):
+        img = np.expand_dims(img, axis=0)
+        img = np.expand_dims(img, axis=(- 1))
+    else:
+        img = np.expand_dims(img, axis=0)
+    img = ((img / 127.5) - 1)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
     if:
-        for  ...  in  ... :
-             ...  = cv2.imread
+         ...  = cv2.imread
 

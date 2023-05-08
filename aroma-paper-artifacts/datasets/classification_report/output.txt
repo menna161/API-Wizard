@@ -1,8 +1,250 @@
+------------------------- example 1 ------------------------ 
+def train(ev_inf: InferenceNet, train_Xy, val_Xy, test_Xy, inference_vectorizer, epochs=10, batch_size=16, shuffle=True):
+    if (not shuffle):
+// your code ...
+    print('Using {} training examples, {} validation examples, {} testing examples'.format(len(train_Xy), len(val_Xy), len(test_Xy)))
+    most_common = stats.mode([_get_majority_label(inst) for inst in train_Xy])[0][0]
+// your code ...
+    for epoch in range(epochs):
+        if (epochs_since_improvement > 10):
+// your code ...
+        with torch.no_grad():
+            verbose_attn_to_batches = (set([0, 1, 2, 3, 4]) if ((epoch == (epochs - 1)) or (epoch == 0)) else False)
+// your code ...
+            if (epoch == 0):
+                dummy_preds = ([most_common] * len(val_y))
+                dummy_acc = accuracy_score(val_y.cpu(), dummy_preds)
+                val_metrics['baseline_val_acc'] = dummy_acc
+                (p, r, f1, _) = precision_recall_fscore_support(val_y.cpu(), dummy_preds, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+                val_metrics['p_dummy'] = p
+// your code ...
+                val_metrics['f_dummy'] = f1
+                print('val dummy accuracy: {:.3f}'.format(dummy_acc))
+// your code ...
+                print(classification_report(val_y.cpu(), dummy_preds))
+                print('\n\n')
+            acc = accuracy_score(val_y.cpu(), y_hat)
+            val_metrics['val_acc'].append(acc)
+            val_loss = val_loss.cpu().item()
+            val_metrics['val_loss'].append(val_loss)
+            (p, r, f1, _) = precision_recall_fscore_support(val_y.cpu(), y_hat, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+            val_metrics['val_f1'].append(f1)
+// your code ...
+            if (f1 > best_val_f1):
+// your code ...
+            else:
+                epochs_since_improvement += 1
+            print('epoch {}. train loss: {}; val loss: {}; val acc: {:.3f}'.format(epoch, epoch_loss, val_loss, acc))
+// your code ...
+            print('val macro f1: {0:.3f}'.format(f1))
+            print('\n\n')
+    val_metrics['best_val_f1'] = best_val_f1
+    with torch.no_grad():
+        print('Test attentions:')
+// your code ...
+        acc = accuracy_score(test_y.cpu(), y_hat)
+        val_metrics['test_acc'] = acc
+// your code ...
+        (p, r, f1, _) = precision_recall_fscore_support(test_y.cpu(), y_hat, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+        val_metrics['test_f1'] = f1
+// your code ...
+    return (best_val_model, inference_vectorizer, train_Xy, val_Xy, val_metrics, final_test_preds)
+
+------------------------- example 2 ------------------------ 
+
+def evaluating(h, model, test_x, test_y):
+    print('[INFO] evaluating network...')
+    predictions = model.predict(test_x, batch_size=size)
+    print(classification_report(test_y.argmax(axis=1), predictions.argmax(axis=1), target_names=['EOSINOPHIL', 'LYMPHOCYTE', 'MONOCYTE', 'NEUTROPHIL']))
+    Learning.show_plot(h)
+
+------------------------- example 3 ------------------------ 
+def value(self):
+    '\n        计算指标得分\n        '
+    score = classification_report(y_true=self.y_true, y_pred=self.y_pred, target_names=self.target_names)
+    print(f'''
+
+ classification report: {score}'''
+// your code ...
+
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        38         ||         12        ||        0.0         
+example2  ||          2           ||        6         ||         0        ||        0.0         
+example3  ||          2           ||        4         ||         1        ||        0.0         
 
-avg       ||          0           ||        0         ||         0        ||         0        
+avg       ||          2.0           ||        16.0         ||         4.333333333333333        ||         0.0        
 
-idx = 0:------------------- similar code ------------------ index = 0, score = 1.0 
+idx = 0:------------------- similar code ------------------ index = 58, score = 2.0 
+def train(ev_inf: InferenceNet, train_Xy, val_Xy, test_Xy, inference_vectorizer, epochs=10, batch_size=16, shuffle=True):
+    if (not shuffle):
+        train_Xy.sort(key=(lambda x: len(x['article'])))
+        val_Xy.sort(key=(lambda x: len(x['article'])))
+        test_Xy.sort(key=(lambda x: len(x['article'])))
+    print('Using {} training examples, {} validation examples, {} testing examples'.format(len(train_Xy), len(val_Xy), len(test_Xy)))
+    most_common = stats.mode([_get_majority_label(inst) for inst in train_Xy])[0][0]
+    best_val_model = None
+    best_val_f1 = float('-inf')
+    if USE_CUDA:
+        ev_inf = ev_inf.cuda()
+    optimizer = optim.Adam(ev_inf.parameters())
+    criterion = nn.CrossEntropyLoss(reduction='sum')
+    epochs_since_improvement = 0
+    val_metrics = {'val_acc': [], 'val_p': [], 'val_r': [], 'val_f1': [], 'val_loss': [], 'train_loss': [], 'val_aucs': [], 'train_aucs': [], 'val_entropies': [], 'val_evidence_token_mass': [], 'val_evidence_token_err': [], 'train_entropies': [], 'train_evidence_token_mass': [], 'train_evidence_token_err': []}
+    for epoch in range(epochs):
+        if (epochs_since_improvement > 10):
+            print('Exiting early due to no improvement on validation after 10 epochs.')
+            break
+        if shuffle:
+            random.shuffle(train_Xy)
+        epoch_loss = 0
+        for i in range(0, len(train_Xy), batch_size):
+            instances = train_Xy[i:(i + batch_size)]
+            ys = torch.cat([_get_y_vec(inst['y'], as_vec=False) for inst in instances], dim=0)
+            unk_idx = int(inference_vectorizer.str_to_idx[SimpleInferenceVectorizer.PAD])
+            (articles, Is, Cs, Os) = [PaddedSequence.autopad([torch.LongTensor(inst[x]) for inst in instances], batch_first=True, padding_value=unk_idx) for x in ['article', 'I', 'C', 'O']]
+            optimizer.zero_grad()
+            if USE_CUDA:
+                (articles, Is, Cs, Os) = (articles.cuda(), Is.cuda(), Cs.cuda(), Os.cuda())
+                ys = ys.cuda()
+            verbose_attn = (((epoch == (epochs - 1)) and (i == 0)) or ((epoch == 0) and (i == 0)))
+            if verbose_attn:
+                print('Training attentions:')
+            tags = ev_inf(articles, Is, Cs, Os, batch_size=len(instances), verbose_attn=verbose_attn)
+            loss = criterion(tags, ys)
+            epoch_loss += loss.item()
+            loss.backward()
+            optimizer.step()
+        val_metrics['train_loss'].append(epoch_loss)
+        with torch.no_grad():
+            verbose_attn_to_batches = (set([0, 1, 2, 3, 4]) if ((epoch == (epochs - 1)) or (epoch == 0)) else False)
+            if verbose_attn_to_batches:
+                print('Validation attention:')
+            (val_y, val_y_hat) = make_preds(ev_inf, val_Xy, batch_size, inference_vectorizer, verbose_attn_to_batches=verbose_attn_to_batches)
+            val_loss = criterion(val_y_hat, val_y.squeeze())
+            y_hat = to_int_preds(val_y_hat)
+            if (epoch == 0):
+                dummy_preds = ([most_common] * len(val_y))
+                dummy_acc = accuracy_score(val_y.cpu(), dummy_preds)
+                val_metrics['baseline_val_acc'] = dummy_acc
+                (p, r, f1, _) = precision_recall_fscore_support(val_y.cpu(), dummy_preds, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+                val_metrics['p_dummy'] = p
+                val_metrics['r_dummy'] = r
+                val_metrics['f_dummy'] = f1
+                print('val dummy accuracy: {:.3f}'.format(dummy_acc))
+                print('classification report for dummy on val: ')
+                print(classification_report(val_y.cpu(), dummy_preds))
+                print('\n\n')
+            acc = accuracy_score(val_y.cpu(), y_hat)
+            val_metrics['val_acc'].append(acc)
+            val_loss = val_loss.cpu().item()
+            val_metrics['val_loss'].append(val_loss)
+            (p, r, f1, _) = precision_recall_fscore_support(val_y.cpu(), y_hat, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+            val_metrics['val_f1'].append(f1)
+            val_metrics['val_p'].append(p)
+            val_metrics['val_r'].append(r)
+            if ev_inf.article_encoder.use_attention:
+                (train_auc, train_entropies, train_evidence_token_masses, train_evidence_token_err) = evaluate_model_attention_distribution(ev_inf, train_Xy, cuda=USE_CUDA, compute_attention_diagnostics=True)
+                (val_auc, val_entropies, val_evidence_token_masses, val_evidence_token_err) = evaluate_model_attention_distribution(ev_inf, val_Xy, cuda=USE_CUDA, compute_attention_diagnostics=True)
+                print('train auc: {:.3f}, entropy: {:.3f}, evidence mass: {:.3f}, err: {:.3f}'.format(train_auc, train_entropies, train_evidence_token_masses, train_evidence_token_err))
+                print('val auc: {:.3f}, entropy: {:.3f}, evidence mass: {:.3f}, err: {:.3f}'.format(val_auc, val_entropies, val_evidence_token_masses, val_evidence_token_err))
+            else:
+                (train_auc, train_entropies, train_evidence_token_masses, train_evidence_token_err) = ('', '', '', '')
+                (val_auc, val_entropies, val_evidence_token_masses, val_evidence_token_err) = ('', '', '', '')
+            val_metrics['train_aucs'].append(train_auc)
+            val_metrics['train_entropies'].append(train_entropies)
+            val_metrics['train_evidence_token_mass'].append(train_evidence_token_masses)
+            val_metrics['train_evidence_token_err'].append(train_evidence_token_err)
+            val_metrics['val_aucs'].append(val_auc)
+            val_metrics['val_entropies'].append(val_entropies)
+            val_metrics['val_evidence_token_mass'].append(val_evidence_token_masses)
+            val_metrics['val_evidence_token_err'].append(val_evidence_token_err)
+            if (f1 > best_val_f1):
+                print('New best model at {} with val f1 {:.3f}'.format(epoch, f1))
+                best_val_f1 = f1
+                best_val_model = copy.deepcopy(ev_inf)
+                epochs_since_improvement = 0
+            else:
+                epochs_since_improvement += 1
+            print('epoch {}. train loss: {}; val loss: {}; val acc: {:.3f}'.format(epoch, epoch_loss, val_loss, acc))
+            print(classification_report(val_y.cpu(), y_hat))
+            print('val macro f1: {0:.3f}'.format(f1))
+            print('\n\n')
+    val_metrics['best_val_f1'] = best_val_f1
+    with torch.no_grad():
+        print('Test attentions:')
+        verbose_attn_to_batches = set([0, 1, 2, 3, 4])
+        (test_y, test_y_hat) = make_preds(best_val_model, test_Xy, batch_size, inference_vectorizer, verbose_attn_to_batches=verbose_attn_to_batches)
+        test_loss = criterion(test_y_hat, test_y.squeeze())
+        y_hat = to_int_preds(test_y_hat)
+        final_test_preds = zip([t['a_id'] for t in test_Xy], [t['p_id'] for t in test_Xy], y_hat)
+        acc = accuracy_score(test_y.cpu(), y_hat)
+        val_metrics['test_acc'] = acc
+        test_loss = test_loss.cpu().item()
+        val_metrics['test_loss'] = test_loss
+        (p, r, f1, _) = precision_recall_fscore_support(test_y.cpu(), y_hat, labels=None, beta=1, average='macro', pos_label=1, warn_for=('f-score',), sample_weight=None)
+        val_metrics['test_f1'] = f1
+        val_metrics['test_p'] = p
+        val_metrics['test_r'] = r
+        if ev_inf.article_encoder.use_attention:
+            (test_auc, test_entropies, test_evidence_token_masses, test_evidence_token_err) = evaluate_model_attention_distribution(best_val_model, test_Xy, cuda=USE_CUDA, compute_attention_diagnostics=True)
+            print('test auc: {:.3f}, , entropy: {:.3f}, kl_to_uniform {:.3f}'.format(test_auc, test_entropies, test_evidence_token_masses))
+        else:
+            (test_auc, test_entropies, test_evidence_token_masses, test_evidence_token_err) = ('', '', '', '')
+        val_metrics['test_auc'] = test_auc
+        val_metrics['test_entropy'] = test_entropies
+        val_metrics['test_evidence_token_mass'] = test_evidence_token_masses
+        val_metrics['test_evidence_token_err'] = test_evidence_token_err
+        print('test loss: {}; test acc: {:.3f}'.format(test_loss, acc))
+        print(classification_report(test_y.cpu(), y_hat))
+        print('test macro f1: {}'.format(f1))
+        print('\n\n')
+    return (best_val_model, inference_vectorizer, train_Xy, val_Xy, val_metrics, final_test_preds)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    for  ...  in:
+        with:
+            if:
+                print(classification_report)
+
+idx = 1:------------------- similar code ------------------ index = 76, score = 2.0 
+@staticmethod
+def evaluating(h, model, test_x, test_y):
+    print('[INFO] evaluating network...')
+    predictions = model.predict(test_x, batch_size=size)
+    print(classification_report(test_y.argmax(axis=1), predictions.argmax(axis=1), target_names=['EOSINOPHIL', 'LYMPHOCYTE', 'MONOCYTE', 'NEUTROPHIL']))
+    Learning.show_plot(h)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    print(classification_report)
+
+idx = 2:------------------- similar code ------------------ index = 61, score = 2.0 
+def run_lr_pipeline(iterations, use_test, path='./model_lr.pth'):
+    (x_train, y_train, x_val, y_val, x_test, y_test) = load_data(use_test, path)
+    y_test += 1
+    print('Loaded {} training examples, {} validation examples, {} testing examples'.format(len(x_train), len(x_val), len(x_test)))
+    model = train_model(x_train, y_train, x_val, y_val, iterations, learning_rate=0.001)
+    preds = test_model(model, x_test)
+    preds = preds
+    y_test = y_test.cpu()
+    print(classification_report(y_test, preds))
+    acc = accuracy_score(y_test, preds)
+    f1 = f1_score(y_test, preds, average='macro')
+    prec = precision_score(y_test, preds, average='macro')
+    rec = recall_score(y_test, preds, average='macro')
+    print(acc)
+    print(f1)
+    print(prec)
+    print(rec)
+    print('\n\n')
+    return (acc, f1, prec, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    print(classification_report)
+
+idx = 3:------------------- similar code ------------------ index = 12, score = 1.0 
 def value(self):
     '\n        计算指标得分\n        '
     score = classification_report(y_true=self.y_true, y_pred=self.y_pred, target_names=self.target_names)
@@ -13,4 +255,140 @@ def value(self):
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
      ...  = classification_report
+
+idx = 4:------------------- similar code ------------------ index = 20, score = 1.0 
+def e2e_score(tru, pred, name, evidence_classes):
+    acc = accuracy_score(tru, pred)
+    f1 = classification_report(tru, pred, output_dict=False, digits=4, target_names=evidence_classes)
+    conf_matrix = confusion_matrix(tru, pred, normalize='true')
+    logging.info(f'''{name} classification accuracy {acc},
+f1:
+{f1}
+confusion matrix:
+{conf_matrix}
+''')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = classification_report
+
+idx = 5:------------------- similar code ------------------ index = 77, score = 1.0 
+def train_module(model: nn.Module, save_dir: str, model_name: str, train: List[Annotation], val: List[Annotation], model_pars: dict, sep_token_id: int, sampler: Callable[([Annotation], List[Tuple[(torch.IntTensor, Tuple[(torch.IntTensor, torch.IntTensor, torch.IntTensor)], int)]])], val_sampler: Callable[([Annotation], List[Tuple[(torch.IntTensor, Tuple[(torch.IntTensor, torch.IntTensor, torch.IntTensor)], int)]])], optimizer=None, scheduler=None, detokenizer=None) -> Tuple[(nn.Module, dict)]:
+    'Trains a module for evidence identification or classification.\n    \n    Loosely based on the work done for the ERASER Benchmark: DeYoung et al., 2019\n\n    This method tracks loss on the entire validation set, saves intermediate\n    models, and supports restoring from an unfinished state. The best model on\n    the validation set is maintained, and the model stops training if a patience\n    (see below) number of epochs with no improvement is exceeded.\n\n    As there are likely too many negative examples to reasonably train a\n    classifier on everything, every epoch we subsample the negatives.\n\n    Args:\n        model: some model like BertClassifier\n        save_dir: a place to save intermediate and final results and models.\n        model_name: a string for saving information\n        train: a List of interned Annotation objects.\n        val: a List of interned Annotation objects.\n        #documents: a Dict of interned sentences\n        model_pars: Arbitrary parameters directory, assumed to contain:\n            lr: learning rate\n            batch_size: an int\n            sampling_method: a string, plus additional params in the dict to define creation of a sampler\n            epochs: the number of epochs to train for\n            patience: how long to wait for an improvement before giving up.\n            max_grad_norm: optional, clip gradients.\n        optimizer: what pytorch optimizer to use, if none, initialize Adam\n        scheduler: optional, do we want a scheduler involved in learning?\n        tensorize_model_inputs: should we convert our data to tensors before passing it to the model?\n                                Useful if we have a model that performs its own tokenization (e.g. BERT as a Service)\n\n    Returns:\n        the trained evidence identifier and a dictionary of intermediate results.\n    '
+    logging.info(f'Beginning training {model_name} with {len(train)} annotations, {len(val)} for validation')
+    output_dir = os.path.join(save_dir, f'{model_name}')
+    os.makedirs(save_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    model_save_file = os.path.join(output_dir, f'{model_name}.pt')
+    epoch_save_file = os.path.join(output_dir, f'{model_name}_epoch_data.pt')
+    if (optimizer is None):
+        optimizer = torch.optim.Adam(model.parameters(), lr=model_pars['lr'])
+    criterion = nn.CrossEntropyLoss(reduction='none')
+    batch_size = model_pars['batch_size']
+    if ('oracle' in model_name):
+        batch_size = (batch_size // 2)
+    epochs = model_pars['epochs']
+    patience = model_pars['patience']
+    max_grad_norm = model_pars.get('max_grad_norm', None)
+    device = next(model.parameters()).device
+    results = {'sampled_epoch_train_acc': [], 'sampled_epoch_train_losses': [], 'sampled_epoch_train_f1': [], 'sampled_epoch_val_acc': [], 'sampled_epoch_val_losses': [], 'sampled_epoch_val_f1': [], 'full_epoch_val_losses': [], 'full_epoch_val_f1': [], 'full_epoch_val_acc': []}
+    start_epoch = 0
+    best_epoch = (- 1)
+    best_val_loss = float('inf')
+    best_val_f1 = float('-inf')
+    best_model_state_dict = None
+    epoch_data = {}
+    if os.path.exists(epoch_save_file):
+        model.load_state_dict(torch.load(model_save_file))
+        epoch_data = torch.load(epoch_save_file)
+        start_epoch = (epoch_data['epoch'] + 1)
+        if bool(epoch_data.get('done', 0)):
+            start_epoch = epochs
+        results = epoch_data['results']
+        best_epoch = start_epoch
+        best_model_state_dict = OrderedDict({k: v.cpu() for (k, v) in model.state_dict().items()})
+        logging.info(f'Restored training from epoch {start_epoch}')
+    logging.info(f'Training evidence model from epoch {start_epoch} until epoch {epochs}')
+    optimizer.zero_grad()
+    sep = torch.tensor(sep_token_id, dtype=torch.int).unsqueeze(0)
+    for epoch in range(start_epoch, epochs):
+        epoch_train_data = list(itertools.chain.from_iterable((sampler(t) for t in train)))
+        assert (len(epoch_train_data) > 0)
+        train_classes = Counter((x[(- 1)] for x in epoch_train_data))
+        random.shuffle(epoch_train_data)
+        epoch_val_data = list(itertools.chain.from_iterable((sampler(v) for v in val)))
+        assert (len(epoch_val_data) > 0)
+        val_classes = Counter((x[(- 1)] for x in epoch_val_data))
+        random.shuffle(epoch_val_data)
+        sampled_epoch_train_loss = 0
+        model.train()
+        logging.info(f'Training with {(len(epoch_train_data) // batch_size)} batches with {len(epoch_train_data)} examples')
+        logging.info(f'Training classes distribution: {train_classes}, valing class distribution: {val_classes}')
+        hard_train_preds = []
+        hard_train_truths = []
+        optimizer.zero_grad()
+        for batch_start in range(0, len(epoch_train_data), batch_size):
+            model.train()
+            batch_elements = epoch_train_data[batch_start:min((batch_start + batch_size), len(epoch_train_data))]
+            (sentences, queries, targets) = zip(*filter((lambda x: x), batch_elements))
+            hard_train_truths.extend(targets)
+            queries = [torch.cat([i, sep, c, sep, o]).to(dtype=torch.long) for (i, c, o) in queries]
+            preds = model(queries, sentences)
+            hard_train_preds.extend([x.cpu().item() for x in torch.argmax(preds, dim=(- 1))])
+            targets = torch.tensor(targets, dtype=torch.long, device=device)
+            loss = criterion(preds, targets.to(device=preds.device)).sum()
+            sampled_epoch_train_loss += loss.item()
+            loss = (loss / len(preds))
+            loss.backward()
+            if max_grad_norm:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            optimizer.step()
+            if scheduler:
+                scheduler.step()
+            optimizer.zero_grad()
+        sampled_epoch_train_loss /= len(epoch_train_data)
+        results['sampled_epoch_train_losses'].append(sampled_epoch_train_loss)
+        results['sampled_epoch_train_acc'].append(accuracy_score(hard_train_truths, hard_train_preds))
+        results['sampled_epoch_train_f1'].append(classification_report(hard_train_truths, hard_train_preds, output_dict=True))
+        logging.info(f"Epoch {epoch} sampled training loss {sampled_epoch_train_loss}, acc {results['sampled_epoch_train_acc'][(- 1)]}")
+        with torch.no_grad():
+            model.eval()
+            (sampled_epoch_val_loss, _, sampled_epoch_val_hard_pred, sampled_epoch_val_truth) = make_preds_epoch(model, epoch_val_data, batch_size, sep_token_id, device, criterion)
+            sampled_epoch_val_acc = accuracy_score(sampled_epoch_val_truth, sampled_epoch_val_hard_pred)
+            sampled_epoch_val_f1 = classification_report(sampled_epoch_val_truth, sampled_epoch_val_hard_pred, output_dict=True)
+            results['sampled_epoch_val_losses'].append(sampled_epoch_val_loss)
+            results['sampled_epoch_val_acc'].append(sampled_epoch_val_acc)
+            results['sampled_epoch_val_f1'].append(sampled_epoch_val_f1)
+            logging.info(f'Epoch {epoch} sampled val loss {sampled_epoch_val_loss}, acc {sampled_epoch_val_acc}, f1: {sampled_epoch_val_f1}')
+            all_val_data = list(itertools.chain.from_iterable((val_sampler(v) for v in val)))
+            (epoch_val_loss, epoch_val_soft_pred, epoch_val_hard_pred, epoch_val_truth) = make_preds_epoch(model, all_val_data, batch_size, sep_token_id, device, criterion)
+            results['full_epoch_val_losses'].append(epoch_val_loss)
+            results['full_epoch_val_acc'].append(accuracy_score(epoch_val_truth, epoch_val_hard_pred))
+            results['full_epoch_val_f1'].append(classification_report(epoch_val_truth, epoch_val_hard_pred, output_dict=True))
+            logging.info(f"Epoch {epoch} full val loss {epoch_val_loss}, accuracy: {results['full_epoch_val_acc'][(- 1)]}, f1: {results['full_epoch_val_f1'][(- 1)]}")
+            full_val_f1 = results['full_epoch_val_f1'][(- 1)]['macro avg']['f1-score']
+            if (full_val_f1 > best_val_f1):
+                logging.debug(f'Epoch {epoch} new best model with full val f1 {full_val_f1}')
+                best_model_state_dict = OrderedDict({k: v.cpu() for (k, v) in model.state_dict().items()})
+                best_epoch = epoch
+                best_val_f1 = full_val_f1
+                torch.save(model.state_dict(), model_save_file)
+                epoch_data = {'epoch': epoch, 'results': results, 'best_val_loss': best_val_loss, 'done': 0}
+                torch.save(epoch_data, epoch_save_file)
+        if ((epoch - best_epoch) > patience):
+            epoch_data['done'] = 1
+            torch.save(epoch_data, epoch_save_file)
+            break
+    epoch_data['done'] = 1
+    epoch_data['results'] = results
+    torch.save(epoch_data, epoch_save_file)
+    model.load_state_dict(best_model_state_dict)
+    model = model.to(device=device)
+    model.eval()
+    return (model, results)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->:
+    for  ...  in:
+         ... . ... (classification_report)
 

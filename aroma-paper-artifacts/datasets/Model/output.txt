@@ -39,21 +39,19 @@ def build_model(char_size=27, dim=64, training=True, **kwargs):
     var_flat = L.Lambda((lambda x: K.reshape(x, K.stack([(- 1), K.prod(K.shape(x)[1:])]))), name='var_flat')
     flat_ctx = var_flat(context)
 // your code ...
-
     model = Model([context, query], out)
     if training:
 // your code ...
-
     return model
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        8         ||         0        
-example2  ||          2           ||        5         ||         0        
-example3  ||          2           ||        7         ||         0        
-example4  ||          2           ||        5         ||         0        
-example5  ||          6           ||        11         ||         2        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        8         ||         0        ||        0.75         
+example2  ||          2           ||        5         ||         0        ||        0.4         
+example3  ||          2           ||        7         ||         0        ||        0.2857142857142857         
+example4  ||          2           ||        5         ||         0        ||        0.4         
+example5  ||          6           ||        9         ||         2        ||        0.1111111111111111         
 
-avg       ||          3.0           ||        7.2         ||         0.4        
+avg       ||          0.6036217303822937           ||        6.8         ||         0.4        ||         38.93650793650793        
 
 idx = 0:------------------- similar code ------------------ index = 50, score = 2.0 
 def tiny_yolo_body(inputs, num_anchors, num_classes):

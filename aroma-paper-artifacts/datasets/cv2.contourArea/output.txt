@@ -1,0 +1,162 @@
+------------------------- example 1 ------------------------ 
+def find_biggest_contour(self, image):
+    image = image.copy()
+    (s, contours, hierarchy) = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    biggest_contour = max(contours, key=cv2.contourArea)
+    mask = np.zeros(image.shape, np.uint8)
+    cv2.drawContours(mask, [biggest_contour], (- 1), 255, (- 1))
+    return (biggest_contour, mask)
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          4           ||        7         ||         0        ||        0.0         
+
+avg       ||          33.33333333333333           ||        7.0         ||         0.0        ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 6, score = 7.0 
+def find_biggest_contour(self, image):
+    image = image.copy()
+    (s, contours, hierarchy) = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    biggest_contour = max(contours, key=cv2.contourArea)
+    mask = np.zeros(image.shape, np.uint8)
+    cv2.drawContours(mask, [biggest_contour], (- 1), 255, (- 1))
+    return (biggest_contour, mask)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+     ...  =  ... ( ... ,  ... =cv2.contourArea)
+
+idx = 1:------------------- similar code ------------------ index = 4, score = 7.0 
+def find_biggest_contour(self, image):
+    image = image.copy()
+    (s, contours, hierarchy) = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    biggest_contour = max(contours, key=cv2.contourArea)
+    mask = np.zeros(image.shape, np.uint8)
+    cv2.drawContours(mask, [biggest_contour], (- 1), 255, (- 1))
+    return (biggest_contour, mask)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+     ...  =  ... ( ... ,  ... =cv2.contourArea)
+
+idx = 2:------------------- similar code ------------------ index = 3, score = 7.0 
+def find_biggest_contour(image):
+    image = image.copy()
+    (s, contours, hierarchy) = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    biggest_contour = max(contours, key=cv2.contourArea)
+    mask = np.zeros(image.shape, np.uint8)
+    cv2.drawContours(mask, [biggest_contour], (- 1), 255, (- 1))
+    return (biggest_contour, mask)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+     ...  =  ... ( ... ,  ... =cv2.contourArea)
+
+idx = 3:------------------- similar code ------------------ index = 0, score = 7.0 
+def find_biggest_contour(image):
+    image = image.copy()
+    (s, contours, hierarchy) = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    biggest_contour = max(contours, key=cv2.contourArea)
+    mask = np.zeros(image.shape, np.uint8)
+    cv2.drawContours(mask, [biggest_contour], (- 1), 255, (- 1))
+    return (biggest_contour, mask)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+     ...  =  ... ( ... ,  ... =cv2.contourArea)
+
+idx = 4:------------------- similar code ------------------ index = 1, score = 6.0 
+def getCoords(image):
+    (contours, _) = cv2.findContours(preprocess, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    all_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    polygon = all_contours[0]
+    sums = []
+    diffs = []
+    for point in polygon:
+        for (x, y) in point:
+            sums.append((x + y))
+            diffs.append((x - y))
+    top_left = polygon[np.argmin(sums)].squeeze()
+    bottom_right = polygon[np.argmax(sums)].squeeze()
+    top_right = polygon[np.argmax(diffs)].squeeze()
+    bottom_left = polygon[np.argmin(diffs)].squeeze()
+    return np.array([top_left, top_right, bottom_right, bottom_left], dtype=np.float32)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+     ...  =  ... ( ... ,  ... =cv2.contourArea,)
+
+idx = 5:------------------- similar code ------------------ index = 5, score = 6.0 
+if (__name__ == '__main__'):
+    detected = False
+    solved = False
+    tiles = []
+    print('Get board closer to webcam until stated otherwise...')
+    while True:
+        (retr, frame) = cap.read()
+        preprocess = preprocessImage(frame)
+        preprocess = cv2.bitwise_not(preprocess.copy(), preprocess.copy())
+        contourImage = preprocess.copy()
+        contourImage = cv2.cvtColor(contourImage, cv2.COLOR_GRAY2BGR)
+        coordsImage = contourImage.copy()
+        (contours, polygon) = getContours(preprocess)
+        coords = getCoords(contourImage, polygon)
+        if (detected and solved):
+            unwarpedImage = unwarp(solutionImage, coords)
+        else:
+            unwarpedImage = np.zeros((frame.shape[0], frame.shape[1]))
+        if ((cv2.contourArea(polygon) > 80000) and (not detected)):
+            for coord in coords:
+                cv2.circle(coordsImage, (coord[0], coord[1]), 5, (255, 0, 0), (- 1))
+            cv2.drawContours(contourImage, polygon, (- 1), (0, 255, 0), 3)
+            cv2.drawContours(frame, polygon, (- 1), (0, 255, 0), 3)
+            warpedImage = warp(coordsImage.copy(), coords)
+            warpedImage = cv2.resize(warpedImage, (540, 540))
+            rects = displayGrid(warpedImage)
+            tiles = extractGrid(warpedImage, rects)
+            if (cv2.contourArea(polygon) >= 90000):
+                print('Detected')
+                detected = True
+            else:
+                print('Bring closer...')
+        else:
+            warpedImage = np.zeros((540, 540))
+        if (detected and (not solved)):
+            predictions = getPredictions(tiles)
+            solutionImage = solveSudoku(predictions, coords)
+            solved = True
+        if (retr == True):
+            cv2.imshow('Frame', frame)
+            if solved:
+                cv2.imshow('Solution', solutionImage)
+            if ((cv2.waitKey(1) & 255) == ord('q')):
+                cap.release()
+                cv2.destroyAllWindows()
+                break
+        else:
+            cap.release()
+            cv2.destroyAllWindows()
+            break
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+    while True:
+        if ((cv2.contourArea >  ... ) and):
+idx = 6:------------------- similar code ------------------ index = 2, score = 5.0 
+def find_contours(image, min_area=0, sort=True):
+    image = image.copy()
+    if (opencv_version() == 3):
+        contours = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[1]
+    else:
+        contours = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
+    contours = [contour for contour in contours if (cv2.contourArea(contour) >= min_area)]
+    if (len(contours) < 1):
+        return ([], [])
+    if sort:
+        bndboxes = [cv2.boundingRect(contour) for contour in contours]
+        (contours, bndboxes) = zip(*sorted(zip(contours, bndboxes), key=(lambda x: x[1][0])))
+    return (contours, bndboxes)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = [ ...  for  ...  in  ...  if (cv2.contourArea >=  ... )]
+

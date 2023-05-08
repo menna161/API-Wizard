@@ -1,66 +1,93 @@
 ------------------------- example 1 ------------------------ 
-def raise_if_form_exists(url, session):
-    '\n    This function raises a UserWarning if the link has forms\n    '
-    user_warning = ('Navigate to {0}, '.format(url) + 'login and follow instructions. It is likely that you have to perform some one-time registration steps before acessing this data.')
-    resp = session.get(url)
-    soup = BeautifulSoup(resp.content, 'lxml')
-    if (len(soup.select('form')) > 0):
+def query_stack_overflow(url):
+    '\n    Given a url, this function returns the BeautifulSoup of the\n    request.\n\n    Parameter {str} url: the url to request.\n    Returns {bs4.BeautifulSoup}: the BeautifulSoup of the request.\n    '
 // your code ...
-
+    return BeautifulSoup(response.text, 'lxml')
 
 ------------------------- example 2 ------------------------ 
-def test_body(self):
-    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
+def test_get_post_summaries(monkeypatch):
+    "\n    Ensures that the generator yields post summaries until\n    there aren't anymore post summaries.\n    "
 // your code ...
 
-    soup = BeautifulSoup(res.text, 'html.parser')
-    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
-    self.assertEqual(soup.form['action'], 'http://localhost/.html')
+    def mock_query_stack_overflow(*args):
+        '\n        Mocks the query_stack_overflow function.\n        '
 // your code ...
-
+        if (query_stack_overflow_call_count == 3):
+            return BeautifulSoup(open((base + 'query_no_post_summaries.html')).read(), 'lxml')
+        return BeautifulSoup(open((base + 'query_post_summaries.html')).read(), 'lxml')
+    monkeypatch.setattr('autostack.so_web_scraper.build_query_url', mock_build_query_url)
+// your code ...
 
 ------------------------- example 3 ------------------------ 
-def request_single_patent(self, patent, url=False):
-    'Calls request function to retreive google patent data and parses returned html using BeautifulSoup\n\n\n        Returns: \n            - Status of scrape   <- String\n            - Html of patent     <- BS4 object\n\n        Inputs:\n            - patent (str)  : if    url == False then patent is patent number\n                              elif  url == True  then patent is google patent url\n            - url    (bool) : determines whether patent is treated as patent number \n                                or google patent url\n\n        '
-    try:
-        if (not url):
-            url = 'https://patents.google.com/patent/{0}'.format(patent)
-        else:
-            url = patent
-        print(url)
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = urlopen(req).read()
-        soup = BeautifulSoup(webpage, features='lxml')
-        return ('Success', soup, url)
-    except HTTPError as e:
-        print('Patent: {0}, Error Status Code : {1}'.format(patent, e.code))
-        return (e.code, '', url)
+def GetDownloadList(self, resp):
+    '获取下载链接'
+// your code ...
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_dl_lists = soup.find_all('div', class_='dict_dl_btn')
+    for dict_dl_list in dict_dl_lists:
+// your code ...
 
 ------------------------- example 4 ------------------------ 
-def soup_login(session, url, username, password, username_field='username', password_field='password'):
-    resp = session.get(url)
-    soup = BeautifulSoup(resp.content, 'lxml')
-    login_form = soup.select('form')[0]
-
-    def get_to_url(current_url, to_url):
-        split_current = urlsplit(current_url)
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Evolution HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
 // your code ...
-
-        comb = [(val2 if (val1 == '') else val1) for (val1, val2) in zip(split_to, split_current)]
-        return urlunsplit(comb)
-    to_url = get_to_url(resp.url, login_form.get('action'))
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
 // your code ...
+                image_id = ''
+                if (html_soup.find('div', class_='col-md-5') and html_soup.find('div', class_='col-md-5').find('a', class_='thumbnail')):
+// your code ...
+                if html_soup.find('div', class_='col-md-7'):
+                    info_column = html_soup.find('div', class_='col-md-7')
+// your code ...
+                    if product_name:
+                        vendor = ''
+// your code ...
+                        if price:
+                            desc = ''
+// your code ...
+                            if (html_soup.find_all('div', class_='col-md-9') and (len(html_soup.find_all('div', class_='col-md-9')) > 1)):
+                                ship_to2 = html_soup.find_all('div', class_='col-md-9')[1]
+                                if (ship_to2.find_all('p') and (len(ship_to2.find_all('p')) > 1)):
+                                    ship_to = str(ship_to2.find_all('p')[1].text)
+                            ship_from = ''
+// your code ...
+    return items
 
+------------------------- example 5 ------------------------ 
+def scrape_url(self, url):
+    '\n        Scrape the data for every match on a given URL and insert each into the\n        database.\n\n        Args:\n            url (str): URL to scrape data from.\n\n        Returns:\n            Whether data existed for that season.\n        '
+// your code ...
+    tournament_tbl_soup = BeautifulSoup(tournament_tbl_html, 'html.parser')
+    try:
+// your code ...
+    return True
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        7         ||         1        
-example2  ||          3           ||        7         ||         2        
-example3  ||          2           ||        15         ||         0        
-example4  ||          3           ||        10         ||         2        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        3         ||         1        ||        0.6666666666666666         
+example2  ||          3           ||        7         ||         3        ||        0.5714285714285714         
+example3  ||          6           ||        5         ||         2        ||        0.2         
+example4  ||          4           ||        25         ||         7        ||        0.08         
+example5  ||          5           ||        5         ||         2        ||        0.2         
 
-avg       ||          2.75           ||        9.75         ||         1.25        
+avg       ||          4.666666666666667           ||        9.0         ||         3.0        ||         34.36190476190476        
 
-idx = 0:------------------- similar code ------------------ index = 12, score = 2.0 
+idx = 0:------------------- similar code ------------------ index = 1, score = 2.0 
+def make_soup(self, doc):
+    return BeautifulSoup(str(doc))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return BeautifulSoup
+
+idx = 1:------------------- similar code ------------------ index = 86, score = 2.0 
 def _parse(source, beautifulsoup, makeelement, **bsargs):
     if (beautifulsoup is None):
         beautifulsoup = BeautifulSoup
@@ -82,7 +109,53 @@ def  ... ():
     if:
          ...  = BeautifulSoup
 
-idx = 1:------------------- similar code ------------------ index = 8, score = 2.0 
+idx = 2:------------------- similar code ------------------ index = 2, score = 2.0 
+def query_stack_overflow(url):
+    '\n    Given a url, this function returns the BeautifulSoup of the\n    request.\n\n    Parameter {str} url: the url to request.\n    Returns {bs4.BeautifulSoup}: the BeautifulSoup of the request.\n    '
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        return None
+    return BeautifulSoup(response.text, 'lxml')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    return BeautifulSoup
+
+idx = 3:------------------- similar code ------------------ index = 39, score = 2.0 
+def process_lines(self, lines):
+    '\n        Convert the given input into a list of SoupString rows\n        for further processing.\n        '
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        raise core.OptionalTableImportError('BeautifulSoup must be installed to read HTML tables')
+    if ('parser' not in self.html):
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*no parser was explicitly specified.*')
+            soup = BeautifulSoup('\n'.join(lines))
+    else:
+        soup = BeautifulSoup('\n'.join(lines), self.html['parser'])
+    tables = soup.find_all('table')
+    for (i, possible_table) in enumerate(tables):
+        if identify_table(possible_table, self.html, (i + 1)):
+            table = possible_table
+            break
+    else:
+        if isinstance(self.html['table_id'], int):
+            err_descr = 'number {}'.format(self.html['table_id'])
+        else:
+            err_descr = "id '{}'".format(self.html['table_id'])
+        raise core.InconsistentTableError(f'ERROR: HTML table {err_descr} not found')
+    soup_list = [SoupString(x) for x in table.find_all('tr')]
+    return soup_list
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    try:
+        from  ...  import BeautifulSoup
+
+idx = 4:------------------- similar code ------------------ index = 49, score = 2.0 
 def _build_doc(self):
     from bs4 import BeautifulSoup
     return BeautifulSoup(self._setup_build_doc(), features='html5lib', from_encoding=self.encoding)
@@ -91,20 +164,1670 @@ def _build_doc(self):
 def  ... ( ... ):
     from  ...  import BeautifulSoup
 
-idx = 2:------------------- similar code ------------------ index = 13, score = 1.0 
-def raise_if_form_exists(url, session):
-    '\n    This function raises a UserWarning if the link has forms\n    '
-    user_warning = ('Navigate to {0}, '.format(url) + 'login and follow instructions. It is likely that you have to perform some one-time registration steps before acessing this data.')
-    resp = session.get(url)
-    soup = BeautifulSoup(resp.content, 'lxml')
-    if (len(soup.select('form')) > 0):
-        raise UserWarning(user_warning)
+idx = 5:------------------- similar code ------------------ index = 60, score = 2.0 
+def test_get_post_summaries(monkeypatch):
+    "\n    Ensures that the generator yields post summaries until\n    there aren't anymore post summaries.\n    "
+    query_stack_overflow_call_count = 0
+
+    def mock_build_query_url(*args):
+        '\n        Mocks the build_query_url function.\n        '
+        return
+
+    def mock_query_stack_overflow(*args):
+        '\n        Mocks the query_stack_overflow function.\n        '
+        nonlocal query_stack_overflow_call_count
+        query_stack_overflow_call_count += 1
+        base = 'autostack/so_web_scraper/__tests__/data/'
+        if (query_stack_overflow_call_count == 3):
+            return BeautifulSoup(open((base + 'query_no_post_summaries.html')).read(), 'lxml')
+        return BeautifulSoup(open((base + 'query_post_summaries.html')).read(), 'lxml')
+    monkeypatch.setattr('autostack.so_web_scraper.build_query_url', mock_build_query_url)
+    monkeypatch.setattr('autostack.so_web_scraper.query_stack_overflow', mock_query_stack_overflow)
+    for post_summaries in get_post_summaries(None):
+        pass
+    assert (query_stack_overflow_call_count == 3)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    def  ... ():
+        if:
+            return BeautifulSoup
+
+idx = 6:------------------- similar code ------------------ index = 58, score = 2.0 
+def post_soup(post_summary):
+    '\n    Given a post summary, query Stack Overflow, and return the\n    BeautifulSoup of the post, if it has an accepted answer.\n\n    Parameter {bs4.Tag} post_summary: the bs4.Tag post summary.\n    Parameter {bs4.BeautifulSoup}: the BeautifulSoup of the post,\n    if it has an accepted answer; otherwise, None.\n    '
+    if has_accepted_answer(post_summary):
+        post_url = get_post_url(post_summary)
+        try:
+            response = requests.get((BASE_URL + post_url))
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            return None
+        return BeautifulSoup(response.text, 'lxml')
+    return None
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    if:
+        return BeautifulSoup
+    return None
+
+idx = 7:------------------- similar code ------------------ index = 16, score = 2.0 
+def horoscope(birthday, corrected=True, chinese=False):
+    '\n    Enter your birthday as an `astropy.time.Time` object and\n    receive a mystical horoscope about things to come.\n\n    Parameter\n    ---------\n    birthday : `astropy.time.Time` or str\n        Your birthday as a `datetime.datetime` or `astropy.time.Time` object\n        or "YYYY-MM-DD"string.\n    corrected : bool\n        Whether to account for the precession of the Earth instead of using the\n        ancient Greek dates for the signs.  After all, you do want your *real*\n        horoscope, not a cheap inaccurate approximation, right?\n\n    chinese : bool\n        Chinese annual zodiac wisdom instead of Western one.\n\n    Returns\n    -------\n    Infinite wisdom, condensed into astrologically precise prose.\n\n    Notes\n    -----\n    This function was implemented on April 1.  Take note of that date.\n    '
+    from bs4 import BeautifulSoup
+    today = datetime.now()
+    err_msg = 'Invalid response from celestial gods (failed to load horoscope).'
+    headers = {'User-Agent': 'foo/bar'}
+    special_words = {'([sS]tar[s^ ]*)': 'yellow', '([yY]ou[^ ]*)': 'magenta', '([pP]lay[^ ]*)': 'blue', '([hH]eart)': 'red', '([fF]ate)': 'lightgreen'}
+    if isinstance(birthday, str):
+        birthday = datetime.strptime(birthday, '%Y-%m-%d')
+    if chinese:
+        zodiac_sign = _get_zodiac(birthday.year)
+        url = 'https://www.horoscope.com/us/horoscopes/yearly/{}-chinese-horoscope-{}.aspx'.format(today.year, zodiac_sign)
+        summ_title_sfx = f'in {today.year}'
+        try:
+            res = Request(url, headers=headers)
+            with urlopen(res) as f:
+                try:
+                    doc = BeautifulSoup(f, 'html.parser')
+                    item = doc.find(id='overview')
+                    desc = item.getText()
+                except Exception:
+                    raise CelestialError(err_msg)
+        except Exception:
+            raise CelestialError(err_msg)
+    else:
+        birthday = atime.Time(birthday)
+        if corrected:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                zodiac_sign = get_sun(birthday).get_constellation().lower()
+            zodiac_sign = _CONST_TO_SIGNS.get(zodiac_sign, zodiac_sign)
+            if (zodiac_sign not in _VALID_SIGNS):
+                raise HumanError('On your birthday the sun was in {}, which is not a sign of the zodiac.  You must not exist.  Or maybe you can settle for corrected=False.'.format(zodiac_sign.title()))
+        else:
+            zodiac_sign = get_sign(birthday.to_datetime())
+        url = f'http://www.astrology.com/us/horoscope/daily-overview.aspx?sign={zodiac_sign}'
+        summ_title_sfx = 'on {}'.format(today.strftime('%Y-%m-%d'))
+        res = Request(url, headers=headers)
+        with urlopen(res) as f:
+            try:
+                doc = BeautifulSoup(f, 'html.parser')
+                item = doc.find('span', {'class': 'date'})
+                desc = item.parent.getText()
+            except Exception:
+                raise CelestialError(err_msg)
+    print(('*' * 79))
+    color_print('Horoscope for {} {}:'.format(zodiac_sign.capitalize(), summ_title_sfx), 'green')
+    print(('*' * 79))
+    for block in textwrap.wrap(desc, 79):
+        split_block = block.split()
+        for (i, word) in enumerate(split_block):
+            for re_word in special_words.keys():
+                match = re.search(re_word, word)
+                if (match is None):
+                    continue
+                split_block[i] = _color_text(match.groups()[0], special_words[re_word])
+        print(' '.join(split_block))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    from  ...  import BeautifulSoup
+
+idx = 8:------------------- similar code ------------------ index = 15, score = 2.0 
+def mock_query_stack_overflow(*args):
+    '\n        Mocks the query_stack_overflow function.\n        '
+    nonlocal query_stack_overflow_call_count
+    query_stack_overflow_call_count += 1
+    base = 'autostack/so_web_scraper/__tests__/data/'
+    if (query_stack_overflow_call_count == 3):
+        return BeautifulSoup(open((base + 'query_no_post_summaries.html')).read(), 'lxml')
+    return BeautifulSoup(open((base + 'query_post_summaries.html')).read(), 'lxml')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        return BeautifulSoup
+
+idx = 9:------------------- similar code ------------------ index = 57, score = 2.0 
+def read_html(file):
+    with codecs.open(file, 'r', encoding='UTF-8') as f:
+        text = f.read()
+    return BeautifulSoup(text, 'html.parser')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    return BeautifulSoup
+
+idx = 10:------------------- similar code ------------------ index = 89, score = 1.0 
+def GetDownloadList(self, resp):
+    '获取下载链接'
+    downloadUrls = {}
+    pattern = re.compile('name=(.*)')
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_dl_lists = soup.find_all('div', class_='dict_dl_btn')
+    for dict_dl_list in dict_dl_lists:
+        dict_dl_url = dict_dl_list.a['href']
+        dict_name = pattern.findall(dict_dl_url)[0]
+        dict_ch_name = unquote(dict_name, 'utf-8').replace('/', '-').replace(',', '-').replace('|', '-').replace('\\', '-').replace("'", '-')
+        downloadUrls[dict_ch_name] = dict_dl_url
+    return downloadUrls
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  = BeautifulSoup
 
-idx = 3:------------------- similar code ------------------ index = 11, score = 1.0 
+idx = 11:------------------- similar code ------------------ index = 30, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Evolution HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find('ol', class_='breadcrumb'):
+                    breadcrumb = html_soup.find('ol', class_='breadcrumb')
+                    cats = breadcrumb.find_all('li')
+                    for category in cats:
+                        categories.append(category.text)
+                image_id = ''
+                if (html_soup.find('div', class_='col-md-5') and html_soup.find('div', class_='col-md-5').find('a', class_='thumbnail')):
+                    image_id2 = html_soup.find('div', class_='col-md-5').find('a', class_='thumbnail').get('href')
+                    image_id = '/'.join(image_id2.split('/')[3:])
+                if html_soup.find('div', class_='col-md-7'):
+                    info_column = html_soup.find('div', class_='col-md-7')
+                    product_name = ''
+                    if info_column.h3:
+                        product_name = info_column.h3.text
+                    elif info_column.h1:
+                        product_name = info_column.h1.text
+                    elif info_column.h2:
+                        product_name = info_column.h2.text
+                    elif info_column.h4:
+                        product_name = info_column.h4.text
+                    if product_name:
+                        vendor = ''
+                        if (info_column.find('div', class_='seller-info text-muted') and info_column.find('div', class_='seller-info text-muted').find('a')):
+                            vendor2 = info_column.find('div', class_='seller-info text-muted')
+                            vendor = vendor2.find('a').text
+                        price = ''
+                        if info_column.find('h4', class_='text-info'):
+                            price2 = info_column.find('h4', class_='text-info').text
+                            price = price2.split(' ')[1]
+                        elif info_column.find('h3', class_='text-info'):
+                            price2 = info_column.find('h3', class_='text-info').text
+                            price = price2.split(' ')[1]
+                        if price:
+                            desc = ''
+                            if html_soup.find('div', class_='product-summary'):
+                                desc = html_soup.find('div', class_='product-summary').p.text
+                            ship_to = ''
+                            if (html_soup.find_all('div', class_='col-md-9') and (len(html_soup.find_all('div', class_='col-md-9')) > 1)):
+                                ship_to2 = html_soup.find_all('div', class_='col-md-9')[1]
+                                if (ship_to2.find_all('p') and (len(ship_to2.find_all('p')) > 1)):
+                                    ship_to = str(ship_to2.find_all('p')[1].text)
+                            ship_from = ''
+                            if html_soup.find('div', class_='widget'):
+                                widgets = html_soup.find_all('div', class_='widget')
+                                for widget in widgets:
+                                    if (widget.h3 and (widget.h3.text == 'Ships From')):
+                                        ship_from = widget.p.text
+                            categories_str = str('/'.join(categories))
+                            items.append(('evolution', product_name, float(price), categories_str, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 12:------------------- similar code ------------------ index = 27, score = 1.0 
+def scrape_url(self, url):
+    '\n        Scrape the data for every match on a given URL and insert each into the\n        database.\n\n        Args:\n            url (str): URL to scrape data from.\n\n        Returns:\n            Whether data existed for that season.\n        '
+    self.browser.get(url)
+    delay = 5
+    time.sleep(delay)
+    tournament_tbl = self.browser.find_element_by_id('tournamentTable')
+    tournament_tbl_html = tournament_tbl.get_attribute('innerHTML')
+    tournament_tbl_soup = BeautifulSoup(tournament_tbl_html, 'html.parser')
+    try:
+        significant_rows = tournament_tbl_soup(self.is_soccer_match_or_date)
+    except:
+        return False
+    current_date_str = None
+    for row in significant_rows:
+        if (self.is_date(row) is True):
+            current_date_str = self.get_date(row)
+        elif (self.is_date_string_supported(current_date_str) == False):
+            continue
+        else:
+            this_match = SoccerMatch()
+            game_datetime_str = ((current_date_str + ' ') + self.get_time(row))
+            this_match.set_start(game_datetime_str)
+            participants = self.get_participants(row)
+            this_match.set_teams(participants)
+            scores = self.get_scores(row)
+            this_match.set_outcome_from_scores(scores)
+            odds = self.get_odds(row)
+            this_match.set_odds(odds)
+            self.db_manager.add_soccer_match(self.league, url, this_match)
+    return True
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+    return True
+
+idx = 13:------------------- similar code ------------------ index = 28, score = 1.0 
+def request_single_patent(self, patent, url=False):
+    'Calls request function to retreive google patent data and parses returned html using BeautifulSoup\n\n\n        Returns: \n            - Status of scrape   <- String\n            - Html of patent     <- BS4 object\n\n        Inputs:\n            - patent (str)  : if    url == False then patent is patent number\n                              elif  url == True  then patent is google patent url\n            - url    (bool) : determines whether patent is treated as patent number \n                                or google patent url\n\n        '
+    try:
+        if (not url):
+            url = 'https://patents.google.com/patent/{0}'.format(patent)
+        else:
+            url = patent
+        print(url)
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        webpage = urlopen(req).read()
+        soup = BeautifulSoup(webpage, features='lxml')
+        return ('Success', soup, url)
+    except HTTPError as e:
+        print('Patent: {0}, Error Status Code : {1}'.format(patent, e.code))
+        return (e.code, '', url)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = BeautifulSoup
+
+idx = 14:------------------- similar code ------------------ index = 29, score = 1.0 
+@classmethod
+def login(cls, session, username, password):
+    r = session.requests_session.post(session.login_action, {'CSRFHW': session.csrfhw, 'wlanuserip': session.wlanuserip, 'username': username, 'password': password})
+    if (not r.ok):
+        raise NautaLoginException('Falló el inicio de sesión: {} - {}'.format(r.status_code, r.reason))
+    if (not ('online.do' in r.url)):
+        soup = bs4.BeautifulSoup(r.text, 'html.parser')
+        script_text = soup.find_all('script')[(- 1)].get_text()
+        match = re.search('alert\\(\\"(?P<reason>[^\\"]*?)\\"\\)', script_text)
+        raise NautaLoginException('Falló el inicio de sesión: {}'.format((match and match.groupdict().get('reason'))))
+    m = re.search('ATTRIBUTE_UUID=(\\w+)&CSRFHW=', r.text)
+    return (m.group(1) if m else None)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .BeautifulSoup
+
+idx = 15:------------------- similar code ------------------ index = 34, score = 1.0 
+def strip_html(html):
+    'Strip all tags from an HTML string.'
+    soup = BeautifulSoup(html, features='html.parser')
+    for br in soup.find_all('br'):
+        br.replace_with(('\n' + br.text))
+    return soup.text
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 16:------------------- similar code ------------------ index = 32, score = 1.0 
+def recipeToJSON(browser, recipeID):
+    html = browser.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    recipe = {}
+    recipe['id'] = recipeID
+    recipe['language'] = soup.select_one('html').attrs['lang']
+    recipe['title'] = soup.select_one('.recipe-card__title').text
+    recipe['rating_count'] = re.sub('\\D', '', soup.select_one('.core-rating__label').text, flags=re.IGNORECASE)
+    recipe['rating_score'] = soup.select_one('.core-rating__counter').text
+    recipe['tm-versions'] = [v.text.replace('\n', '').strip().lower() for v in soup.select('.recipe-card__tm-version core-badge')]
+    recipe.update({l.text: l.next_sibling.strip() for l in soup.select('core-feature-icons label span')})
+    recipe['ingredients'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#ingredients li')]
+    recipe['nutritions'] = {}
+    for item in list(zip(soup.select('.nutritions dl')[0].find_all('dt'), soup.select('.nutritions dl')[0].find_all('dd'))):
+        (dt, dl) = item
+        recipe['nutritions'].update({dt.string.replace('\n', '').strip().lower(): re.sub('\\s{2,}', ' ', dl.string.replace('\n', '').strip().lower())})
+    recipe['steps'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#preparation-steps li')]
+    recipe['tags'] = [a.text.replace('#', '').replace('\n', '').strip().lower() for a in soup.select('.core-tags-wrapper__tags-container a')]
+    return recipe
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 17:------------------- similar code ------------------ index = 33, score = 1.0 
+def get_src_rpm_filename(url, src_version):
+    try:
+        response = requests.get(url, timeout=5)
+    except Exception as e:
+        logger.error(e)
+        sys.exit(1)
+    if response.ok:
+        response_text = response.text
+        soup = BeautifulSoup(response_text, 'html.parser')
+        for node in soup.find_all('a'):
+            if (node.get('href').endswith('rpm') and ('nginx-{}-'.format(src_version) in node.get('href'))):
+                file_name = node.get('href')
+    elif (400 <= response.status_code < 500):
+        logger.error(u'{} Client Error: {} for url: {}'.format(response.status_code, response.reason, url))
+        sys.exit(1)
+    elif (500 <= response.status_code < 600):
+        logger.error(u'{} Server Error: {} for url: {}'.format(response.status_code, response.reason, url))
+        sys.exit(1)
+    if ('file_name' in locals()):
+        return file_name
+    else:
+        logger.error('Cannot find nginx source rpm(SRPM) with version {} in url {}'.format(src_version, url))
+        sys.exit(1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = BeautifulSoup
+
+idx = 18:------------------- similar code ------------------ index = 24, score = 1.0 
+def test_get_post_text_answer():
+    '\n    Ensures the accepted answer post-text is returned for a post.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/post_accepted_answer.html'
+    html = open(path).read()
+    post = BeautifulSoup(html, 'lxml')
+    post_text = get_post_text(post, 'accepted-answer')
+    assert post_text
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 19:------------------- similar code ------------------ index = 35, score = 1.0 
+def parse(html, url, bases):
+    '\n    Takes an html string and a url as arguments.\n\n    Returns a tuple (url, content, links) parsed from the html.\n    '
+    soup = BeautifulSoup(html, 'lxml')
+    content = soup.body.get_text().strip()
+    links = [urljoin(url, l.get('href')) for l in soup.findAll('a')]
+    links = [l for l in links if (urlparse(l).netloc in bases)]
+    return (url, content, links)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 20:------------------- similar code ------------------ index = 36, score = 1.0 
+def fritzbox_query(searched_macs, ignored_macs):
+    config = configparser.ConfigParser()
+    config.read(os.path.join(settings.BASE_DIR, 'config.ini'))
+    ip = config['FritzBox']['ip']
+    password = config['FritzBox']['password']
+    if ((not ip) or (not password)):
+        raise FritzException('ip or password not specified')
+    box = FritzBox(ip, None, password)
+    try:
+        box.login()
+    except Exception:
+        raise FritzException('Login failed')
+    r = box.session.get((box.base_url + '/net/network_user_devices.lua'), params={'sid': box.sid})
+    try:
+        table = BeautifulSoup(r.text, 'lxml').find(id='uiLanActive')
+    except AttributeError:
+        raise FritzException('Could not extract active devices.')
+    rows = table.find_all('tr')
+    present_macs = []
+    anonymous_count = 0
+    for row in rows:
+        columns = row.find_all('td')
+        if (len(columns) >= 4):
+            mac = columns[3].text.upper()
+            if (mac in searched_macs):
+                present_macs.append(mac)
+            elif (mac not in ignored_macs):
+                anonymous_count += 1
+    return (present_macs, anonymous_count)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = BeautifulSoup
+
+idx = 21:------------------- similar code ------------------ index = 37, score = 1.0 
+def find_feeds(url, check_all=False, user_agent=None, timeout=None):
+    finder = FeedFinder(user_agent=user_agent, timeout=timeout)
+    url = coerce_url(url)
+    text = finder.get_feed(url)
+    if (text is None):
+        return []
+    if finder.is_feed_data(text):
+        return [url]
+    logging.info('Looking for <link> tags.')
+    tree = BeautifulSoup(text, 'html.parser')
+    links = []
+    for link in tree.find_all('link'):
+        if (link.get('type') in ['application/rss+xml', 'text/xml', 'application/atom+xml', 'application/x.atom+xml', 'application/x-atom+xml']):
+            links.append(urlparse.urljoin(url, link.get('href', '')))
+    urls = list(filter(finder.is_feed, links))
+    logging.info('Found {0} feed <link> tags.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    logging.info('Looking for <a> tags.')
+    (local, remote) = ([], [])
+    for a in tree.find_all('a'):
+        href = a.get('href', None)
+        if (href is None):
+            continue
+        if (('://' not in href) and finder.is_feed_url(href)):
+            local.append(href)
+        if finder.is_feedlike_url(href):
+            remote.append(href)
+    local = [urlparse.urljoin(url, l) for l in local]
+    urls += list(filter(finder.is_feed, local))
+    logging.info('Found {0} local <a> links to feeds.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    remote = [urlparse.urljoin(url, l) for l in remote]
+    urls += list(filter(finder.is_feed, remote))
+    logging.info('Found {0} remote <a> links to feeds.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    fns = ['atom.xml', 'index.atom', 'index.rdf', 'rss.xml', 'index.xml', 'index.rss']
+    urls += list(filter(finder.is_feed, [urlparse.urljoin(url, f) for f in fns]))
+    return sort_urls(urls)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 22:------------------- similar code ------------------ index = 38, score = 1.0 
+def bypass_ouo(url: str) -> str:
+    ANCHOR_URL = 'https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Lcr1ncUAAAAAH3cghg6cOTPGARa8adOf-y9zv2x&co=aHR0cHM6Ly9vdW8uaW86NDQz&hl=en&v=1B_yv3CBEV10KtI2HJ6eEXhJ&size=invisible&cb=4xnsug1vufyr'
+
+    def RecaptchaV3(ANCHOR_URL):
+        url_base = 'https://www.google.com/recaptcha/'
+        post_data = 'v={}&reason=q&c={}&k={}&co={}'
+        client = requests.Session()
+        client.headers.update({'content-type': 'application/x-www-form-urlencoded'})
+        matches = re.findall('([api2|enterprise]+)\\/anchor\\?(.*)', ANCHOR_URL)[0]
+        url_base += (matches[0] + '/')
+        params = matches[1]
+        res = client.get((url_base + 'anchor'), params=params)
+        token = re.findall('"recaptcha-token" value="(.*?)"', res.text)[0]
+        params = dict((pair.split('=') for pair in params.split('&')))
+        post_data = post_data.format(params['v'], token, params['k'], params['co'])
+        res = client.post((url_base + 'reload'), params=f"k={params['k']}", data=post_data)
+        answer = re.findall('"rresp","(.*?)"', res.text)[0]
+        return answer
+    client = requests.Session()
+    tempurl = url.replace('ouo.press', 'ouo.io')
+    p = urlparse(tempurl)
+    id = tempurl.split('/')[(- 1)]
+    res = client.get(tempurl)
+    next_url = f'{p.scheme}://{p.hostname}/go/{id}'
+    for _ in range(2):
+        if res.headers.get('Location'):
+            break
+        bs4 = BeautifulSoup(res.content, 'lxml')
+        inputs = bs4.form.findAll('input', {'name': re.compile('token$')})
+        data = {input.get('name'): input.get('value') for input in inputs}
+        ans = RecaptchaV3(ANCHOR_URL)
+        data['x-token'] = ans
+        h = {'content-type': 'application/x-www-form-urlencoded'}
+        res = client.post(next_url, data=data, headers=h, allow_redirects=False)
+        next_url = f'{p.scheme}://{p.hostname}/xreallcygo/{id}'
+    return res.headers.get('Location')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->  ... :
+    for  ...  in:
+         ...  = BeautifulSoup
+
+idx = 23:------------------- similar code ------------------ index = 41, score = 1.0 
+def htmlToText(s):
+    return bs4.BeautifulSoup(s, 'html.parser').get_text()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    return  ... .BeautifulSoup
+
+idx = 24:------------------- similar code ------------------ index = 26, score = 1.0 
+def clean_html(self, path):
+    path = Path(path)
+    with path.open('rb') as file:
+        soup = BeautifulSoup(file, 'html5lib')
+    return str(soup)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+         ...  = BeautifulSoup
+
+idx = 25:------------------- similar code ------------------ index = 21, score = 1.0 
+def process(self):
+    soup = BeautifulSoup(str(self.input_data), self.setting('html-parser'))
+    self.populate_workspace()
+    with chdir(self.parent_work_dir()):
+        if self.setting('inline-images'):
+            self.inline_images(soup)
+        if self.setting('inline-styles'):
+            self.inline_styles(soup)
+    self.output_data.set_data(str(soup))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 26:------------------- similar code ------------------ index = 23, score = 1.0 
+@staticmethod
+def __get_supported_langs() -> dict:
+    supported_langs = {}
+    response = requests.get('https://context.reverso.net/translation/', headers=HEADERS)
+    soup = BeautifulSoup(response.content, features='lxml')
+    src_selector = soup.find('div', id='src-selector')
+    trg_selector = soup.find('div', id='trg-selector')
+    for (selector, attribute) in ((src_selector, 'source_lang'), (trg_selector, 'target_lang')):
+        dd_spans = selector.find(class_='drop-down').find_all('span')
+        langs = [span.get('data-value') for span in dd_spans]
+        langs = [lang for lang in langs if (isinstance(lang, str) and (len(lang) == 2))]
+        supported_langs[attribute] = tuple(langs)
+    return supported_langs
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->  ... :
+     ...  = BeautifulSoup
+
+idx = 27:------------------- similar code ------------------ index = 10, score = 1.0 
+def test_get_post_url_where_url_exists():
+    '\n    Ensures that a url is returned from get_post_url\n    when a url exists.\n    '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summary = BeautifulSoup(html, 'lxml').find(attrs={'class': 'question-summary'})
+    url = get_post_url(post_summary)
+    assert (url == '/questions/930397/getting-the-last-element-of-a-list/930398?r=SearchResults#930398')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 28:------------------- similar code ------------------ index = 3, score = 1.0 
+def process(self):
+    soup = BeautifulSoup(str(self.input_data), self.setting('html-parser'))
+    for tag in soup.find_all(re.compile('^h[0-6]')):
+        name = tag.text
+        m = re.match('^h([0-6])$', tag.name)
+        if (not ('id' in tag.attrs)):
+            tag.attrs['id'] = inflection.parameterize(name)
+        self.current_section_anchor = tag.attrs['id']
+        self.current_section_text = None
+        self.current_section_name = name
+        self.current_section_level = int(m.groups()[0])
+        self.append_current_section()
+    self.current_section_text = str(soup)
+    self.current_section_name = self.setting('initial-section-name')
+    self.current_section_level = 1
+    self.current_section_anchor = None
+    self.append_current_section()
+    self.output_data.save()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 29:------------------- similar code ------------------ index = 4, score = 1.0 
+def test_get_src_code():
+    '\n    Ensures that all source code is returned.\n    '
+    line_1 = 'l = [[1, 2, 3], [4, 5, 6], [7], [8, 9]]\n'
+    line_2 = 'reduce(lambda x, y: x.extend(y), l)'
+    path = 'autostack/so_web_scraper/__tests__/data/post_text_code.html'
+    html = open(path).read()
+    code_block = BeautifulSoup(html, 'lxml').find('div').find('code')
+    src_code = get_src_code(code_block)
+    assert (src_code == (line_1 + line_2))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 30:------------------- similar code ------------------ index = 5, score = 1.0 
+def test_print_post_text(capsys, monkeypatch):
+    '\n    Ensures that proper output when print_post_text is called.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/post_text.html'
+    html = open(path).read()
+    post_text = BeautifulSoup(html, 'lxml').find(attrs={'class', 'post-text'})
+
+    def mock_other_print_functions(*args):
+        '\n        Mocks print_ul and print_code_block functions.\n        '
+        return
+    monkeypatch.setattr('autostack.so_web_scraper.print_ul', mock_other_print_functions)
+    monkeypatch.setattr('autostack.so_web_scraper.print_code_block', mock_other_print_functions)
+    print_post_text(post_text)
+    captured = capsys.readouterr()
+    assert (ANSI_ESCAPE.sub('', captured.out) == (((('Test 1\n' + 'Test 2\n') + 'Test 3\n') + 'Test 4\n') + 'Test 5\n'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+
+idx = 31:------------------- similar code ------------------ index = 6, score = 1.0 
+def convert_nytimes(input_file, content):
+    doc = bs4.BeautifulSoup(content, 'html.parser')
+    file_name_components = input_file.split('/')
+    date = '/'.join(file_name_components[1:4])
+    categories = file_name_components[4:(- 1)]
+    file_name = '.'.join(file_name_components[(- 1)].split('.')[:(- 1)])
+    url = ('http://' + input_file)
+    for script in doc(['script', 'style', 'link', 'button']):
+        script.decompose()
+    try:
+        author = doc.find('meta', attrs={'name': 'author'})['content']
+    except TypeError:
+        if (not doc.find('meta', attrs={'name': 'byl'})):
+            logging.warning('ny:No author in {}'.format(input_file))
+            return None
+        author = doc.find('meta', attrs={'name': 'byl'})['content']
+        author = author.replace('By ', '')
+    title = doc.find('meta', property='og:title')
+    if (not title):
+        logging.error('no title for {}'.format(input_file))
+        return
+    title = re.sub('\\s+', ' ', title['content']).strip()
+    if (not len(title)):
+        logging.error('no title for {}'.format(input_file))
+        return
+    headline = doc.find('meta', property='og:description')
+    if (not headline):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    headline = re.sub('\\s+', ' ', headline['content']).strip()
+    if (not len(headline)):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    body = doc.find('section', attrs={'name': 'articleBody'})
+    if (not body):
+        body = doc.find_all('p', attrs={'class': 'story-body-text story-content'})
+        if (not body):
+            logging.error('no body for {}'.format(input_file))
+            return
+        else:
+            body = ' '.join([re.sub('\\s+', ' ', p.get_text(separator=' ')).strip() for p in body])
+    else:
+        body = re.sub('\\s+', ' ', body.get_text(separator=' ')).strip()
+    if (not len(body)):
+        logging.error('no body for {}'.format(input_file))
+        return
+    keywords = doc.find('meta', attrs={'name': 'news_keywords'})
+    if (keywords is None):
+        keywords = doc.find('meta', attrs={'name': 'keywords'})
+        if (not keywords):
+            logging.error('no keywords for {}'.format(input_file))
+            return
+    keywords = re.sub('\\s+', ' ', keywords['content']).strip()
+    keywords = keywords.split(',')
+    keywords = [k.split(';') for k in keywords if k]
+    if (not keywords):
+        logging.error('no keywords for {}'.format(input_file))
+        return
+    return {'title': title, 'headline': headline, 'abstract': body, 'keyword': keywords, 'file_name': file_name, 'date': date, 'categories': categories, 'url': url, 'author': author}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .BeautifulSoup
+
+idx = 32:------------------- similar code ------------------ index = 7, score = 1.0 
+@classmethod
+def from_html(cls, html, paper_id):
+    soup = BeautifulSoup(html, 'html.parser')
+    return cls.parse_html(soup, paper_id)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 33:------------------- similar code ------------------ index = 8, score = 1.0 
+def get_examples(self) -> Generator[(tuple, None, None)]:
+    "A generator that gets words' usage examples pairs from server pair by pair.\n\n        Note:\n            Don't try to get all usage examples at one time if there are more than 5 pages (see the total_pages attribute). It\n            may take a long time to complete because it will be necessary to connect to the server as many times as there are pages exist.\n            Just get the usage examples one by one as they are being fetched.\n\n        Yields:\n            Tuples with two WordUsageContext namedtuples (for source and target text and highlighted indexes)\n        "
+
+    def find_highlighted_idxs(soup, tag='em') -> tuple:
+        'Finds indexes of the parts of the soup surrounded by a particular HTML tag\n            relatively to the soup without the tag.\n\n            Example:\n                soup = BeautifulSoup("<em>This</em> is <em>a sample</em> string")\n                tag = "em"\n                Returns: [(0, 4), (8, 16)]\n\n            Args:\n                soup: The BeautifulSoup\'s soup.\n                tag: The HTML tag, which surrounds the parts of the soup.\n\n            Returns:\n                  A list of the tuples, which contain start and end indexes of the soup parts,\n                  surrounded by tags.\n\n            '
+        (cur, idxs) = (0, [])
+        for t in soup.find_all(text=True):
+            if (t.parent.name == tag):
+                idxs.append((cur, (cur + len(t))))
+            cur += len(t)
+        return tuple(idxs)
+    for npage in range(1, (self.total_pages + 1)):
+        self.__data['npage'] = npage
+        response = requests.post('https://context.reverso.net/bst-query-service', headers=HEADERS, data=json.dumps(self.__data))
+        examples_json = response.json()['list']
+        for example in examples_json:
+            source = BeautifulSoup(example['s_text'], features='lxml')
+            target = BeautifulSoup(example['t_text'], features='lxml')
+            (yield (WordUsageContext(source.text, find_highlighted_idxs(source)), WordUsageContext(target.text, find_highlighted_idxs(target))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ) ->:
+    for  ...  in:
+        for  ...  in  ... :
+             ...  = BeautifulSoup
+
+idx = 34:------------------- similar code ------------------ index = 9, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Cloudnine HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find('span', class_='label label-primary'):
+                    cat = html_soup.find('span', class_='label label-primary').text
+                    categories = cat.strip().split('(')[0].split(' / ')
+                if html_soup.find('table', class_='padded'):
+                    table = html_soup.find('table', class_='padded')
+                    table.extract()
+                else:
+                    print('no tbody found')
+                if html_soup.find_all('tr'):
+                    rows = html_soup.find_all('tr')
+                    for row in rows:
+                        image_id = ''
+                        if row.td.find('a'):
+                            image_id = str(row.find('img')['src'])
+                        if row.find_next('td').find_next('td'):
+                            href = row.find_next('td').find_next('td').a.get('href')
+                            product_name = row.find_next('td').find_next('td').a.text
+                            if row.find_all('td', class_='nowrap right'):
+                                last_two = row.find_all('td', class_='nowrap right')
+                                if (len(row.find_all('div', class_='price')) > 1):
+                                    price = row.find_all('div', class_='price')[1].text.split()[0]
+                                    vendor = row.find('div', class_='vendor').find('a').text
+                                    if (product_name and price):
+                                        categories_str = str('/'.join(categories))
+                                        items.append(('cloudnine', product_name, float(price), categories_str, vendor, '', datetime.strptime(date, '%Y-%m-%d'), '', '', image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 35:------------------- similar code ------------------ index = 11, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Cryptomarket HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find_all('div', id='img'):
+                    contents = html_soup.find_all('div', id='img')
+                    i = 0
+                    for content in contents:
+                        i += 1
+                        if (content.find('img', style='width:80px; height:80px') and content.find('div', id='img')):
+                            images = content.find_all('img', style='width:80px; height:80px')
+                            image_id = images[0]['src']
+                        if content.find('div', style='min-width:200px'):
+                            product_name = content.find('div', style='min-width:200px').find('a').text
+                            price_raw = content.find('b', style='color:#fff665')
+                            price = price_raw.text.split('/')[1].split()[0]
+                            if (product_name and price):
+                                vendor = price_raw.find_next('a').text
+                                category = price_raw.find_next('a').find_next('a').text
+                                ship_from = price_raw.find_next('b', id='img').text
+                                ship_to = price_raw.find_next('b', id='img').find_next('b', id='img').text
+                                items.append(('cryptomarket', product_name, float(price), category, vendor, '', datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 36:------------------- similar code ------------------ index = 22, score = 1.0 
+def findImage(entry):
+    if ('description' not in entry):
+        return
+    soup = bs4.BeautifulSoup(entry.description, 'html.parser')
+    img = soup.find('img')
+    if img:
+        img = img['src']
+        if (len(img) == 0):
+            return
+        if (img[0] == '/'):
+            p = urllib.parse.urlparse(entry.id)
+            img = (f'{p.scheme}://{p.netloc}' + img)
+    return img
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .BeautifulSoup
+
+idx = 37:------------------- similar code ------------------ index = 12, score = 1.0 
+def convert_jptimes(input_file, content):
+    content = fix_unclosed('meta', content)
+    content = fix_unclosed('link', content)
+    doc = bs4.BeautifulSoup(content, 'html.parser')
+    file_name_components = input_file.split('/')
+    date = '/'.join(file_name_components[2:5])
+    categories = file_name_components[5:(- 1)]
+    file_name = file_name_components[(- 1)]
+    url = ('https://' + input_file)
+    try:
+        author = doc.find('meta', attrs={'name': 'author'})['content']
+    except TypeError:
+        try:
+            author = doc.find('a', attrs={'class': 'author'}).text
+        except AttributeError:
+            logging.warning('jp:No author in {}'.format(input_file))
+    title = doc.find('meta', property='og:title')
+    if (not title):
+        logging.error('no title for {}'.format(input_file))
+        return
+    title = re.sub('\\s+', ' ', title['content']).strip()
+    title = re.sub('\\| The Japan Times', '', title)
+    if (not len(title)):
+        logging.error('no title for {}'.format(input_file))
+        return
+    headline = doc.find('meta', property='og:description')
+    if (not headline):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    headline = re.sub('\\s+', ' ', headline['content']).strip()
+    if (not len(headline)):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    body = doc.find('div', attrs={'id': 'jtarticle'})
+    if (not body):
+        logging.error('no body for {}'.format(input_file))
+        return
+    body = re.sub('\\s+', ' ', body.get_text(separator=' ')).strip()
+    if (not len(body)):
+        logging.error('no body for {}'.format(input_file))
+        return
+    keywords = doc.find('meta', attrs={'name': 'keywords'})
+    if (keywords is None):
+        logging.error('no keywords for {}'.format(input_file))
+        return
+    keywords = re.sub('\\s+', ' ', keywords['content']).strip()
+    keywords = keywords.split(', ')
+    keywords = [k.split(';') for k in keywords if k]
+    if (not keywords):
+        logging.error('no keywords for {}'.format(input_file))
+        return
+    return {'title': title, 'headline': '', 'abstract': body, 'keyword': keywords, 'file_name': file_name, 'date': date, 'categories': categories, 'url': url, 'author': author}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .BeautifulSoup
+
+idx = 38:------------------- similar code ------------------ index = 13, score = 1.0 
+def get_temp_credentials(metadata_id, idp_host, ssh_args=None):
+    "\n    Use SAML SSO to get a set of credentials that can be used for API access to an AWS account.\n\n    Example:\n      from openshift_tools import saml_aws_creds\n      creds = saml_aws_creds.get_temp_credentials(\n          metadata_id='urn:amazon:webservices:123456789012',\n          idp_host='login.saml.example.com',\n          ssh_args=['-i', '/path/to/id_rsa', '-o', 'StrictHostKeyChecking=no'])\n\n      client = boto3.client(\n          'iam',\n          aws_access_key_id=creds['AccessKeyId'],\n          aws_secret_access_key=creds['SecretAccessKey'],\n          aws_session_token=creds['SessionToken'],\n          )\n    "
+    ssh_cmd = ['ssh', '-p', '2222', '-a', '-l', 'user', '-o', 'ProxyCommand=bash -c "exec openssl s_client -servername %h -connect %h:443 -quiet 2>/dev/null \\\n                   < <(echo -en \'CONNECT 127.0.0.1:%p HTTP/1.1\\r\\nHost: %h:443\\r\\n\\r\\n\'; cat -)"']
+    if ssh_args:
+        ssh_cmd.extend(ssh_args)
+    ssh_cmd.extend([idp_host, metadata_id])
+    ssh = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (html_saml_assertion, ssh_error) = ssh.communicate()
+    if (ssh.returncode != 0):
+        raise ValueError(('Error connecting to SAML IdP:\nSTDERR:\n' + ssh_error))
+    assertion = None
+    soup = BeautifulSoup(html_saml_assertion)
+    for inputtag in soup.find_all('input'):
+        if (inputtag.get('name') == 'SAMLResponse'):
+            assertion = inputtag.get('value')
+    if (not assertion):
+        error_msg = soup.find('div', {'id': 'content'})
+        if error_msg:
+            error_msg = error_msg.get_text()
+        else:
+            error_msg = html_saml_assertion
+        raise ValueError(('Error retrieving SAML token: ' + error_msg))
+    role = None
+    principal = None
+    xmlroot = ET.fromstring(base64.b64decode(assertion))
+    for saml2attribute in xmlroot.iter('{urn:oasis:names:tc:SAML:2.0:assertion}Attribute'):
+        if (saml2attribute.get('Name') == 'https://aws.amazon.com/SAML/Attributes/Role'):
+            for saml2attributevalue in saml2attribute.iter('{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue'):
+                (role, principal) = saml2attributevalue.text.split(',')
+    client = boto3.client('sts')
+    response = client.assume_role_with_saml(RoleArn=role, PrincipalArn=principal, SAMLAssertion=assertion)
+    if (not response['Credentials']):
+        raise ValueError('No Credentials returned')
+    return response['Credentials']
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 39:------------------- similar code ------------------ index = 14, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Diabolus HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find('div', style='min-width:275px'):
+                    content = html_soup.find('div', style='min-width:275px')
+                    product_name = None
+                    if content.find('h1'):
+                        product_name = content.find('h1').text
+                    if content.find('h3'):
+                        product_name = content.find('h3').text
+                    if content.find('h2'):
+                        product_name = content.find('h2').text
+                    if content.find('h4'):
+                        product_name = content.find('h4').text
+                    image_id = ''
+                    if content.find('a', target='_blank'):
+                        image_id = content.find('a', target='_blank').get('href')
+                    if content.find_all('span', class_='form-control'):
+                        spans = content.find_all('span', class_='form-control')
+                        if spans[0].find('img', src='btc.png'):
+                            if spans[1].text.split('/'):
+                                prices = spans[1].text.split('/')
+                                for price_item in prices:
+                                    if ('BTC' in price_item):
+                                        price = price_item.strip().split()[0]
+                            if (product_name and price):
+                                vendor = ''
+                                if ('Vendor' in spans[2].text):
+                                    vendor = spans[2].find('a').text
+                                ship_from = ''
+                                if ('from' in spans[3].text.lower()):
+                                    ship_from = ' '.join(spans[3].text.split()[2])
+                                ship_to = ''
+                                if ('to' in spans[4].text.lower()):
+                                    ship_to = ' '.join(spans[4].text.split()[2])
+                                category = ''
+                                if ('category' in spans[7].text.lower()):
+                                    category = spans[7].text.split()[1]
+                                desc = ''
+                                if content.find('div', id='cats'):
+                                    desc = content.find('div', id='cats').text
+                                items.append(('diabolus', product_name, float(price), category, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 40:------------------- similar code ------------------ index = 17, score = 1.0 
+def download_thai_address():
+    print('Downloading the address information of Thailand ...')
+    url = 'https://en.wikipedia.org/wiki/List_of_tambon_in_Thailand'
+    data = requests.get(url).text
+    data = BeautifulSoup(data, 'html.parser')
+    urls = data.find_all(name='ul')[0]
+    hrefs = urls.find_all(name='li')
+    res = {}
+    th_en = {}
+    for h in tqdm.tqdm(hrefs):
+        href = ('https://en.wikipedia.org/' + h.find(name='a')['href'])
+        data = requests.get(href).text
+        data = BeautifulSoup(data, 'html.parser')
+        table = data.find_all(name='table', attrs={'class': 'wikitable sortable'})
+        details = table[0].find_all(name='tr')[1:]
+        for detail in details:
+            temp = detail.find_all(name='td')
+            sub_district = temp[1].text
+            district = temp[3].text
+            province = temp[5].text
+            th_en[sub_district] = temp[0].text
+            th_en[district] = temp[2].text
+            th_en[province] = temp[4].text
+            if (province in res.keys()):
+                if (district in res[province].keys()):
+                    if (sub_district not in res[province][district]):
+                        res[province][district].append(sub_district)
+                else:
+                    res[province][district] = [sub_district]
+            else:
+                res[province] = {district: [sub_district]}
+    for p in res.keys():
+        for d in res[p].keys():
+            res[p][d] = list(set(res[p][d]))
+    json.dump(res, open('th_provinces_districts_sub_districts.json', 'w', encoding='utf-8'), ensure_ascii=False)
+    json.dump(th_en, open('th_en_db.json', 'w', encoding='utf-8'), ensure_ascii=False)
+    print('Finish the downloading!')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 41:------------------- similar code ------------------ index = 18, score = 1.0 
+def GetCategory2Type1(self, resp):
+    '获取第一种类型的小类链接'
+    category2Type1Urls = {}
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_td_lists = soup.find_all('div', class_='cate_no_child citylistcate no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type1Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    return category2Type1Urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 42:------------------- similar code ------------------ index = 20, score = 1.0 
+def get_download_url(self, version='latest', os_name=None, bitness=None):
+    '\n        Method for getting the download URL for the Opera Chromium driver binary.\n\n        :param version: String representing the version of the web driver binary to download.  For example, "v2.36".\n                        Default if no version is specified is "latest".  The version string should match the version\n                        as specified on the download page of the webdriver binary.\n        :param os_name: Name of the OS to download the web driver binary for, as a str.  If not specified, we will use\n                        platform.system() to get the OS.\n        :param bitness: Bitness of the web driver binary to download, as a str e.g. "32", "64".  If not specified, we\n                        will try to guess the bitness by using util.get_architecture_bitness().\n        :returns: The download URL for the Opera Chromium driver binary.\n        '
+    if (version == 'latest'):
+        opera_chromium_driver_version_release_api_url = (self.opera_chromium_driver_releases_api_url + version)
+        opera_chromium_driver_version_release_ui_url = (self.opera_chromium_driver_releases_ui_url + version)
+    else:
+        opera_chromium_driver_version_release_api_url = ((self.opera_chromium_driver_releases_api_url + 'tags/') + version)
+        opera_chromium_driver_version_release_ui_url = ((self.opera_chromium_driver_releases_ui_url + 'tags/') + version)
+    logger.debug('Attempting to access URL: {0}'.format(opera_chromium_driver_version_release_api_url))
+    info = requests.get(opera_chromium_driver_version_release_api_url)
+    if (info.status_code != 200):
+        info_message = 'Error, unable to get info for opera chromium driver {0} release. Status code: {1}'.format(version, info.status_code)
+        logger.info(info_message)
+        resp = requests.get(opera_chromium_driver_version_release_ui_url, allow_redirects=True)
+        if (resp.status_code == 200):
+            json_data = {'assets': []}
+        soup = BeautifulSoup(resp.text, features='html.parser')
+        urls = [(resp.url + a['href']) for a in soup.find_all('a', href=True) if ('/download/' in a['href'])]
+        for url in urls:
+            json_data['assets'].append({'name': Path(urlsplit(url).path).name, 'browser_download_url': url})
+    else:
+        json_data = info.json()
+    if (os_name is None):
+        os_name = platform.system()
+        if (os_name == 'Darwin'):
+            os_name = 'mac'
+        elif (os_name == 'Windows'):
+            os_name = 'win'
+        elif (os_name == 'Linux'):
+            os_name = 'linux'
+    if (bitness is None):
+        bitness = get_architecture_bitness()
+        logger.debug('Detected OS: {0}bit {1}'.format(bitness, os_name))
+    filenames = [asset['name'] for asset in json_data['assets']]
+    filename = [name for name in filenames if (os_name in name)]
+    if (len(filename) == 0):
+        error_message = 'Error, unable to find a download for os: {0}'.format(os_name)
+        logger.error(error_message)
+        raise RuntimeError(error_message)
+    if (len(filename) > 1):
+        filename = [name for name in filenames if ((os_name + bitness) in name)]
+        if (len(filename) != 1):
+            error_message = 'Error, unable to determine correct filename for {0}bit {1}'.format(bitness, os_name)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+    filename = filename[0]
+    result = json_data['assets'][filenames.index(filename)]['browser_download_url']
+    logger.info('Download URL: {0}'.format(result))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = BeautifulSoup
+
+idx = 43:------------------- similar code ------------------ index = 43, score = 1.0 
+def test_query_stack_overflow_good_response_status(monkeypatch):
+    '\n    Ensures that BeautifulSoup is returned from query_stack_overflow.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/query_post_summaries.html'
+    html = open(path).read()
+    soup = BeautifulSoup(html, 'lxml')
+    mock_response = MockResponse(path, 200)
+    mock_get = build_mock_get(mock_response)
+    monkeypatch.setattr('requests.get', mock_get)
+    response = query_stack_overflow(None)
+    assert (response == soup)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 44:------------------- similar code ------------------ index = 42, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Pandora HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find('div', id='content'):
+                    content = html_soup.find('div', id='content')
+                    if html_soup.find('table', class_='width70'):
+                        product_name = ''
+                        image_id = ''
+                        vendor = ''
+                        price = ''
+                        ship_from = ''
+                        ship_to = ''
+                        table = html_soup.find('table', class_='width100')
+                        for row in table.find_all('tr'):
+                            if row.find('th', colspan='2'):
+                                product_name = row.find('th', colspan='2').text
+                            elif row.find('td', rowspan='6'):
+                                image_id = row.find('td', rowspan='6').find('img')['src']
+                                if (row.td.find_next('td').text == 'Seller:'):
+                                    vendor = row.td.find_next('td').find_next('td')
+                                    vendor = vendor.find('a').text
+                            elif row.td:
+                                if (row.td.text == 'Price:'):
+                                    if row.td.find_next('td').text.find('฿'):
+                                        price = row.td.find_next('td').text.split('฿')[1].split(' ')[0]
+                                elif (row.td.text == 'Shipping from:'):
+                                    shipping_from = row.td.find_next('td').text
+                                elif (row.td.text == 'Shipping to:'):
+                                    shipping_to = row.td.find_next('td').text
+                        desc = ''
+                        if html_soup.find('pre'):
+                            desc = html_soup.find('pre').text
+                        if (product_name and price):
+                            items.append(('pandora', product_name, float(price), '', vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 45:------------------- similar code ------------------ index = 44, score = 1.0 
+def gen_adaptor(mission):
+    r = requests.get(url, params={'mission': mission})
+    if (r.status_code != requests.codes.ok):
+        r.raise_for_status()
+    tree = BeautifulSoup(r.content)
+    table_body = tree.find_all('tbody')
+    assert (table_body is not None)
+    for row in table_body[0].find_all('tr'):
+        (short_name, long_name, desc, ex, t) = row.find_all('td')
+        print('"{0}": ("{1}", {2}),'.format(long_name.text.strip(), short_name.text.strip(), types[t.text.strip()]))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 46:------------------- similar code ------------------ index = 88, score = 1.0 
+def read_sitemap_urls(sitemap_url, limit=None):
+    ' Grabs recursive URLs from a sitemap or sitemap index.\n\n    Parameters\n    ----------\n    sitemap_url: str\n        URL of the sitemap (XML).\n    limit: int\n        Restict to this many results.\n\n    Returns\n    -------\n    list\n        All found URLs\n\n    '
+    all_urls = []
+    headers = {'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept-Encoding': 'gzip'}
+    try:
+        response = requests.get(sitemap_url, headers=headers)
+        if (response.headers['Content-Type'].lower() == 'application/x-gzip'):
+            xml = gzip.decompress(response.content)
+        else:
+            xml = response.content
+        soup = BeautifulSoup(xml, 'lxml')
+        urls = [url.get_text().lower() for url in soup.find_all('loc')]
+        while urls:
+            url = urls.pop(0)
+            if ('.xml' in url[(- 8):]):
+                urls.extend(read_sitemap_urls(url))
+                continue
+            all_urls.append(url)
+            if (limit and (len(all_urls) >= limit)):
+                break
+    except Exception as e:
+        _LOG.error('Read Sitemap Error: ', str(e))
+    return all_urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = BeautifulSoup
+
+idx = 47:------------------- similar code ------------------ index = 77, score = 1.0 
+def check_dubug(host):
+    fo = open('{}.txt'.format(parse.urlparse(host).hostname), 'a')
+    headers['Host'] = parse.urlparse(host).hostname
+    div_html_5 = ''
+    div_html_3 = ''
+    print('\x1b[1;34m[+] 检测Debug模式是否开启: \x1b[0m')
+    debug_bool = False
+    url_debug = ['indx.php', '/index.php/?s=index/inex/']
+    for i in url_debug:
+        try:
+            res_debug = requests.get(url=(host + i), headers=headers, timeout=5, verify=False, allow_redirects=False)
+            res_debug.encoding = 'utf-8'
+            if (('Environment Variables' in res_debug.text) or ('错误位置' in res_debug.text)):
+                print('\x1b[1;32m[+] Debug 模式已开启！\x1b[0m')
+                debug_bool = True
+                res_debug_html = BeautifulSoup(res_debug.text, 'html.parser')
+                div_html_5 = res_debug_html.findAll('div', {'class': 'clearfix'})
+                div_html_3 = res_debug_html.find('sup')
+                div_html_3_path = res_debug_html('div', {'class': 'text'})
+                break
+        except:
+            print('\x1b[1;31m[+] 检测出错\x1b[0m')
+    if (debug_bool == False):
+        print('\x1b[1;31m[+] Debug 模式未开启！\x1b[0m')
+    if debug_bool:
+        if div_html_5:
+            for j in div_html_5:
+                if (j.strong.text == 'THINK_VERSION'):
+                    fo.write('ThinkPHP Version: {}\n'.format(j.small.text.strip()))
+                    print('\x1b[1;32m[+] ThinkPHP Version: {}\x1b[0m'.format(j.small.text.strip()))
+                if (j.strong.text == 'DOCUMENT_ROOT'):
+                    fo.write('DOCUMENT ROOT: {}\n'.format(j.small.text.strip()))
+                    print('\x1b[1;32m[+] DOCUMENT ROOT: {}\x1b[0m'.format(j.small.text.strip()))
+                if (j.strong.text == 'SERVER_ADDR'):
+                    fo.write('SERVER ADDR: {}\n'.format(j.small.text.strip()))
+                    print('\x1b[1;32m[+] SERVER ADDR: {}\x1b[0m'.format(j.small.text.strip()))
+                if (j.strong.text == 'LOG_PATH'):
+                    fo.write('LOG PATH: {}\n'.format(j.small.text.strip()))
+                    print('\x1b[1;32m[+] LOG PATH: {}\x1b[0m'.format(j.small.text.strip()))
+        elif (div_html_3 and div_html_3_path):
+            fo.write('ThinkPHP Version: {}\n'.format(div_html_3.text))
+            fo.write('ThinkPHP Path: {}\n'.format(div_html_3_path[0].p.text))
+            print('\x1b[1;32m[+] ThinkPHP Version: {}\x1b[0m'.format(div_html_3.text))
+            print('\x1b[1;32m[+] ThinkPHP Path: {}\x1b[0m'.format(div_html_3_path[0].p.text))
+    fo.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        try:
+            if:
+                 ...  = BeautifulSoup
+                break
+
+idx = 48:------------------- similar code ------------------ index = 69, score = 1.0 
+@classmethod
+def get_user_credit(cls, session, username, password):
+    r = session.requests_session.post('https://secure.etecsa.net:8443/EtecsaQueryServlet', {'CSRFHW': session.csrfhw, 'wlanuserip': session.wlanuserip, 'username': username, 'password': password})
+    if (not r.ok):
+        raise NautaException('Fallo al obtener la información del usuario: {} - {}'.format(r.status_code, r.reason))
+    if ('secure.etecsa.net' not in r.url):
+        raise NautaException('No se puede obtener el crédito del usuario mientras está online')
+    soup = bs4.BeautifulSoup(r.text, 'html.parser')
+    credit_tag = soup.select_one('#sessioninfo > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(2)')
+    if (not credit_tag):
+        raise NautaException('Fallo al obtener el crédito del usuario: no se encontró la información')
+    return credit_tag.get_text().strip()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .BeautifulSoup
+
+idx = 49:------------------- similar code ------------------ index = 70, score = 1.0 
+def get_urls(url):
+    scraper = create_scraper(referer=url)
+    try:
+        res = scraper.get(url)
+        c = res.content
+        soup = BeautifulSoup(c, 'lxml')
+        entry = soup.find_all('div', 'entry-content')[0]
+        links = entry.find_all('a')
+        return [x.get('href') for x in links]
+    except Exception:
+        return [url]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    try:
+         ...  = BeautifulSoup
+
+idx = 50:------------------- similar code ------------------ index = 71, score = 1.0 
+def GetCategory2Type2(self, resp):
+    '获取第二种类型的小类链接'
+    category2Type2Urls = {}
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_td_lists = soup.find_all('div', class_='cate_no_child no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type2Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    dict_td_lists = soup.find_all('div', class_='cate_has_child no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type2Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    return category2Type2Urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 51:------------------- similar code ------------------ index = 72, score = 1.0 
+def test_print_ul_empty(capsys):
+    '\n    Ensures that nothing is printed when the unordered list is empty.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/post_text_ul_empty.html'
+    html = open(path).read()
+    unordered_list = BeautifulSoup(html, 'lxml').find('ul')
+    print_ul(unordered_list)
+    captured = capsys.readouterr()
+    assert (not captured.out)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 52:------------------- similar code ------------------ index = 73, score = 1.0 
+def get_download_url(self, version='latest', os_name=None, bitness=None):
+    '\n        Method for getting the download URL for the Gecko (Mozilla Firefox) driver binary.\n\n        :param version: String representing the version of the web driver binary to download.  For example, "v0.20.1".\n                        Default if no version is specified is "latest".  The version string should match the version\n                        as specified on the download page of the webdriver binary.\n        :param os_name: Name of the OS to download the web driver binary for, as a str.  If not specified, we will use\n                        platform.system() to get the OS.\n        :param bitness: Bitness of the web driver binary to download, as a str e.g. "32", "64".  If not specified, we\n                        will try to guess the bitness by using util.get_architecture_bitness().\n        :returns: The download URL for the Gecko (Mozilla Firefox) driver binary.\n        '
+    if (version == 'latest'):
+        gecko_driver_version_release_api_url = (self.gecko_driver_releases_api_url + version)
+        gecko_driver_version_release_ui_url = (self.gecko_driver_releases_ui_url + version)
+    else:
+        gecko_driver_version_release_api_url = ((self.gecko_driver_releases_api_url + 'tags/') + version)
+        gecko_driver_version_release_ui_url = ((self.gecko_driver_releases_ui_url + 'tags/') + version)
+    logger.debug('Attempting to access URL: {0}'.format(gecko_driver_version_release_api_url))
+    info = requests.get(gecko_driver_version_release_api_url)
+    if (info.status_code != 200):
+        info_message = 'Error, unable to get info for gecko driver {0} release. Status code: {1}'.format(version, info.status_code)
+        logger.info(info_message)
+        resp = requests.get(gecko_driver_version_release_ui_url, allow_redirects=True)
+        if (resp.status_code == 200):
+            json_data = {'assets': []}
+        soup = BeautifulSoup(resp.text, features='html.parser')
+        urls = [(resp.url + a['href']) for a in soup.find_all('a', href=True) if ('/download/' in a['href'])]
+        for url in urls:
+            json_data['assets'].append({'name': Path(urlsplit(url).path).name, 'browser_download_url': url})
+    else:
+        json_data = info.json()
+    if (os_name is None):
+        os_name = platform.system()
+        if (os_name == 'Darwin'):
+            os_name = 'macos'
+        elif (os_name == 'Windows'):
+            os_name = 'win'
+        elif (os_name == 'Linux'):
+            os_name = 'linux'
+    if (bitness is None):
+        bitness = get_architecture_bitness()
+        logger.debug('Detected OS: {0}bit {1}'.format(bitness, os_name))
+    filenames = [asset['name'] for asset in json_data['assets']]
+    filename = [name for name in filenames if (os_name in name)]
+    if (len(filename) == 0):
+        info_message = 'Error, unable to find a download for os: {0}'.format(os_name)
+        logger.error(info_message)
+        raise RuntimeError(info_message)
+    if (len(filename) > 1):
+        filename = [name for name in filenames if ((os_name + bitness) in name)]
+        if (len(filename) != 1):
+            info_message = 'Error, unable to determine correct filename for {0}bit {1}'.format(bitness, os_name)
+            logger.error(info_message)
+            raise RuntimeError(info_message)
+    filename = filename[0]
+    result = json_data['assets'][filenames.index(filename)]['browser_download_url']
+    logger.info('Download URL: {0}'.format(result))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = BeautifulSoup
+
+idx = 53:------------------- similar code ------------------ index = 74, score = 1.0 
+def request_single_patent(self, patent, url=False):
+    'Calls request function to retreive google patent data and parses returned html using BeautifulSoup\n\n\n        Returns: \n            - Status of scrape   <- String\n            - Html of patent     <- BS4 object\n\n        Inputs:\n            - patent (str)  : if    url == False then patent is patent number\n                              elif  url == True  then patent is google patent url\n            - url    (bool) : determines whether patent is treated as patent number \n                                or google patent url\n\n        '
+    try:
+        if (not url):
+            url = 'https://patents.google.com/patent/{0}'.format(patent)
+        else:
+            url = patent
+        print(url)
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        webpage = urlopen(req).read()
+        soup = BeautifulSoup(webpage, features='lxml')
+        return ('Success', soup, url)
+    except HTTPError as e:
+        print('Patent: {0}, Error Status Code : {1}'.format(patent, e.code))
+        return (e.code, '', url)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = BeautifulSoup
+
+idx = 54:------------------- similar code ------------------ index = 75, score = 1.0 
+def parse_detail(html: str, wordid: str, category: str):
+    ' parse once more to get the detailed view '
+    bs = BeautifulSoup(html, 'html.parser')
+    id_set = {'antonym': 'OPPOSITE_WORD', 'synonym': 'SIMILAR_WORD'}
+    if (category not in id_set.keys()):
+        pass
+    else:
+        words = bs.find(id=id_set[category])
+        if (not words):
+            return 'No results found.'
+        tags = words.findAll('li')
+        result = [f"{tag.find('a').text}: {tag.find('span').text}" for tag in tags]
+        return '\n'.join(result)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 55:------------------- similar code ------------------ index = 76, score = 1.0 
+def test_body(self):
+    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
+    res = self.app.get('/.html')
+    soup = BeautifulSoup(res.text, 'html.parser')
+    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
+    self.assertEqual(soup.form['action'], 'http://localhost/.html')
+    self.assertEqual(soup.form['method'], 'POST')
+    ids = [var.id for var in walk(VerySimpleSequence)]
+    for (h2, id_) in zip(soup.find_all('h2'), ids):
+        self.assertEqual(h2.string, id_)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 56:------------------- similar code ------------------ index = 78, score = 1.0 
+def extract_tables(html):
+    soup = BeautifulSoup(html, 'lxml')
+    set_ids_by_labels(soup)
+    fix_span_tables(soup)
+    fix_th(soup)
+    remove_ltx_errors(soup)
+    flatten_tables(soup)
+    tables = soup.find_all('table', class_='ltx_tabular')
+    data = []
+    for table in tables:
+        if (table.find_parent(class_='ltx_authors') is not None):
+            continue
+        float_div = table.find_parent(is_figure)
+        if (float_div and perhaps_not_tabular(table, float_div)):
+            continue
+        remove_footnotes(table)
+        move_out_references(table)
+        move_out_text_styles(table)
+        move_out_cell_styles(table)
+        escape_table_content(table)
+        tab = html2data(table)
+        if (tab is None):
+            continue
+        (tab, layout) = fix_table(tab)
+        if is_table_empty(tab):
+            continue
+        caption = None
+        if (float_div is not None):
+            cap_el = float_div.find('figcaption')
+            if (cap_el is not None):
+                caption = clear_ws(cap_el.get_text())
+        figure_id = table.get('data-figure-id')
+        data.append(Table(f'table_{(len(data) + 1):02}', tab, layout.applymap(str), caption, figure_id))
+    return data
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 57:------------------- similar code ------------------ index = 45, score = 1.0 
+def decrypt_url(url, scraper: cfscrape.CloudflareScraper):
+    urlr = scraper.get(url)
+    soup = BeautifulSoup(urlr.content, 'html.parser')
+    ouo_url = soup.find('form')['action']
+    furl = bypass_ouo(ouo_url)
+    return get_urls(furl)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 58:------------------- similar code ------------------ index = 79, score = 1.0 
+def GetPage(self, resp):
+    '获取页码'
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_div_lists = soup.find('div', id='dict_page_list')
+    dict_td_lists = dict_div_lists.find_all('a')
+    page = dict_td_lists[(- 2)].string
+    return int(page)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 59:------------------- similar code ------------------ index = 80, score = 1.0 
+def process_text(self, input_text):
+    soup = BeautifulSoup(input_text)
+    for js in self.setting('scripts'):
+        js_tag = soup.new_tag('script', type='text/javascript', src=js)
+        soup.head.append(js_tag)
+    for css in self.setting('stylesheets'):
+        css_tag = soup.new_tag('link', rel='stylesheet', type='text/css', href=css)
+        soup.head.append(css_tag)
+    return str(soup)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 60:------------------- similar code ------------------ index = 81, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Silkroad2 HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                category = x[3]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                item_container = html_soup.find_all('div', class_='item')
+                for item in item_container:
+                    if item.find('div', class_='item_title'):
+                        title = item.find('div', class_='item_title')
+                        if title.a:
+                            link = title.a
+                            product_name = title.a.text.strip()
+                            href = link.get('href')
+                            if item.find('div', class_='item_details'):
+                                details = item.find('div', class_='item_details')
+                                if details.a:
+                                    vendor = details.a.text.strip()
+                                    if details.br:
+                                        ship_from = details.br.next_sibling.strip()[12:]
+                                        ship_to = details.find_all('br')[(- 1)].next_sibling.strip()[10:]
+                                    else:
+                                        ship_from = ' '
+                                        ship_to = ' '
+                                    if item.find('div', class_='price_big'):
+                                        price = item.find('div', class_='price_big').text.strip()[1:]
+                                        items.append(('silkroad2', product_name, float(price), category, vendor, '', datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, href))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 61:------------------- similar code ------------------ index = 82, score = 1.0 
+@classmethod
+def create_session(cls):
+    if cls.is_connected():
+        if SessionObject.is_logged_in():
+            raise NautaPreLoginException('Hay una sessión abierta')
+        else:
+            raise NautaPreLoginException('Hay una conexión activa')
+    session = SessionObject()
+    resp = session.requests_session.get(LOGIN_URL)
+    if (not resp.ok):
+        raise NautaPreLoginException('Failed to create session')
+    soup = bs4.BeautifulSoup(resp.text, 'html.parser')
+    action = LOGIN_URL
+    data = cls._get_inputs(soup)
+    resp = session.requests_session.post(action, data)
+    soup = bs4.BeautifulSoup(resp.text, 'html.parser')
+    form_soup = soup.find('form', id='formulario')
+    session.login_action = form_soup['action']
+    data = cls._get_inputs(form_soup)
+    session.csrfhw = data['CSRFHW']
+    session.wlanuserip = data['wlanuserip']
+    return session
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .BeautifulSoup
+
+idx = 62:------------------- similar code ------------------ index = 83, score = 1.0 
+def __init__(self, request: requests.request):
+    if (self.__class__ is RecipeSite):
+        raise NotImplementedError('Do not initialize this class. Inherit from it, instead.')
+    self.request = request
+    self.soup = BeautifulSoup(request.text, 'lxml')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = BeautifulSoup
+
+idx = 63:------------------- similar code ------------------ index = 84, score = 1.0 
+def test_get_post_text_question():
+    '\n    Ensures that the question post-text is returned for a post.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/post_accepted_answer.html'
+    html = open(path).read()
+    post = BeautifulSoup(html, 'lxml')
+    post_text = get_post_text(post, 'question')
+    assert post_text
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 64:------------------- similar code ------------------ index = 85, score = 1.0 
 def get_dce_daily(date=None, type='future', retries=0):
     "\n        获取大连商品交易所日交易数据\n    Parameters\n    ------\n        date: 日期 format：YYYY-MM-DD 或 YYYYMMDD 或 datetime.date对象 为空时为当天\n        type: 数据类型, 为'future'期货 或 'option'期权二者之一\n        retries: int, 当前重试次数，达到3次则获取数据失败\n    Return\n    -------\n        DataFrame\n            大商所日交易数据(DataFrame):\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                volume        成交量\n                open_interest   持仓量\n                turnover       成交额\n                settle        结算价\n                pre_settle    前结算价\n                variety       合约类别\n        或 \n        DataFrame\n           郑商所每日期权交易数据\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                pre_settle      前结算价\n                settle         结算价\n                delta          对冲值  \n                volume         成交量\n                open_interest     持仓量\n                oi_change       持仓变化\n                turnover        成交额\n                implied_volatility 隐含波动率\n                exercise_volume   行权量\n                variety        合约类别\n        或 None(给定日期没有交易数据)\n    "
     day = (ct.convert_date(date) if (date is not None) else datetime.date.today())
@@ -184,45 +1907,97 @@ def get_dce_daily(date=None, type='future', retries=0):
 def  ... ():
      ...  = BeautifulSoup
 
-idx = 4:------------------- similar code ------------------ index = 10, score = 1.0 
-def test_body(self):
-    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
-    res = self.app.get('/.html')
-    soup = BeautifulSoup(res.text, 'html.parser')
-    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
-    self.assertEqual(soup.form['action'], 'http://localhost/.html')
-    self.assertEqual(soup.form['method'], 'POST')
-    ids = [var.id for var in walk(VerySimpleSequence)]
-    for (h2, id_) in zip(soup.find_all('h2'), ids):
-        self.assertEqual(h2.string, id_)
+idx = 65:------------------- similar code ------------------ index = 87, score = 1.0 
+def raise_if_form_exists(url, session):
+    '\n    This function raises a UserWarning if the link has forms\n    '
+    user_warning = ('Navigate to {0}, '.format(url) + 'login and follow instructions. It is likely that you have to perform some one-time registration steps before acessing this data.')
+    resp = session.get(url)
+    soup = BeautifulSoup(resp.content, 'lxml')
+    if (len(soup.select('form')) > 0):
+        raise UserWarning(user_warning)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 66:------------------- similar code ------------------ index = 68, score = 1.0 
+def soup(self):
+    '\n        Returns a BeautifulSoup object initialized with contents.\n        '
+    if (not hasattr(self, '_soup')):
+        self._soup = BeautifulSoup(self.data())
+    return self._soup
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
+ = BeautifulSoup
+
+idx = 67:------------------- similar code ------------------ index = 67, score = 1.0 
+def test_print_ul_populated(capsys):
+    '\n    Ensures that all list elements are printed.\n    '
+    path = 'autostack/so_web_scraper/__tests__/data/post_text_ul_populated.html'
+    html = open(path).read()
+    unordered_list = BeautifulSoup(html, 'lxml').find('ul')
+    print_ul(unordered_list)
+    captured = capsys.readouterr()
+    assert (ANSI_ESCAPE.sub('', captured.out) == (('    - Test 1\n' + '    - Test 2\n') + '    - Test 3\n'))
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
      ...  = BeautifulSoup
 
-idx = 5:------------------- similar code ------------------ index = 9, score = 1.0 
-def request_single_patent(self, patent, url=False):
-    'Calls request function to retreive google patent data and parses returned html using BeautifulSoup\n\n\n        Returns: \n            - Status of scrape   <- String\n            - Html of patent     <- BS4 object\n\n        Inputs:\n            - patent (str)  : if    url == False then patent is patent number\n                              elif  url == True  then patent is google patent url\n            - url    (bool) : determines whether patent is treated as patent number \n                                or google patent url\n\n        '
-    try:
-        if (not url):
-            url = 'https://patents.google.com/patent/{0}'.format(patent)
-        else:
-            url = patent
-        print(url)
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = urlopen(req).read()
-        soup = BeautifulSoup(webpage, features='lxml')
-        return ('Success', soup, url)
-    except HTTPError as e:
-        print('Patent: {0}, Error Status Code : {1}'.format(patent, e.code))
-        return (e.code, '', url)
+idx = 68:------------------- similar code ------------------ index = 66, score = 1.0 
+def GetCategoryOne(self, resp):
+    '获取大类链接'
+    categoryOneUrls = []
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_nav = soup.find('div', id='dict_nav_list')
+    dict_nav_lists = dict_nav.find_all('a')
+    for dict_nav_list in dict_nav_lists:
+        dict_nav_url = ('https://pinyin.sogou.com' + dict_nav_list['href'])
+        categoryOneUrls.append(dict_nav_url)
+    return categoryOneUrls
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    try:
+     ...  = BeautifulSoup
+
+idx = 69:------------------- similar code ------------------ index = 65, score = 1.0 
+def process(self):
+    if (self.input_data.ext in '.html'):
+        text = str(self.input_data)
+        soup = BeautifulSoup(text, 'html.parser')
+        modified_html = text.replace('style="color: ', 'data-mx-color="').replace('style="background: ', 'data-mx-bg-color="')
+        content = {'msgtype': 'm.text', 'format': 'org.matrix.custom.html', 'body': soup.get_text(), 'formatted_body': modified_html}
+    elif (self.input_data.ext in '.md'):
+        text = str(self.input_data)
+        html = markdown.markdown(text, extensions=['fenced_code'])
+        soup = BeautifulSoup(html, 'html.parser')
+        for code_block in soup.find_all('code'):
+            code_block['class'] = ('language-%s' % code_block['class'][0])
+            code_block.string = code_block.string.lstrip()
+        content = {'msgtype': 'm.text', 'format': 'org.matrix.custom.html', 'body': soup.get_text(), 'formatted_body': str(soup)}
+    elif (self.input_data.ext in '.txt'):
+        text = str(self.input_data)
+        content = {'msgtype': 'm.text', 'body': text}
+    elif (self.input_data.ext in ('.png', '.jpeg', '.jpg', '.bmp')):
+        if hasattr(self.doc, 'created_by_doc'):
+            description = ('image %s generated by script %s' % (self.input_data.name, self.doc.created_by_doc.name))
+        else:
+            description = ('automatically generated image %s' % self.input_data.name)
+        content = {'msgtype': 'm.image', 'body': description}
+    else:
+        content = {'msgtype': 'm.file', 'filename': self.input_data.name, 'body': self.input_data.name}
+    loop = asyncio.get_event_loop()
+    response = loop.run_until_complete(main_nio(homeserver=self.read_param('homeserver'), user=self.read_param('username'), password=self.read_param('password'), room_id=self.setting('room-id'), ext=self.input_data.ext, mimetype=mimetypes.guess_type(self.input_data.name)[0], data_provider=self.data_provider, content=content, log_fn=self.log_debug))
+    self.output_data.set_data(json.dumps(response))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:
          ...  = BeautifulSoup
 
-idx = 6:------------------- similar code ------------------ index = 7, score = 1.0 
+idx = 70:------------------- similar code ------------------ index = 47, score = 1.0 
 def soup_login(session, url, username, password, username_field='username', password_field='password'):
     resp = session.get(url)
     soup = BeautifulSoup(resp.content, 'lxml')
@@ -258,50 +2033,286 @@ def soup_login(session, url, username, password, username_field='username', pass
 def  ... ():
      ...  = BeautifulSoup
 
-idx = 7:------------------- similar code ------------------ index = 4, score = 1.0 
-def recipeToJSON(browser, recipeID):
-    html = browser.page_source
-    soup = BeautifulSoup(html, 'html.parser')
-    recipe = {}
-    recipe['id'] = recipeID
-    recipe['language'] = soup.select_one('html').attrs['lang']
-    recipe['title'] = soup.select_one('.recipe-card__title').text
-    recipe['rating_count'] = re.sub('\\D', '', soup.select_one('.core-rating__label').text, flags=re.IGNORECASE)
-    recipe['rating_score'] = soup.select_one('.core-rating__counter').text
-    recipe['tm-versions'] = [v.text.replace('\n', '').strip().lower() for v in soup.select('.recipe-card__tm-version core-badge')]
-    recipe.update({l.text: l.next_sibling.strip() for l in soup.select('core-feature-icons label span')})
-    recipe['ingredients'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#ingredients li')]
-    recipe['nutritions'] = {}
-    for item in list(zip(soup.select('.nutritions dl')[0].find_all('dt'), soup.select('.nutritions dl')[0].find_all('dd'))):
-        (dt, dl) = item
-        recipe['nutritions'].update({dt.string.replace('\n', '').strip().lower(): re.sub('\\s{2,}', ' ', dl.string.replace('\n', '').strip().lower())})
-    recipe['steps'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#preparation-steps li')]
-    recipe['tags'] = [a.text.replace('#', '').replace('\n', '').strip().lower() for a in soup.select('.core-tags-wrapper__tags-container a')]
-    return recipe
+idx = 71:------------------- similar code ------------------ index = 48, score = 1.0 
+def scrape_page(result, mediatype, mode=PSAMode.Full):
+    if (mediatype == PSAMedia.TVShow):
+        c = result.content
+        soup = BeautifulSoup(c, features='lxml')
+        entries = soup.find_all('div', 'entry-inner')
+        if (mode == PSAMode.Latest):
+            all_entries = []
+            end_of_list = False
+            search_string = entries[0].hr.next_sibling
+            while (not end_of_list):
+                if (search_string.name == 'hr'):
+                    end_of_list = True
+                elif (search_string != '\n'):
+                    all_entries.append(search_string)
+                search_string = search_string.next_sibling
+        elif ((mode == PSAMode.Full) or (mode == PSAMode.FHD) or (mode == PSAMode.HD)):
+            all_entries = entries[0].find_all('div', 'sp-wrap sp-wrap-steelblue')
+        else:
+            return None
+        return [(entry.find_all('div')[0].getText().strip(), entry) for entry in all_entries]
+    elif (mediatype == PSAMedia.Movie):
+        c = result.content
+        soup = BeautifulSoup(c, features='lxml')
+        entries = soup.find_all('div', 'entry-inner')
+        titles = [i.parent.getText().strip() for i in entries[0].find_all('span', attrs={'style': 'color: #ff0000;'})]
+        all_entries = entries[0].find_all('div', 'sp-wrap sp-wrap-steelblue')
+        valid = [entry for entry in all_entries if (entry.div.getText().strip() == 'Download')]
+        return [(titles[i], valid[i]) for i in range(len(valid))]
+    else:
+        return None
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = BeautifulSoup
+    else:
+        return None
+
+idx = 72:------------------- similar code ------------------ index = 50, score = 1.0 
+def test_accepted_posts(monkeypatch):
+    '\n    Ensures that accepted_posts loops over each post summary.\n    '
+    post_soup_call_count = 0
+
+    def mock_get_post_summaries(*args):
+        '\n        Mocks the get_post_summaries function\n        '
+        html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+        post_summaries = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})
+        return [post_summaries]
+
+    def mock_post_soup(*args):
+        '\n        Mocks the post_soup function\n        '
+        nonlocal post_soup_call_count
+        post_soup_call_count += 1
+        return 'SOUP'
+    monkeypatch.setattr('autostack.so_web_scraper.get_post_summaries', mock_get_post_summaries)
+    monkeypatch.setattr('autostack.so_web_scraper.post_soup', mock_post_soup)
+    for post in accepted_posts(None):
+        pass
+    assert (post_soup_call_count == 15)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    def  ... ():
+         ...  = BeautifulSoup
+
+idx = 73:------------------- similar code ------------------ index = 51, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Agora HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find_all('div', class_='topnav-element'):
+                    cats = html_soup.find_all('div', class_='topnav-element')
+                    for category in cats:
+                        if category.find('a'):
+                            categories.append(category.find('a').text)
+                    if html_soup.find_all('tr', class_='products-list-item'):
+                        products = html_soup.find_all('tr', class_='products-list-item')
+                        for row in products:
+                            image_id = ''
+                            if row.find('td', style='text-align: center;'):
+                                if row.find('td', style='text-align: center;').find('img'):
+                                    image_id = str(row.find('td', style='text-align: center;').find('img')['src'])
+                            if row.find('td', class_='column-name'):
+                                if row.find('td', class_='column-name').a:
+                                    product_name = str(row.find('td', class_='column-name').a.text).strip()
+                                    desc = ''
+                                    if row.find('td', class_='column-name').span:
+                                        desc = row.find('td', class_='column-name').span.text.strip()
+                                    if row.find_next('td').find_next('td').find_next('td'):
+                                        price_text = row.find_next('td').find_next('td').find_next('td').text
+                                        if (' BTC' in price_text):
+                                            price = price_text.split(' ')[0]
+                                            (ship_to, ship_from) = ('', '')
+                                            if row.find('td', style='white-space: nowrap;'):
+                                                shipping = row.find('td', style='white-space: nowrap;')
+                                                if (shipping.find('img', class_='flag-img') and shipping.find('i', class_='fa fa-truck') and shipping.find('i', class_='fa fa-truck').next_sibling):
+                                                    ship_from = shipping.find('i', class_='fa fa-truck').next_sibling.next_sibling
+                                                if shipping.find('i', class_='fa fa-home'):
+                                                    ship_to = str(shipping.find('i', class_='fa fa-home').next_sibling).strip().split(' ')[(- 1)]
+                                            vendor = ''
+                                            if row.find('a', class_='gen-user-link'):
+                                                vendor = str(row.find('a', class_='gen-user-link').next_sibling)
+                                            categories_str = str('/'.join(categories))
+                                            items.append(('agora', product_name, float(price), categories_str, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  = BeautifulSoup
+
+idx = 74:------------------- similar code ------------------ index = 52, score = 1.0 
+def test_post_soup_accepted_answer(monkeypatch):
+    "\n    Ensures that BeautifulSoup is returned when there's an accepted answer.\n    "
+    path = 'autostack/so_web_scraper/__tests__/data/post_accepted_answer.html'
+    html = open(path).read()
+    soup = BeautifulSoup(html, 'lxml')
+
+    def mock_has_accepted_answer(*args):
+        '\n        Mocks the has_accepted_answer function.\n        '
+        return True
+
+    def mock_get_post_url(*args):
+        '\n        Mocks the get_post_url function.\n        '
+        return ''
+    mock_response = MockResponse(path, 200)
+    mock_get = build_mock_get(mock_response)
+    monkeypatch.setattr('autostack.so_web_scraper.has_accepted_answer', mock_has_accepted_answer)
+    monkeypatch.setattr('autostack.so_web_scraper.get_post_url', mock_get_post_url)
+    monkeypatch.setattr('requests.get', mock_get)
+    response_soup = post_soup(None)
+    assert (response_soup == soup)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+
+idx = 75:------------------- similar code ------------------ index = 53, score = 1.0 
+def parse_example(url: str):
+    ' extract the example sentences '
+    html = requests.get(url).text
+    bs = BeautifulSoup(html, 'html.parser')
+    list_ = bs.findAll('li')
+    sentences = []
+    for l in list_:
+        eng_phrase = l.find('span', attrs={'txt_example'}).text.split('\n')[0]
+        mean_phrase = l.find('span', attrs={'mean_example'}).text
+        phrase_set = f'''{eng_phrase}
+  -> {mean_phrase}
+
+'''
+        sentences.append(phrase_set)
+    return ''.join(sentences)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  = BeautifulSoup
 
-idx = 8:------------------- similar code ------------------ index = 2, score = 1.0 
-def request_single_patent(self, patent, url=False):
-    'Calls request function to retreive google patent data and parses returned html using BeautifulSoup\n\n\n        Returns: \n            - Status of scrape   <- String\n            - Html of patent     <- BS4 object\n\n        Inputs:\n            - patent (str)  : if    url == False then patent is patent number\n                              elif  url == True  then patent is google patent url\n            - url    (bool) : determines whether patent is treated as patent number \n                                or google patent url\n\n        '
-    try:
-        if (not url):
-            url = 'https://patents.google.com/patent/{0}'.format(patent)
+idx = 76:------------------- similar code ------------------ index = 54, score = 1.0 
+def get_mlb_team_score(query_team):
+    " put in the long for name of the team of interest:\n\t\ti.e. 'Toronto Blue Jays', 'New York Yankees' "
+    baseball_reference = 'http://www.baseball-reference.com/'
+    mlb_dat = urlopen(baseball_reference)
+    mlb_scores = BeautifulSoup(mlb_dat, 'lxml')
+    game_section = mlb_scores.find(id='scores')
+    yesterday_games = game_section.findAll('', {'class', 'teams'})
+    for game in yesterday_games:
+        winner = game.find('', {'class': 'winner'})
+        w_team = winner.td.get_text()
+        loser = game.find('', {'class': 'loser'})
+        l_team = loser.td.get_text()
+        if ((w_team != query_team) and (l_team != query_team)):
+            continue
         else:
-            url = patent
-        print(url)
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = urlopen(req).read()
-        soup = BeautifulSoup(webpage, features='lxml')
-        return ('Success', soup, url)
-    except HTTPError as e:
-        print('Patent: {0}, Error Status Code : {1}'.format(patent, e.code))
-        return (e.code, '', url)
+            w_score = winner.find('', {'class': 'right'}).get_text()
+            l_score = loser.find('', {'class': 'right'}).get_text()
+            return {w_team: w_score, l_team: l_score}
+    return 'did not play yesterday'
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 77:------------------- similar code ------------------ index = 55, score = 1.0 
+def prettify_html(self, html):
+    soup = BeautifulSoup(str(html), 'html.parser')
+    return soup.prettify()
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
+     ...  = BeautifulSoup
+
+idx = 78:------------------- similar code ------------------ index = 59, score = 1.0 
+def test_has_accepted_answer_true():
+    '\n    Ensures that has_accepted_answer returns True when the post\n    does in fact have an accepted answer.\n    '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summary = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})[4]
+    accepted_answer = has_accepted_answer(post_summary)
+    assert accepted_answer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 79:------------------- similar code ------------------ index = 61, score = 1.0 
+@register.filter
+def html_cleanup(text):
+    doc = BeautifulSoup(text, 'html.parser')
+    comments = doc.findAll(text=(lambda text: isinstance(text, Comment)))
+    [comment.extract() for comment in comments]
+    new_text = doc
+    return new_text
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 80:------------------- similar code ------------------ index = 62, score = 1.0 
+def test_has_accepted_answer_false():
+    '\n    Ensures that has_accepted_answer returns False when the post\n    does not have an accepted answer.\n    '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summary = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})[0]
+    accepted_answer = has_accepted_answer(post_summary)
+    assert (not accepted_answer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 81:------------------- similar code ------------------ index = 63, score = 1.0 
+def parse(html: str):
+    bs = BeautifulSoup(html, 'html.parser')
+    content = bs.findAll('meta', attrs={'property': 'og:description'})[0].get('content')
+    if (not content):
+        return ('No results found.', '')
     try:
-         ...  = BeautifulSoup
+        redir_url = bs.findAll('meta', attrs={'http-equiv': 'Refresh'})[0].get('content').split('URL=')[1]
+    except IndexError:
+        redir_url = bs.findAll('a', attrs={'txt_cleansch'})[0].attrs['href']
+    dic_query = urlparse(redir_url).query
+    wordid = dict(parse_qsl(dic_query))['wordid']
+    return (content, wordid)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
+
+idx = 82:------------------- similar code ------------------ index = 64, score = 1.0 
+@staticmethod
+def _get_options(r):
+    soup = BeautifulSoup(r.text, 'lxml')
+    options = [h.text for h in soup.find_all('a', href=True) if h.text.endswith(('.zip', 'tar.gz'))]
+    return options
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = BeautifulSoup
+
+idx = 83:------------------- similar code ------------------ index = 0, score = 1.0 
+def mock_get_post_summaries(*args):
+    '\n        Mocks the get_post_summaries function\n        '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summaries = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})
+    return [post_summaries]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = BeautifulSoup
 

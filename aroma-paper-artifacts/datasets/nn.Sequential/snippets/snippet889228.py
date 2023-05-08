@@ -1,0 +1,36 @@
+import torch
+import numpy as np
+from .layer import FeaturesLinear, MultiLayerPerceptron, FeaturesEmbedding
+
+
+def __init__(self, field_dims, embed_dim, sequence_length, lstm_dims, mlp_dims, dropouts):
+    super().__init__()
+    self.embedding = FeaturesEmbedding(field_dims, embed_dim)
+    self.src_embedding = FeaturesEmbedding(field_dims, embed_dim)
+    self.tgt_embedding = FeaturesEmbedding(field_dims, embed_dim)
+    self.linear = FeaturesLinear(field_dims)
+    self.mlp = MultiLayerPerceptron((embed_dim + embed_dim), mlp_dims, dropouts[1])
+    self.attention = torch.nn.Embedding(sum(field_dims), 1)
+    self.src_attention = torch.nn.Embedding(sum(field_dims), 1)
+    self.tgt_attention = torch.nn.Embedding(sum(field_dims), 1)
+    self.attr_softmax = torch.nn.Softmax(dim=2)
+    self.fm = FactorizationMachine(reduce_sum=False)
+    self.src_bn = torch.nn.Sequential(torch.nn.BatchNorm1d(sequence_length), torch.nn.Dropout(dropouts[0]))
+    self.tgt_bn = torch.nn.Sequential(torch.nn.BatchNorm1d(sequence_length), torch.nn.Dropout(dropouts[0]))
+    self.bn = torch.nn.Sequential(torch.nn.BatchNorm1d(sequence_length), torch.nn.Dropout(dropouts[0]))
+    self.event_K = torch.nn.Linear(embed_dim, embed_dim)
+    self.event_Q = torch.nn.Linear(embed_dim, embed_dim)
+    self.event_V = torch.nn.Linear(embed_dim, embed_dim)
+    self.src_event_K = torch.nn.Linear(embed_dim, embed_dim)
+    self.src_event_Q = torch.nn.Linear(embed_dim, embed_dim)
+    self.src_event_V = torch.nn.Linear(embed_dim, embed_dim)
+    self.tgt_event_K = torch.nn.Linear(embed_dim, embed_dim)
+    self.tgt_event_Q = torch.nn.Linear(embed_dim, embed_dim)
+    self.tgt_event_V = torch.nn.Linear(embed_dim, embed_dim)
+    self.event_softmax = torch.nn.Softmax(dim=1)
+    self.src_domain_K = torch.nn.Linear(32, 32)
+    self.src_domain_Q = torch.nn.Linear(32, 32)
+    self.src_domain_V = torch.nn.Linear(32, 32)
+    self.tgt_domain_K = torch.nn.Linear(32, 32)
+    self.tgt_domain_Q = torch.nn.Linear(32, 32)
+    self.tgt_domain_V = torch.nn.Linear(32, 32)

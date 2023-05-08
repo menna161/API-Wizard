@@ -1,48 +1,17 @@
 ------------------------- example 1 ------------------------ 
-def register_hook(module):
-
-    def hook(module, input, output=None):
-        class_name = str(module.__class__).split('.')[(- 1)].split("'")[0]
-        module_idx = len(summary)
+def forward(self, x):
+    '\n                        This is where we get outputs from the input model.\n\n                        :param x: Input data.\n                        :type x: `torch.Tensor`\n                        :return: a list of output layers, where the last 2 layers are logit and final outputs.\n                        :rtype: `list`\n                        '
 // your code ...
-
-        summary[m_key]['input_shape'] = list(input[0].size())
-        summary[m_key]['input_shape'][0] = batch_size
-        if ((show_input is False) and (output is not None)):
-            if isinstance(output, (list, tuple)):
-                for out in output:
-                    if isinstance(out, torch.Tensor):
-                        summary[m_key]['output_shape'] = [([(- 1)] + list(out.size())[1:])][0]
-                    else:
+    if isinstance(self._model, nn.Sequential):
+        for (_, module_) in self._model._modules.items():
 // your code ...
-
-            else:
+    elif isinstance(self._model, nn.Module):
+        x = self._model(x)
+        result.append(x)
+    else:
 // your code ...
-
-        params = 0
-// your code ...
-
-    if ((not isinstance(module, nn.Sequential)) and (not isinstance(module, nn.ModuleList)) and (not (module == model))):
-// your code ...
-
 
 ------------------------- example 2 ------------------------ 
-def pointwise(in_channels, out_channels):
-    return nn.Sequential(nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
-
-------------------------- example 3 ------------------------ 
-def init_weights(self, pretrained=None):
-    super(SingleStageDetector, self).init_weights(pretrained)
-    self.backbone.init_weights(pretrained=pretrained)
-    if self.with_neck:
-        if isinstance(self.neck, nn.Sequential):
-            for m in self.neck:
-                m.init_weights()
-        else:
-            self.neck.init_weights()
-    self.bbox_head.init_weights()
-
-------------------------- example 4 ------------------------ 
 def get_encoder(self, encoder, layer):
     if (layer == 0):
         return nn.Sequential(encoder.blocks['conv1_1'].conv, encoder.blocks['conv1_1'].bn, encoder.blocks['conv1_1'].act)
@@ -50,35 +19,77 @@ def get_encoder(self, encoder, layer):
         return nn.Sequential(encoder.blocks['conv1_1'].pool, *[b for (k, b) in encoder.blocks.items() if k.startswith('conv2_')])
     elif (layer == 2):
 // your code ...
-
     elif (layer == 3):
 // your code ...
 
+------------------------- example 3 ------------------------ 
+def pointwise(in_channels, out_channels):
+    return nn.Sequential(nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
+
+------------------------- example 4 ------------------------ 
+def conv_1x1_bn(inp, oup):
+    return nn.Sequential(nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
 
 ------------------------- example 5 ------------------------ 
 def get_encoder(self, encoder, layer):
     if (layer == 0):
 // your code ...
-
     elif (layer == 1):
         return nn.Sequential(encoder.pool, encoder.layer1)
     elif (layer == 2):
 // your code ...
-
     elif (layer == 3):
 // your code ...
 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          4           ||        8         ||         3        ||        0.25         
+example2  ||          4           ||        7         ||         2        ||        0.2857142857142857         
+example3  ||          4           ||        2         ||         0        ||        0.5         
+example4  ||          7           ||        2         ||         0        ||        0.5         
+example5  ||          5           ||        6         ||         3        ||        0.16666666666666666         
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        19         ||         5        
-example2  ||          4           ||        2         ||         0        
-example3  ||          2           ||        10         ||         0        
-example4  ||          6           ||        9         ||         2        
-example5  ||          4           ||        9         ||         3        
+avg       ||          0.5762304921968787           ||        5.0         ||         1.6        ||         34.04761904761905        
 
-avg       ||          3.8           ||        9.8         ||         2.0        
+idx = 0:------------------- similar code ------------------ index = 605, score = 7.0 
+def forward(self, x):
+    '\n                        This is where we get outputs from the input model.\n\n                        :param x: Input data.\n                        :type x: `torch.Tensor`\n                        :return: a list of output layers, where the last 2 layers are logit and final outputs.\n                        :rtype: `list`\n                        '
+    import torch.nn as nn
+    result = []
+    if isinstance(self._model, nn.Sequential):
+        for (_, module_) in self._model._modules.items():
+            x = module_(x)
+            result.append(x)
+    elif isinstance(self._model, nn.Module):
+        x = self._model(x)
+        result.append(x)
+    else:
+        raise TypeError('The input model must inherit from `nn.Module`.')
+    output_layer = nn.functional.softmax(x, dim=1)
+    result.append(output_layer)
+    return result
 
-idx = 0:------------------- similar code ------------------ index = 137, score = 7.0 
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if  ... (, nn.Sequential):
+idx = 1:------------------- similar code ------------------ index = 538, score = 7.0 
+@property
+def get_layers(self):
+    '\n                        Return the hidden layers in the model, if applicable.\n\n                        :return: The hidden layers in the model, input and output layers excluded.\n                        :rtype: `list`\n\n                        .. warning:: `get_layers` tries to infer the internal structure of the model.\n                                     This feature comes with no guarantees on the correctness of the result.\n                                     The intended order of the layers tries to match their order in the model, but this\n                                     is not guaranteed either. In addition, the function can only infer the internal\n                                     layers if the input model is of type `nn.Sequential`, otherwise, it will only\n                                     return the logit layer.\n                        '
+    import torch.nn as nn
+    result = []
+    if isinstance(self._model, nn.Sequential):
+        for (name, module_) in self._model._modules.items():
+            result.append(((name + '_') + str(module_)))
+    elif isinstance(self._model, nn.Module):
+        result.append('logit_layer')
+    else:
+        raise TypeError('The input model must inherit from `nn.Module`.')
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    if  ... (, nn.Sequential):
+idx = 2:------------------- similar code ------------------ index = 663, score = 7.0 
 def get_parameters(self, bias=False):
     import torch.nn as nn
     modules_skipped = (nn.ReLU, nn.MaxPool2d, nn.Dropout2d, nn.Sequential, FCN8s)
@@ -100,7 +111,260 @@ def get_parameters(self, bias=False):
 def  ... ():
      ...  = (,,, nn.Sequential,  ... )
 
-idx = 1:------------------- similar code ------------------ index = 112, score = 6.0 
+idx = 3:------------------- similar code ------------------ index = 365, score = 7.0 
+def _make_model_wrapper(self, model):
+    try:
+        import torch.nn as nn
+        if (not hasattr(self, '_model_wrapper')):
+
+            class ModelWrapper(nn.Module):
+                '\n                    This is a wrapper for the input model.\n                    '
+
+                def __init__(self, model):
+                    '\n                        Initialization by storing the input model.\n\n                        :param model: PyTorch model. The forward function of the model must return the logit output.\n                        :type model: is instance of `torch.nn.Module`\n                        '
+                    super(ModelWrapper, self).__init__()
+                    self._model = model
+
+                def forward(self, x):
+                    '\n                        This is where we get outputs from the input model.\n\n                        :param x: Input data.\n                        :type x: `torch.Tensor`\n                        :return: a list of output layers, where the last 2 layers are logit and final outputs.\n                        :rtype: `list`\n                        '
+                    import torch.nn as nn
+                    result = []
+                    if isinstance(self._model, nn.Sequential):
+                        for (_, module_) in self._model._modules.items():
+                            x = module_(x)
+                            result.append(x)
+                    elif isinstance(self._model, nn.Module):
+                        x = self._model(x)
+                        result.append(x)
+                    else:
+                        raise TypeError('The input model must inherit from `nn.Module`.')
+                    output_layer = nn.functional.softmax(x, dim=1)
+                    result.append(output_layer)
+                    return result
+
+                @property
+                def get_layers(self):
+                    '\n                        Return the hidden layers in the model, if applicable.\n\n                        :return: The hidden layers in the model, input and output layers excluded.\n                        :rtype: `list`\n\n                        .. warning:: `get_layers` tries to infer the internal structure of the model.\n                                     This feature comes with no guarantees on the correctness of the result.\n                                     The intended order of the layers tries to match their order in the model, but this\n                                     is not guaranteed either. In addition, the function can only infer the internal\n                                     layers if the input model is of type `nn.Sequential`, otherwise, it will only\n                                     return the logit layer.\n                        '
+                    import torch.nn as nn
+                    result = []
+                    if isinstance(self._model, nn.Sequential):
+                        for (name, module_) in self._model._modules.items():
+                            result.append(((name + '_') + str(module_)))
+                    elif isinstance(self._model, nn.Module):
+                        result.append('logit_layer')
+                    else:
+                        raise TypeError('The input model must inherit from `nn.Module`.')
+                    return result
+            self._model_wrapper = ModelWrapper
+        return self._model_wrapper(model)
+    except ImportError:
+        raise ImportError('Could not find PyTorch (`torch`) installation.')
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    try:
+        if:
+
+            class  ... ():
+                def  ... ():
+                    if  ... (, nn.Sequential):
+idx = 4:------------------- similar code ------------------ index = 522, score = 6.0 
+def get_encoder(self, encoder, layer):
+    if (layer == 0):
+        return nn.Sequential(encoder.blocks['conv1_1'].conv, encoder.blocks['conv1_1'].bn, encoder.blocks['conv1_1'].act)
+    elif (layer == 1):
+        return nn.Sequential(encoder.blocks['conv1_1'].pool, *[b for (k, b) in encoder.blocks.items() if k.startswith('conv2_')])
+    elif (layer == 2):
+        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv3_')])
+    elif (layer == 3):
+        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv4_')])
+    elif (layer == 4):
+        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv5_')])
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential
+
+idx = 5:------------------- similar code ------------------ index = 524, score = 6.0 
+def get_encoder(self, encoder, layer):
+    if (layer == 0):
+        return nn.Sequential(encoder.features.conv0, encoder.features.norm0, encoder.features.relu0)
+    elif (layer == 1):
+        return nn.Sequential(encoder.features.pool0, encoder.features.denseblock1)
+    elif (layer == 2):
+        return nn.Sequential(encoder.features.transition1, encoder.features.denseblock2)
+    elif (layer == 3):
+        return nn.Sequential(encoder.features.transition2, encoder.features.denseblock3)
+    elif (layer == 4):
+        return nn.Sequential(encoder.features.transition3, encoder.features.denseblock4, encoder.features.norm5, nn.ReLU())
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential
+
+idx = 6:------------------- similar code ------------------ index = 207, score = 6.0 
+def pointwise(in_channels, out_channels):
+    return nn.Sequential(nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 7:------------------- similar code ------------------ index = 532, score = 6.0 
+def conv_1x1_bn(inp, oup):
+    return nn.Sequential(nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 8:------------------- similar code ------------------ index = 203, score = 6.0 
+def get_encoder(self, encoder, layer):
+    if (layer == 0):
+        return encoder.layer0
+    elif (layer == 1):
+        return nn.Sequential(encoder.pool, encoder.layer1)
+    elif (layer == 2):
+        return encoder.layer2
+    elif (layer == 3):
+        return encoder.layer3
+    elif (layer == 4):
+        return encoder.layer4
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:    elif:
+        return nn.Sequential
+
+idx = 9:------------------- similar code ------------------ index = 216, score = 6.0 
+def _make_layer(self, block, channel_num):
+    layers = []
+    for i in range(cfg.GAN.R_NUM):
+        layers.append(block(channel_num))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 10:------------------- similar code ------------------ index = 200, score = 6.0 
+def make_pool_layer(dim):
+    return nn.Sequential()
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return nn.Sequential()
+
+idx = 11:------------------- similar code ------------------ index = 542, score = 6.0 
+def get_encoder(self, encoder, layer):
+    if (layer == 0):
+        return nn.Sequential(encoder.conv1, encoder.bn1, encoder.relu)
+    elif (layer == 1):
+        return nn.Sequential(encoder.maxpool, encoder.layer1)
+    elif (layer == 2):
+        return encoder.layer2
+    elif (layer == 3):
+        return encoder.layer3
+    elif (layer == 4):
+        return encoder.layer4
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential
+
+idx = 12:------------------- similar code ------------------ index = 196, score = 6.0 
+def init_weights(self, pretrained=None):
+    super(CascadeRCNN, self).init_weights(pretrained)
+    self.backbone.init_weights(pretrained=pretrained)
+    if self.with_neck:
+        if isinstance(self.neck, nn.Sequential):
+            for m in self.neck:
+                m.init_weights()
+        else:
+            self.neck.init_weights()
+    if self.with_rpn:
+        self.rpn_head.init_weights()
+    if self.with_shared_head:
+        self.shared_head.init_weights(pretrained=pretrained)
+    for i in range(self.num_stages):
+        if self.with_bbox:
+            self.bbox_roi_extractor[i].init_weights()
+            self.bbox_head[i].init_weights()
+        if self.with_mask:
+            if (not self.share_roi_extractor):
+                self.mask_roi_extractor[i].init_weights()
+            self.mask_head[i].init_weights()
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        if  ... (, nn.Sequential):
+idx = 13:------------------- similar code ------------------ index = 192, score = 6.0 
+def convbn_3d(in_planes, out_planes, kernel_size, stride, pad, dilation):
+    return nn.Sequential(Conv3d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=pad, dilation=dilation, bias=False), nn.BatchNorm3d(out_planes))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 14:------------------- similar code ------------------ index = 189, score = 6.0 
+def _make_branch(self, in_ch, out_ch, stride=1):
+    return nn.Sequential(nn.ReLU(inplace=False), nn.Conv2d(in_ch, out_ch, 3, padding=1, stride=stride, bias=False), nn.BatchNorm2d(out_ch), nn.ReLU(inplace=False), nn.Conv2d(out_ch, out_ch, 3, padding=1, stride=1, bias=False), nn.BatchNorm2d(out_ch))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 15:------------------- similar code ------------------ index = 554, score = 6.0 
+def __init__(self, in_channels, kernel_size):
+    assert (kernel_size >= 2), 'kernel_size out of range: {}'.format(kernel_size)
+    super(DeConv, self).__init__()
+
+    def convt(in_channels):
+        stride = 2
+        padding = ((kernel_size - 1) // 2)
+        output_padding = (kernel_size % 2)
+        assert (((((- 2) - (2 * padding)) + kernel_size) + output_padding) == 0), 'deconv parameters incorrect'
+        module_name = 'deconv{}'.format(kernel_size)
+        return nn.Sequential(collections.OrderedDict([(module_name, nn.ConvTranspose2d(in_channels, (in_channels // 2), kernel_size, stride, padding, output_padding, bias=False)), ('batchnorm', nn.BatchNorm2d((in_channels // 2))), ('relu', nn.ReLU(inplace=True))]))
+    self.layer1 = convt(in_channels)
+    self.layer2 = convt((in_channels // 2))
+    self.layer3 = convt((in_channels // (2 ** 2)))
+    self.layer4 = convt((in_channels // (2 ** 3)))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    def  ... ( ... ):
+        return nn.Sequential
+
+idx = 16:------------------- similar code ------------------ index = 539, score = 6.0 
+def conv_dw(inp, oup, stride, alpha_in=0.5, alpha_out=0.5):
+    return nn.Sequential(Conv_BN_ACT(inp, inp, kernel_size=3, stride=stride, padding=1, groups=inp, bias=False, alpha_in=alpha_in, alpha_out=(alpha_in if (alpha_out != alpha_in) else alpha_out)), Conv_BN_ACT(inp, oup, kernel_size=1, alpha_in=alpha_in, alpha_out=alpha_out))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 17:------------------- similar code ------------------ index = 517, score = 6.0 
+def init_weights(self, pretrained=None):
+    super(SingleStageDetector, self).init_weights(pretrained)
+    self.backbone.init_weights(pretrained=pretrained)
+    if self.with_neck:
+        if isinstance(self.neck, nn.Sequential):
+            for m in self.neck:
+                m.init_weights()
+        else:
+            self.neck.init_weights()
+    self.bbox_head.init_weights()
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        if  ... (, nn.Sequential):
+idx = 18:------------------- similar code ------------------ index = 557, score = 6.0 
 def register_hook(module):
 
     def hook(module, input, output=None):
@@ -137,244 +401,54 @@ def register_hook(module):
 def  ... ( ... ):
 
     if ((not  ... ( ... , nn.Sequential)) and and):
-idx = 2:------------------- similar code ------------------ index = 100, score = 6.0 
-def summary(model, *inputs, batch_size=(- 1), show_input=True):
-    '\n    打印模型结构信息\n    :param model:\n    :param inputs:\n    :param batch_size:\n    :param show_input:\n    :return:\n    Example:\n        >>> print("model summary info: ")\n        >>> for step,batch in enumerate(train_data):\n        >>>     summary(self.model,*batch,show_input=True)\n        >>>     break\n    '
-
-    def register_hook(module):
-
-        def hook(module, input, output=None):
-            class_name = str(module.__class__).split('.')[(- 1)].split("'")[0]
-            module_idx = len(summary)
-            m_key = f'{class_name}-{(module_idx + 1)}'
-            summary[m_key] = OrderedDict()
-            summary[m_key]['input_shape'] = list(input[0].size())
-            summary[m_key]['input_shape'][0] = batch_size
-            if ((show_input is False) and (output is not None)):
-                if isinstance(output, (list, tuple)):
-                    for out in output:
-                        if isinstance(out, torch.Tensor):
-                            summary[m_key]['output_shape'] = [([(- 1)] + list(out.size())[1:])][0]
-                        else:
-                            summary[m_key]['output_shape'] = [([(- 1)] + list(out[0].size())[1:])][0]
-                else:
-                    summary[m_key]['output_shape'] = list(output.size())
-                    summary[m_key]['output_shape'][0] = batch_size
-            params = 0
-            if (hasattr(module, 'weight') and hasattr(module.weight, 'size')):
-                params += torch.prod(torch.LongTensor(list(module.weight.size())))
-                summary[m_key]['trainable'] = module.weight.requires_grad
-            if (hasattr(module, 'bias') and hasattr(module.bias, 'size')):
-                params += torch.prod(torch.LongTensor(list(module.bias.size())))
-            summary[m_key]['nb_params'] = params
-        if ((not isinstance(module, nn.Sequential)) and (not isinstance(module, nn.ModuleList)) and (not (module == model))):
-            if (show_input is True):
-                hooks.append(module.register_forward_pre_hook(hook))
-            else:
-                hooks.append(module.register_forward_hook(hook))
-    summary = OrderedDict()
-    hooks = []
-    model.apply(register_hook)
-    model(*inputs)
-    for h in hooks:
-        h.remove()
-    print('-----------------------------------------------------------------------')
-    if (show_input is True):
-        line_new = f"{'Layer (type)':>25}  {'Input Shape':>25} {'Param #':>15}"
-    else:
-        line_new = f"{'Layer (type)':>25}  {'Output Shape':>25} {'Param #':>15}"
-    print(line_new)
-    print('=======================================================================')
-    total_params = 0
-    total_output = 0
-    trainable_params = 0
-    for layer in summary:
-        if (show_input is True):
-            line_new = '{:>25}  {:>25} {:>15}'.format(layer, str(summary[layer]['input_shape']), '{0:,}'.format(summary[layer]['nb_params']))
-        else:
-            line_new = '{:>25}  {:>25} {:>15}'.format(layer, str(summary[layer]['output_shape']), '{0:,}'.format(summary[layer]['nb_params']))
-        total_params += summary[layer]['nb_params']
-        if (show_input is True):
-            total_output += np.prod(summary[layer]['input_shape'])
-        else:
-            total_output += np.prod(summary[layer]['output_shape'])
-        if ('trainable' in summary[layer]):
-            if (summary[layer]['trainable'] == True):
-                trainable_params += summary[layer]['nb_params']
-        print(line_new)
-    print('=======================================================================')
-    print(f'Total params: {total_params:0,}')
-    print(f'Trainable params: {trainable_params:0,}')
-    print(f'Non-trainable params: {(total_params - trainable_params):0,}')
-    print('-----------------------------------------------------------------------')
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    def  ... ( ... ):
-
-        if ((not  ... ( ... , nn.Sequential)) and and):
-idx = 3:------------------- similar code ------------------ index = 44, score = 6.0 
-def pointwise(in_channels, out_channels):
-    return nn.Sequential(nn.Conv2d(in_channels, out_channels, 1, 1, 0, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
+idx = 19:------------------- similar code ------------------ index = 489, score = 6.0 
+def conv_3x3_bn(inp, oup, stride):
+    return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 4:------------------- similar code ------------------ index = 104, score = 6.0 
-def init_weights(self, pretrained=None):
-    super(SingleStageDetector, self).init_weights(pretrained)
-    self.backbone.init_weights(pretrained=pretrained)
-    if self.with_neck:
-        if isinstance(self.neck, nn.Sequential):
-            for m in self.neck:
-                m.init_weights()
-        else:
-            self.neck.init_weights()
-    self.bbox_head.init_weights()
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        if  ... (, nn.Sequential):
-idx = 5:------------------- similar code ------------------ index = 105, score = 6.0 
-def get_encoder(self, encoder, layer):
-    if (layer == 0):
-        return nn.Sequential(encoder.blocks['conv1_1'].conv, encoder.blocks['conv1_1'].bn, encoder.blocks['conv1_1'].act)
-    elif (layer == 1):
-        return nn.Sequential(encoder.blocks['conv1_1'].pool, *[b for (k, b) in encoder.blocks.items() if k.startswith('conv2_')])
-    elif (layer == 2):
-        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv3_')])
-    elif (layer == 3):
-        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv4_')])
-    elif (layer == 4):
-        return nn.Sequential(*[b for (k, b) in encoder.blocks.items() if k.startswith('conv5_')])
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        return nn.Sequential
-
-idx = 6:------------------- similar code ------------------ index = 106, score = 6.0 
-def get_encoder(self, encoder, layer):
-    if (layer == 0):
-        return nn.Sequential(encoder.features.conv0, encoder.features.norm0, encoder.features.relu0)
-    elif (layer == 1):
-        return nn.Sequential(encoder.features.pool0, encoder.features.denseblock1)
-    elif (layer == 2):
-        return nn.Sequential(encoder.features.transition1, encoder.features.denseblock2)
-    elif (layer == 3):
-        return nn.Sequential(encoder.features.transition2, encoder.features.denseblock3)
-    elif (layer == 4):
-        return nn.Sequential(encoder.features.transition3, encoder.features.denseblock4, encoder.features.norm5, nn.ReLU())
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        return nn.Sequential
-
-idx = 7:------------------- similar code ------------------ index = 41, score = 6.0 
-def get_encoder(self, encoder, layer):
-    if (layer == 0):
-        return encoder.layer0
-    elif (layer == 1):
-        return nn.Sequential(encoder.pool, encoder.layer1)
-    elif (layer == 2):
-        return encoder.layer2
-    elif (layer == 3):
-        return encoder.layer3
-    elif (layer == 4):
-        return encoder.layer4
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:    elif:
-        return nn.Sequential
-
-idx = 8:------------------- similar code ------------------ index = 110, score = 6.0 
-def get_encoder(self, encoder, layer):
-    if (layer == 0):
-        return nn.Sequential(encoder.conv1, encoder.bn1, encoder.relu)
-    elif (layer == 1):
-        return nn.Sequential(encoder.maxpool, encoder.layer1)
-    elif (layer == 2):
-        return encoder.layer2
-    elif (layer == 3):
-        return encoder.layer3
-    elif (layer == 4):
-        return encoder.layer4
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        return nn.Sequential
-
-idx = 9:------------------- similar code ------------------ index = 40, score = 6.0 
-def init_weights(self, pretrained=None):
-    super(CascadeRCNN, self).init_weights(pretrained)
-    self.backbone.init_weights(pretrained=pretrained)
-    if self.with_neck:
-        if isinstance(self.neck, nn.Sequential):
-            for m in self.neck:
-                m.init_weights()
-        else:
-            self.neck.init_weights()
-    if self.with_rpn:
-        self.rpn_head.init_weights()
-    if self.with_shared_head:
-        self.shared_head.init_weights(pretrained=pretrained)
-    for i in range(self.num_stages):
-        if self.with_bbox:
-            self.bbox_roi_extractor[i].init_weights()
-            self.bbox_head[i].init_weights()
-        if self.with_mask:
-            if (not self.share_roi_extractor):
-                self.mask_roi_extractor[i].init_weights()
-            self.mask_head[i].init_weights()
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        if  ... (, nn.Sequential):
-idx = 10:------------------- similar code ------------------ index = 113, score = 6.0 
-def convbn_3d(in_planes, out_planes, kernel_size, stride, pad, dilation=1):
-    return nn.Sequential(nn.Conv3d(in_planes, out_planes, kernel_size=kernel_size, padding=pad, stride=stride, dilation=dilation, bias=False), nn.BatchNorm3d(out_planes))
+idx = 20:------------------- similar code ------------------ index = 234, score = 6.0 
+def _make_btlayer(self, bt, inChannels, outChannels, numBlock, t=6, stride=1):
+    layers = []
+    layers.append(bt(inChannels, outChannels, t, stride))
+    for i in range(1, numBlock):
+        layers.append(bt(outChannels, outChannels, t, 1))
+    return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 11:------------------- similar code ------------------ index = 37, score = 6.0 
-def convbn_3d(in_planes, out_planes, kernel_size, stride, pad, dilation):
-    return nn.Sequential(Conv3d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=pad, dilation=dilation, bias=False), nn.BatchNorm3d(out_planes))
+idx = 21:------------------- similar code ------------------ index = 492, score = 6.0 
+def fc_v(env, hidden1=400, hidden2=300):
+    return nn.Sequential(nn.Linear(env.state_space.shape[0], hidden1), nn.LeakyReLU(), nn.Linear(hidden1, hidden2), nn.LeakyReLU(), nn.Linear(hidden2, 1))
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 12:------------------- similar code ------------------ index = 34, score = 6.0 
-def convt_dw(channels, kernel_size):
-    stride = 2
-    padding = ((kernel_size - 1) // 2)
-    output_padding = (kernel_size % 2)
-    assert (((((- 2) - (2 * padding)) + kernel_size) + output_padding) == 0), 'deconv parameters incorrect'
-    return nn.Sequential(nn.ConvTranspose2d(channels, channels, kernel_size, stride, padding, output_padding, bias=False, groups=channels), nn.BatchNorm2d(channels), nn.ReLU(inplace=True))
+idx = 22:------------------- similar code ------------------ index = 493, score = 6.0 
+def pyramidal_make_layer(self, block, block_depth, stride=1):
+    downsample = None
+    if (stride != 1):
+        downsample = nn.AvgPool2d((2, 2), stride=(2, 2), ceil_mode=True)
+    layers = []
+    self.featuremap_dim = (self.featuremap_dim + self.addrate)
+    layers.append(block(self.input_featuremap_dim, int(round(self.featuremap_dim)), stride, downsample))
+    for i in range(1, block_depth):
+        temp_featuremap_dim = (self.featuremap_dim + self.addrate)
+        layers.append(block((int(round(self.featuremap_dim)) * block.outchannel_ratio), int(round(temp_featuremap_dim)), 1))
+        self.featuremap_dim = temp_featuremap_dim
+    self.input_featuremap_dim = (int(round(self.featuremap_dim)) * block.outchannel_ratio)
+    return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 13:------------------- similar code ------------------ index = 124, score = 6.0 
-def conv(in_channels, out_channels, kernel_size):
-    padding = ((kernel_size - 1) // 2)
-    assert ((2 * padding) == (kernel_size - 1)), 'parameters incorrect. kernel={}, padding={}'.format(kernel_size, padding)
-    return nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=padding, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 14:------------------- similar code ------------------ index = 48, score = 6.0 
+idx = 23:------------------- similar code ------------------ index = 232, score = 6.0 
 def last_zero_init(m):
     if isinstance(m, nn.Sequential):
         constant_init(m[(- 1)], val=0)
@@ -384,185 +458,20 @@ def last_zero_init(m):
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ( ... ):
     if  ... ( ... , nn.Sequential):
-idx = 15:------------------- similar code ------------------ index = 52, score = 6.0 
-def __init__(self, relu6=True):
-    super(MobileNet, self).__init__()
-
-    def relu(relu6):
-        if relu6:
-            return nn.ReLU6(inplace=True)
-        else:
-            return nn.ReLU(inplace=True)
-
-    def conv_bn(inp, oup, stride, relu6):
-        return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), relu(relu6))
-
-    def conv_dw(inp, oup, stride, relu6):
-        return nn.Sequential(nn.Conv2d(inp, inp, 3, stride, 1, groups=inp, bias=False), nn.BatchNorm2d(inp), relu(relu6), nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), relu(relu6))
-    self.model = nn.Sequential(conv_bn(3, 32, 2, relu6), conv_dw(32, 64, 1, relu6), conv_dw(64, 128, 2, relu6), conv_dw(128, 128, 1, relu6), conv_dw(128, 256, 2, relu6), conv_dw(256, 256, 1, relu6), conv_dw(256, 512, 2, relu6), conv_dw(512, 512, 1, relu6), conv_dw(512, 512, 1, relu6), conv_dw(512, 512, 1, relu6), conv_dw(512, 512, 1, relu6), conv_dw(512, 512, 1, relu6), conv_dw(512, 1024, 2, relu6), conv_dw(1024, 1024, 1, relu6), nn.AvgPool2d(7))
-    self.fc = nn.Linear(1024, 1000)
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    def  ... ():
-        return nn.Sequential
-
-
-idx = 16:------------------- similar code ------------------ index = 64, score = 6.0 
-def conv_bn(inp, oup, stride):
-    return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
+idx = 24:------------------- similar code ------------------ index = 226, score = 6.0 
+def _make_conv_layers(self, channels, convs, stride=1, dilation=1, BatchNorm=None):
+    modules = []
+    for i in range(convs):
+        modules.extend([nn.Conv2d(self.inplanes, channels, kernel_size=3, stride=(stride if (i == 0) else 1), padding=dilation, bias=False, dilation=dilation), BatchNorm(channels), nn.ReLU(inplace=True)])
+        self.inplanes = channels
+    return nn.Sequential(*modules)
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 17:------------------- similar code ------------------ index = 73, score = 6.0 
-def depthwise(in_channels, kernel_size):
-    padding = ((kernel_size - 1) // 2)
-    assert ((2 * padding) == (kernel_size - 1)), 'parameters incorrect. kernel={}, padding={}'.format(kernel_size, padding)
-    return nn.Sequential(nn.Conv2d(in_channels, in_channels, kernel_size, stride=1, padding=padding, bias=False, groups=in_channels), nn.BatchNorm2d(in_channels), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 18:------------------- similar code ------------------ index = 59, score = 6.0 
-def convt(in_channels, out_channels, kernel_size):
-    stride = 2
-    padding = ((kernel_size - 1) // 2)
-    output_padding = (kernel_size % 2)
-    assert (((((- 2) - (2 * padding)) + kernel_size) + output_padding) == 0), 'deconv parameters incorrect'
-    return nn.Sequential(nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, output_padding, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 19:------------------- similar code ------------------ index = 82, score = 6.0 
-def convbn(in_planes, out_planes, kernel_size, stride, pad, dilation):
-    return nn.Sequential(nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=dilation, dilation=dilation, bias=False), nn.BatchNorm2d(out_planes))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 20:------------------- similar code ------------------ index = 57, score = 6.0 
-def conv3x3_bn_relu(in_planes, out_planes, stride=1):
-    return nn.Sequential(conv3x3(in_planes, out_planes, stride), SynchronizedBatchNorm2d(out_planes), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 21:------------------- similar code ------------------ index = 86, score = 6.0 
-def conv_bn(inp, oup, stride, relu6):
-    return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), relu(relu6))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 22:------------------- similar code ------------------ index = 55, score = 6.0 
-def conv3x3_bn_relu(in_planes, out_planes, stride=1):
-    return nn.Sequential(conv3x3(in_planes, out_planes, stride), SynchronizedBatchNorm2d(out_planes), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 23:------------------- similar code ------------------ index = 125, score = 6.0 
-def build(cfg, registry, default_args=None):
-    if isinstance(cfg, list):
-        modules = [build_from_cfg(cfg_, registry, default_args) for cfg_ in cfg]
-        return nn.Sequential(*modules)
-    else:
-        return build_from_cfg(cfg, registry, default_args)
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        return nn.Sequential
-
-idx = 24:------------------- similar code ------------------ index = 144, score = 6.0 
-def _make_extra_layers(self, outplanes):
-    layers = []
-    kernel_sizes = (1, 3)
-    num_layers = 0
-    outplane = None
-    for i in range(len(outplanes)):
-        if (self.inplanes == 'S'):
-            self.inplanes = outplane
-            continue
-        k = kernel_sizes[(num_layers % 2)]
-        if (outplanes[i] == 'S'):
-            outplane = outplanes[(i + 1)]
-            conv = nn.Conv2d(self.inplanes, outplane, k, stride=2, padding=1)
-        else:
-            outplane = outplanes[i]
-            conv = nn.Conv2d(self.inplanes, outplane, k, stride=1, padding=0)
-        layers.append(conv)
-        self.inplanes = outplanes[i]
-        num_layers += 1
-    if (self.input_size == 512):
-        layers.append(nn.Conv2d(self.inplanes, 256, 4, padding=1))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 25:------------------- similar code ------------------ index = 4, score = 6.0 
-def make_final_classifier(self, in_filters, num_classes):
-    return nn.Sequential(nn.Conv2d(in_filters, num_classes, 1, padding=0))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 26:------------------- similar code ------------------ index = 143, score = 6.0 
-def convbn_Transpose3d(in_planes, out_planes, kernel_size, stride, pad, output_padding, dilation, bias):
-    return nn.Sequential(nn.ConvTranspose3d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=pad, output_padding=output_padding, dilation=dilation, bias=bias), nn.BatchNorm3d(out_planes), nn.ReLU(inplace=True))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 27:------------------- similar code ------------------ index = 22, score = 6.0 
-def init_weights(self, pretrained=None):
-    super(TwoStageDetector, self).init_weights(pretrained)
-    self.backbone.init_weights(pretrained=pretrained)
-    if self.with_neck:
-        if isinstance(self.neck, nn.Sequential):
-            for m in self.neck:
-                m.init_weights()
-        else:
-            self.neck.init_weights()
-    if self.with_shared_head:
-        self.shared_head.init_weights(pretrained=pretrained)
-    if self.with_rpn:
-        self.rpn_head.init_weights()
-    if self.with_bbox:
-        self.bbox_roi_extractor.init_weights()
-        self.bbox_head.init_weights()
-    if self.with_mask:
-        self.mask_head.init_weights()
-        if (not self.share_roi_extractor):
-            self.mask_roi_extractor.init_weights()
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    if:
-        if  ... (, nn.Sequential):
-idx = 28:------------------- similar code ------------------ index = 24, score = 6.0 
-def conv_dw(inp, oup, stride, relu6):
-    return nn.Sequential(nn.Conv2d(inp, inp, 3, stride, 1, groups=inp, bias=False), nn.BatchNorm2d(inp), relu(relu6), nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), relu(relu6))
-
-------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
-def  ... ():
-    return nn.Sequential
-
-idx = 29:------------------- similar code ------------------ index = 1, score = 6.0 
-def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+idx = 25:------------------- similar code ------------------ index = 506, score = 6.0 
+def build_conv_block(self, dim, padding_type, norm_layer, use_bias):
     conv_block = []
     p = 0
     if (padding_type == 'reflect'):
@@ -574,8 +483,6 @@ def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias)
     else:
         raise NotImplementedError(('padding [%s] is not implemented' % padding_type))
     conv_block += [nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias), norm_layer(dim), nn.ReLU(True)]
-    if use_dropout:
-        conv_block += [nn.Dropout(0.5)]
     p = 0
     if (padding_type == 'reflect'):
         conv_block += [nn.ReflectionPad2d(1)]
@@ -592,7 +499,62 @@ def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias)
 def  ... ():
     return nn.Sequential
 
-idx = 30:------------------- similar code ------------------ index = 28, score = 6.0 
+idx = 26:------------------- similar code ------------------ index = 218, score = 6.0 
+def residual_bottleneck(feature_dim=256, num_blocks=1, l2norm=True, final_conv=False, norm_scale=1.0, out_dim=None):
+    if (out_dim is None):
+        out_dim = feature_dim
+    feat_layers = []
+    for i in range(num_blocks):
+        planes = (feature_dim if (i < ((num_blocks - 1) + int(final_conv))) else (out_dim // 4))
+        feat_layers.append(Bottleneck((4 * feature_dim), planes))
+    if final_conv:
+        feat_layers.append(nn.Conv2d((4 * feature_dim), out_dim, kernel_size=3, padding=1, bias=False))
+    if l2norm:
+        feat_layers.append(InstanceL2Norm(scale=norm_scale))
+    return nn.Sequential(*feat_layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 27:------------------- similar code ------------------ index = 560, score = 6.0 
+def convbn_3d(in_planes, out_planes, kernel_size, stride, pad, dilation=1):
+    return nn.Sequential(nn.Conv3d(in_planes, out_planes, kernel_size=kernel_size, padding=pad, stride=stride, dilation=dilation, bias=False), nn.BatchNorm3d(out_planes))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 28:------------------- similar code ------------------ index = 187, score = 6.0 
+def _make_layer(self, n_units, n_ch, w_base, cardinary, stride=1):
+    layers = []
+    (mid_ch, out_ch) = (((n_ch * (w_base // 64)) * cardinary), (n_ch * 4))
+    for i in range(n_units):
+        layers.append(ShakeBottleNeck(self.in_ch, mid_ch, out_ch, cardinary, stride=stride))
+        (self.in_ch, stride) = (out_ch, 1)
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 29:------------------- similar code ------------------ index = 484, score = 6.0 
+def conv_1x1_bn(inp, oup):
+    return nn.Sequential(nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 30:------------------- similar code ------------------ index = 607, score = 6.0 
+def conv_3x3_bn(inp, oup, stride):
+    return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 31:------------------- similar code ------------------ index = 153, score = 6.0 
 def convbn(in_planes, out_planes, kernel_size, stride, pad, dilation):
     return nn.Sequential(Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=pad, dilation=dilation, bias=False), nn.BatchNorm2d(out_planes))
 
@@ -600,43 +562,433 @@ def convbn(in_planes, out_planes, kernel_size, stride, pad, dilation):
 def  ... ():
     return nn.Sequential
 
-idx = 31:------------------- similar code ------------------ index = 135, score = 6.0 
-def upconv(in_channels, out_channels):
-    return nn.Sequential(Unpool(2), nn.Conv2d(in_channels, out_channels, kernel_size=5, stride=1, padding=2, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU())
+idx = 32:------------------- similar code ------------------ index = 151, score = 6.0 
+def build(cfg, registry, default_args=None):
+    if isinstance(cfg, list):
+        modules = [build_from_cfg(cfg_, registry, default_args) for cfg_ in cfg]
+        return nn.Sequential(*modules)
+    else:
+        return build_from_cfg(cfg, registry, default_args)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential
+
+idx = 33:------------------- similar code ------------------ index = 147, score = 6.0 
+def fc_bcq_deterministic_policy(env, hidden1=400, hidden2=300):
+    return nn.Sequential(nn.Linear((env.state_space.shape[0] + env.action_space.shape[0]), hidden1), nn.LeakyReLU(), nn.Linear(hidden1, hidden2), nn.LeakyReLU(), nn.Linear(hidden2, env.action_space.shape[0]))
 
 ------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
 def  ... ():
     return nn.Sequential
 
-idx = 32:------------------- similar code ------------------ index = 115, score = 6.0 
-def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16), num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000):
-    super(DenseNet, self).__init__()
-    self.features = nn.Sequential(OrderedDict([('conv0', nn.Conv2d(4, num_init_features, kernel_size=7, stride=2, padding=3, bias=False)), ('norm0', nn.BatchNorm2d(num_init_features)), ('relu0', nn.ReLU(inplace=True)), ('pool0', nn.MaxPool2d(kernel_size=3, stride=2, padding=1))]))
-    num_features = num_init_features
-    for (i, num_layers) in enumerate(block_config):
-        block = _DenseBlock(num_layers=num_layers, num_input_features=num_features, bn_size=bn_size, growth_rate=growth_rate, drop_rate=drop_rate)
-        self.features.add_module(('denseblock%d' % (i + 1)), block)
-        num_features = (num_features + (num_layers * growth_rate))
-        if (i != (len(block_config) - 1)):
-            trans = _Transition(num_input_features=num_features, num_output_features=(num_features // 2))
-            self.features.add_module(('transition%d' % (i + 1)), trans)
-            num_features = (num_features // 2)
-    self.features.add_module('norm5', nn.BatchNorm2d(num_features))
-    self.classifier = nn.Linear(num_features, num_classes)
-    for m in self.modules():
-        if isinstance(m, nn.Conv2d):
-            nn.init.kaiming_normal(m.weight.data)
-        elif isinstance(m, nn.BatchNorm2d):
-            m.weight.data.fill_(1)
-            m.bias.data.zero_()
-        elif isinstance(m, nn.Linear):
-            m.bias.data.zero_()
+idx = 34:------------------- similar code ------------------ index = 627, score = 6.0 
+def last_zero_init(m):
+    if isinstance(m, nn.Sequential):
+        constant_init(m[(- 1)], val=0)
+    else:
+        constant_init(m, val=0)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    if  ... ( ... , nn.Sequential):
+idx = 35:------------------- similar code ------------------ index = 134, score = 6.0 
+def get_cnn_miniimagenet(hidden_size, n_classes):
+
+    def conv_layer(ic, oc):
+        return nn.Sequential(nn.Conv2d(ic, oc, 3, padding=1), nn.ReLU(inplace=True), nn.MaxPool2d(2), nn.BatchNorm2d(oc, momentum=1.0, affine=True, track_running_stats=False))
+    net = nn.Sequential(conv_layer(3, hidden_size), conv_layer(hidden_size, hidden_size), conv_layer(hidden_size, hidden_size), conv_layer(hidden_size, hidden_size), nn.Flatten(), nn.Linear(((hidden_size * 5) * 5), n_classes))
+    initialize(net)
+    return net
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+
+    def  ... ():
+        return nn.Sequential
+
+idx = 36:------------------- similar code ------------------ index = 132, score = 6.0 
+def _make_layer(self, block, planes, num_blocks, stride):
+    strides = ([stride] + ([1] * (num_blocks - 1)))
+    layers = []
+    for stride in strides:
+        layers.append(block(self.in_planes, planes, stride))
+        self.in_planes = (planes * block.expansion)
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 37:------------------- similar code ------------------ index = 633, score = 6.0 
+def conv_1x1_bn(inp, oup):
+    return nn.Sequential(nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), h_swish())
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 38:------------------- similar code ------------------ index = 130, score = 6.0 
+def _make_layer_revr(inp_dim, out_dim, modules):
+    layers = [residual(inp_dim, inp_dim) for _ in range((modules - 1))]
+    layers += [residual(inp_dim, out_dim)]
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 39:------------------- similar code ------------------ index = 640, score = 6.0 
+def make_layer_revr(k, inp_dim, out_dim, modules, layer=convolution, **kwargs):
+    layers = []
+    for _ in range((modules - 1)):
+        layers.append(layer(k, inp_dim, inp_dim, **kwargs))
+    layers.append(layer(k, inp_dim, out_dim, **kwargs))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 40:------------------- similar code ------------------ index = 606, score = 6.0 
+def build(cfg, registry, default_args=None):
+    if isinstance(cfg, list):
+        modules = [build_from_cfg(cfg_, registry, default_args) for cfg_ in cfg]
+        return nn.Sequential(*modules)
+    else:
+        return build_from_cfg(cfg, registry, default_args)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential
+
+idx = 41:------------------- similar code ------------------ index = 604, score = 6.0 
+def _wide_layer(self, block, planes, num_blocks, dropout_rate, stride):
+    strides = ([stride] + ([1] * (num_blocks - 1)))
+    layers = []
+    for stride in strides:
+        layers.append(block(self.in_planes, planes, dropout_rate, stride))
+        self.in_planes = planes
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 42:------------------- similar code ------------------ index = 173, score = 6.0 
+def conv_1x1_bn(inp, oup):
+    return nn.Sequential(nn.Conv2d(inp, oup, 1, 1, 0, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 43:------------------- similar code ------------------ index = 185, score = 6.0 
+def fc_deterministic_policy(env, hidden1=400, hidden2=300):
+    return nn.Sequential(nn.Linear(env.state_space.shape[0], hidden1), nn.LeakyReLU(), nn.Linear(hidden1, hidden2), nn.LeakyReLU(), nn.Linear(hidden2, env.action_space.shape[0]))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 44:------------------- similar code ------------------ index = 572, score = 6.0 
+def make_layers(cfg, batch_norm=False):
+    layers = list()
+    in_channels = 3
+    for v in cfg:
+        if (v == 'M'):
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+        else:
+            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
+            if batch_norm:
+                layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
+            else:
+                layers += [conv2d, nn.ReLU(inplace=True)]
+            in_channels = v
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 45:------------------- similar code ------------------ index = 574, score = 6.0 
+def conv_3x3_bn(inp, oup, stride):
+    return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), h_swish())
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 46:------------------- similar code ------------------ index = 575, score = 6.0 
+def _create_fcnn(input_size, hidden_size, output_size, activation_function, dropout=0, final_gain=1.0):
+    assert (activation_function in ACTIVATION_FUNCTIONS.keys())
+    (network_dims, layers) = ((input_size, hidden_size, hidden_size), [])
+    for l in range((len(network_dims) - 1)):
+        layer = nn.Linear(network_dims[l], network_dims[(l + 1)])
+        nn.init.orthogonal_(layer.weight, gain=nn.init.calculate_gain(activation_function))
+        nn.init.constant_(layer.bias, 0)
+        layers.append(layer)
+        if (dropout > 0):
+            layers.append(nn.Dropout(p=dropout))
+        layers.append(ACTIVATION_FUNCTIONS[activation_function]())
+    final_layer = nn.Linear(network_dims[(- 1)], output_size)
+    nn.init.orthogonal_(final_layer.weight, gain=final_gain)
+    nn.init.constant_(final_layer.bias, 0)
+    layers.append(final_layer)
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 47:------------------- similar code ------------------ index = 599, score = 6.0 
+def conv(in_channels, out_channels, kernel_size):
+    padding = ((kernel_size - 1) // 2)
+    assert ((2 * padding) == (kernel_size - 1)), 'parameters incorrect. kernel={}, padding={}'.format(kernel_size, padding)
+    return nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=padding, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 48:------------------- similar code ------------------ index = 170, score = 6.0 
+def _make_layer(self, block, norm_layer, blocks, mid_out_channels, stride=1):
+    layers = []
+    has_proj = (True if (stride > 1) else False)
+    layers.append(block(self.in_channels, mid_out_channels, has_proj, stride=stride, norm_layer=norm_layer))
+    self.in_channels = (mid_out_channels * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.in_channels, mid_out_channels, has_proj=False, stride=1, norm_layer=norm_layer))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 49:------------------- similar code ------------------ index = 169, score = 6.0 
+def convt_dw(channels, kernel_size):
+    stride = 2
+    padding = ((kernel_size - 1) // 2)
+    output_padding = (kernel_size % 2)
+    assert (((((- 2) - (2 * padding)) + kernel_size) + output_padding) == 0), 'deconv parameters incorrect'
+    return nn.Sequential(nn.ConvTranspose2d(channels, channels, kernel_size, stride, padding, output_padding, bias=False, groups=channels), nn.BatchNorm2d(channels), nn.ReLU(inplace=True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 50:------------------- similar code ------------------ index = 591, score = 6.0 
+def network_to_half(network):
+    '\n    Convert model to half precision in a batchnorm-safe way.\n\n    Retained for legacy purposes. It is recommended to use FP16Model.\n    '
+    return nn.Sequential(tofp16(), BN_convert_float(network.half()))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return nn.Sequential
+
+idx = 51:------------------- similar code ------------------ index = 594, score = 6.0 
+def conv_bn_relu(in_c, out_c):
+    return nn.Sequential(nn.Conv2d(in_c, out_c, 3, padding=1, bias=False), nn.BatchNorm2d(out_c), nn.ReLU(True))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 52:------------------- similar code ------------------ index = 643, score = 6.0 
+def lin_layer(n_in, n_out, dropout):
+    return nn.Sequential(nn.Linear(n_in, n_out), GELU(), nn.Dropout(dropout))
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    return nn.Sequential
+
+idx = 53:------------------- similar code ------------------ index = 318, score = 6.0 
+def _init_perception_model(self, observation_space):
+    if ('rgb' in observation_space.spaces):
+        self._n_input_rgb = observation_space.spaces['rgb'].shape[2]
+    else:
+        self._n_input_rgb = 0
+    if ('depth' in observation_space.spaces):
+        self._n_input_depth = observation_space.spaces['depth'].shape[2]
+    else:
+        self._n_input_depth = 0
+    if ('global_map' in observation_space.spaces):
+        self._n_input_global_map = observation_space.spaces['global_map'].shape[0]
+    else:
+        self._n_input_global_map = 0
+    if ('local_map' in observation_space.spaces):
+        self._n_input_local_map = observation_space.spaces['local_map'].shape[0]
+    else:
+        self._n_input_local_map = 0
+    if (self._n_input_rgb > 0):
+        cnn_dims = np.array(observation_space.spaces['rgb'].shape[:2], dtype=np.float32)
+    elif (self._n_input_depth > 0):
+        cnn_dims = np.array(observation_space.spaces['depth'].shape[:2], dtype=np.float32)
+    elif (self._n_input_global_map > 0):
+        cnn_dims = np.array(observation_space.spaces['global_map'].shape[1:3], dtype=np.float32)
+    elif (self._n_input_local_map > 0):
+        cnn_dims = np.array(observation_space.spaces['local_map'].shape[1:3], dtype=np.float32)
+    if self.is_blind:
+        return nn.Sequential()
+    else:
+        for (_, kernel_size, stride, padding) in self._cnn_layers_params:
+            cnn_dims = self._conv_output_dim(dimension=cnn_dims, padding=np.array([padding, padding], dtype=np.float32), dilation=np.array([1, 1], dtype=np.float32), kernel_size=np.array([kernel_size, kernel_size], dtype=np.float32), stride=np.array([stride, stride], dtype=np.float32))
+        cnn_layers = []
+        prev_out_channels = None
+        for (i, (out_channels, kernel_size, stride, padding)) in enumerate(self._cnn_layers_params):
+            if (i == 0):
+                in_channels = (((self._n_input_rgb + self._n_input_depth) + self._n_input_global_map) + self._n_input_local_map)
+            else:
+                in_channels = prev_out_channels
+            cnn_layers.append(nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride, padding=padding))
+            if (i != (len(self._cnn_layers_params) - 1)):
+                cnn_layers.append(nn.ReLU())
+            prev_out_channels = out_channels
+        cnn_layers += [Flatten(), nn.Linear(((self._cnn_layers_params[(- 1)][0] * cnn_dims[0]) * cnn_dims[1]), self._single_branch_size), nn.ReLU()]
+        return nn.Sequential(*cnn_layers)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+    if:
+        return nn.Sequential()
+
+idx = 54:------------------- similar code ------------------ index = 215, score = 6.0 
+def __init__(self, n_head, d_k, d_in):
+    super().__init__()
+    self.n_head = n_head
+    self.d_k = d_k
+    self.d_in = d_in
+    self.fc1_q = nn.Linear(d_in, (n_head * d_k))
+    nn.init.normal_(self.fc1_q.weight, mean=0, std=np.sqrt((2.0 / d_k)))
+    self.fc1_k = nn.Linear(d_in, (n_head * d_k))
+    nn.init.normal_(self.fc1_k.weight, mean=0, std=np.sqrt((2.0 / d_k)))
+    self.fc2 = nn.Sequential(nn.BatchNorm1d((n_head * d_k)), nn.Linear((n_head * d_k), (n_head * d_k)))
+    self.attention = ScaledDotProductAttention(temperature=np.power(d_k, 0.5))
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
  = nn.Sequential
 
-idx = 33:------------------- similar code ------------------ index = 35, score = 6.0 
+idx = 55:------------------- similar code ------------------ index = 496, score = 6.0 
+def _make_fuse_layers(self):
+    if (self.num_branches == 1):
+        return None
+    num_branches = self.num_branches
+    num_inchannels = self.num_inchannels
+    fuse_layers = []
+    for i in range((num_branches if self.multi_scale_output else 1)):
+        fuse_layer = []
+        for j in range(num_branches):
+            if (j > i):
+                fuse_layer.append(nn.Sequential(nn.Conv2d(num_inchannels[j], num_inchannels[i], 1, 1, 0, bias=False), nn.BatchNorm2d(num_inchannels[i]), nn.Upsample(scale_factor=(2 ** (j - i)), mode='nearest')))
+            elif (j == i):
+                fuse_layer.append(None)
+            else:
+                conv3x3s = []
+                for k in range((i - j)):
+                    if (k == ((i - j) - 1)):
+                        num_outchannels_conv3x3 = num_inchannels[i]
+                        conv3x3s.append(nn.Sequential(nn.Conv2d(num_inchannels[j], num_outchannels_conv3x3, 3, 2, 1, bias=False), nn.BatchNorm2d(num_outchannels_conv3x3)))
+                    else:
+                        num_outchannels_conv3x3 = num_inchannels[j]
+                        conv3x3s.append(nn.Sequential(nn.Conv2d(num_inchannels[j], num_outchannels_conv3x3, 3, 2, 1, bias=False), nn.BatchNorm2d(num_outchannels_conv3x3), nn.ReLU(False)))
+                fuse_layer.append(nn.Sequential(*conv3x3s))
+        fuse_layers.append(nn.ModuleList(fuse_layer))
+    return nn.ModuleList(fuse_layers)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    for  ...  in:
+        for  ...  in:
+            if:
+                 ... . ... (nn.Sequential)
+
+idx = 56:------------------- similar code ------------------ index = 227, score = 6.0 
+def __init__(self, nc, num_classes=1000, width_mult=1.0, inverted_residual_setting=None, round_nearest=8):
+    '\n        The init function of the  MobileNet V2 Module\n\n        :param nc: Network controller\n        :param num_classes: the number of output classes\n        :param width_mult: The width multiple\n        :param inverted_residual_setting: A list of the block configurations\n        :param round_nearest: Rounding to nearest value\n        '
+    super(MobileNetV2, self).__init__()
+    block = InvertedResidual
+    input_channel = 32
+    last_channel = 1280
+    if (inverted_residual_setting is None):
+        inverted_residual_setting = [[1, 16, 1, 1], [6, 24, 2, 2], [6, 32, 3, 2], [6, 64, 4, 2], [6, 96, 3, 1], [6, 160, 3, 2], [6, 320, 1, 1]]
+    if ((len(inverted_residual_setting) == 0) or (len(inverted_residual_setting[0]) != 4)):
+        raise ValueError('inverted_residual_setting should be non-empty or a 4-element list, got {}'.format(inverted_residual_setting))
+    input_channel = _make_divisible((input_channel * width_mult), round_nearest)
+    self.last_channel = _make_divisible((last_channel * max(1.0, width_mult)), round_nearest)
+    features = [ConvBNNonLinear(nc, 3, input_channel, stride=2)]
+    for (t, c, n, s) in inverted_residual_setting:
+        output_channel = _make_divisible((c * width_mult), round_nearest)
+        for i in range(n):
+            stride = (s if (i == 0) else 1)
+            features.append(block(nc, input_channel, output_channel, stride, expand_ratio=t))
+            input_channel = output_channel
+    features.append(ConvBNNonLinear(nc, input_channel, self.last_channel, kernel_size=1))
+    self.features = nn.Sequential(*features)
+    self.classifier = nn.Sequential(nn.Dropout(0.2), layers.FullyConnected(nc, self.last_channel, num_classes))
+    for m in self.modules():
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out')
+            if (m.bias is not None):
+                nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.ones_(m.weight)
+            nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.Linear):
+            nn.init.normal_(m.weight, 0, 0.01)
+            nn.init.zeros_(m.bias)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = nn.Sequential
+
+idx = 57:------------------- similar code ------------------ index = 219, score = 6.0 
+def __init__(self, params):
+    super(CoILICRA, self).__init__()
+    self.params = params
+    number_first_layer_channels = 0
+    for (_, sizes) in g_conf.SENSORS.items():
+        number_first_layer_channels += (sizes[0] * g_conf.NUMBER_FRAMES_FUSION)
+    sensor_input_shape = next(iter(g_conf.SENSORS.values()))
+    sensor_input_shape = [number_first_layer_channels, sensor_input_shape[1], sensor_input_shape[2]]
+    if ('conv' in params['perception']):
+        perception_convs = Conv(params={'channels': ([number_first_layer_channels] + params['perception']['conv']['channels']), 'kernels': params['perception']['conv']['kernels'], 'strides': params['perception']['conv']['strides'], 'dropouts': params['perception']['conv']['dropouts'], 'end_layer': True})
+        perception_fc = FC(params={'neurons': ([perception_convs.get_conv_output(sensor_input_shape)] + params['perception']['fc']['neurons']), 'dropouts': params['perception']['fc']['dropouts'], 'end_layer': False})
+        self.perception = nn.Sequential(*[perception_convs, perception_fc])
+        number_output_neurons = params['perception']['fc']['neurons'][(- 1)]
+    elif ('res' in params['perception']):
+        resnet_module = importlib.import_module('network.models.building_blocks.resnet')
+        resnet_module = getattr(resnet_module, params['perception']['res']['name'])
+        self.perception = resnet_module(pretrained=g_conf.PRE_TRAINED, num_classes=params['perception']['res']['num_classes'])
+        number_output_neurons = params['perception']['res']['num_classes']
+    else:
+        raise ValueError('invalid convolution layer type')
+    self.measurements = FC(params={'neurons': ([len(g_conf.INPUTS)] + params['measurements']['fc']['neurons']), 'dropouts': params['measurements']['fc']['dropouts'], 'end_layer': False})
+    self.join = Join(params={'after_process': FC(params={'neurons': ([(params['measurements']['fc']['neurons'][(- 1)] + number_output_neurons)] + params['join']['fc']['neurons']), 'dropouts': params['join']['fc']['dropouts'], 'end_layer': False}), 'mode': 'cat'})
+    self.speed_branch = FC(params={'neurons': (([params['join']['fc']['neurons'][(- 1)]] + params['speed_branch']['fc']['neurons']) + [1]), 'dropouts': (params['speed_branch']['fc']['dropouts'] + [0.0]), 'end_layer': True})
+    branch_fc_vector = []
+    for i in range(params['branches']['number_of_branches']):
+        branch_fc_vector.append(FC(params={'neurons': (([params['join']['fc']['neurons'][(- 1)]] + params['branches']['fc']['neurons']) + [len(g_conf.TARGETS)]), 'dropouts': (params['branches']['fc']['dropouts'] + [0.0]), 'end_layer': True}))
+    self.branches = Branching(branch_fc_vector)
+    if ('conv' in params['perception']):
+        for m in self.modules():
+            if (isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear)):
+                nn.init.xavier_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0.1)
+    else:
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0.1)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.Sequential
+
+idx = 58:------------------- similar code ------------------ index = 179, score = 6.0 
 def __init__(self, in_channels, inter_channels=None, dimension=3, sub_sample=True, bn_layer=True):
     super(_Context_voted_module, self).__init__()
     assert (dimension in [1, 2, 3])
@@ -680,7 +1032,35 @@ def  ... ():
     if  ... :
  = nn.Sequential
 
-idx = 34:------------------- similar code ------------------ index = 122, score = 6.0 
+idx = 59:------------------- similar code ------------------ index = 568, score = 6.0 
+def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16), num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000):
+    super(DenseNet, self).__init__()
+    self.features = nn.Sequential(OrderedDict([('conv0', nn.Conv2d(4, num_init_features, kernel_size=7, stride=2, padding=3, bias=False)), ('norm0', nn.BatchNorm2d(num_init_features)), ('relu0', nn.ReLU(inplace=True)), ('pool0', nn.MaxPool2d(kernel_size=3, stride=2, padding=1))]))
+    num_features = num_init_features
+    for (i, num_layers) in enumerate(block_config):
+        block = _DenseBlock(num_layers=num_layers, num_input_features=num_features, bn_size=bn_size, growth_rate=growth_rate, drop_rate=drop_rate)
+        self.features.add_module(('denseblock%d' % (i + 1)), block)
+        num_features = (num_features + (num_layers * growth_rate))
+        if (i != (len(block_config) - 1)):
+            trans = _Transition(num_input_features=num_features, num_output_features=(num_features // 2))
+            self.features.add_module(('transition%d' % (i + 1)), trans)
+            num_features = (num_features // 2)
+    self.features.add_module('norm5', nn.BatchNorm2d(num_features))
+    self.classifier = nn.Linear(num_features, num_classes)
+    for m in self.modules():
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal(m.weight.data)
+        elif isinstance(m, nn.BatchNorm2d):
+            m.weight.data.fill_(1)
+            m.bias.data.zero_()
+        elif isinstance(m, nn.Linear):
+            m.bias.data.zero_()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = nn.Sequential
+
+idx = 60:------------------- similar code ------------------ index = 590, score = 6.0 
 def _make_fuse_layers(self):
     if (self.num_branches == 1):
         return None
@@ -713,25 +1093,7 @@ def  ... ( ... ):
             if:
                  ... . ... (nn.Sequential)
 
-idx = 35:------------------- similar code ------------------ index = 51, score = 6.0 
-def __init__(self, word_embeddings_out_dim: int, n_grams: int, n_kernels: int, conv_out_dim: int):
-    super(Conv_KNRM, self).__init__()
-    self.mu = Variable(torch.cuda.FloatTensor(self.kernel_mus(n_kernels)), requires_grad=False).view(1, 1, 1, n_kernels)
-    self.sigma = Variable(torch.cuda.FloatTensor(self.kernel_sigmas(n_kernels)), requires_grad=False).view(1, 1, 1, n_kernels)
-    self.convolutions = []
-    for i in range(1, (n_grams + 1)):
-        self.convolutions.append(nn.Sequential(nn.ConstantPad1d((0, (i - 1)), 0), nn.Conv1d(kernel_size=i, in_channels=word_embeddings_out_dim, out_channels=conv_out_dim), nn.ReLU()))
-    self.convolutions = nn.ModuleList(self.convolutions)
-    self.cosine_module = CosineMatrixAttention()
-    self.dense = nn.Linear(((n_kernels * n_grams) * n_grams), 1, bias=False)
-    torch.nn.init.uniform_(self.dense.weight, (- 0.014), 0.014)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    for  ...  in:
-         ... . ... (nn.Sequential)
-
-idx = 36:------------------- similar code ------------------ index = 63, score = 6.0 
+idx = 61:------------------- similar code ------------------ index = 321, score = 6.0 
 def _make_transition_layer(self, num_channels_pre_layer, num_channels_cur_layer):
     num_branches_cur = len(num_channels_cur_layer)
     num_branches_pre = len(num_channels_pre_layer)
@@ -758,986 +1120,84 @@ def  ... ():
             if:
                  ... . ... (nn.Sequential)
 
-idx = 37:------------------- similar code ------------------ index = 62, score = 6.0 
-def __init__(self, bert_model: Union[(str, AutoModel)], dropout: float=0.0, trainable: bool=True, sample_train_type='lambdaloss', sample_n=1, sample_context='ck', top_k_chunks=3, chunk_size=50, overlap=7, padding_idx: int=0) -> None:
-    super().__init__()
-    if isinstance(bert_model, str):
-        self.bert_model = AutoModel.from_pretrained(bert_model)
-    else:
-        self.bert_model = bert_model
-    for p in self.bert_model.parameters():
-        p.requires_grad = trainable
-    self._classification_layer = torch.nn.Linear(self.bert_model.config.hidden_size, 1)
-    self.top_k_chunks = top_k_chunks
-    self.top_k_scoring = nn.Parameter(torch.full([1, self.top_k_chunks], 1, dtype=torch.float32, requires_grad=True))
-    self.padding_idx = padding_idx
-    self.chunk_size = chunk_size
-    self.overlap = overlap
-    self.extended_chunk_size = (self.chunk_size + (2 * self.overlap))
-    self.sample_train_type = sample_train_type
-    self.sample_n = sample_n
-    self.sample_context = sample_context
-    if (self.sample_context == 'ck'):
-        i = 3
-        self.sample_cnn3 = nn.Sequential(nn.ConstantPad1d((0, (i - 1)), 0), nn.Conv1d(kernel_size=i, in_channels=self.bert_model.config.dim, out_channels=self.bert_model.config.dim), nn.ReLU())
-    elif (self.sample_context == 'ck-small'):
-        i = 3
-        self.sample_projector = nn.Linear(self.bert_model.config.dim, 384)
-        self.sample_cnn3 = nn.Sequential(nn.ConstantPad1d((0, (i - 1)), 0), nn.Conv1d(kernel_size=i, in_channels=384, out_channels=128), nn.ReLU())
-    elif (self.sample_context == 'tk'):
-        self.tk_projector = nn.Linear(self.bert_model.config.dim, 384)
-        encoder_layer = nn.TransformerEncoderLayer(384, 8, dim_feedforward=384, dropout=0)
-        self.tk_contextualizer = nn.TransformerEncoder(encoder_layer, 1, norm=None)
-        self.tK_mixer = nn.Parameter(torch.full([1], 0.5, dtype=torch.float32, requires_grad=True))
-    self.sampling_binweights = nn.Linear(11, 1, bias=True)
-    torch.nn.init.uniform_(self.sampling_binweights.weight, (- 0.01), 0.01)
-    self.kernel_alpha_scaler = nn.Parameter(torch.full([1, 1, 11], 1, dtype=torch.float32, requires_grad=True))
-    self.register_buffer('mu', nn.Parameter(torch.tensor([1.0, 0.9, 0.7, 0.5, 0.3, 0.1, (- 0.1), (- 0.3), (- 0.5), (- 0.7), (- 0.9)]), requires_grad=False).view(1, 1, 1, (- 1)))
-    self.register_buffer('sigma', nn.Parameter(torch.tensor([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]), requires_grad=False).view(1, 1, 1, (- 1)))
+idx = 62:------------------- similar code ------------------ index = 381, score = 6.0 
+def __init__(self, num_classes=1000, width_mult=1.0, filter_size=1):
+    super(MobileNetV2, self).__init__()
+    block = InvertedResidual
+    input_channel = 32
+    last_channel = 1280
+    inverted_residual_setting = [[1, 16, 1, 1], [6, 24, 2, 2], [6, 32, 3, 2], [6, 64, 4, 2], [6, 96, 3, 1], [6, 160, 3, 2], [6, 320, 1, 1]]
+    input_channel = int((input_channel * width_mult))
+    self.last_channel = int((last_channel * max(1.0, width_mult)))
+    features = [ConvBNReLU(3, input_channel, stride=2)]
+    for (t, c, n, s) in inverted_residual_setting:
+        output_channel = int((c * width_mult))
+        for i in range(n):
+            stride = (s if (i == 0) else 1)
+            features.append(block(input_channel, output_channel, stride, expand_ratio=t, filter_size=filter_size))
+            input_channel = output_channel
+    features.append(ConvBNReLU(input_channel, self.last_channel, kernel_size=1))
+    self.features = nn.Sequential(*features)
+    self.classifier = nn.Sequential(nn.Linear(self.last_channel, num_classes))
+    for m in self.modules():
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out')
+            if (m.bias is not None):
+                nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.ones_(m.weight)
+            nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.Linear):
+            nn.init.normal_(m.weight, 0, 0.01)
+            nn.init.zeros_(m.bias)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... () -> None:
+def  ... ():
+ = nn.Sequential
+
+idx = 63:------------------- similar code ------------------ index = 527, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, norm_layer=None):
+    if (norm_layer is None):
+        norm_layer = nn.BatchNorm2d
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(conv1x1(self.inplanes, (planes * block.expansion), stride), norm_layer((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample, norm_layer))
+    self.inplanes = (planes * block.expansion)
+    for _ in range(1, blocks):
+        layers.append(block(self.inplanes, planes, norm_layer=norm_layer))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
     if:
- = nn.Sequential
+         ...  =  ... .Sequential
+    return nn
 
-idx = 38:------------------- similar code ------------------ index = 160, score = 6.0 
-def __init__(self, cfg) -> None:
-    super().__init__(cfg)
-    if isinstance(cfg.bert_model, str):
-        self.bert_model = AutoModel.from_pretrained(cfg.bert_model)
-    else:
-        self.bert_model = cfg.bert_model
-    self._classification_layer = torch.nn.Linear(self.bert_model.config.hidden_size, 1)
-    self.top_k_chunks = cfg.top_k_chunks
-    self.top_k_scoring = nn.Parameter(torch.full([1, self.top_k_chunks], 1, dtype=torch.float32, requires_grad=True))
-    self.padding_idx = cfg.padding_idx
-    self.chunk_size = cfg.chunk_size
-    self.overlap = cfg.overlap
-    self.extended_chunk_size = (self.chunk_size + (2 * self.overlap))
-    self.sample_n = cfg.sample_n
-    self.sample_context = cfg.sample_context
-    if (self.sample_context == 'ck'):
-        i = 3
-        self.sample_cnn3 = nn.Sequential(nn.ConstantPad1d((0, (i - 1)), 0), nn.Conv1d(kernel_size=i, in_channels=self.bert_model.config.dim, out_channels=self.bert_model.config.dim), nn.ReLU())
-    elif (self.sample_context == 'ck-small'):
-        i = 3
-        self.sample_projector = nn.Linear(self.bert_model.config.dim, 384)
-        self.sample_cnn3 = nn.Sequential(nn.ConstantPad1d((0, (i - 1)), 0), nn.Conv1d(kernel_size=i, in_channels=384, out_channels=128), nn.ReLU())
-    self.sampling_binweights = nn.Linear(11, 1, bias=True)
-    torch.nn.init.uniform_(self.sampling_binweights.weight, (- 0.01), 0.01)
-    self.kernel_alpha_scaler = nn.Parameter(torch.full([1, 1, 11], 1, dtype=torch.float32, requires_grad=True))
-    self.register_buffer('mu', nn.Parameter(torch.tensor([1.0, 0.9, 0.7, 0.5, 0.3, 0.1, (- 0.1), (- 0.3), (- 0.5), (- 0.7), (- 0.9)]), requires_grad=False).view(1, 1, 1, (- 1)))
-    self.register_buffer('sigma', nn.Parameter(torch.tensor([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]), requires_grad=False).view(1, 1, 1, (- 1)))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... () -> None:
-    if:
- = nn.Sequential
-
-idx = 39:------------------- similar code ------------------ index = 139, score = 6.0 
-def __init__(self, word_embeddings_out_dim: int):
-    super(Duet, self).__init__()
-    NUM_HIDDEN_NODES = word_embeddings_out_dim
-    POOLING_KERNEL_WIDTH_QUERY = 18
-    POOLING_KERNEL_WIDTH_DOC = 100
-    DROPOUT_RATE = 0
-    NUM_POOLING_WINDOWS_DOC = 99
-    MAX_DOC_TERMS = 2000
-    MAX_QUERY_TERMS = 30
-    self.cosine_module = CosineMatrixAttention()
-    self.duet_local = nn.Sequential(nn.Conv1d(MAX_DOC_TERMS, NUM_HIDDEN_NODES, kernel_size=1), nn.ReLU(), Flatten(), nn.Dropout(p=DROPOUT_RATE), nn.Linear((NUM_HIDDEN_NODES * MAX_QUERY_TERMS), NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE), nn.Linear(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE))
-    self.duet_dist_q = nn.Sequential(nn.Conv1d(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES, kernel_size=3), nn.ReLU(), nn.MaxPool1d(POOLING_KERNEL_WIDTH_QUERY), Flatten(), nn.Linear(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES), nn.ReLU())
-    self.duet_dist_d = nn.Sequential(nn.Conv1d(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES, kernel_size=3), nn.ReLU(), nn.MaxPool1d(POOLING_KERNEL_WIDTH_DOC, stride=1), nn.Conv1d(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES, kernel_size=1), nn.ReLU())
-    self.duet_dist = nn.Sequential(Flatten(), nn.Dropout(p=DROPOUT_RATE), nn.Linear((NUM_HIDDEN_NODES * NUM_POOLING_WINDOWS_DOC), NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE), nn.Linear(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE))
-    self.duet_comb = nn.Sequential(nn.Linear(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE), nn.Linear(NUM_HIDDEN_NODES, NUM_HIDDEN_NODES), nn.ReLU(), nn.Dropout(p=DROPOUT_RATE), nn.Linear(NUM_HIDDEN_NODES, 1), nn.ReLU())
-
-    def init_normal(m):
-        if (type(m) == nn.Linear):
-            nn.init.uniform_(m.weight, 0, 0.01)
-    self.duet_comb.apply(init_normal)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 40:------------------- similar code ------------------ index = 169, score = 6.0 
-def __init__(self, phase, size, num_classes):
-    super(SSD, self).__init__()
-    self.phase = phase
-    self.num_classes = num_classes
-    assert (num_classes == 2)
-    self.cfg = cfg
-    self.size = size
-    if (backbone in ['facebox']):
-        self.conv1 = CRelu(3, 32, kernel_size=7, stride=4, padding=3)
-        self.conv3 = CRelu(64, 64, kernel_size=5, stride=2, padding=2)
-        self.inception1 = Inception2d(64)
-        self.inception2 = Inception2d(64)
-        self.inception3 = Inception2d(128)
-        self.inception4 = Inception2d(128)
-        self.conv5_1 = BasicConv2d(128, 128, kernel_size=1, stride=1, padding=0)
-        self.conv5_2 = BasicConv2d(128, 256, kernel_size=3, stride=2, padding=1)
-        self.conv6_1 = BasicConv2d(256, 128, kernel_size=1, stride=1, padding=0)
-        self.conv6_2 = BasicConv2d(128, 256, kernel_size=3, stride=2, padding=1)
-        fpn_in = [64, 64, 128, 128, 256, 256]
-        cpm_in = [64, 64, 64, 64, 64, 64]
-        fpn_channel = 64
-        cpm_channels = 64
-        output_channels = cpm_in
-    elif (backbone in ['mobilenet']):
-        self.base = nn.ModuleList(MobileNet())
-        self.layer1 = nn.Sequential(*[self.base[i] for i in range(0, 4)])
-        self.layer2 = nn.Sequential(*[self.base[i] for i in range(4, 6)])
-        self.layer3 = nn.Sequential(*[self.base[i] for i in range(6, 12)])
-        self.layer4 = nn.Sequential(*[self.base[i] for i in range(12, 14)])
-        self.layer5 = nn.Sequential(*[BasicConv(1024, 256, kernel_size=1, stride=1), BasicConv(256, 512, kernel_size=3, stride=2, padding=1)])
-        self.layer6 = nn.Sequential(*[BasicConv(512, 128, kernel_size=1, stride=1), BasicConv(128, 256, kernel_size=3, stride=2, padding=1)])
-        fpn_in = [128, 256, 512, 1024, 512, 256]
-        cpm_in = [128, 128, 128, 128, 128, 128]
-        output_channels = [128, 128, 128, 128, 128, 128]
-        fpn_channel = 128
-        cpm_channels = 128
-    elif (backbone in ['resnet18']):
-        resnet = torchvision.models.resnet18(pretrained=True)
-        self.layer1 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool, resnet.layer1)
-        self.layer2 = nn.Sequential(resnet.layer2)
-        self.layer3 = nn.Sequential(resnet.layer3)
-        self.layer4 = nn.Sequential(resnet.layer4)
-        self.layer5 = nn.Sequential(*[BasicConv(512, 128, kernel_size=1, stride=1), BasicConv(128, 256, kernel_size=3, stride=2, padding=1)])
-        self.layer6 = nn.Sequential(*[BasicConv(256, 64, kernel_size=1, stride=1), BasicConv(64, 128, kernel_size=3, stride=2, padding=1)])
-        fpn_in = [64, 128, 256, 512, 256, 128]
-        cpm_in = [128, 128, 128, 128, 128, 128]
-        output_channels = [64, 128, 256, 512, 256, 128]
-        fpn_channel = 128
-        cpm_channels = 128
-    if fpn:
-        self.smooth3 = nn.Conv2d(fpn_channel, fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.smooth2 = nn.Conv2d(fpn_channel, fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.smooth1 = nn.Conv2d(fpn_channel, fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer6 = nn.Conv2d(fpn_in[5], fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer5 = nn.Conv2d(fpn_in[4], fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer4 = nn.Conv2d(fpn_in[3], fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer3 = nn.Conv2d(fpn_in[2], fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer2 = nn.Conv2d(fpn_in[1], fpn_channel, kernel_size=1, stride=1, padding=0)
-        self.latlayer1 = nn.Conv2d(fpn_in[0], fpn_channel, kernel_size=1, stride=1, padding=0)
-    if cpm:
-        self.cpm1 = Inception2d(cpm_in[0])
-        self.cpm2 = Inception2d(cpm_in[1])
-        self.cpm3 = Inception2d(cpm_in[2])
-        self.cpm4 = Inception2d(cpm_in[3])
-        self.cpm5 = Inception2d(cpm_in[4])
-        self.cpm6 = Inception2d(cpm_in[5])
-    if pa:
-        face_head = face_multibox(output_channels, cfg['mbox'], num_classes, cpm_channels)
-        self.loc = nn.ModuleList(face_head[0])
-        self.conf = nn.ModuleList(face_head[1])
-        if (phase == 'train'):
-            pa_head = pa_multibox(output_channels, cfg['mbox'], num_classes, cpm_channels)
-            self.pa_loc = nn.ModuleList(pa_head[0])
-            self.pa_conf = nn.ModuleList(pa_head[1])
-    else:
-        head = multibox(output_channels, cfg['mbox'], num_classes)
-        self.loc = nn.ModuleList(head[0])
-        self.conf = nn.ModuleList(head[1])
-    if refine:
-        arm_head = arm_multibox(output_channels, cfg['mbox'], num_classes)
-        self.arm_loc = nn.ModuleList(arm_head[0])
-        self.arm_conf = nn.ModuleList(arm_head[1])
-    if (phase == 'test'):
-        self.softmax = nn.Softmax(dim=(- 1))
-        self.detect = Detect(num_classes, 0, cfg['num_thresh'], cfg['conf_thresh'], cfg['nms_thresh'])
-    if (phase == 'train'):
-        print('init weight!')
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.xavier_normal(m.weight.data)
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:    elif:
- = nn.Sequential
-
-idx = 41:------------------- similar code ------------------ index = 58, score = 5.0 
-def __init__(self, output_size, pretrained=True):
-    super(MobileNetSkipAdd, self).__init__()
-    self.output_size = output_size
-    mobilenet = imagenet.mobilenet.MobileNet()
-    if pretrained:
-        pretrained_path = os.path.join('imagenet', 'results', 'imagenet.arch=mobilenet.lr=0.1.bs=256', 'model_best.pth.tar')
-        checkpoint = torch.load(pretrained_path)
-        state_dict = checkpoint['state_dict']
-        from collections import OrderedDict
-        new_state_dict = OrderedDict()
-        for (k, v) in state_dict.items():
-            name = k[7:]
-            new_state_dict[name] = v
-        mobilenet.load_state_dict(new_state_dict)
-    else:
-        mobilenet.apply(weights_init)
-    for i in range(14):
-        setattr(self, 'conv{}'.format(i), mobilenet.model[i])
-    kernel_size = 5
-    self.decode_conv1 = nn.Sequential(depthwise(1024, kernel_size), pointwise(1024, 512))
-    self.decode_conv2 = nn.Sequential(depthwise(512, kernel_size), pointwise(512, 256))
-    self.decode_conv3 = nn.Sequential(depthwise(256, kernel_size), pointwise(256, 128))
-    self.decode_conv4 = nn.Sequential(depthwise(128, kernel_size), pointwise(128, 64))
-    self.decode_conv5 = nn.Sequential(depthwise(64, kernel_size), pointwise(64, 32))
-    self.decode_conv6 = pointwise(32, 1)
-    weights_init(self.decode_conv1)
-    weights_init(self.decode_conv2)
-    weights_init(self.decode_conv3)
-    weights_init(self.decode_conv4)
-    weights_init(self.decode_conv5)
-    weights_init(self.decode_conv6)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 42:------------------- similar code ------------------ index = 56, score = 5.0 
-def __init__(self, num_tokens, dim, seq_len, depth, emb_dim=None, memory_layers=None, enhanced_recurrence=True, mem_len=None, cmem_len=None, cmem_ratio=4, heads=8, gru_gated_residual=True, mogrify_gru=False, attn_dropout=0.0, ff_glu=False, ff_dropout=0.0, attn_layer_dropout=0.0, reconstruction_attn_dropout=0.0, reconstruction_loss_weight=1.0):
-    super().__init__()
-    emb_dim = default(emb_dim, dim)
-    mem_len = default(mem_len, seq_len)
-    cmem_len = default(cmem_len, (mem_len // cmem_ratio))
-    memory_layers = default(memory_layers, list(range(1, (depth + 1))))
-    assert (mem_len >= seq_len), 'length of memory should be at least the sequence length'
-    assert (cmem_len >= (mem_len // cmem_ratio)), f'length of compressed memory should be at least the memory length divided by the compression ratio {int((mem_len // cmem_ratio))}'
-    assert all([((layer > 0) and (layer <= depth)) for layer in memory_layers]), 'one of the indicated memory layers is invalid'
-    self.seq_len = seq_len
-    self.depth = depth
-    self.memory_layers = list(memory_layers)
-    self.enhanced_recurrence = enhanced_recurrence
-    self.token_emb = nn.Embedding(num_tokens, emb_dim)
-    self.to_model_dim = (nn.Identity() if (emb_dim == dim) else nn.Linear(emb_dim, dim))
-    seq_and_mem_len = ((seq_len + mem_len) + cmem_len)
-    self.pos_emb = nn.Parameter(torch.zeros(heads, seq_and_mem_len, (dim // heads)))
-    self.to_logits = nn.Sequential((nn.Identity() if (emb_dim == dim) else nn.Linear(dim, emb_dim)), nn.Linear(emb_dim, num_tokens))
-    wrapper = (partial(GRUGating, dim, mogrify=mogrify_gru) if gru_gated_residual else Residual)
-    self.attn_layers = nn.ModuleList([wrapper(PreNorm(dim, SelfAttention(dim, seq_len, mem_len, cmem_len, cmem_ratio, heads, dropout=attn_layer_dropout, attn_dropout=attn_dropout, reconstruction_attn_dropout=reconstruction_attn_dropout))) for _ in range(depth)])
-    self.ff_layers = nn.ModuleList([wrapper(PreNorm(dim, FeedForward(dim, dropout=ff_dropout, glu=ff_glu))) for _ in range(depth)])
-    self.reconstruction_loss_weight = reconstruction_loss_weight
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 43:------------------- similar code ------------------ index = 11, score = 5.0 
-def __init__(self, C_in, C_out, kernel_size, stride, padding, affine=True, bn=False):
-    super(SepConv, self).__init__()
-    if (not bn):
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, kernel_size=kernel_size, stride=stride, padding=padding, groups=C_in, bias=True), nn.Conv2d(C_in, C_out, kernel_size=1, padding=0, bias=True))
-    else:
-        if cfg['GN']:
-            bn_layer = nn.GroupNorm(32, C_out)
-        elif cfg['syncBN']:
-            bn_layer = nn.SyncBatchNorm(C_out)
+idx = 64:------------------- similar code ------------------ index = 536, score = 6.0 
+def _make_layer(self, block, planes, blocks, shortcut_type, cardinality, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        if (shortcut_type == 'A'):
+            downsample = partial(downsample_basic_block, planes=(planes * block.expansion), stride=stride)
         else:
-            bn_layer = nn.BatchNorm2d(C_out)
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, kernel_size=kernel_size, stride=stride, padding=padding, groups=C_in, bias=False), nn.Conv2d(C_in, C_out, kernel_size=1, padding=0, bias=False), bn_layer)
-    if RELU_FIRST:
-        self.op = nn.Sequential(nn.ReLU())
-        for i in range(1, (len(op) + 1)):
-            self.op.add_module(str(i), op[(i - 1)])
-    else:
-        self.op = op
-        self.op.add_module(str(len(op)), nn.ReLU())
+            downsample = nn.Sequential(nn.Conv3d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm3d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, cardinality, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes, cardinality))
+    return nn.Sequential(*layers)
 
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
 def  ... ():
     if:
-         ...  = nn.Sequential
+        if:        else:
+             ...  =  ... .Sequential
+    return nn
 
-idx = 44:------------------- similar code ------------------ index = 8, score = 5.0 
-def __init__(self, mode, cfg, logger_handle, **kwargs):
-    fasterRCNNBase.__init__(self, FasterRCNNResNets.feature_stride, mode, cfg)
-    self.logger_handle = logger_handle
-    self.backbone_type = cfg.BACKBONE_TYPE
-    self.pretrained_model_path = cfg.PRETRAINED_MODEL_PATH
-    self.backbone = ResNets(resnet_type=self.backbone_type, pretrained=False)
-    if (mode == 'TRAIN'):
-        self.initializeBackbone()
-    self.backbone.avgpool = None
-    self.backbone.fc = None
-    self.base_model = nn.Sequential(*[self.backbone.conv1, self.backbone.bn1, self.backbone.relu, self.backbone.maxpool, self.backbone.layer1, self.backbone.layer2, self.backbone.layer3])
-    in_channels = (256 if (self.backbone_type in ['resnet18', 'resnet34']) else 1024)
-    self.rpn_net = RegionProposalNet(in_channels=in_channels, feature_stride=self.feature_stride, mode=mode, cfg=cfg)
-    self.build_proposal_target_layer = buildProposalTargetLayer(mode, cfg)
-    self.top_model = nn.Sequential(*[self.backbone.layer4])
-    in_features = (512 if (self.backbone_type in ['resnet18', 'resnet34']) else 2048)
-    self.fc_cls = nn.Linear(in_features, self.num_classes)
-    if self.is_class_agnostic:
-        self.fc_reg = nn.Linear(in_features, 4)
-    else:
-        self.fc_reg = nn.Linear(in_features, (4 * self.num_classes))
-    if (cfg.ADDED_MODULES_WEIGHT_INIT_METHOD and (mode == 'TRAIN')):
-        init_methods = cfg.ADDED_MODULES_WEIGHT_INIT_METHOD
-        self.rpn_net.initWeights(init_methods['rpn'])
-        self.initializeAddedLayers(init_methods['rcnn'])
-    if cfg.FIXED_FRONT_BLOCKS:
-        for p in self.base_model[0].parameters():
-            p.requires_grad = False
-        for p in self.base_model[1].parameters():
-            p.requires_grad = False
-        for p in self.base_model[4].parameters():
-            p.requires_grad = False
-    self.base_model.apply(fasterRCNNBase.setBnFixed)
-    self.top_model.apply(fasterRCNNBase.setBnFixed)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 45:------------------- similar code ------------------ index = 3, score = 5.0 
-def __init__(self, num_input_channels, num_1x1, num_3x3red, num_3x3, num_d5x5red, num_d5x5, proj):
-    super(InceptionModule, self).__init__()
-    self.conv1 = ConvModule(num_input_channels, num_filters=num_1x1, kernel_size=1)
-    self.conv3 = nn.Sequential(ConvModule(num_input_channels, num_filters=num_3x3red, kernel_size=1), ConvModule(num_3x3red, num_filters=num_3x3, kernel_size=3, padding=1))
-    self.conv5 = nn.Sequential(ConvModule(num_input_channels, num_filters=num_d5x5red, kernel_size=1), ConvModule(num_d5x5red, num_filters=num_d5x5, kernel_size=5, padding=2))
-    self.pooling = nn.Sequential(nn.MaxPool2d(kernel_size=3, stride=1, padding=1), ConvModule(num_input_channels, num_filters=proj, kernel_size=1))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 46:------------------- similar code ------------------ index = 9, score = 5.0 
-def __init__(self, spatial_scale, out_size, out_channels, no_trans, group_size=1, part_size=None, sample_per_part=4, trans_std=0.0, num_offset_fcs=3, deform_fc_channels=1024):
-    super(DeformRoIPoolingPack, self).__init__(spatial_scale, out_size, out_channels, no_trans, group_size, part_size, sample_per_part, trans_std)
-    self.num_offset_fcs = num_offset_fcs
-    self.deform_fc_channels = deform_fc_channels
-    if (not no_trans):
-        seq = []
-        ic = ((self.out_size[0] * self.out_size[1]) * self.out_channels)
-        for i in range(self.num_offset_fcs):
-            if (i < (self.num_offset_fcs - 1)):
-                oc = self.deform_fc_channels
-            else:
-                oc = ((self.out_size[0] * self.out_size[1]) * 2)
-            seq.append(nn.Linear(ic, oc))
-            ic = oc
-            if (i < (self.num_offset_fcs - 1)):
-                seq.append(nn.ReLU(inplace=True))
-        self.offset_fc = nn.Sequential(*seq)
-        self.offset_fc[(- 1)].weight.data.zero_()
-        self.offset_fc[(- 1)].bias.data.zero_()
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:
- = nn.Sequential
-
-idx = 47:------------------- similar code ------------------ index = 5, score = 5.0 
-def __init__(self, fil_num, drop_rate):
-    super(_CNN, self).__init__()
-    self.block1 = ConvLayer(1, fil_num, 0.1, (7, 2, 0), (3, 2, 0))
-    self.block2 = ConvLayer(fil_num, (2 * fil_num), 0.1, (4, 1, 0), (2, 2, 0))
-    self.block3 = ConvLayer((2 * fil_num), (4 * fil_num), 0.1, (3, 1, 0), (2, 2, 0))
-    self.block4 = ConvLayer((4 * fil_num), (8 * fil_num), 0.1, (3, 1, 0), (2, 1, 0))
-    self.dense1 = nn.Sequential(nn.Dropout(drop_rate), nn.Linear(((((8 * fil_num) * 6) * 8) * 6), 30))
-    self.dense2 = nn.Sequential(nn.LeakyReLU(), nn.Dropout(drop_rate), nn.Linear(30, 2))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 48:------------------- similar code ------------------ index = 7, score = 5.0 
-def build_base_model(model_opt, fields, gpu, checkpoint=None, gpu_id=None):
-    "Build a model from opts.\n\n    Args:\n        model_opt: the option loaded from checkpoint. It's important that\n            the opts have been updated and validated. See\n            :class:`onmt.utils.parse.ArgumentParser`.\n        fields (dict[str, torchtext.data.Field]):\n            `Field` objects for the model.\n        gpu (bool): whether to use gpu.\n        checkpoint: the model gnerated by train phase, or a resumed snapshot\n                    model from a stopped training.\n        gpu_id (int or NoneType): Which GPU to use.\n\n    Returns:\n        the NMTModel.\n    "
-    try:
-        model_opt.attention_dropout
-    except AttributeError:
-        model_opt.attention_dropout = model_opt.dropout
-    if ((model_opt.model_type == 'text') or (model_opt.model_type == 'vec')):
-        src_field = fields['src']
-        src_emb = build_embeddings(model_opt, src_field)
-    else:
-        src_emb = None
-    encoder = build_encoder(model_opt, src_emb)
-    tgt_field = fields['tgt']
-    tgt_emb = build_embeddings(model_opt, tgt_field, for_encoder=False)
-    if model_opt.share_embeddings:
-        assert (src_field.base_field.vocab == tgt_field.base_field.vocab), 'preprocess with -share_vocab if you use share_embeddings'
-        tgt_emb.word_lut.weight = src_emb.word_lut.weight
-    decoder = build_decoder(model_opt, tgt_emb)
-    if (gpu and (gpu_id is not None)):
-        device = torch.device('cuda', gpu_id)
-    elif (gpu and (not gpu_id)):
-        device = torch.device('cuda')
-    elif (not gpu):
-        device = torch.device('cpu')
-    model = onmt.models.NMTModel(encoder, decoder)
-    if (not model_opt.copy_attn):
-        if (model_opt.generator_function == 'sparsemax'):
-            gen_func = onmt.modules.sparse_activations.LogSparsemax(dim=(- 1))
-        else:
-            gen_func = nn.LogSoftmax(dim=(- 1))
-        generator = nn.Sequential(nn.Linear(model_opt.dec_rnn_size, len(fields['tgt'].base_field.vocab)), Cast(torch.float32), gen_func)
-        if model_opt.share_decoder_embeddings:
-            generator[0].weight = decoder.embeddings.word_lut.weight
-    else:
-        tgt_base_field = fields['tgt'].base_field
-        vocab_size = len(tgt_base_field.vocab)
-        pad_idx = tgt_base_field.vocab.stoi[tgt_base_field.pad_token]
-        generator = CopyGenerator(model_opt.dec_rnn_size, vocab_size, pad_idx)
-        if model_opt.share_decoder_embeddings:
-            generator.linear.weight = decoder.embeddings.word_lut.weight
-    if (checkpoint is not None):
-
-        def fix_key(s):
-            s = re.sub('(.*)\\.layer_norm((_\\d+)?)\\.b_2', '\\1.layer_norm\\2.bias', s)
-            s = re.sub('(.*)\\.layer_norm((_\\d+)?)\\.a_2', '\\1.layer_norm\\2.weight', s)
-            return s
-        checkpoint['model'] = {fix_key(k): v for (k, v) in checkpoint['model'].items()}
-        model.load_state_dict(checkpoint['model'], strict=False)
-        generator.load_state_dict(checkpoint['generator'], strict=False)
-    else:
-        if (model_opt.param_init != 0.0):
-            for p in model.parameters():
-                p.data.uniform_((- model_opt.param_init), model_opt.param_init)
-            for p in generator.parameters():
-                p.data.uniform_((- model_opt.param_init), model_opt.param_init)
-        if model_opt.param_init_glorot:
-            for p in model.parameters():
-                if (p.dim() > 1):
-                    xavier_uniform_(p)
-            for p in generator.parameters():
-                if (p.dim() > 1):
-                    xavier_uniform_(p)
-        if hasattr(model.encoder, 'embeddings'):
-            model.encoder.embeddings.load_pretrained_vectors(model_opt.pre_word_vecs_enc)
-        if hasattr(model.decoder, 'embeddings'):
-            model.decoder.embeddings.load_pretrained_vectors(model_opt.pre_word_vecs_dec)
-    model.generator = generator
-    model.to(device)
-    if ((model_opt.model_dtype == 'fp16') and (model_opt.optim == 'fusedadam')):
-        model.half()
-    return model
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:
-         ...  = nn.Sequential
-
-idx = 49:------------------- similar code ------------------ index = 6, score = 5.0 
-def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d, use_sigmoid=False):
-    super(NLayerDiscriminator, self).__init__()
-    if (type(norm_layer) == functools.partial):
-        use_bias = (norm_layer.func == nn.InstanceNorm2d)
-    else:
-        use_bias = (norm_layer == nn.InstanceNorm2d)
-    kw = 4
-    padw = 1
-    sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nn.LeakyReLU(0.2, True)]
-    nf_mult = 1
-    nf_mult_prev = 1
-    for n in range(1, n_layers):
-        nf_mult_prev = nf_mult
-        nf_mult = min((2 ** n), 8)
-        sequence += [nn.Conv2d((ndf * nf_mult_prev), (ndf * nf_mult), kernel_size=kw, stride=2, padding=padw, bias=use_bias), norm_layer((ndf * nf_mult)), nn.LeakyReLU(0.2, True)]
-    nf_mult_prev = nf_mult
-    nf_mult = min((2 ** n_layers), 8)
-    sequence += [nn.Conv2d((ndf * nf_mult_prev), (ndf * nf_mult), kernel_size=kw, stride=1, padding=padw, bias=use_bias), norm_layer((ndf * nf_mult)), nn.LeakyReLU(0.2, True)]
-    sequence += [nn.Conv2d((ndf * nf_mult), 1, kernel_size=kw, stride=1, padding=padw)]
-    if use_sigmoid:
-        sequence += [nn.Sigmoid()]
-    self.model = nn.Sequential(*sequence)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 50:------------------- similar code ------------------ index = 60, score = 5.0 
-def __init__(self, in_channels, k=2, n=4, num_classes=10):
-    super(Scattering2dResNet, self).__init__()
-    self.inplanes = (16 * k)
-    self.ichannels = (16 * k)
-    self.K = in_channels
-    self.init_conv = nn.Sequential(nn.BatchNorm2d(in_channels, eps=1e-05, affine=False), nn.Conv2d(in_channels, self.ichannels, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(self.ichannels), nn.ReLU(True))
-    self.layer2 = self._make_layer(BasicBlock, (32 * k), n)
-    self.layer3 = self._make_layer(BasicBlock, (64 * k), n)
-    self.avgpool = nn.AdaptiveAvgPool2d(2)
-    self.fc = nn.Linear(((64 * k) * 4), num_classes)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 51:------------------- similar code ------------------ index = 61, score = 5.0 
-def __init__(self, in_channels, feature_stride, mode, cfg, **kwargs):
-    super(RegionProposalNet, self).__init__()
-    self.anchor_scales = cfg.ANCHOR_SCALES
-    self.anchor_ratios = cfg.ANCHOR_RATIOS
-    self.feature_stride = feature_stride
-    self.mode = mode
-    self.cfg = cfg
-    self.rpn_conv_trans = nn.Sequential(nn.Conv2d(in_channels=in_channels, out_channels=512, kernel_size=3, stride=1, padding=1, bias=True), nn.ReLU(inplace=True))
-    self.out_channels_cls = ((len(self.anchor_scales) * len(self.anchor_ratios)) * 2)
-    self.out_channels_reg = ((len(self.anchor_scales) * len(self.anchor_ratios)) * 4)
-    self.rpn_conv_cls = nn.Conv2d(in_channels=512, out_channels=self.out_channels_cls, kernel_size=1, stride=1, padding=0)
-    self.rpn_conv_reg = nn.Conv2d(in_channels=512, out_channels=self.out_channels_reg, kernel_size=1, stride=1, padding=0)
-    self.rpn_proposal_layer = rpnProposalLayer(feature_stride=self.feature_stride, anchor_scales=self.anchor_scales, anchor_ratios=self.anchor_ratios, mode=self.mode, cfg=self.cfg)
-    self.rpn_build_target_layer = rpnBuildTargetLayer(feature_stride=self.feature_stride, anchor_scales=self.anchor_scales, anchor_ratios=self.anchor_ratios, mode=self.mode, cfg=self.cfg)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 52:------------------- similar code ------------------ index = 13, score = 5.0 
-def __init__(self, params):
-    Model.check_parameters(params, {'name': 'AlexNet', 'input_shape': (3, 227, 227), 'num_classes': 1000, 'phase': 'training', 'dtype': 'float32'})
-    Model.__init__(self, params)
-    self.features = nn.Sequential(nn.Conv2d(3, 96, kernel_size=11, stride=4), nn.ReLU(inplace=True), nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2), nn.MaxPool2d(kernel_size=3, stride=2), nn.Conv2d(96, 256, kernel_size=5, padding=2), nn.ReLU(inplace=True), nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2), nn.MaxPool2d(kernel_size=3, stride=2), nn.Conv2d(256, 384, kernel_size=3, padding=1), nn.ReLU(inplace=True), nn.Conv2d(384, 384, kernel_size=3, padding=1), nn.ReLU(inplace=True), nn.Conv2d(384, 256, kernel_size=3, padding=1), nn.ReLU(inplace=True), nn.MaxPool2d(kernel_size=3, stride=2))
-    self.classifier = nn.Sequential(nn.Linear(((256 * 6) * 6), 4096), nn.ReLU(inplace=True), nn.Dropout(), nn.Linear(4096, 4096), nn.ReLU(inplace=True), nn.Dropout(), nn.Linear(4096, self.num_classes))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 53:------------------- similar code ------------------ index = 30, score = 5.0 
-def __init__(self, in_channels, k=2, n=4, num_classes=10, standard=False):
-    super(Scattering2dResNet, self).__init__()
-    self.inplanes = (16 * k)
-    self.ichannels = (16 * k)
-    if standard:
-        self.init_conv = nn.Sequential(nn.Conv2d(3, self.ichannels, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(self.ichannels), nn.ReLU(True))
-        self.layer1 = self._make_layer(BasicBlock, (16 * k), n)
-        self.standard = True
-    else:
-        self.K = in_channels
-        self.init_conv = nn.Sequential(nn.BatchNorm2d(in_channels, eps=1e-05, affine=False), nn.Conv2d(in_channels, self.ichannels, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(self.ichannels), nn.ReLU(True))
-        self.standard = False
-    self.layer2 = self._make_layer(BasicBlock, (32 * k), n)
-    self.layer3 = self._make_layer(BasicBlock, (64 * k), n)
-    self.avgpool = nn.AdaptiveAvgPool2d(2)
-    self.fc = nn.Linear(((64 * k) * 4), num_classes)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if  ... :
- = nn.Sequential
-
-idx = 54:------------------- similar code ------------------ index = 18, score = 5.0 
-def __init__(self, channel=4):
-    super(GCN, self).__init__()
-    self.channel = channel
-    self.model = nn.Sequential(GConv(1, 10, 5, padding=2, stride=1, M=channel, nScale=1, bias=False, expand=True), nn.BatchNorm2d((10 * channel)), nn.ReLU(inplace=True), GConv(10, 20, 5, padding=2, stride=1, M=channel, nScale=2, bias=False), nn.BatchNorm2d((20 * channel)), nn.ReLU(inplace=True), nn.MaxPool2d(2, 2), GConv(20, 40, 5, padding=0, stride=1, M=channel, nScale=3, bias=False), nn.BatchNorm2d((40 * channel)), nn.ReLU(inplace=True), nn.MaxPool2d(2, 2), GConv(40, 80, 5, padding=0, stride=1, M=channel, nScale=4, bias=False), nn.BatchNorm2d((80 * channel)), nn.ReLU(inplace=True))
-    self.fc1 = nn.Linear(80, 1024)
-    self.relu = nn.ReLU(inplace=True)
-    self.dropout = nn.Dropout(p=0.5)
-    self.fc2 = nn.Linear(1024, 10)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 55:------------------- similar code ------------------ index = 14, score = 5.0 
-def _init_modules(self):
-    vgg = models.vgg16()
-    if self.pretrained:
-        print(('Loading pretrained weights from %s' % self.model_path))
-        state_dict = torch.load(self.model_path)
-        vgg.load_state_dict({k: v for (k, v) in state_dict.items() if (k in vgg.state_dict())})
-    vgg.classifier = nn.Sequential(*list(vgg.classifier._modules.values())[:(- 1)])
-    self.RCNN_base = nn.Sequential(*list(vgg.features._modules.values())[:(- 1)])
-    for layer in range(10):
-        for p in self.RCNN_base[layer].parameters():
-            p.requires_grad = False
-    self.RCNN_top = vgg.classifier
-    self.RCNN_cls_score = nn.Linear(4096, self.n_classes)
-    if self.class_agnostic:
-        self.RCNN_bbox_pred = nn.Linear(4096, 4)
-    else:
-        self.RCNN_bbox_pred = nn.Linear(4096, (4 * self.n_classes))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
- = nn.Sequential
-
-idx = 56:------------------- similar code ------------------ index = 21, score = 5.0 
-def __init__(self, input_nc, ndf=64, norm_layer=nn.BatchNorm2d, use_sigmoid=False):
-    super(PixelDiscriminator, self).__init__()
-    if (type(norm_layer) == functools.partial):
-        use_bias = (norm_layer.func == nn.InstanceNorm2d)
-    else:
-        use_bias = (norm_layer == nn.InstanceNorm2d)
-    self.net = [nn.Conv2d(input_nc, ndf, kernel_size=1, stride=1, padding=0), nn.LeakyReLU(0.2, True), nn.Conv2d(ndf, (ndf * 2), kernel_size=1, stride=1, padding=0, bias=use_bias), norm_layer((ndf * 2)), nn.LeakyReLU(0.2, True), nn.Conv2d((ndf * 2), 1, kernel_size=1, stride=1, padding=0, bias=use_bias)]
-    if use_sigmoid:
-        self.net.append(nn.Sigmoid())
-    self.net = nn.Sequential(*self.net)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 57:------------------- similar code ------------------ index = 29, score = 5.0 
-def __init__(self, input_size, hidden_size, n_layers=1, input_dropout_p=0, dropout_p=0, bidirectional=False, rnn_cell='gru', variable_lengths=False):
-    super(EncoderRNN, self).__init__()
-    self.hidden_size = hidden_size
-    self.bidirectional = bidirectional
-    self.n_layers = n_layers
-    self.dropout_p = dropout_p
-    self.variable_lengths = variable_lengths
-    if (rnn_cell.lower() == 'lstm'):
-        self.rnn_cell = nn.LSTM
-    elif (rnn_cell.lower() == 'gru'):
-        self.rnn_cell = nn.GRU
-    else:
-        raise ValueError('Unsupported RNN Cell: {0}'.format(rnn_cell))
-    '\n        Copied from https://github.com/SeanNaren/deepspeech.pytorch/blob/master/model.py\n        Copyright (c) 2017 Sean Naren\n        MIT License\n        '
-    outputs_channel = 32
-    self.conv = MaskConv(nn.Sequential(nn.Conv2d(1, outputs_channel, kernel_size=(41, 11), stride=(2, 2), padding=(20, 5)), nn.BatchNorm2d(outputs_channel), nn.Hardtanh(0, 20, inplace=True), nn.Conv2d(outputs_channel, outputs_channel, kernel_size=(21, 11), stride=(2, 1), padding=(10, 5)), nn.BatchNorm2d(outputs_channel), nn.Hardtanh(0, 20, inplace=True)))
-    rnn_input_dims = int(((math.floor(((input_size + (2 * 20)) - 41)) / 2) + 1))
-    rnn_input_dims = int(((math.floor(((rnn_input_dims + (2 * 10)) - 21)) / 2) + 1))
-    rnn_input_dims *= outputs_channel
-    self.rnn = self.rnn_cell(rnn_input_dims, self.hidden_size, self.n_layers, dropout=self.dropout_p, bidirectional=self.bidirectional)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- =  ... (nn.Sequential)
-
-idx = 58:------------------- similar code ------------------ index = 33, score = 5.0 
-def __init__(self, params):
-    ''
-    Model.check_parameters(params, {'name': 'GoogleNet', 'input_shape': (3, 224, 224), 'num_classes': 1000, 'phase': 'training', 'dtype': 'float32'})
-    Model.__init__(self, params)
-    self.features = nn.Sequential(ConvModule(self.input_shape[0], 64, kernel_size=7, stride=2, padding=3), nn.MaxPool2d(kernel_size=3, stride=2), nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2), ConvModule(64, 64, kernel_size=1, stride=1), ConvModule(64, 192, kernel_size=3, stride=1, padding=1), nn.LocalResponseNorm(size=5, alpha=0.0001, beta=0.75, k=2), nn.MaxPool2d(kernel_size=3, stride=2), InceptionModule(192, num_1x1=64, num_3x3red=96, num_3x3=128, num_d5x5red=16, num_d5x5=32, proj=32), InceptionModule(256, num_1x1=128, num_3x3red=128, num_3x3=192, num_d5x5red=32, num_d5x5=96, proj=64), nn.MaxPool2d(kernel_size=3, stride=2), InceptionModule(480, num_1x1=192, num_3x3red=96, num_3x3=208, num_d5x5red=16, num_d5x5=48, proj=64), InceptionModule(512, num_1x1=160, num_3x3red=112, num_3x3=224, num_d5x5red=24, num_d5x5=64, proj=64), InceptionModule(512, num_1x1=128, num_3x3red=128, num_3x3=256, num_d5x5red=24, num_d5x5=64, proj=64), InceptionModule(512, num_1x1=112, num_3x3red=144, num_3x3=288, num_d5x5red=32, num_d5x5=64, proj=64), InceptionModule(528, num_1x1=256, num_3x3red=160, num_3x3=320, num_d5x5red=32, num_d5x5=128, proj=128), nn.MaxPool2d(kernel_size=3, stride=2, padding=1), InceptionModule(832, num_1x1=256, num_3x3red=160, num_3x3=320, num_d5x5red=32, num_d5x5=128, proj=128), InceptionModule(832, num_1x1=384, num_3x3red=192, num_3x3=384, num_d5x5red=48, num_d5x5=128, proj=128), nn.AvgPool2d(kernel_size=7, stride=1))
-    self.classifier = nn.Sequential(nn.Dropout(), nn.Linear(1024, self.num_classes))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 59:------------------- similar code ------------------ index = 27, score = 5.0 
-def __init__(self, in_channels, out_channels, stride, cardinality, base_width, widen_factor):
-    ' Constructor\n\n        Args:\n            in_channels: input channel dimensionality\n            out_channels: output channel dimensionality\n            stride: conv stride. Replaces pooling layer.\n            cardinality: num of convolution groups.\n            base_width: base number of channels in each group.\n            widen_factor: factor to reduce the input dimensionality before convolution.\n        '
-    super(ResNeXtBottleneck, self).__init__()
-    width_ratio = (out_channels / (widen_factor * 64.0))
-    D = (cardinality * int((base_width * width_ratio)))
-    self.conv_reduce = nn.Conv2d(in_channels, D, kernel_size=1, stride=1, padding=0, bias=False)
-    self.bn_reduce = nn.BatchNorm2d(D)
-    self.conv_conv = nn.Conv2d(D, D, kernel_size=3, stride=stride, padding=1, groups=cardinality, bias=False)
-    self.bn = nn.BatchNorm2d(D)
-    self.conv_expand = nn.Conv2d(D, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
-    self.bn_expand = nn.BatchNorm2d(out_channels)
-    self.shortcut = nn.Sequential()
-    if (in_channels != out_channels):
-        self.shortcut.add_module('shortcut_conv', nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0, bias=False))
-        self.shortcut.add_module('shortcut_bn', nn.BatchNorm2d(out_channels))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential()
-
-idx = 60:------------------- similar code ------------------ index = 36, score = 5.0 
-def __init__(self, C_in, C_out, affine=True, bn=False, **kwargs):
-    super(Normal_Relu_Conv, self).__init__()
-    if (not bn):
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, bias=True, **kwargs))
-    else:
-        if cfg['GN']:
-            bn_layer = nn.GroupNorm(32, C_out)
-        elif cfg['syncBN']:
-            bn_layer = nn.SyncBatchNorm(C_out)
-        else:
-            bn_layer = nn.BatchNorm2d(C_out)
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, bias=False, **kwargs), bn_layer)
-    if RELU_FIRST:
-        self.op = nn.Sequential()
-        self.op.add_module('0', nn.ReLU())
-        for i in range(1, (len(op) + 1)):
-            self.op.add_module(str(i), op[(i - 1)])
-    else:
-        self.op = op
-        self.op.add_module(str(len(op)), nn.ReLU())
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:
-         ...  = nn.Sequential
-
-idx = 61:------------------- similar code ------------------ index = 39, score = 5.0 
-def __init__(self, small=False, num_init_features=64, k_r=96, groups=32, b=False, k_sec=(3, 4, 20, 3), inc_sec=(16, 32, 24, 128), num_classes=1000, test_time_pool=False):
-    super(DPN, self).__init__()
-    self.test_time_pool = test_time_pool
-    self.b = b
-    bw_factor = (1 if small else 4)
-    self.k_sec = k_sec
-    self.out_channels = []
-    self.blocks = OrderedDict()
-    if small:
-        self.blocks['conv1_1'] = InputBlock(num_init_features, kernel_size=3, padding=1)
-    else:
-        self.blocks['conv1_1'] = InputBlock(num_init_features, kernel_size=7, padding=3)
-    self.out_channels.append(num_init_features)
-    bw = (64 * bw_factor)
-    inc = inc_sec[0]
-    r = ((k_r * bw) // (64 * bw_factor))
-    self.blocks['conv2_1'] = DualPathBlock(num_init_features, r, r, bw, inc, groups, 'proj', b)
-    in_chs = (bw + (3 * inc))
-    for i in range(2, (k_sec[0] + 1)):
-        self.blocks[('conv2_' + str(i))] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
-        in_chs += inc
-    self.out_channels.append(in_chs)
-    bw = (128 * bw_factor)
-    inc = inc_sec[1]
-    r = ((k_r * bw) // (64 * bw_factor))
-    self.blocks['conv3_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
-    in_chs = (bw + (3 * inc))
-    for i in range(2, (k_sec[1] + 1)):
-        self.blocks[('conv3_' + str(i))] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
-        in_chs += inc
-    self.out_channels.append(in_chs)
-    bw = (256 * bw_factor)
-    inc = inc_sec[2]
-    r = ((k_r * bw) // (64 * bw_factor))
-    self.blocks['conv4_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
-    in_chs = (bw + (3 * inc))
-    for i in range(2, (k_sec[2] + 1)):
-        self.blocks[('conv4_' + str(i))] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
-        in_chs += inc
-    self.out_channels.append(in_chs)
-    bw = (512 * bw_factor)
-    inc = inc_sec[3]
-    r = ((k_r * bw) // (64 * bw_factor))
-    self.blocks['conv5_1'] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'down', b)
-    in_chs = (bw + (3 * inc))
-    for i in range(2, (k_sec[3] + 1)):
-        self.blocks[('conv5_' + str(i))] = DualPathBlock(in_chs, r, r, bw, inc, groups, 'normal', b)
-        in_chs += inc
-    self.blocks['conv5_bn_ac'] = CatBnAct(in_chs)
-    self.out_channels.append(in_chs)
-    self.features = nn.Sequential(self.blocks)
-    self.classifier = nn.Conv2d(in_chs, num_classes, kernel_size=1, bias=True)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 62:------------------- similar code ------------------ index = 23, score = 5.0 
-def __init__(self, model=None, fixed=False):
-    super(Encoder4, self).__init__()
-    self.fixed = fixed
-    self.vgg = nn.Sequential(nn.Conv2d(3, 3, (1, 1)), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(3, 64, (3, 3)), nn.ReLU(), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(64, 64, (3, 3)), nn.ReLU(), nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(64, 128, (3, 3)), nn.ReLU(), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(128, 128, (3, 3)), nn.ReLU(), nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(128, 256, (3, 3)), nn.ReLU(), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(256, 256, (3, 3)), nn.ReLU(), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(256, 256, (3, 3)), nn.ReLU(), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(256, 256, (3, 3)), nn.ReLU(), nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True), nn.ReflectionPad2d((1, 1, 1, 1)), nn.Conv2d(256, 512, (3, 3)), nn.ReLU())
-    if model:
-        assert (os.path.splitext(model)[1] in {'.t7', '.pth'})
-        if model.endswith('.t7'):
-            t7_model = load_lua(model)
-            load_param(t7_model, 0, self.vgg[0])
-            load_param(t7_model, 2, self.vgg[2])
-            load_param(t7_model, 5, self.vgg[5])
-            load_param(t7_model, 9, self.vgg[9])
-            load_param(t7_model, 12, self.vgg[12])
-            load_param(t7_model, 16, self.vgg[16])
-            load_param(t7_model, 19, self.vgg[19])
-            load_param(t7_model, 22, self.vgg[22])
-            load_param(t7_model, 25, self.vgg[25])
-            load_param(t7_model, 29, self.vgg[29])
-        else:
-            self.load_state_dict(torch.load(model, map_location=(lambda storage, location: storage)))
-    if fixed:
-        for param in self.parameters():
-            param.requires_grad = False
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 63:------------------- similar code ------------------ index = 42, score = 5.0 
-def _init_modules(self):
-    resnet = resnet101()
-    if (self.pretrained == True):
-        print(('Loading pretrained weights from %s' % self.model_path))
-        state_dict = torch.load(self.model_path)
-        resnet.load_state_dict({k: v for (k, v) in state_dict.items() if (k in resnet.state_dict())})
-    self.RCNN_layer0 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool)
-    self.RCNN_layer1 = nn.Sequential(resnet.layer1)
-    self.RCNN_layer2 = nn.Sequential(resnet.layer2)
-    self.RCNN_layer3 = nn.Sequential(resnet.layer3)
-    self.RCNN_layer4 = nn.Sequential(resnet.layer4)
-    self.RCNN_toplayer = nn.Conv2d(2048, 256, kernel_size=1, stride=1, padding=0)
-    self.RCNN_smooth1 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-    self.RCNN_smooth2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-    self.RCNN_smooth3 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-    self.RCNN_latlayer1 = nn.Conv2d(1024, 256, kernel_size=1, stride=1, padding=0)
-    self.RCNN_latlayer2 = nn.Conv2d(512, 256, kernel_size=1, stride=1, padding=0)
-    self.RCNN_latlayer3 = nn.Conv2d(256, 256, kernel_size=1, stride=1, padding=0)
-    self.RCNN_roi_feat_ds = nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1)
-    self.RCNN_top = nn.Sequential(nn.Conv2d(256, 1024, kernel_size=cfg.POOLING_SIZE, stride=cfg.POOLING_SIZE, padding=0), nn.ReLU(True), nn.Conv2d(1024, 1024, kernel_size=1, stride=1, padding=0), nn.ReLU(True))
-    self.RCNN_cls_score = nn.Linear(1024, self.n_classes)
-    if self.class_agnostic:
-        self.RCNN_bbox_pred = nn.Linear(1024, 4)
-    else:
-        self.RCNN_bbox_pred = nn.Linear(1024, (4 * self.n_classes))
-    for p in self.RCNN_layer0[0].parameters():
-        p.requires_grad = False
-    for p in self.RCNN_layer0[1].parameters():
-        p.requires_grad = False
-    for p in self.RCNN_layer4.parameters():
-        p.requires_grad = False
-    for p in self.RCNN_layer3.parameters():
-        p.requires_grad = False
-    for p in self.RCNN_layer2.parameters():
-        p.requires_grad = False
-    for p in self.RCNN_layer1.parameters():
-        p.requires_grad = False
-
-    def set_bn_fix(m):
-        classname = m.__class__.__name__
-        if (classname.find('BatchNorm') != (- 1)):
-            for p in m.parameters():
-                p.requires_grad = False
-    self.RCNN_layer0.apply(set_bn_fix)
-    self.RCNN_layer1.apply(set_bn_fix)
-    self.RCNN_layer2.apply(set_bn_fix)
-    self.RCNN_layer3.apply(set_bn_fix)
-    self.RCNN_layer4.apply(set_bn_fix)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
- = nn.Sequential
-
-idx = 64:------------------- similar code ------------------ index = 43, score = 5.0 
-def __init__(self, pretrained='imagenet', **kwargs):
-    super(ScSeSenet154_9ch_Unet, self).__init__()
-    encoder_filters = [128, 256, 512, 1024, 2048]
-    decoder_filters = [96, 128, 160, 256, 512]
-    self.conv6 = ConvRelu(encoder_filters[(- 1)], decoder_filters[(- 1)])
-    self.conv6_2 = ConvRelu(((((decoder_filters[(- 1)] + encoder_filters[(- 2)]) + 2) + 27) + 2), decoder_filters[(- 1)])
-    self.conv7 = ConvRelu(decoder_filters[(- 1)], decoder_filters[(- 2)])
-    self.conv7_2 = ConvRelu(((((decoder_filters[(- 2)] + encoder_filters[(- 3)]) + 2) + 27) + 2), decoder_filters[(- 2)])
-    self.conv8 = ConvRelu(decoder_filters[(- 2)], decoder_filters[(- 3)])
-    self.conv8_2 = ConvRelu(((((decoder_filters[(- 3)] + encoder_filters[(- 4)]) + 2) + 27) + 2), decoder_filters[(- 3)])
-    self.conv9 = ConvRelu(decoder_filters[(- 3)], decoder_filters[(- 4)])
-    self.conv9_2 = ConvRelu(((((decoder_filters[(- 4)] + encoder_filters[(- 5)]) + 2) + 27) + 2), decoder_filters[(- 4)])
-    self.conv10 = ConvRelu((((decoder_filters[(- 4)] + 2) + 2) + 27), decoder_filters[(- 5)])
-    self.res = nn.Conv2d(((decoder_filters[(- 5)] + 2) + 2), 4, 1, stride=1, padding=0)
-    self.off_nadir = nn.Sequential(nn.Linear(encoder_filters[(- 1)], 64), nn.ReLU(inplace=True), nn.Linear(64, 1))
-    self._initialize_weights()
-    encoder = senet154(pretrained=pretrained)
-    conv1_new = nn.Conv2d(9, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
-    _w = encoder.layer0.conv1.state_dict()
-    _w['weight'] = torch.cat([(0.8 * _w['weight']), (0.1 * _w['weight']), (0.1 * _w['weight'])], 1)
-    conv1_new.load_state_dict(_w)
-    self.conv1 = nn.Sequential(conv1_new, encoder.layer0.bn1, encoder.layer0.relu1, encoder.layer0.conv2, encoder.layer0.bn2, encoder.layer0.relu2, encoder.layer0.conv3, encoder.layer0.bn3, encoder.layer0.relu3)
-    self.conv2 = nn.Sequential(encoder.pool, encoder.layer1)
-    self.conv3 = encoder.layer2
-    self.conv4 = encoder.layer3
-    self.conv5 = encoder.layer4
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 65:------------------- similar code ------------------ index = 20, score = 5.0 
-def __init__(self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False, n_blocks=6, padding_type='reflect'):
-    assert (n_blocks >= 0)
-    super(ResnetGenerator, self).__init__()
-    self.input_nc = input_nc
-    self.output_nc = output_nc
-    self.ngf = ngf
-    if (type(norm_layer) == functools.partial):
-        use_bias = (norm_layer.func == nn.InstanceNorm2d)
-    else:
-        use_bias = (norm_layer == nn.InstanceNorm2d)
-    model = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0, bias=use_bias), norm_layer(ngf), nn.ReLU(True)]
-    n_downsampling = 2
-    for i in range(n_downsampling):
-        mult = (2 ** i)
-        model += [nn.Conv2d((ngf * mult), ((ngf * mult) * 2), kernel_size=3, stride=2, padding=1, bias=use_bias), norm_layer(((ngf * mult) * 2)), nn.ReLU(True)]
-    mult = (2 ** n_downsampling)
-    for i in range(n_blocks):
-        model += [ResnetBlock((ngf * mult), padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=use_bias)]
-    for i in range(n_downsampling):
-        mult = (2 ** (n_downsampling - i))
-        model += [nn.ConvTranspose2d((ngf * mult), int(((ngf * mult) / 2)), kernel_size=3, stride=2, padding=1, output_padding=1, bias=use_bias), norm_layer(int(((ngf * mult) / 2))), nn.ReLU(True)]
-    model += [nn.ReflectionPad2d(3)]
-    model += [nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0)]
-    model += [nn.Tanh()]
-    self.model = nn.Sequential(*model)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 66:------------------- similar code ------------------ index = 15, score = 5.0 
-def __init__(self, block, layers, groups, reduction, dropout_p=0.2, inplanes=128, input_3x3=True, downsample_kernel_size=3, downsample_padding=1, last_stride=2):
-    '\n        Parameters\n        ----------\n        block (nn.Module): Bottleneck class.\n            - For SENet154: SEBottleneck\n            - For SE-ResNet models: SEResNetBottleneck\n            - For SE-ResNeXt models:  SEResNeXtBottleneck\n        layers (list of ints): Number of residual blocks for 4 layers of the\n            network (layer1...layer4).\n        groups (int): Number of groups for the 3x3 convolution in each\n            bottleneck block.\n            - For SENet154: 64\n            - For SE-ResNet models: 1\n            - For SE-ResNeXt models:  32\n        reduction (int): Reduction ratio for Squeeze-and-Excitation modules.\n            - For all models: 16\n        dropout_p (float or None): Drop probability for the Dropout layer.\n            If `None` the Dropout layer is not used.\n            - For SENet154: 0.2\n            - For SE-ResNet models: None\n            - For SE-ResNeXt models: None\n        inplanes (int):  Number of input channels for layer1.\n            - For SENet154: 128\n            - For SE-ResNet models: 64\n            - For SE-ResNeXt models: 64\n        input_3x3 (bool): If `True`, use three 3x3 convolutions instead of\n            a single 7x7 convolution in layer0.\n            - For SENet154: True\n            - For SE-ResNet models: False\n            - For SE-ResNeXt models: False\n        downsample_kernel_size (int): Kernel size for downsampling convolutions\n            in layer2, layer3 and layer4.\n            - For SENet154: 3\n            - For SE-ResNet models: 1\n            - For SE-ResNeXt models: 1\n        downsample_padding (int): Padding for downsampling convolutions in\n            layer2, layer3 and layer4.\n            - For SENet154: 1\n            - For SE-ResNet models: 0\n            - For SE-ResNeXt models: 0\n        num_classes (int): Number of outputs in `last_linear` layer.\n            - For all models: 1000\n        '
-    super(SENet, self).__init__()
-    self.inplanes = inplanes
-    if input_3x3:
-        layer0_modules = [('conv1', nn.Conv2d(3, 64, 3, stride=2, padding=1, bias=False)), ('bn1', nn.BatchNorm2d(64)), ('relu1', nn.ReLU(inplace=True)), ('conv2', nn.Conv2d(64, 64, 3, stride=1, padding=1, bias=False)), ('bn2', nn.BatchNorm2d(64)), ('relu2', nn.ReLU(inplace=True)), ('conv3', nn.Conv2d(64, inplanes, 3, stride=1, padding=1, bias=False)), ('bn3', nn.BatchNorm2d(inplanes)), ('relu3', nn.ReLU(inplace=True))]
-    else:
-        layer0_modules = [('conv1', nn.Conv2d(3, inplanes, kernel_size=7, stride=2, padding=3, bias=False)), ('bn1', nn.BatchNorm2d(inplanes)), ('relu1', nn.ReLU(inplace=True))]
-    layer0_modules.append(('pool', nn.MaxPool2d(3, stride=2, ceil_mode=True)))
-    self.layer0 = nn.Sequential(OrderedDict(layer0_modules))
-    self.layer1 = self._make_layer(block, planes=64, blocks=layers[0], groups=groups, reduction=reduction, downsample_kernel_size=1, downsample_padding=0)
-    self.layer2 = self._make_layer(block, planes=128, blocks=layers[1], stride=2, groups=groups, reduction=reduction, downsample_kernel_size=downsample_kernel_size, downsample_padding=downsample_padding)
-    self.layer3 = self._make_layer(block, planes=256, blocks=layers[2], stride=2, groups=groups, reduction=reduction, downsample_kernel_size=downsample_kernel_size, downsample_padding=downsample_padding)
-    self.layer4 = self._make_layer(block, planes=512, blocks=layers[3], stride=last_stride, groups=groups, reduction=reduction, downsample_kernel_size=downsample_kernel_size, downsample_padding=downsample_padding)
-    self.avg_pool = nn.AvgPool2d(7, stride=1)
-    self.dropout = (nn.Dropout(dropout_p) if (dropout_p is not None) else None)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 67:------------------- similar code ------------------ index = 45, score = 5.0 
-def __init__(self, in_channels, out_channels):
-    super(upproj, self).__init__()
-    self.unpool = Unpool(2)
-    self.branch1 = nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=5, stride=1, padding=2, bias=False), nn.BatchNorm2d(out_channels), nn.ReLU(inplace=True), nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(out_channels))
-    self.branch2 = nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=5, stride=1, padding=2, bias=False), nn.BatchNorm2d(out_channels))
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 68:------------------- similar code ------------------ index = 46, score = 5.0 
-def __init__(self, C_in, C_out, kernel_size, stride, padding, dilation, affine=True, bn=False):
-    super(DilConv, self).__init__()
-    if (not bn):
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation, groups=C_in, bias=True), nn.Conv2d(C_in, C_out, kernel_size=1, padding=0, bias=True))
-    else:
-        if cfg['GN']:
-            bn_layer = nn.GroupNorm(32, C_out)
-        elif cfg['syncBN']:
-            bn_layer = nn.SyncBatchNorm(C_out)
-        else:
-            bn_layer = nn.BatchNorm2d(C_out)
-        op = nn.Sequential(nn.Conv2d(C_in, C_in, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation, groups=C_in, bias=False), nn.Conv2d(C_in, C_out, kernel_size=1, padding=0, bias=False), bn_layer)
-    if RELU_FIRST:
-        self.op = nn.Sequential()
-        self.op.add_module('0', nn.ReLU())
-        for i in range(1, (len(op) + 1)):
-            self.op.add_module(str(i), op[(i - 1)])
-    else:
-        self.op = op
-        self.op.add_module(str(len(op)), nn.ReLU())
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-    if:
-         ...  = nn.Sequential
-
-idx = 69:------------------- similar code ------------------ index = 19, score = 5.0 
-def __init__(self, channels, reduction=16, mode='concat'):
-    super(SCSEModule, self).__init__()
-    self.avg_pool = nn.AdaptiveAvgPool2d(1)
-    self.fc1 = nn.Conv2d(channels, (channels // reduction), kernel_size=1, padding=0)
-    self.relu = nn.ReLU(inplace=True)
-    self.fc2 = nn.Conv2d((channels // reduction), channels, kernel_size=1, padding=0)
-    self.sigmoid = nn.Sigmoid()
-    self.spatial_se = nn.Sequential(nn.Conv2d(channels, 1, kernel_size=1, stride=1, padding=0, bias=False), nn.Sigmoid())
-    self.mode = mode
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
- = nn.Sequential
-
-idx = 70:------------------- similar code ------------------ index = 0, score = 6.0 
+idx = 65:------------------- similar code ------------------ index = 0, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
@@ -1755,7 +1215,27 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 71:------------------- similar code ------------------ index = 50, score = 6.0 
+idx = 66:------------------- similar code ------------------ index = 201, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, dilation__=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion)) or (dilation__ == 2) or (dilation__ == 4)):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion), affine=affine_par))
+    for i in downsample._modules['1'].parameters():
+        i.requires_grad = False
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, dilation_=dilation__, downsample=downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes, dilation_=dilation__))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 67:------------------- similar code ------------------ index = 543, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
@@ -1773,16 +1253,16 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 72:------------------- similar code ------------------ index = 118, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
+idx = 68:------------------- similar code ------------------ index = 198, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, att_type=None):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
         downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
     layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
+    layers.append(block(self.inplanes, planes, stride, downsample, use_cbam=(att_type == 'CBAM')))
     self.inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes))
+        layers.append(block(self.inplanes, planes, use_cbam=(att_type == 'CBAM')))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
@@ -1791,34 +1271,16 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 73:------------------- similar code ------------------ index = 66, score = 6.0 
-def make_res_layer(block, inplanes, planes, blocks, stride=1, dilation=1, style='pytorch', with_cp=False, conv_cfg=None, norm_cfg=dict(type='BN'), dcn=None, gcb=None, sac=None, rfp=None, gen_attention=None, gen_attention_blocks=[]):
-    downsample = None
-    if ((stride != 1) or (inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(build_conv_layer(conv_cfg, inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), build_norm_layer(norm_cfg, (planes * block.expansion))[1])
-    layers = []
-    layers.append(block(inplanes=inplanes, planes=planes, stride=stride, dilation=dilation, downsample=downsample, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, sac=sac, rfp=rfp, gen_attention=(gen_attention if (0 in gen_attention_blocks) else None)))
-    inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(inplanes=inplanes, planes=planes, stride=1, dilation=dilation, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, sac=sac, gen_attention=(gen_attention if (i in gen_attention_blocks) else None)))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 74:------------------- similar code ------------------ index = 32, score = 6.0 
-def _make_layer(self, block, planes, blocks, groups, reduction, stride=1, downsample_kernel_size=1, downsample_padding=0):
+idx = 69:------------------- similar code ------------------ index = 191, score = 6.0 
+def _make_layer(self, block, norm_layer, planes, blocks, inplace=True, stride=1, bn_eps=1e-05, bn_momentum=0.1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=downsample_kernel_size, stride=stride, padding=downsample_padding, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), norm_layer((planes * block.expansion), eps=bn_eps, momentum=bn_momentum))
     layers = []
-    layers.append(block(self.inplanes, planes, groups, reduction, stride, downsample))
+    layers.append(block(self.inplanes, planes, stride, norm_layer, bn_eps, bn_momentum, downsample, inplace))
     self.inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, groups, reduction))
+        layers.append(block(self.inplanes, planes, norm_layer=norm_layer, bn_eps=bn_eps, bn_momentum=bn_momentum, inplace=inplace))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
@@ -1827,249 +1289,16 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 75:------------------- similar code ------------------ index = 70, score = 6.0 
-def _make_layer_face(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes_face != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes_face, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes_face, planes, stride, downsample))
-    self.inplanes_face = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes_face, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 76:------------------- similar code ------------------ index = 72, score = 6.0 
-def _make_layer_face(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes_face != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes_face, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes_face, planes, stride, downsample))
-    self.inplanes_face = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes_face, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 77:------------------- similar code ------------------ index = 78, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 78:------------------- similar code ------------------ index = 79, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1, groups=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), SynchronizedBatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, groups, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, groups=groups))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 79:------------------- similar code ------------------ index = 81, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != planes)):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, planes, kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d(planes))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
-    self.inplanes = planes
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 80:------------------- similar code ------------------ index = 54, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1, dilation=1, bn_momentum=0.1, norm_layer=nn.BatchNorm2d):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), norm_layer((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, dilation, downsample, bn_momentum=bn_momentum, norm_layer=norm_layer))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, dilation=dilation, bn_momentum=bn_momentum, norm_layer=norm_layer))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 81:------------------- similar code ------------------ index = 89, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 82:------------------- similar code ------------------ index = 90, score = 6.0 
-def make_res_layer(block, inplanes, planes, blocks, stride=1, dilation=1, groups=1, base_width=4, style='pytorch', with_cp=False, conv_cfg=None, norm_cfg=dict(type='BN'), dcn=None, gcb=None, sac=None, rfp=None):
-    downsample = None
-    if ((stride != 1) or (inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(build_conv_layer(conv_cfg, inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), build_norm_layer(norm_cfg, (planes * block.expansion))[1])
-    layers = []
-    layers.append(block(inplanes=inplanes, planes=planes, stride=stride, dilation=dilation, downsample=downsample, groups=groups, base_width=base_width, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, sac=sac, rfp=rfp))
-    inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(inplanes=inplanes, planes=planes, stride=1, dilation=dilation, groups=groups, base_width=base_width, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, sac=sac))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 83:------------------- similar code ------------------ index = 91, score = 6.0 
-def _make_layer(self, block, planes, blocks, groups, reduction, stride=1, downsample_kernel_size=1, downsample_padding=0):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=downsample_kernel_size, stride=stride, padding=downsample_padding, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, groups, reduction, stride, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, groups, reduction))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 84:------------------- similar code ------------------ index = 93, score = 6.0 
-def _make_one_branch(self, branch_index, block, num_blocks, num_channels, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.in_channels[branch_index] != (num_channels[branch_index] * block.expansion))):
-        downsample = nn.Sequential(build_conv_layer(self.conv_cfg, self.in_channels[branch_index], (num_channels[branch_index] * block.expansion), kernel_size=1, stride=stride, bias=False), build_norm_layer(self.norm_cfg, (num_channels[branch_index] * block.expansion))[1])
-    layers = []
-    layers.append(block(self.in_channels[branch_index], num_channels[branch_index], stride, downsample=downsample, with_cp=self.with_cp, norm_cfg=self.norm_cfg, conv_cfg=self.conv_cfg))
-    self.in_channels[branch_index] = (num_channels[branch_index] * block.expansion)
-    for i in range(1, num_blocks[branch_index]):
-        layers.append(block(self.in_channels[branch_index], num_channels[branch_index], with_cp=self.with_cp, norm_cfg=self.norm_cfg, conv_cfg=self.conv_cfg))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 85:------------------- similar code ------------------ index = 121, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != planes)):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, planes, kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d(planes))
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
-    self.inplanes = planes
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 86:------------------- similar code ------------------ index = 159, score = 6.0 
-def __init__(self, decoder, output_size, in_channels=3, pretrained=True):
-    super(MobileNet, self).__init__()
-    self.output_size = output_size
-    mobilenet = imagenet.mobilenet.MobileNet()
-    if pretrained:
-        pretrained_path = os.path.join('imagenet', 'results', 'imagenet.arch=mobilenet.lr=0.1.bs=256', 'model_best.pth.tar')
-        checkpoint = torch.load(pretrained_path)
-        state_dict = checkpoint['state_dict']
-        from collections import OrderedDict
-        new_state_dict = OrderedDict()
-        for (k, v) in state_dict.items():
-            name = k[7:]
-            new_state_dict[name] = v
-        mobilenet.load_state_dict(new_state_dict)
-    else:
-        mobilenet.apply(weights_init)
-    if (in_channels == 3):
-        self.mobilenet = nn.Sequential(*(mobilenet.model[i] for i in range(14)))
-    else:
-
-        def conv_bn(inp, oup, stride):
-            return nn.Sequential(nn.Conv2d(inp, oup, 3, stride, 1, bias=False), nn.BatchNorm2d(oup), nn.ReLU6(inplace=True))
-        self.mobilenet = nn.Sequential(conv_bn(in_channels, 32, 2), *(mobilenet.model[i] for i in range(1, 14)))
-    self.decoder = choose_decoder(decoder)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
- =  ... .Sequential
-    else:
-
-        def  ... ():
-            return nn
-
-idx = 87:------------------- similar code ------------------ index = 16, score = 6.0 
+idx = 70:------------------- similar code ------------------ index = 497, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
     downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion)) or (dilation == 2) or (dilation == 4)):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion), affine=affine_par))
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
     layers = []
-    layers.append(block(self.inplanes, planes, stride, dilation=dilation, downsample=downsample))
+    layers.append(block(self.inplanes, planes, stride=stride, dilation=dilation, downsample=downsample))
     self.inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, dilation=dilation))
+        layers.append(block(self.inplanes, planes, stride=1, dilation=dilation))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
@@ -2078,11 +1307,11 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 88:------------------- similar code ------------------ index = 152, score = 6.0 
+idx = 71:------------------- similar code ------------------ index = 486, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), SynchronizedBatchNorm2d((planes * block.expansion)))
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
     layers = []
     layers.append(block(self.inplanes, planes, stride, downsample))
     self.inplanes = (planes * block.expansion)
@@ -2096,16 +1325,16 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 89:------------------- similar code ------------------ index = 151, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1, groups=1):
+idx = 72:------------------- similar code ------------------ index = 235, score = 6.0 
+def make_res_layer(block, inplanes, planes, blocks, stride=1, dilation=1, style='pytorch', with_cp=False, conv_cfg=None, norm_cfg=dict(type='BN'), dcn=None, gcb=None, gen_attention=None, gen_attention_blocks=[]):
     downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), SynchronizedBatchNorm2d((planes * block.expansion)))
+    if ((stride != 1) or (inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(build_conv_layer(conv_cfg, inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), build_norm_layer(norm_cfg, (planes * block.expansion))[1])
     layers = []
-    layers.append(block(self.inplanes, planes, stride, groups, downsample))
-    self.inplanes = (planes * block.expansion)
+    layers.append(block(inplanes=inplanes, planes=planes, stride=stride, dilation=dilation, downsample=downsample, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, gen_attention=(gen_attention if (0 in gen_attention_blocks) else None)))
+    inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, groups=groups))
+        layers.append(block(inplanes=inplanes, planes=planes, stride=1, dilation=dilation, style=style, with_cp=with_cp, conv_cfg=conv_cfg, norm_cfg=norm_cfg, dcn=dcn, gcb=gcb, gen_attention=(gen_attention if (i in gen_attention_blocks) else None)))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
@@ -2114,11 +1343,128 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 90:------------------- similar code ------------------ index = 10, score = 6.0 
+idx = 73:------------------- similar code ------------------ index = 495, score = 6.0 
+def _make_layer_slow(self, block, planes, blocks, stride=1, head_conv=1):
+    downsample = None
+    if ((stride != 1) or ((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)) != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv3d((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)), (planes * block.expansion), kernel_size=1, stride=(1, stride, stride), bias=False))
+    layers = []
+    layers.append(block((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)), planes, stride, downsample, head_conv=head_conv))
+    self.slow_inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.slow_inplanes, planes, head_conv=head_conv))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 74:------------------- similar code ------------------ index = 516, score = 6.0 
+def _make_layer_fast(self, block, planes, blocks, shortcut_type, stride=1, head_conv=1):
+    downsample = None
+    if ((stride != 1) or (self.fast_inplanes != (planes * block.expansion))):
+        if (shortcut_type == 'A'):
+            downsample = partial(downsample_basic_block, planes=(planes * block.expansion), stride=stride)
+        else:
+            downsample = nn.Sequential(nn.Conv3d(self.fast_inplanes, (planes * block.expansion), kernel_size=1, stride=(1, stride, stride), bias=False))
+    layers = []
+    layers.append(block(self.fast_inplanes, planes, stride, downsample, head_conv=head_conv))
+    self.fast_inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.fast_inplanes, planes, head_conv=head_conv))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+        if:        else:
+             ...  =  ... .Sequential
+    return nn
+
+idx = 75:------------------- similar code ------------------ index = 500, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, dilation=1, BatchNorm=None):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), BatchNorm((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample, BatchNorm=BatchNorm))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes, dilation=(dilation, dilation), BatchNorm=BatchNorm))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 76:------------------- similar code ------------------ index = 507, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
+    norm_layer = self._norm_layer
+    downsample = None
+    previous_dilation = self.dilation
+    if dilate:
+        self.dilation *= stride
+        stride = 1
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(conv1x1(self.inplanes, (planes * block.expansion), stride), norm_layer((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer))
+    self.inplanes = (planes * block.expansion)
+    for _ in range(1, blocks):
+        layers.append(block(self.inplanes, planes, groups=self.groups, base_width=self.base_width, dilation=self.dilation, norm_layer=norm_layer))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 77:------------------- similar code ------------------ index = 515, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), SynchronizedBatchNorm2d((planes * block.expansion)))
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False))
+    layers = list()
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 78:------------------- similar code ------------------ index = 555, score = 6.0 
+def _make_MG_unit(self, block, planes, blocks, stride=1, dilation=1, BatchNorm=None):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), BatchNorm((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, dilation=(blocks[0] * dilation), downsample=downsample, BatchNorm=BatchNorm))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, len(blocks)):
+        layers.append(block(self.inplanes, planes, stride=1, dilation=(blocks[i] * dilation), BatchNorm=BatchNorm))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 79:------------------- similar code ------------------ index = 152, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion), momentum=BN_MOMENTUM))
     layers = []
     layers.append(block(self.inplanes, planes, stride, downsample))
     self.inplanes = (planes * block.expansion)
@@ -2132,7 +1478,65 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 91:------------------- similar code ------------------ index = 148, score = 6.0 
+idx = 80:------------------- similar code ------------------ index = 612, score = 6.0 
+def _make_layer(self, block, planes, blocks, shortcut_type, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        if (shortcut_type == 'A'):
+            downsample = partial(downsample_basic_block, planes=(planes * block.expansion), stride=stride)
+        else:
+            downsample = nn.Sequential(nn.Conv3d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm3d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+        if:        else:
+             ...  =  ... .Sequential
+    return nn
+
+idx = 81:------------------- similar code ------------------ index = 145, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 82:------------------- similar code ------------------ index = 622, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 83:------------------- similar code ------------------ index = 138, score = 6.0 
 def _make_layer_scene(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes_scene != (planes * block.expansion))):
@@ -2150,66 +1554,7 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 92:------------------- similar code ------------------ index = 146, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
-    layers = []
-    ibn = True
-    if (planes == 512):
-        ibn = False
-    layers.append(block(self.inplanes, planes, ibn, stride, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, ibn))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 93:------------------- similar code ------------------ index = 142, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion)) or (dilation == 2) or (dilation == 4)):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion), affine=affine_par))
-    for i in downsample._modules['1'].parameters():
-        i.requires_grad = False
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, dilation=dilation, downsample=downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, dilation=dilation))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 94:------------------- similar code ------------------ index = 12, score = 6.0 
-def _make_layer(self, block, planes, blocks, groups, reduction, stride=1, downsample_kernel_size=1, downsample_padding=0):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=downsample_kernel_size, stride=stride, padding=downsample_padding, bias=False), BatchNorm2d((planes * block.expansion)))
-    layers = []
-    layers.append(block(self.inplanes, planes, groups, reduction, stride, downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, groups, reduction))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 95:------------------- similar code ------------------ index = 25, score = 6.0 
+idx = 84:------------------- similar code ------------------ index = 137, score = 6.0 
 def _make_layer(self, block, inplanes, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (inplanes != (planes * block.expansion))):
@@ -2227,7 +1572,7 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 96:------------------- similar code ------------------ index = 130, score = 6.0 
+idx = 85:------------------- similar code ------------------ index = 628, score = 6.0 
 def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
@@ -2245,36 +1590,16 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 97:------------------- similar code ------------------ index = 2, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
-    downsample = None
-    if ((stride != 1) or (self.inplanes != (planes * block.expansion)) or (dilation == 2) or (dilation == 4)):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion), affine=affine_par))
-    for i in downsample._modules['1'].parameters():
-        i.requires_grad = False
-    layers = []
-    layers.append(block(self.inplanes, planes, stride, dilation=dilation, downsample=downsample))
-    self.inplanes = (planes * block.expansion)
-    for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, dilation=dilation))
-    return nn.Sequential(*layers)
-
-------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
-def  ... ():
-    if:
-         ...  =  ... .Sequential
-    return nn
-
-idx = 98:------------------- similar code ------------------ index = 132, score = 6.0 
-def _make_layer(self, block, planes, blocks, stride, pad, dilation):
+idx = 86:------------------- similar code ------------------ index = 635, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
     if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
         downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
     layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample, pad, dilation))
+    layers.append(block(self.inplanes, planes, stride, downsample))
     self.inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes, planes, 1, None, pad, dilation))
+        layers.append(block(self.inplanes, planes))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
@@ -2283,16 +1608,242 @@ def  ... ():
          ...  =  ... .Sequential
     return nn
 
-idx = 99:------------------- similar code ------------------ index = 26, score = 6.0 
-def _make_layer_scene(self, block, planes, blocks, stride=1):
+idx = 87:------------------- similar code ------------------ index = 126, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
     downsample = None
-    if ((stride != 1) or (self.inplanes_scene != (planes * block.expansion))):
-        downsample = nn.Sequential(nn.Conv2d(self.inplanes_scene, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
     layers = []
-    layers.append(block(self.inplanes_scene, planes, stride, downsample))
-    self.inplanes_scene = (planes * block.expansion)
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
     for i in range(1, blocks):
-        layers.append(block(self.inplanes_scene, planes))
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 88:------------------- similar code ------------------ index = 154, score = 6.0 
+def _make_one_branch(self, branch_index, block, num_blocks, num_channels, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.num_inchannels[branch_index] != (num_channels[branch_index] * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.num_inchannels[branch_index], (num_channels[branch_index] * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((num_channels[branch_index] * block.expansion)))
+    layers = []
+    layers.append(block(self.num_inchannels[branch_index], num_channels[branch_index], stride, downsample))
+    self.num_inchannels[branch_index] = (num_channels[branch_index] * block.expansion)
+    for i in range(1, num_blocks[branch_index]):
+        layers.append(block(self.num_inchannels[branch_index], num_channels[branch_index]))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 89:------------------- similar code ------------------ index = 184, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, norm_layer=None, pyconv_kernels=[3], pyconv_groups=[1]):
+    if (norm_layer is None):
+        norm_layer = nn.BatchNorm2d
+    downsample = None
+    if ((stride != 1) and (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.MaxPool2d(kernel_size=3, stride=stride, padding=1), conv1x1(self.inplanes, (planes * block.expansion)), norm_layer((planes * block.expansion)))
+    elif (self.inplanes != (planes * block.expansion)):
+        downsample = nn.Sequential(conv1x1(self.inplanes, (planes * block.expansion)), norm_layer((planes * block.expansion)))
+    elif (stride != 1):
+        downsample = nn.MaxPool2d(kernel_size=3, stride=stride, padding=1)
+    layers = []
+    layers.append(block(self.inplanes, planes, stride=stride, downsample=downsample, norm_layer=norm_layer, pyconv_kernels=pyconv_kernels, pyconv_groups=pyconv_groups))
+    self.inplanes = (planes * block.expansion)
+    for _ in range(1, blocks):
+        layers.append(block(self.inplanes, planes, norm_layer=norm_layer, pyconv_kernels=pyconv_kernels, pyconv_groups=pyconv_groups))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 90:------------------- similar code ------------------ index = 177, score = 6.0 
+def _make_level(self, block, inplanes, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (inplanes != planes)):
+        downsample = nn.Sequential(nn.MaxPool2d(stride, stride=stride), nn.Conv2d(inplanes, planes, kernel_size=1, stride=1, bias=False), nn.BatchNorm2d(planes, momentum=BN_MOMENTUM))
+    layers = []
+    layers.append(block(inplanes, planes, stride, downsample=downsample))
+    for i in range(1, blocks):
+        layers.append(block(inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 91:------------------- similar code ------------------ index = 579, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 92:------------------- similar code ------------------ index = 583, score = 6.0 
+def _make_layer_slow(self, block, planes, blocks, shortcut_type, stride=1, head_conv=1):
+    downsample = None
+    if ((stride != 1) or ((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)) != (planes * block.expansion))):
+        if (shortcut_type == 'A'):
+            downsample = partial(downsample_basic_block, planes=(planes * block.expansion), stride=stride)
+        else:
+            downsample = nn.Sequential(nn.Conv3d((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)), (planes * block.expansion), kernel_size=1, stride=(1, stride, stride), bias=False))
+    layers = []
+    layers.append(block((self.slow_inplanes + (int((self.slow_inplanes * self.beta)) * 2)), planes, stride, downsample, head_conv=head_conv))
+    self.slow_inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.slow_inplanes, planes, head_conv=head_conv))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+        if:        else:
+             ...  =  ... .Sequential
+    return nn
+
+idx = 93:------------------- similar code ------------------ index = 589, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != planes)):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, planes, kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d(planes))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = planes
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 94:------------------- similar code ------------------ index = 162, score = 6.0 
+def _make_layer(self, block, planes, blocks, groups, reduction, stride=1, downsample_kernel_size=1, downsample_padding=0):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=downsample_kernel_size, stride=stride, padding=downsample_padding, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, groups, reduction, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes, groups, reduction))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 95:------------------- similar code ------------------ index = 238, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 96:------------------- similar code ------------------ index = 483, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 97:------------------- similar code ------------------ index = 372, score = 6.0 
+def _make_layer_face(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes_face != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes_face, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes_face, planes, stride, downsample))
+    self.inplanes_face = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes_face, planes))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 98:------------------- similar code ------------------ index = 376, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1, dilation=1, multi_grid=1, bn_momentum=0.0003, BatchNorm2d=nn.BatchNorm2d):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), BatchNorm2d((planes * block.expansion), affine=True, momentum=bn_momentum))
+    layers = []
+    generate_multi_grid = (lambda index, grids: (grids[(index % len(grids))] if isinstance(grids, tuple) else 1))
+    layers.append(block(self.inplanes, planes, stride, dilation=dilation, downsample=downsample, multi_grid=generate_multi_grid(0, multi_grid), bn_momentum=bn_momentum, BatchNorm2d=BatchNorm2d))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes, dilation=dilation, multi_grid=generate_multi_grid(i, multi_grid), bn_momentum=bn_momentum, BatchNorm2d=BatchNorm2d))
+    return nn.Sequential(*layers)
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+    if:
+         ...  =  ... .Sequential
+    return nn
+
+idx = 99:------------------- similar code ------------------ index = 316, score = 6.0 
+def _make_layer(self, block, planes, blocks, stride=1):
+    downsample = None
+    if ((stride != 1) or (self.inplanes != (planes * block.expansion))):
+        downsample = nn.Sequential(nn.Conv2d(self.inplanes, (planes * block.expansion), kernel_size=1, stride=stride, bias=False), nn.BatchNorm2d((planes * block.expansion)))
+    layers = []
+    layers.append(block(self.inplanes, planes, stride, downsample))
+    self.inplanes = (planes * block.expansion)
+    for i in range(1, blocks):
+        layers.append(block(self.inplanes, planes))
     return nn.Sequential(*layers)
 
 ------------------- similar code (pruned) ------------------ score = 0.35714285714285715 

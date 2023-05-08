@@ -1,60 +1,554 @@
 ------------------------- example 1 ------------------------ 
 def find_all(self):
     for row in self.jsondata:
-// your code ...
-
+        (yield self._infofromdict(row))
 
 ------------------------- example 2 ------------------------ 
-@homely.command()
-@option('--pause', is_flag=True, help='Pause automatic updates. This can be useful while you are working on your HOMELY.py script')
-@option('--unpause', is_flag=True, help='Un-pause automatic updates')
-@option('--outfile', is_flag=True, help="Prints the _path_ of the file containing the output of the previous 'homely update' run that was initiated by autoupdate.")
-@option('--daemon', is_flag=True, help="Starts a 'homely update' daemon process, as long as it hasn't been run too recently")
+def find_all(self, pattern):
+    '\n        Return the subset of this RcParams dictionary whose keys match,\n        using :func:`re.search`, the given ``pattern``.\n\n        .. note::\n\n            Changes to the returned dictionary are *not* propagated to\n            the parent RcParams dictionary.\n\n        '
 // your code ...
-
-@_globals
-def autoupdate(**kwargs):
-    options = ('pause', 'unpause', 'outfile', 'daemon', 'clear')
-// your code ...
-
-    mkcfgdir()
-    if (action == 'pause'):
-// your code ...
-
-    if (status == UpdateStatus.FAILED):
-        print("Can't start daemon - previous update failed")
-        sys.exit(1)
-    if (status == UpdateStatus.PAUSED):
-        print("Can't start daemon - updates are paused")
-        sys.exit(1)
-    if (status == UpdateStatus.RUNNING):
-// your code ...
-
-    with daemon.DaemonContext(), open(OUTFILE, 'w') as f:
-        try:
-            from homely._ui import setstreams
-// your code ...
-
-            cfg = RepoListConfig()
-            run_update(list(cfg.find_all()), pullfirst=True, quick=False, cancleanup=True)
-        except Exception:
-// your code ...
-
+    return RcParams(((key, value) for (key, value) in self.items() if pattern_re.search(key)))
 
 ------------------------- example 3 ------------------------ 
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if (start == (- 1)):
+// your code ...
+
+------------------------- example 4 ------------------------ 
+def find_feeds(url, check_all=False, user_agent=None, timeout=None):
+    finder = FeedFinder(user_agent=user_agent, timeout=timeout)
+// your code ...
+    tree = BeautifulSoup(text, 'html.parser')
+    links = []
+    for link in tree.find_all('link'):
+// your code ...
+
+------------------------- example 5 ------------------------ 
+def visit_For(self, node, frame):
+    loop_frame = frame.inner()
+// your code ...
+    if node.test:
+        loop_filter_func = self.temporary_identifier()
+        test_frame.symbols.analyze_node(node, for_branch='test')
+        self.writeline(('%s(fiter):' % self.func(loop_filter_func)), node.test)
+        self.indent()
+        self.enter_frame(test_frame)
+        self.writeline(((self.environment.is_async and 'async for ') or 'for '))
+        self.visit(node.target, loop_frame)
+        self.write(' in ')
+        self.write(((self.environment.is_async and 'auto_aiter(fiter)') or 'fiter'))
+        self.write(':')
+        self.indent()
+        self.writeline('if ', node.test)
+        self.visit(node.test, test_frame)
+        self.write(':')
+        self.indent()
+        self.writeline('yield ')
+// your code ...
+    if node.recursive:
+        self.writeline(('%s(reciter, loop_render_func, depth=0):' % self.func('loop')), node)
+        self.indent()
+// your code ...
+    if extended_loop:
+// your code ...
+    for name in node.find_all(nodes.Name):
+        if ((name.ctx == 'store') and (name.name == 'loop')):
+            self.fail("Can't assign to special loop variable in for-loop target", name.lineno)
+    if node.else_:
+        iteration_indicator = self.temporary_identifier()
+        self.writeline(('%s = 1' % iteration_indicator))
+    self.writeline(((self.environment.is_async and 'async for ') or 'for '), node)
+// your code ...
+    if node.recursive:
+// your code ...
+    else:
+        if (self.environment.is_async and (not extended_loop)):
+// your code ...
+        if (self.environment.is_async and (not extended_loop)):
+// your code ...
+    if node.test:
+// your code ...
+    if node.recursive:
+        self.return_buffer_contents(loop_frame)
+// your code ...
+        if self.environment.is_async:
+// your code ...
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          4           ||        3         ||         0        ||        0.3333333333333333         
+example2  ||          3           ||        3         ||         1        ||        0.3333333333333333         
+example3  ||          2           ||        5         ||         1        ||        0.4         
+example4  ||          5           ||        5         ||         2        ||        0.6         
+example5  ||          3           ||        38         ||         11        ||        0.02631578947368421         
+
+avg       ||          2.5           ||        10.8         ||         3.0        ||         33.85964912280702        
+
+idx = 0:------------------- similar code ------------------ index = 106, score = 2.0 
+def find_all(self):
+    for row in self.jsondata:
+        (yield self._infofromdict(row))
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all( ... ):
+idx = 1:------------------- similar code ------------------ index = 125, score = 2.0 
+def find_all(self):
+    'Return all items.'
+    return self.find('all')
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all( ... ):
+idx = 2:------------------- similar code ------------------ index = 29, score = 2.0 
+def find_all(self, pattern):
+    '\n        Return the subset of this RcParams dictionary whose keys match,\n        using :func:`re.search`, the given ``pattern``.\n\n        .. note::\n\n            Changes to the returned dictionary are *not* propagated to\n            the parent RcParams dictionary.\n\n        '
+    pattern_re = re.compile(pattern)
+    return RcParams(((key, value) for (key, value) in self.items() if pattern_re.search(key)))
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 3:------------------- similar code ------------------ index = 111, score = 2.0 
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if (start == (- 1)):
+            return
+        (yield start)
+        start += len(sub)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 4:------------------- similar code ------------------ index = 90, score = 2.0 
+def find_all(self):
+    'Find all occurances.'
+    self.find(self.last_find, True)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all( ... ):
+idx = 5:------------------- similar code ------------------ index = 18, score = 2.0 
+def find_all(self, sub, ignore_case=False):
+    '\n        Find all occurrences of the substring. Return a list of absolute\n        positions in the document.\n        '
+    flags = (re.IGNORECASE if ignore_case else 0)
+    return [a.start() for a in re.finditer(re.escape(sub), self.text, flags)]
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 6:------------------- similar code ------------------ index = 104, score = 2.0 
+def find_all(self, node_type):
+    'Find all the nodes of a given type.  If the type is a tuple,\n        the check is performed for any of the tuple items.\n        '
+    for child in self.iter_child_nodes():
+        if isinstance(child, node_type):
+            (yield child)
+        for result in child.find_all(node_type):
+            (yield result)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def find_all():
+idx = 7:------------------- similar code ------------------ index = 41, score = 2.0 
+@staticmethod
+def find_all():
+    return [RSVP(**doc) for doc in db.rsvpdata.find()]
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def find_all():
+idx = 8:------------------- similar code ------------------ index = 43, score = 2.0 
+@classmethod
+def find_all(cls):
+    for v1 in cls.namespace.values():
+        for v2 in v1.values():
+            (yield v2)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def find_all( ... ):
+idx = 9:------------------- similar code ------------------ index = 48, score = 1.0 
+def find_feeds(url, check_all=False, user_agent=None, timeout=None):
+    finder = FeedFinder(user_agent=user_agent, timeout=timeout)
+    url = coerce_url(url)
+    text = finder.get_feed(url)
+    if (text is None):
+        return []
+    if finder.is_feed_data(text):
+        return [url]
+    logging.info('Looking for <link> tags.')
+    tree = BeautifulSoup(text, 'html.parser')
+    links = []
+    for link in tree.find_all('link'):
+        if (link.get('type') in ['application/rss+xml', 'text/xml', 'application/atom+xml', 'application/x.atom+xml', 'application/x-atom+xml']):
+            links.append(urlparse.urljoin(url, link.get('href', '')))
+    urls = list(filter(finder.is_feed, links))
+    logging.info('Found {0} feed <link> tags.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    logging.info('Looking for <a> tags.')
+    (local, remote) = ([], [])
+    for a in tree.find_all('a'):
+        href = a.get('href', None)
+        if (href is None):
+            continue
+        if (('://' not in href) and finder.is_feed_url(href)):
+            local.append(href)
+        if finder.is_feedlike_url(href):
+            remote.append(href)
+    local = [urlparse.urljoin(url, l) for l in local]
+    urls += list(filter(finder.is_feed, local))
+    logging.info('Found {0} local <a> links to feeds.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    remote = [urlparse.urljoin(url, l) for l in remote]
+    urls += list(filter(finder.is_feed, remote))
+    logging.info('Found {0} remote <a> links to feeds.'.format(len(urls)))
+    if (len(urls) and (not check_all)):
+        return sort_urls(urls)
+    fns = ['atom.xml', 'index.atom', 'index.rdf', 'rss.xml', 'index.xml', 'index.rss']
+    urls += list(filter(finder.is_feed, [urlparse.urljoin(url, f) for f in fns]))
+    return sort_urls(urls)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 10:------------------- similar code ------------------ index = 38, score = 1.0 
+def recipeToJSON(browser, recipeID):
+    html = browser.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    recipe = {}
+    recipe['id'] = recipeID
+    recipe['language'] = soup.select_one('html').attrs['lang']
+    recipe['title'] = soup.select_one('.recipe-card__title').text
+    recipe['rating_count'] = re.sub('\\D', '', soup.select_one('.core-rating__label').text, flags=re.IGNORECASE)
+    recipe['rating_score'] = soup.select_one('.core-rating__counter').text
+    recipe['tm-versions'] = [v.text.replace('\n', '').strip().lower() for v in soup.select('.recipe-card__tm-version core-badge')]
+    recipe.update({l.text: l.next_sibling.strip() for l in soup.select('core-feature-icons label span')})
+    recipe['ingredients'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#ingredients li')]
+    recipe['nutritions'] = {}
+    for item in list(zip(soup.select('.nutritions dl')[0].find_all('dt'), soup.select('.nutritions dl')[0].find_all('dd'))):
+        (dt, dl) = item
+        recipe['nutritions'].update({dt.string.replace('\n', '').strip().lower(): re.sub('\\s{2,}', ' ', dl.string.replace('\n', '').strip().lower())})
+    recipe['steps'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#preparation-steps li')]
+    recipe['tags'] = [a.text.replace('#', '').replace('\n', '').strip().lower() for a in soup.select('.core-tags-wrapper__tags-container a')]
+    return recipe
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... ( ... ( ... .find_all,)):
+idx = 11:------------------- similar code ------------------ index = 39, score = 1.0 
+@homely.command()
+@option('--format', '-f', default='%(repoid)s: %(localpath)s', help='Format string for the output, which will be passed through str.format(). You may use the following named replacements:\n%(repoid)s\n%(localpath)s\n%(canonical)s')
+@_globals
+def repolist(format):
+    cfg = RepoListConfig()
+    for info in cfg.find_all():
+        vars_ = dict(repoid=info.repoid, localpath=info.localrepo.repo_path, canonical=(info.canonicalrepo.repo_path if info.canonicalrepo else ''))
+        print((format % vars_))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all():
+idx = 12:------------------- similar code ------------------ index = 75, score = 1.0 
+def _rescale(self, xscalefactor, yscalefactor):
+    items = self.cv.find_all()
+    for item in items:
+        coordinates = list(self.cv.coords(item))
+        newcoordlist = []
+        while coordinates:
+            (x, y) = coordinates[:2]
+            newcoordlist.append((x * xscalefactor))
+            newcoordlist.append((y * yscalefactor))
+            coordinates = coordinates[2:]
+        self.cv.coords(item, *newcoordlist)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all()
+
+idx = 13:------------------- similar code ------------------ index = 42, score = 1.0 
+def get_src_rpm_filename(url, src_version):
+    try:
+        response = requests.get(url, timeout=5)
+    except Exception as e:
+        logger.error(e)
+        sys.exit(1)
+    if response.ok:
+        response_text = response.text
+        soup = BeautifulSoup(response_text, 'html.parser')
+        for node in soup.find_all('a'):
+            if (node.get('href').endswith('rpm') and ('nginx-{}-'.format(src_version) in node.get('href'))):
+                file_name = node.get('href')
+    elif (400 <= response.status_code < 500):
+        logger.error(u'{} Client Error: {} for url: {}'.format(response.status_code, response.reason, url))
+        sys.exit(1)
+    elif (500 <= response.status_code < 600):
+        logger.error(u'{} Server Error: {} for url: {}'.format(response.status_code, response.reason, url))
+        sys.exit(1)
+    if ('file_name' in locals()):
+        return file_name
+    else:
+        logger.error('Cannot find nginx source rpm(SRPM) with version {} in url {}'.format(src_version, url))
+        sys.exit(1)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        for  ...  in  ... .find_all:
+idx = 14:------------------- similar code ------------------ index = 72, score = 1.0 
+def visit_For(self, node, frame):
+    loop_frame = frame.inner()
+    test_frame = frame.inner()
+    else_frame = frame.inner()
+    extended_loop = (node.recursive or ('loop' in find_undeclared(node.iter_child_nodes(only=('body',)), ('loop',))))
+    loop_ref = None
+    if extended_loop:
+        loop_ref = loop_frame.symbols.declare_parameter('loop')
+    loop_frame.symbols.analyze_node(node, for_branch='body')
+    if node.else_:
+        else_frame.symbols.analyze_node(node, for_branch='else')
+    if node.test:
+        loop_filter_func = self.temporary_identifier()
+        test_frame.symbols.analyze_node(node, for_branch='test')
+        self.writeline(('%s(fiter):' % self.func(loop_filter_func)), node.test)
+        self.indent()
+        self.enter_frame(test_frame)
+        self.writeline(((self.environment.is_async and 'async for ') or 'for '))
+        self.visit(node.target, loop_frame)
+        self.write(' in ')
+        self.write(((self.environment.is_async and 'auto_aiter(fiter)') or 'fiter'))
+        self.write(':')
+        self.indent()
+        self.writeline('if ', node.test)
+        self.visit(node.test, test_frame)
+        self.write(':')
+        self.indent()
+        self.writeline('yield ')
+        self.visit(node.target, loop_frame)
+        self.outdent(3)
+        self.leave_frame(test_frame, with_python_scope=True)
+    if node.recursive:
+        self.writeline(('%s(reciter, loop_render_func, depth=0):' % self.func('loop')), node)
+        self.indent()
+        self.buffer(loop_frame)
+        else_frame.buffer = loop_frame.buffer
+    if extended_loop:
+        self.writeline(('%s = missing' % loop_ref))
+    for name in node.find_all(nodes.Name):
+        if ((name.ctx == 'store') and (name.name == 'loop')):
+            self.fail("Can't assign to special loop variable in for-loop target", name.lineno)
+    if node.else_:
+        iteration_indicator = self.temporary_identifier()
+        self.writeline(('%s = 1' % iteration_indicator))
+    self.writeline(((self.environment.is_async and 'async for ') or 'for '), node)
+    self.visit(node.target, loop_frame)
+    if extended_loop:
+        if self.environment.is_async:
+            self.write((', %s in await make_async_loop_context(' % loop_ref))
+        else:
+            self.write((', %s in LoopContext(' % loop_ref))
+    else:
+        self.write(' in ')
+    if node.test:
+        self.write(('%s(' % loop_filter_func))
+    if node.recursive:
+        self.write('reciter')
+    else:
+        if (self.environment.is_async and (not extended_loop)):
+            self.write('auto_aiter(')
+        self.visit(node.iter, frame)
+        if (self.environment.is_async and (not extended_loop)):
+            self.write(')')
+    if node.test:
+        self.write(')')
+    if node.recursive:
+        self.write(', undefined, loop_render_func, depth):')
+    else:
+        self.write(((extended_loop and ', undefined):') or ':'))
+    self.indent()
+    self.enter_frame(loop_frame)
+    self.blockvisit(node.body, loop_frame)
+    if node.else_:
+        self.writeline(('%s = 0' % iteration_indicator))
+    self.outdent()
+    self.leave_frame(loop_frame, with_python_scope=(node.recursive and (not node.else_)))
+    if node.else_:
+        self.writeline(('if %s:' % iteration_indicator))
+        self.indent()
+        self.enter_frame(else_frame)
+        self.blockvisit(node.else_, else_frame)
+        self.leave_frame(else_frame)
+        self.outdent()
+    if node.recursive:
+        self.return_buffer_contents(loop_frame)
+        self.outdent()
+        self.start_write(frame, node)
+        if self.environment.is_async:
+            self.write('await ')
+        self.write('loop(')
+        if self.environment.is_async:
+            self.write('auto_aiter(')
+        self.visit(node.iter, frame)
+        if self.environment.is_async:
+            self.write(')')
+        self.write(', loop)')
+        self.end_write(frame)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 15:------------------- similar code ------------------ index = 65, score = 1.0 
+def find_highlighted_idxs(soup, tag='em') -> tuple:
+    'Finds indexes of the parts of the soup surrounded by a particular HTML tag\n            relatively to the soup without the tag.\n\n            Example:\n                soup = BeautifulSoup("<em>This</em> is <em>a sample</em> string")\n                tag = "em"\n                Returns: [(0, 4), (8, 16)]\n\n            Args:\n                soup: The BeautifulSoup\'s soup.\n                tag: The HTML tag, which surrounds the parts of the soup.\n\n            Returns:\n                  A list of the tuples, which contain start and end indexes of the soup parts,\n                  surrounded by tags.\n\n            '
+    (cur, idxs) = (0, [])
+    for t in soup.find_all(text=True):
+        if (t.parent.name == tag):
+            idxs.append((cur, (cur + len(t))))
+        cur += len(t)
+    return tuple(idxs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->  ... :
+    for  ...  in  ... .find_all:
+idx = 16:------------------- similar code ------------------ index = 64, score = 1.0 
+@classmethod
+def find(cls, node1, node2=None):
+    if ((node1 is None) and (node2 is None)):
+        return cls.find_all()
+    elif isinstance(node1, NodeGroup):
+        edges = cls.find(None, node2)
+        edges = (e for e in edges if e.node1.group.is_parent(node1))
+        return [e for e in edges if (not e.node2.group.is_parent(node1))]
+    elif isinstance(node2, NodeGroup):
+        edges = cls.find(node1, None)
+        edges = (e for e in edges if e.node2.group.is_parent(node2))
+        return [e for e in edges if (not e.node1.group.is_parent(node2))]
+    elif (node1 is None):
+        return [e for e in cls.find_all() if (e.node2 == node2)]
+    else:
+        if (node1 not in cls.namespace):
+            return []
+        if (node2 is None):
+            return cls.namespace[node1].values()
+        if (node2 not in cls.namespace[node1]):
+            return []
+    return cls.namespace[node1][node2]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        return  ... .find_all()
+
+idx = 17:------------------- similar code ------------------ index = 45, score = 1.0 
+def strip_html(html):
+    'Strip all tags from an HTML string.'
+    soup = BeautifulSoup(html, features='html.parser')
+    for br in soup.find_all('br'):
+        br.replace_with(('\n' + br.text))
+    return soup.text
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 18:------------------- similar code ------------------ index = 47, score = 1.0 
+def fritzbox_query(searched_macs, ignored_macs):
+    config = configparser.ConfigParser()
+    config.read(os.path.join(settings.BASE_DIR, 'config.ini'))
+    ip = config['FritzBox']['ip']
+    password = config['FritzBox']['password']
+    if ((not ip) or (not password)):
+        raise FritzException('ip or password not specified')
+    box = FritzBox(ip, None, password)
+    try:
+        box.login()
+    except Exception:
+        raise FritzException('Login failed')
+    r = box.session.get((box.base_url + '/net/network_user_devices.lua'), params={'sid': box.sid})
+    try:
+        table = BeautifulSoup(r.text, 'lxml').find(id='uiLanActive')
+    except AttributeError:
+        raise FritzException('Could not extract active devices.')
+    rows = table.find_all('tr')
+    present_macs = []
+    anonymous_count = 0
+    for row in rows:
+        columns = row.find_all('td')
+        if (len(columns) >= 4):
+            mac = columns[3].text.upper()
+            if (mac in searched_macs):
+                present_macs.append(mac)
+            elif (mac not in ignored_macs):
+                anonymous_count += 1
+    return (present_macs, anonymous_count)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 19:------------------- similar code ------------------ index = 61, score = 1.0 
 def _parse_tbody_tr(self, table):
     from_tbody = table.select('tbody tr')
     from_root = table.find_all('tr', recursive=False)
     return (from_tbody + from_root)
 
-------------------------- example 4 ------------------------ 
-def test_new(self):
-    RSVP = rsvp.RSVP
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
 
-    assert (len(RSVP.find_all()) == 1)
+idx = 20:------------------- similar code ------------------ index = 62, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Agora HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find_all('div', class_='topnav-element'):
+                    cats = html_soup.find_all('div', class_='topnav-element')
+                    for category in cats:
+                        if category.find('a'):
+                            categories.append(category.find('a').text)
+                    if html_soup.find_all('tr', class_='products-list-item'):
+                        products = html_soup.find_all('tr', class_='products-list-item')
+                        for row in products:
+                            image_id = ''
+                            if row.find('td', style='text-align: center;'):
+                                if row.find('td', style='text-align: center;').find('img'):
+                                    image_id = str(row.find('td', style='text-align: center;').find('img')['src'])
+                            if row.find('td', class_='column-name'):
+                                if row.find('td', class_='column-name').a:
+                                    product_name = str(row.find('td', class_='column-name').a.text).strip()
+                                    desc = ''
+                                    if row.find('td', class_='column-name').span:
+                                        desc = row.find('td', class_='column-name').span.text.strip()
+                                    if row.find_next('td').find_next('td').find_next('td'):
+                                        price_text = row.find_next('td').find_next('td').find_next('td').text
+                                        if (' BTC' in price_text):
+                                            price = price_text.split(' ')[0]
+                                            (ship_to, ship_from) = ('', '')
+                                            if row.find('td', style='white-space: nowrap;'):
+                                                shipping = row.find('td', style='white-space: nowrap;')
+                                                if (shipping.find('img', class_='flag-img') and shipping.find('i', class_='fa fa-truck') and shipping.find('i', class_='fa fa-truck').next_sibling):
+                                                    ship_from = shipping.find('i', class_='fa fa-truck').next_sibling.next_sibling
+                                                if shipping.find('i', class_='fa fa-home'):
+                                                    ship_to = str(shipping.find('i', class_='fa fa-home').next_sibling).strip().split(' ')[(- 1)]
+                                            vendor = ''
+                                            if row.find('a', class_='gen-user-link'):
+                                                vendor = str(row.find('a', class_='gen-user-link').next_sibling)
+                                            categories_str = str('/'.join(categories))
+                                            items.append(('agora', product_name, float(price), categories_str, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
 
-------------------------- example 5 ------------------------ 
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                if  ... .find_all:
+idx = 21:------------------- similar code ------------------ index = 51, score = 1.0 
 def process_patent_html(self, soup):
     ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
     try:
@@ -123,88 +617,157 @@ def process_patent_html(self, soup):
             abstract_text = abstract['content']
     return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        3         ||         1        
-example2  ||          2           ||        29         ||         6        
-example3  ||          2           ||        4         ||         0        
-example4  ||          2           ||        4         ||         1        
-example5  ||          2           ||        67         ||         0        
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [ for  ...  in  ... .find_all]
 
-avg       ||          2.0           ||        21.4         ||         1.6        
+idx = 22:------------------- similar code ------------------ index = 54, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Pandora HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find('div', id='content'):
+                    content = html_soup.find('div', id='content')
+                    if html_soup.find('table', class_='width70'):
+                        product_name = ''
+                        image_id = ''
+                        vendor = ''
+                        price = ''
+                        ship_from = ''
+                        ship_to = ''
+                        table = html_soup.find('table', class_='width100')
+                        for row in table.find_all('tr'):
+                            if row.find('th', colspan='2'):
+                                product_name = row.find('th', colspan='2').text
+                            elif row.find('td', rowspan='6'):
+                                image_id = row.find('td', rowspan='6').find('img')['src']
+                                if (row.td.find_next('td').text == 'Seller:'):
+                                    vendor = row.td.find_next('td').find_next('td')
+                                    vendor = vendor.find('a').text
+                            elif row.td:
+                                if (row.td.text == 'Price:'):
+                                    if row.td.find_next('td').text.find('฿'):
+                                        price = row.td.find_next('td').text.split('฿')[1].split(' ')[0]
+                                elif (row.td.text == 'Shipping from:'):
+                                    shipping_from = row.td.find_next('td').text
+                                elif (row.td.text == 'Shipping to:'):
+                                    shipping_to = row.td.find_next('td').text
+                        desc = ''
+                        if html_soup.find('pre'):
+                            desc = html_soup.find('pre').text
+                        if (product_name and price):
+                            items.append(('pandora', product_name, float(price), '', vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
 
-idx = 0:------------------- similar code ------------------ index = 35, score = 2.0 
-def find_all(a_str, sub):
-    start = 0
-    while True:
-        start = a_str.find(sub, start)
-        if (start == (- 1)):
-            return
-        (yield start)
-        start += len(sub)
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                if:
+                    if:
+                        for  ...  in  ... .find_all:
+idx = 23:------------------- similar code ------------------ index = 56, score = 1.0 
+def gen_adaptor(mission):
+    r = requests.get(url, params={'mission': mission})
+    if (r.status_code != requests.codes.ok):
+        r.raise_for_status()
+    tree = BeautifulSoup(r.content)
+    table_body = tree.find_all('tbody')
+    assert (table_body is not None)
+    for row in table_body[0].find_all('tr'):
+        (short_name, long_name, desc, ex, t) = row.find_all('td')
+        print('"{0}": ("{1}", {2}),'.format(long_name.text.strip(), short_name.text.strip(), types[t.text.strip()]))
 
-------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
-def find_all():
-idx = 1:------------------- similar code ------------------ index = 34, score = 2.0 
-def find_all(self):
-    for row in self.jsondata:
-        (yield self._infofromdict(row))
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .find_all
 
-------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
-def find_all( ... ):
-idx = 2:------------------- similar code ------------------ index = 6, score = 2.0 
-def find_all(self, pattern):
-    '\n        Return the subset of this RcParams dictionary whose keys match,\n        using :func:`re.search`, the given ``pattern``.\n\n        .. note::\n\n            Changes to the returned dictionary are *not* propagated to\n            the parent RcParams dictionary.\n\n        '
-    pattern_re = re.compile(pattern)
-    return RcParams(((key, value) for (key, value) in self.items() if pattern_re.search(key)))
-
-------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
-def find_all():
-idx = 3:------------------- similar code ------------------ index = 13, score = 2.0 
-@staticmethod
-def find_all():
-    return [RSVP(**doc) for doc in db.rsvpdata.find()]
-
-------------------- similar code (pruned) ------------------ score = 0.5 
-def find_all():
-idx = 4:------------------- similar code ------------------ index = 14, score = 2.0 
-@classmethod
-def find_all(cls):
-    for v1 in cls.namespace.values():
-        for v2 in v1.values():
-            (yield v2)
-
-------------------- similar code (pruned) ------------------ score = 0.5 
-def find_all( ... ):
-idx = 5:------------------- similar code ------------------ index = 19, score = 1.0 
-@classmethod
-def find(cls, node1, node2=None):
-    if ((node1 is None) and (node2 is None)):
-        return cls.find_all()
-    elif isinstance(node1, NodeGroup):
-        edges = cls.find(None, node2)
-        edges = (e for e in edges if e.node1.group.is_parent(node1))
-        return [e for e in edges if (not e.node2.group.is_parent(node1))]
-    elif isinstance(node2, NodeGroup):
-        edges = cls.find(node1, None)
-        edges = (e for e in edges if e.node2.group.is_parent(node2))
-        return [e for e in edges if (not e.node1.group.is_parent(node2))]
-    elif (node1 is None):
-        return [e for e in cls.find_all() if (e.node2 == node2)]
-    else:
-        if (node1 not in cls.namespace):
-            return []
-        if (node2 is None):
-            return cls.namespace[node1].values()
-        if (node2 not in cls.namespace[node1]):
-            return []
-    return cls.namespace[node1][node2]
+idx = 24:------------------- similar code ------------------ index = 35, score = 1.0 
+def process_patent_html(self, soup):
+    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
+    try:
+        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
+    except:
+        inventor_name = []
+    try:
+        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
+    except:
+        assignee_name_orig = []
+    try:
+        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
+    except:
+        assignee_name_current = []
+    try:
+        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
+    except:
+        pub_date = ''
+    try:
+        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
+    except:
+        application_number = ''
+    try:
+        filing_date = soup.find('dd', itemprop='filingDate').get_text()
+    except:
+        filing_date = ''
+    list_of_application_events = soup.find_all('dd', itemprop='events')
+    priority_date = ''
+    grant_date = ''
+    for app_event in list_of_application_events:
+        try:
+            title_info = app_event.find('span', itemprop='type').get_text()
+            timeevent = app_event.find('time', itemprop='date').get_text()
+            if (title_info == 'priority'):
+                priority_date = timeevent
+            if (title_info == 'granted'):
+                grant_date = timeevent
+            if ((title_info == 'publication') and (pub_date == '')):
+                pub_date = timeevent
+        except:
+            continue
+    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
+    forward_cites_no_family = []
+    if (len(found_forward_cites_orig) > 0):
+        for citation in found_forward_cites_orig:
+            forward_cites_no_family.append(self.parse_citation(citation))
+    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
+    forward_cites_yes_family = []
+    if (len(found_forward_cites_family) > 0):
+        for citation in found_forward_cites_family:
+            forward_cites_yes_family.append(self.parse_citation(citation))
+    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
+    backward_cites_no_family = []
+    if (len(found_backward_cites_orig) > 0):
+        for citation in found_backward_cites_orig:
+            backward_cites_no_family.append(self.parse_citation(citation))
+    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
+    backward_cites_yes_family = []
+    if (len(found_backward_cites_family) > 0):
+        for citation in found_backward_cites_family:
+            backward_cites_yes_family.append(self.parse_citation(citation))
+    abstract_text = ''
+    if self.return_abstract:
+        abstract = soup.find('meta', attrs={'name': 'DC.description'})
+        if abstract:
+            abstract_text = abstract['content']
+    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    if:
-        return  ... .find_all()
+    try:
+         ...  = [ for  ...  in  ... .find_all]
 
-idx = 6:------------------- similar code ------------------ index = 18, score = 1.0 
+idx = 25:------------------- similar code ------------------ index = 63, score = 1.0 
 @homely.command()
 @option('--pause', is_flag=True, help='Pause automatic updates. This can be useful while you are working on your HOMELY.py script')
 @option('--unpause', is_flag=True, help='Un-pause automatic updates')
@@ -275,17 +838,7 @@ def  ... ():
         try:
              ... ( ... ( ... .find_all()),,,)
 
-idx = 7:------------------- similar code ------------------ index = 17, score = 1.0 
-def _parse_tbody_tr(self, table):
-    from_tbody = table.select('tbody tr')
-    from_root = table.find_all('tr', recursive=False)
-    return (from_tbody + from_root)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... .find_all
-
-idx = 8:------------------- similar code ------------------ index = 16, score = 1.0 
+idx = 26:------------------- similar code ------------------ index = 57, score = 1.0 
 def test_new(self):
     RSVP = rsvp.RSVP
     doc = RSVP.new('test name', 'test@example.com')
@@ -299,81 +852,118 @@ def test_new(self):
 def  ... ( ... ):
     assert ( ... ( ... .find_all()) ==  ... )
 
-idx = 9:------------------- similar code ------------------ index = 15, score = 1.0 
-def process_patent_html(self, soup):
-    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
-    try:
-        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
-    except:
-        inventor_name = []
-    try:
-        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
-    except:
-        assignee_name_orig = []
-    try:
-        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
-    except:
-        assignee_name_current = []
-    try:
-        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
-    except:
-        pub_date = ''
-    try:
-        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
-    except:
-        application_number = ''
-    try:
-        filing_date = soup.find('dd', itemprop='filingDate').get_text()
-    except:
-        filing_date = ''
-    list_of_application_events = soup.find_all('dd', itemprop='events')
-    priority_date = ''
-    grant_date = ''
-    for app_event in list_of_application_events:
-        try:
-            title_info = app_event.find('span', itemprop='type').get_text()
-            timeevent = app_event.find('time', itemprop='date').get_text()
-            if (title_info == 'priority'):
-                priority_date = timeevent
-            if (title_info == 'granted'):
-                grant_date = timeevent
-            if ((title_info == 'publication') and (pub_date == '')):
-                pub_date = timeevent
-        except:
-            continue
-    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
-    forward_cites_no_family = []
-    if (len(found_forward_cites_orig) > 0):
-        for citation in found_forward_cites_orig:
-            forward_cites_no_family.append(self.parse_citation(citation))
-    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
-    forward_cites_yes_family = []
-    if (len(found_forward_cites_family) > 0):
-        for citation in found_forward_cites_family:
-            forward_cites_yes_family.append(self.parse_citation(citation))
-    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
-    backward_cites_no_family = []
-    if (len(found_backward_cites_orig) > 0):
-        for citation in found_backward_cites_orig:
-            backward_cites_no_family.append(self.parse_citation(citation))
-    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
-    backward_cites_yes_family = []
-    if (len(found_backward_cites_family) > 0):
-        for citation in found_backward_cites_family:
-            backward_cites_yes_family.append(self.parse_citation(citation))
-    abstract_text = ''
-    if self.return_abstract:
-        abstract = soup.find('meta', attrs={'name': 'DC.description'})
-        if abstract:
-            abstract_text = abstract['content']
-    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+idx = 27:------------------- similar code ------------------ index = 58, score = 1.0 
+def scrape_page(result, mediatype, mode=PSAMode.Full):
+    if (mediatype == PSAMedia.TVShow):
+        c = result.content
+        soup = BeautifulSoup(c, features='lxml')
+        entries = soup.find_all('div', 'entry-inner')
+        if (mode == PSAMode.Latest):
+            all_entries = []
+            end_of_list = False
+            search_string = entries[0].hr.next_sibling
+            while (not end_of_list):
+                if (search_string.name == 'hr'):
+                    end_of_list = True
+                elif (search_string != '\n'):
+                    all_entries.append(search_string)
+                search_string = search_string.next_sibling
+        elif ((mode == PSAMode.Full) or (mode == PSAMode.FHD) or (mode == PSAMode.HD)):
+            all_entries = entries[0].find_all('div', 'sp-wrap sp-wrap-steelblue')
+        else:
+            return None
+        return [(entry.find_all('div')[0].getText().strip(), entry) for entry in all_entries]
+    elif (mediatype == PSAMedia.Movie):
+        c = result.content
+        soup = BeautifulSoup(c, features='lxml')
+        entries = soup.find_all('div', 'entry-inner')
+        titles = [i.parent.getText().strip() for i in entries[0].find_all('span', attrs={'style': 'color: #ff0000;'})]
+        all_entries = entries[0].find_all('div', 'sp-wrap sp-wrap-steelblue')
+        valid = [entry for entry in all_entries if (entry.div.getText().strip() == 'Download')]
+        return [(titles[i], valid[i]) for i in range(len(valid))]
+    else:
+        return None
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    try:
-         ...  = [ for  ...  in  ... .find_all]
+    if:
+         ...  =  ... .find_all
+    else:
+        return None
 
-idx = 10:------------------- similar code ------------------ index = 44, score = 1.0 
+idx = 28:------------------- similar code ------------------ index = 59, score = 1.0 
+def inline_styles(self, soup):
+    for tag in soup.find_all('link'):
+        path = tag.get('href')
+        f = urllib.urlopen(path)
+        data = f.read()
+        f.close()
+        style = soup.new_tag('style')
+        style.string = data
+        tag.replace_with(style)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 29:------------------- similar code ------------------ index = 60, score = 1.0 
+def test_accepted_posts(monkeypatch):
+    '\n    Ensures that accepted_posts loops over each post summary.\n    '
+    post_soup_call_count = 0
+
+    def mock_get_post_summaries(*args):
+        '\n        Mocks the get_post_summaries function\n        '
+        html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+        post_summaries = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})
+        return [post_summaries]
+
+    def mock_post_soup(*args):
+        '\n        Mocks the post_soup function\n        '
+        nonlocal post_soup_call_count
+        post_soup_call_count += 1
+        return 'SOUP'
+    monkeypatch.setattr('autostack.so_web_scraper.get_post_summaries', mock_get_post_summaries)
+    monkeypatch.setattr('autostack.so_web_scraper.post_soup', mock_post_soup)
+    for post in accepted_posts(None):
+        pass
+    assert (post_soup_call_count == 15)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    def  ... ():
+         ...  =  ... .find_all
+
+idx = 30:------------------- similar code ------------------ index = 50, score = 1.0 
+def process_lines(self, lines):
+    '\n        Convert the given input into a list of SoupString rows\n        for further processing.\n        '
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        raise core.OptionalTableImportError('BeautifulSoup must be installed to read HTML tables')
+    if ('parser' not in self.html):
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*no parser was explicitly specified.*')
+            soup = BeautifulSoup('\n'.join(lines))
+    else:
+        soup = BeautifulSoup('\n'.join(lines), self.html['parser'])
+    tables = soup.find_all('table')
+    for (i, possible_table) in enumerate(tables):
+        if identify_table(possible_table, self.html, (i + 1)):
+            table = possible_table
+            break
+    else:
+        if isinstance(self.html['table_id'], int):
+            err_descr = 'number {}'.format(self.html['table_id'])
+        else:
+            err_descr = "id '{}'".format(self.html['table_id'])
+        raise core.InconsistentTableError(f'ERROR: HTML table {err_descr} not found')
+    soup_list = [SoupString(x) for x in table.find_all('tr')]
+    return soup_list
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 31:------------------- similar code ------------------ index = 134, score = 1.0 
 def _parse_td(self, row):
     return row.find_all(('td', 'th'), recursive=False)
 
@@ -381,147 +971,192 @@ def _parse_td(self, row):
 def  ... ():
     return  ... .find_all
 
-idx = 11:------------------- similar code ------------------ index = 25, score = 1.0 
-def _rescale(self, xscalefactor, yscalefactor):
-    items = self.cv.find_all()
-    for item in items:
-        coordinates = list(self.cv.coords(item))
-        newcoordlist = []
-        while coordinates:
-            (x, y) = coordinates[:2]
-            newcoordlist.append((x * xscalefactor))
-            newcoordlist.append((y * yscalefactor))
-            coordinates = coordinates[2:]
-        self.cv.coords(item, *newcoordlist)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... .find_all()
-
-idx = 12:------------------- similar code ------------------ index = 11, score = 1.0 
-@homely.command()
-@option('--format', '-f', default='%(repoid)s: %(localpath)s', help='Format string for the output, which will be passed through str.format(). You may use the following named replacements:\n%(repoid)s\n%(localpath)s\n%(canonical)s')
-@_globals
-def repolist(format):
-    cfg = RepoListConfig()
-    for info in cfg.find_all():
-        vars_ = dict(repoid=info.repoid, localpath=info.localrepo.repo_path, canonical=(info.canonicalrepo.repo_path if info.canonicalrepo else ''))
-        print((format % vars_))
+idx = 32:------------------- similar code ------------------ index = 33, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Evolution HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find('ol', class_='breadcrumb'):
+                    breadcrumb = html_soup.find('ol', class_='breadcrumb')
+                    cats = breadcrumb.find_all('li')
+                    for category in cats:
+                        categories.append(category.text)
+                image_id = ''
+                if (html_soup.find('div', class_='col-md-5') and html_soup.find('div', class_='col-md-5').find('a', class_='thumbnail')):
+                    image_id2 = html_soup.find('div', class_='col-md-5').find('a', class_='thumbnail').get('href')
+                    image_id = '/'.join(image_id2.split('/')[3:])
+                if html_soup.find('div', class_='col-md-7'):
+                    info_column = html_soup.find('div', class_='col-md-7')
+                    product_name = ''
+                    if info_column.h3:
+                        product_name = info_column.h3.text
+                    elif info_column.h1:
+                        product_name = info_column.h1.text
+                    elif info_column.h2:
+                        product_name = info_column.h2.text
+                    elif info_column.h4:
+                        product_name = info_column.h4.text
+                    if product_name:
+                        vendor = ''
+                        if (info_column.find('div', class_='seller-info text-muted') and info_column.find('div', class_='seller-info text-muted').find('a')):
+                            vendor2 = info_column.find('div', class_='seller-info text-muted')
+                            vendor = vendor2.find('a').text
+                        price = ''
+                        if info_column.find('h4', class_='text-info'):
+                            price2 = info_column.find('h4', class_='text-info').text
+                            price = price2.split(' ')[1]
+                        elif info_column.find('h3', class_='text-info'):
+                            price2 = info_column.find('h3', class_='text-info').text
+                            price = price2.split(' ')[1]
+                        if price:
+                            desc = ''
+                            if html_soup.find('div', class_='product-summary'):
+                                desc = html_soup.find('div', class_='product-summary').p.text
+                            ship_to = ''
+                            if (html_soup.find_all('div', class_='col-md-9') and (len(html_soup.find_all('div', class_='col-md-9')) > 1)):
+                                ship_to2 = html_soup.find_all('div', class_='col-md-9')[1]
+                                if (ship_to2.find_all('p') and (len(ship_to2.find_all('p')) > 1)):
+                                    ship_to = str(ship_to2.find_all('p')[1].text)
+                            ship_from = ''
+                            if html_soup.find('div', class_='widget'):
+                                widgets = html_soup.find_all('div', class_='widget')
+                                for widget in widgets:
+                                    if (widget.h3 and (widget.h3.text == 'Ships From')):
+                                        ship_from = widget.p.text
+                            categories_str = str('/'.join(categories))
+                            items.append(('evolution', product_name, float(price), categories_str, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
-    for  ...  in  ... .find_all():
-idx = 13:------------------- similar code ------------------ index = 10, score = 1.0 
-def recipeToJSON(browser, recipeID):
-    html = browser.page_source
-    soup = BeautifulSoup(html, 'html.parser')
-    recipe = {}
-    recipe['id'] = recipeID
-    recipe['language'] = soup.select_one('html').attrs['lang']
-    recipe['title'] = soup.select_one('.recipe-card__title').text
-    recipe['rating_count'] = re.sub('\\D', '', soup.select_one('.core-rating__label').text, flags=re.IGNORECASE)
-    recipe['rating_score'] = soup.select_one('.core-rating__counter').text
-    recipe['tm-versions'] = [v.text.replace('\n', '').strip().lower() for v in soup.select('.recipe-card__tm-version core-badge')]
-    recipe.update({l.text: l.next_sibling.strip() for l in soup.select('core-feature-icons label span')})
-    recipe['ingredients'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#ingredients li')]
-    recipe['nutritions'] = {}
-    for item in list(zip(soup.select('.nutritions dl')[0].find_all('dt'), soup.select('.nutritions dl')[0].find_all('dd'))):
-        (dt, dl) = item
-        recipe['nutritions'].update({dt.string.replace('\n', '').strip().lower(): re.sub('\\s{2,}', ' ', dl.string.replace('\n', '').strip().lower())})
-    recipe['steps'] = [re.sub(' +', ' ', li.text).replace('\n', '').strip() for li in soup.select('#preparation-steps li')]
-    recipe['tags'] = [a.text.replace('#', '').replace('\n', '').strip().lower() for a in soup.select('.core-tags-wrapper__tags-container a')]
-    return recipe
+    for  ...  in  ... :
+        if:
+            if:
+                if:
+                     ...  =  ... .find_all
+
+idx = 33:------------------- similar code ------------------ index = 16, score = 1.0 
+def get_temp_credentials(metadata_id, idp_host, ssh_args=None):
+    "\n    Use SAML SSO to get a set of credentials that can be used for API access to an AWS account.\n\n    Example:\n      from openshift_tools import saml_aws_creds\n      creds = saml_aws_creds.get_temp_credentials(\n          metadata_id='urn:amazon:webservices:123456789012',\n          idp_host='login.saml.example.com',\n          ssh_args=['-i', '/path/to/id_rsa', '-o', 'StrictHostKeyChecking=no'])\n\n      client = boto3.client(\n          'iam',\n          aws_access_key_id=creds['AccessKeyId'],\n          aws_secret_access_key=creds['SecretAccessKey'],\n          aws_session_token=creds['SessionToken'],\n          )\n    "
+    ssh_cmd = ['ssh', '-p', '2222', '-a', '-l', 'user', '-o', 'ProxyCommand=bash -c "exec openssl s_client -servername %h -connect %h:443 -quiet 2>/dev/null \\\n                   < <(echo -en \'CONNECT 127.0.0.1:%p HTTP/1.1\\r\\nHost: %h:443\\r\\n\\r\\n\'; cat -)"']
+    if ssh_args:
+        ssh_cmd.extend(ssh_args)
+    ssh_cmd.extend([idp_host, metadata_id])
+    ssh = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (html_saml_assertion, ssh_error) = ssh.communicate()
+    if (ssh.returncode != 0):
+        raise ValueError(('Error connecting to SAML IdP:\nSTDERR:\n' + ssh_error))
+    assertion = None
+    soup = BeautifulSoup(html_saml_assertion)
+    for inputtag in soup.find_all('input'):
+        if (inputtag.get('name') == 'SAMLResponse'):
+            assertion = inputtag.get('value')
+    if (not assertion):
+        error_msg = soup.find('div', {'id': 'content'})
+        if error_msg:
+            error_msg = error_msg.get_text()
+        else:
+            error_msg = html_saml_assertion
+        raise ValueError(('Error retrieving SAML token: ' + error_msg))
+    role = None
+    principal = None
+    xmlroot = ET.fromstring(base64.b64decode(assertion))
+    for saml2attribute in xmlroot.iter('{urn:oasis:names:tc:SAML:2.0:assertion}Attribute'):
+        if (saml2attribute.get('Name') == 'https://aws.amazon.com/SAML/Attributes/Role'):
+            for saml2attributevalue in saml2attribute.iter('{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue'):
+                (role, principal) = saml2attributevalue.text.split(',')
+    client = boto3.client('sts')
+    response = client.assume_role_with_saml(RoleArn=role, PrincipalArn=principal, SAMLAssertion=assertion)
+    if (not response['Credentials']):
+        raise ValueError('No Credentials returned')
+    return response['Credentials']
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    for  ...  in  ... ( ... ( ... .find_all,)):
-idx = 14:------------------- similar code ------------------ index = 8, score = 1.0 
-def process_patent_html(self, soup):
-    ' Parse patent html using BeautifulSoup module\n\n\n        Returns (variables returned in dictionary, following are key names): \n            - application_number        (str)   : application number\n            - inventor_name             (json)  : inventors of patent \n            - assignee_name_orig        (json)  : original assignees to patent\n            - assignee_name_current     (json)  : current assignees to patent\n            - pub_date                  (str)   : publication date\n            - filing_date               (str)   : filing date\n            - priority_date             (str)   : priority date\n            - grant_date                (str)   : grant date\n            - forward_cites_no_family   (json)  : forward citations that are not family-to-family cites\n            - forward_cites_yes_family  (json)  : forward citations that are family-to-family cites\n            - backward_cites_no_family  (json)  : backward citations that are not family-to-family cites\n            - backward_cites_yes_family (json)  : backward citations that are family-to-family cites\n\n        Inputs:\n            - soup (str) : html string from of google patent html\n            \n\n        '
-    try:
-        inventor_name = [{'inventor_name': x.get_text()} for x in soup.find_all('dd', itemprop='inventor')]
-    except:
-        inventor_name = []
-    try:
-        assignee_name_orig = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeOriginal')]
-    except:
-        assignee_name_orig = []
-    try:
-        assignee_name_current = [{'assignee_name': x.get_text()} for x in soup.find_all('dd', itemprop='assigneeCurrent')]
-    except:
-        assignee_name_current = []
-    try:
-        pub_date = soup.find('dd', itemprop='publicationDate').get_text()
-    except:
-        pub_date = ''
-    try:
-        application_number = soup.find('dd', itemprop='applicationNumber').get_text()
-    except:
-        application_number = ''
-    try:
-        filing_date = soup.find('dd', itemprop='filingDate').get_text()
-    except:
-        filing_date = ''
-    list_of_application_events = soup.find_all('dd', itemprop='events')
-    priority_date = ''
-    grant_date = ''
-    for app_event in list_of_application_events:
+    for  ...  in  ... .find_all:
+idx = 34:------------------- similar code ------------------ index = 1, score = 1.0 
+@app.route('/api/rsvps', methods=['GET', 'POST'])
+def api_rsvps():
+    if (request.method == 'GET'):
+        docs = [rsvp.dict() for rsvp in RSVP.find_all()]
+        return json.dumps(docs, indent=True)
+    else:
         try:
-            title_info = app_event.find('span', itemprop='type').get_text()
-            timeevent = app_event.find('time', itemprop='date').get_text()
-            if (title_info == 'priority'):
-                priority_date = timeevent
-            if (title_info == 'granted'):
-                grant_date = timeevent
-            if ((title_info == 'publication') and (pub_date == '')):
-                pub_date = timeevent
-        except:
-            continue
-    found_forward_cites_orig = soup.find_all('tr', itemprop='forwardReferencesOrig')
-    forward_cites_no_family = []
-    if (len(found_forward_cites_orig) > 0):
-        for citation in found_forward_cites_orig:
-            forward_cites_no_family.append(self.parse_citation(citation))
-    found_forward_cites_family = soup.find_all('tr', itemprop='forwardReferencesFamily')
-    forward_cites_yes_family = []
-    if (len(found_forward_cites_family) > 0):
-        for citation in found_forward_cites_family:
-            forward_cites_yes_family.append(self.parse_citation(citation))
-    found_backward_cites_orig = soup.find_all('tr', itemprop='backwardReferences')
-    backward_cites_no_family = []
-    if (len(found_backward_cites_orig) > 0):
-        for citation in found_backward_cites_orig:
-            backward_cites_no_family.append(self.parse_citation(citation))
-    found_backward_cites_family = soup.find_all('tr', itemprop='backwardReferencesFamily')
-    backward_cites_yes_family = []
-    if (len(found_backward_cites_family) > 0):
-        for citation in found_backward_cites_family:
-            backward_cites_yes_family.append(self.parse_citation(citation))
-    abstract_text = ''
-    if self.return_abstract:
-        abstract = soup.find('meta', attrs={'name': 'DC.description'})
-        if abstract:
-            abstract_text = abstract['content']
-    return {'inventor_name': json.dumps(inventor_name), 'assignee_name_orig': json.dumps(assignee_name_orig), 'assignee_name_current': json.dumps(assignee_name_current), 'pub_date': pub_date, 'priority_date': priority_date, 'grant_date': grant_date, 'filing_date': filing_date, 'forward_cite_no_family': json.dumps(forward_cites_no_family), 'forward_cite_yes_family': json.dumps(forward_cites_yes_family), 'backward_cite_no_family': json.dumps(backward_cites_no_family), 'backward_cite_yes_family': json.dumps(backward_cites_yes_family), 'abstract_text': abstract_text}
+            doc = json.loads(request.data)
+        except ValueError:
+            return ('{"error": "expecting JSON payload"}', 400)
+        if ('name' not in doc):
+            return ('{"error": "name field is missing"}', 400)
+        if ('email' not in doc):
+            return ('{"error": "email field is missing"}', 400)
+        rsvp = RSVP.new(name=doc['name'], email=doc['email'])
+        return json.dumps(rsvp.dict(), indent=True)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    try:
-         ...  = [ for  ...  in  ... .find_all]
+    if:
+         ...  = [ for  ...  in  ... .find_all()]
 
-idx = 15:------------------- similar code ------------------ index = 5, score = 1.0 
-def run_update_all(pullfirst=False, cancleanup=False, quick=False) -> None:
-    from homely._ui import run_update
-    from homely._utils import RepoListConfig
-    cfg = RepoListConfig()
-    success = run_update(list(cfg.find_all()), pullfirst=pullfirst, only=None, cancleanup=cancleanup, quick=quick)
-    assert success, 'run_update() encountered errors or warnings'
+idx = 35:------------------- similar code ------------------ index = 3, score = 1.0 
+def mock_get_post_summaries(*args):
+    '\n        Mocks the get_post_summaries function\n        '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summaries = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})
+    return [post_summaries]
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... () -> None:
-     ...  =  ... ( ... ( ... .find_all()),,,,)
+def  ... ():
+     ...  =  ... .find_all
 
-idx = 16:------------------- similar code ------------------ index = 1, score = 1.0 
+idx = 36:------------------- similar code ------------------ index = 4, score = 1.0 
+def inline_images(self, soup):
+    for tag in soup.find_all('img'):
+        path = tag.get('src')
+        f = urllib.urlopen(path)
+        data = f.read()
+        f.close()
+        (mime, _) = mimetypes.guess_type(path)
+        data64 = base64.encodestring(data)
+        dataURI = ('data:%s;base64,%s' % (mime, data64))
+        tag['src'] = dataURI
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 37:------------------- similar code ------------------ index = 5, score = 1.0 
+def process(self):
+    soup = BeautifulSoup(str(self.input_data), self.setting('html-parser'))
+    for tag in soup.find_all(re.compile('^h[0-6]')):
+        name = tag.text
+        m = re.match('^h([0-6])$', tag.name)
+        if (not ('id' in tag.attrs)):
+            tag.attrs['id'] = inflection.parameterize(name)
+        self.current_section_anchor = tag.attrs['id']
+        self.current_section_text = None
+        self.current_section_name = name
+        self.current_section_level = int(m.groups()[0])
+        self.append_current_section()
+    self.current_section_text = str(soup)
+    self.current_section_name = self.setting('initial-section-name')
+    self.current_section_level = 1
+    self.current_section_anchor = None
+    self.append_current_section()
+    self.output_data.save()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 38:------------------- similar code ------------------ index = 6, score = 1.0 
 @homely.command()
 @argument('identifiers', nargs=(- 1), metavar='REPO')
 @option('--nopull', is_flag=True, help='Do not use `git pull` or other things that require internet access')
@@ -555,7 +1190,604 @@ def  ... ():
     if:    else:
          ...  =  ... ( ... .find_all())
 
-idx = 17:------------------- similar code ------------------ index = 21, score = 1.0 
+idx = 39:------------------- similar code ------------------ index = 7, score = 1.0 
+def convert_nytimes(input_file, content):
+    doc = bs4.BeautifulSoup(content, 'html.parser')
+    file_name_components = input_file.split('/')
+    date = '/'.join(file_name_components[1:4])
+    categories = file_name_components[4:(- 1)]
+    file_name = '.'.join(file_name_components[(- 1)].split('.')[:(- 1)])
+    url = ('http://' + input_file)
+    for script in doc(['script', 'style', 'link', 'button']):
+        script.decompose()
+    try:
+        author = doc.find('meta', attrs={'name': 'author'})['content']
+    except TypeError:
+        if (not doc.find('meta', attrs={'name': 'byl'})):
+            logging.warning('ny:No author in {}'.format(input_file))
+            return None
+        author = doc.find('meta', attrs={'name': 'byl'})['content']
+        author = author.replace('By ', '')
+    title = doc.find('meta', property='og:title')
+    if (not title):
+        logging.error('no title for {}'.format(input_file))
+        return
+    title = re.sub('\\s+', ' ', title['content']).strip()
+    if (not len(title)):
+        logging.error('no title for {}'.format(input_file))
+        return
+    headline = doc.find('meta', property='og:description')
+    if (not headline):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    headline = re.sub('\\s+', ' ', headline['content']).strip()
+    if (not len(headline)):
+        logging.error('no headline for {}'.format(input_file))
+        return
+    body = doc.find('section', attrs={'name': 'articleBody'})
+    if (not body):
+        body = doc.find_all('p', attrs={'class': 'story-body-text story-content'})
+        if (not body):
+            logging.error('no body for {}'.format(input_file))
+            return
+        else:
+            body = ' '.join([re.sub('\\s+', ' ', p.get_text(separator=' ')).strip() for p in body])
+    else:
+        body = re.sub('\\s+', ' ', body.get_text(separator=' ')).strip()
+    if (not len(body)):
+        logging.error('no body for {}'.format(input_file))
+        return
+    keywords = doc.find('meta', attrs={'name': 'news_keywords'})
+    if (keywords is None):
+        keywords = doc.find('meta', attrs={'name': 'keywords'})
+        if (not keywords):
+            logging.error('no keywords for {}'.format(input_file))
+            return
+    keywords = re.sub('\\s+', ' ', keywords['content']).strip()
+    keywords = keywords.split(',')
+    keywords = [k.split(';') for k in keywords if k]
+    if (not keywords):
+        logging.error('no keywords for {}'.format(input_file))
+        return
+    return {'title': title, 'headline': headline, 'abstract': body, 'keyword': keywords, 'file_name': file_name, 'date': date, 'categories': categories, 'url': url, 'author': author}
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .find_all
+
+idx = 40:------------------- similar code ------------------ index = 9, score = 1.0 
+def find(self, node_type):
+    'Find the first node of a given type.  If no such node exists the\n        return value is `None`.\n        '
+    for result in self.find_all(node_type):
+        return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 41:------------------- similar code ------------------ index = 10, score = 1.0 
+def get_examples(self) -> Generator[(tuple, None, None)]:
+    "A generator that gets words' usage examples pairs from server pair by pair.\n\n        Note:\n            Don't try to get all usage examples at one time if there are more than 5 pages (see the total_pages attribute). It\n            may take a long time to complete because it will be necessary to connect to the server as many times as there are pages exist.\n            Just get the usage examples one by one as they are being fetched.\n\n        Yields:\n            Tuples with two WordUsageContext namedtuples (for source and target text and highlighted indexes)\n        "
+
+    def find_highlighted_idxs(soup, tag='em') -> tuple:
+        'Finds indexes of the parts of the soup surrounded by a particular HTML tag\n            relatively to the soup without the tag.\n\n            Example:\n                soup = BeautifulSoup("<em>This</em> is <em>a sample</em> string")\n                tag = "em"\n                Returns: [(0, 4), (8, 16)]\n\n            Args:\n                soup: The BeautifulSoup\'s soup.\n                tag: The HTML tag, which surrounds the parts of the soup.\n\n            Returns:\n                  A list of the tuples, which contain start and end indexes of the soup parts,\n                  surrounded by tags.\n\n            '
+        (cur, idxs) = (0, [])
+        for t in soup.find_all(text=True):
+            if (t.parent.name == tag):
+                idxs.append((cur, (cur + len(t))))
+            cur += len(t)
+        return tuple(idxs)
+    for npage in range(1, (self.total_pages + 1)):
+        self.__data['npage'] = npage
+        response = requests.post('https://context.reverso.net/bst-query-service', headers=HEADERS, data=json.dumps(self.__data))
+        examples_json = response.json()['list']
+        for example in examples_json:
+            source = BeautifulSoup(example['s_text'], features='lxml')
+            target = BeautifulSoup(example['t_text'], features='lxml')
+            (yield (WordUsageContext(source.text, find_highlighted_idxs(source)), WordUsageContext(target.text, find_highlighted_idxs(target))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ) ->:
+    def  ... () ->  ... :
+        for  ...  in  ... .find_all:
+idx = 42:------------------- similar code ------------------ index = 13, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Cloudnine HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                categories = []
+                if html_soup.find('span', class_='label label-primary'):
+                    cat = html_soup.find('span', class_='label label-primary').text
+                    categories = cat.strip().split('(')[0].split(' / ')
+                if html_soup.find('table', class_='padded'):
+                    table = html_soup.find('table', class_='padded')
+                    table.extract()
+                else:
+                    print('no tbody found')
+                if html_soup.find_all('tr'):
+                    rows = html_soup.find_all('tr')
+                    for row in rows:
+                        image_id = ''
+                        if row.td.find('a'):
+                            image_id = str(row.find('img')['src'])
+                        if row.find_next('td').find_next('td'):
+                            href = row.find_next('td').find_next('td').a.get('href')
+                            product_name = row.find_next('td').find_next('td').a.text
+                            if row.find_all('td', class_='nowrap right'):
+                                last_two = row.find_all('td', class_='nowrap right')
+                                if (len(row.find_all('div', class_='price')) > 1):
+                                    price = row.find_all('div', class_='price')[1].text.split()[0]
+                                    vendor = row.find('div', class_='vendor').find('a').text
+                                    if (product_name and price):
+                                        categories_str = str('/'.join(categories))
+                                        items.append(('cloudnine', product_name, float(price), categories_str, vendor, '', datetime.strptime(date, '%Y-%m-%d'), '', '', image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                if  ... .find_all:
+idx = 43:------------------- similar code ------------------ index = 14, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Cryptomarket HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find_all('div', id='img'):
+                    contents = html_soup.find_all('div', id='img')
+                    i = 0
+                    for content in contents:
+                        i += 1
+                        if (content.find('img', style='width:80px; height:80px') and content.find('div', id='img')):
+                            images = content.find_all('img', style='width:80px; height:80px')
+                            image_id = images[0]['src']
+                        if content.find('div', style='min-width:200px'):
+                            product_name = content.find('div', style='min-width:200px').find('a').text
+                            price_raw = content.find('b', style='color:#fff665')
+                            price = price_raw.text.split('/')[1].split()[0]
+                            if (product_name and price):
+                                vendor = price_raw.find_next('a').text
+                                category = price_raw.find_next('a').find_next('a').text
+                                ship_from = price_raw.find_next('b', id='img').text
+                                ship_to = price_raw.find_next('b', id='img').find_next('b', id='img').text
+                                items.append(('cryptomarket', product_name, float(price), category, vendor, '', datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                if  ... .find_all:
+idx = 44:------------------- similar code ------------------ index = 17, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Diabolus HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    sys.setrecursionlimit(10000)
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                if html_soup.find('div', style='min-width:275px'):
+                    content = html_soup.find('div', style='min-width:275px')
+                    product_name = None
+                    if content.find('h1'):
+                        product_name = content.find('h1').text
+                    if content.find('h3'):
+                        product_name = content.find('h3').text
+                    if content.find('h2'):
+                        product_name = content.find('h2').text
+                    if content.find('h4'):
+                        product_name = content.find('h4').text
+                    image_id = ''
+                    if content.find('a', target='_blank'):
+                        image_id = content.find('a', target='_blank').get('href')
+                    if content.find_all('span', class_='form-control'):
+                        spans = content.find_all('span', class_='form-control')
+                        if spans[0].find('img', src='btc.png'):
+                            if spans[1].text.split('/'):
+                                prices = spans[1].text.split('/')
+                                for price_item in prices:
+                                    if ('BTC' in price_item):
+                                        price = price_item.strip().split()[0]
+                            if (product_name and price):
+                                vendor = ''
+                                if ('Vendor' in spans[2].text):
+                                    vendor = spans[2].find('a').text
+                                ship_from = ''
+                                if ('from' in spans[3].text.lower()):
+                                    ship_from = ' '.join(spans[3].text.split()[2])
+                                ship_to = ''
+                                if ('to' in spans[4].text.lower()):
+                                    ship_to = ' '.join(spans[4].text.split()[2])
+                                category = ''
+                                if ('category' in spans[7].text.lower()):
+                                    category = spans[7].text.split()[1]
+                                desc = ''
+                                if content.find('div', id='cats'):
+                                    desc = content.find('div', id='cats').text
+                                items.append(('diabolus', product_name, float(price), category, vendor, desc, datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, image_id))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                if:
+                    if  ... .find_all:
+idx = 45:------------------- similar code ------------------ index = 77, score = 1.0 
+def _parse_tables(self, doc, match, attrs):
+    element_name = self._strainer.name
+    tables = doc.find_all(element_name, attrs=attrs)
+    if (not tables):
+        raise ValueError('No tables found')
+    result = []
+    unique_tables = set()
+    tables = self._handle_hidden_tables(tables, 'attrs')
+    for table in tables:
+        if self.displayed_only:
+            for elem in table.find_all(style=re.compile('display:\\s*none')):
+                elem.decompose()
+        if ((table not in unique_tables) and (table.find(text=match) is not None)):
+            result.append(table)
+        unique_tables.add(table)
+    if (not result):
+        raise ValueError('No tables found matching pattern {patt!r}'.format(patt=match.pattern))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 46:------------------- similar code ------------------ index = 19, score = 1.0 
+@staticmethod
+def get_all_connected_interfaces():
+    '\n        returns all the connected devices which matches PyUSB.vid/PyUSB.pid.\n        returns an array of PyUSB (Interface) objects\n        '
+    all_devices = usb.core.find(find_all=True, custom_match=FindDap())
+    boards = []
+    for board in all_devices:
+        new_board = PyUSB()
+        new_board.vid = board.idVendor
+        new_board.pid = board.idProduct
+        new_board.product_name = board.product
+        new_board.vendor_name = board.manufacturer
+        new_board.serial_number = board.serial_number
+        boards.append(new_board)
+    return boards
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... (find_all=True,)
+
+idx = 47:------------------- similar code ------------------ index = 20, score = 1.0 
+def run_update_all(pullfirst=False, cancleanup=False, quick=False) -> None:
+    from homely._ui import run_update
+    from homely._utils import RepoListConfig
+    cfg = RepoListConfig()
+    success = run_update(list(cfg.find_all()), pullfirst=pullfirst, only=None, cancleanup=cancleanup, quick=quick)
+    assert success, 'run_update() encountered errors or warnings'
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () -> None:
+     ...  =  ... ( ... ( ... .find_all()),,,,)
+
+idx = 48:------------------- similar code ------------------ index = 21, score = 1.0 
+def download_thai_address():
+    print('Downloading the address information of Thailand ...')
+    url = 'https://en.wikipedia.org/wiki/List_of_tambon_in_Thailand'
+    data = requests.get(url).text
+    data = BeautifulSoup(data, 'html.parser')
+    urls = data.find_all(name='ul')[0]
+    hrefs = urls.find_all(name='li')
+    res = {}
+    th_en = {}
+    for h in tqdm.tqdm(hrefs):
+        href = ('https://en.wikipedia.org/' + h.find(name='a')['href'])
+        data = requests.get(href).text
+        data = BeautifulSoup(data, 'html.parser')
+        table = data.find_all(name='table', attrs={'class': 'wikitable sortable'})
+        details = table[0].find_all(name='tr')[1:]
+        for detail in details:
+            temp = detail.find_all(name='td')
+            sub_district = temp[1].text
+            district = temp[3].text
+            province = temp[5].text
+            th_en[sub_district] = temp[0].text
+            th_en[district] = temp[2].text
+            th_en[province] = temp[4].text
+            if (province in res.keys()):
+                if (district in res[province].keys()):
+                    if (sub_district not in res[province][district]):
+                        res[province][district].append(sub_district)
+                else:
+                    res[province][district] = [sub_district]
+            else:
+                res[province] = {district: [sub_district]}
+    for p in res.keys():
+        for d in res[p].keys():
+            res[p][d] = list(set(res[p][d]))
+    json.dump(res, open('th_provinces_districts_sub_districts.json', 'w', encoding='utf-8'), ensure_ascii=False)
+    json.dump(th_en, open('th_en_db.json', 'w', encoding='utf-8'), ensure_ascii=False)
+    print('Finish the downloading!')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 49:------------------- similar code ------------------ index = 22, score = 1.0 
+def get_post_summaries(query):
+    '\n    A generator that queries Stack Overflow and yields a ResultSet\n    of post summaries.\n\n    Parameter {str} query: the string to query Stack Overflow with.\n    Yields {bs4.element.ResultSet}: ResultSet of post summaries.\n    '
+    page = 1
+    while True:
+        query_url = build_query_url(query, page)
+        query_soup = query_stack_overflow(query_url)
+        if (not query_soup):
+            break
+        post_summaries = query_soup.find_all(attrs={'class': 'question-summary'})
+        if (not post_summaries):
+            break
+        (yield post_summaries)
+        page += 1
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    while True:
+         ...  =  ... .find_all
+
+idx = 50:------------------- similar code ------------------ index = 24, score = 1.0 
+def GetCategory2Type1(self, resp):
+    '获取第一种类型的小类链接'
+    category2Type1Urls = {}
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_td_lists = soup.find_all('div', class_='cate_no_child citylistcate no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type1Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    return category2Type1Urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 51:------------------- similar code ------------------ index = 25, score = 1.0 
+def visit_Template(self, node, frame=None):
+    assert (frame is None), 'no root frame allowed'
+    eval_ctx = EvalContext(self.environment, self.name)
+    from jinja2.runtime import __all__ as exported
+    self.writeline(('from __future__ import %s' % ', '.join(code_features)))
+    self.writeline(('from jinja2.runtime import ' + ', '.join(exported)))
+    if self.environment.is_async:
+        self.writeline('from jinja2.asyncsupport import auto_await, auto_aiter, make_async_loop_context')
+    envenv = (((not self.defer_init) and ', environment=environment') or '')
+    have_extends = (node.find(nodes.Extends) is not None)
+    for block in node.find_all(nodes.Block):
+        if (block.name in self.blocks):
+            self.fail(('block %r defined twice' % block.name), block.lineno)
+        self.blocks[block.name] = block
+    for import_ in node.find_all(nodes.ImportedName):
+        if (import_.importname not in self.import_aliases):
+            imp = import_.importname
+            self.import_aliases[imp] = alias = self.temporary_identifier()
+            if ('.' in imp):
+                (module, obj) = imp.rsplit('.', 1)
+                self.writeline(('from %s import %s as %s' % (module, obj, alias)))
+            else:
+                self.writeline(('import %s as %s' % (imp, alias)))
+    self.writeline(('name = %r' % self.name))
+    self.writeline(('%s(context, missing=missing%s):' % (self.func('root'), envenv)), extra=1)
+    self.indent()
+    self.write_commons()
+    frame = Frame(eval_ctx)
+    if ('self' in find_undeclared(node.body, ('self',))):
+        ref = frame.symbols.declare_parameter('self')
+        self.writeline(('%s = TemplateReference(context)' % ref))
+    frame.symbols.analyze_node(node)
+    frame.toplevel = frame.rootlevel = True
+    frame.require_output_check = (have_extends and (not self.has_known_extends))
+    if have_extends:
+        self.writeline('parent_template = None')
+    self.enter_frame(frame)
+    self.pull_dependencies(node.body)
+    self.blockvisit(node.body, frame)
+    self.leave_frame(frame, with_python_scope=True)
+    self.outdent()
+    if have_extends:
+        if (not self.has_known_extends):
+            self.indent()
+            self.writeline('if parent_template is not None:')
+        self.indent()
+        if (supports_yield_from and (not self.environment.is_async)):
+            self.writeline('yield from parent_template.root_render_func(context)')
+        else:
+            self.writeline(('%sfor event in parent_template.root_render_func(context):' % ((self.environment.is_async and 'async ') or '')))
+            self.indent()
+            self.writeline('yield event')
+            self.outdent()
+        self.outdent((1 + (not self.has_known_extends)))
+    for (name, block) in iteritems(self.blocks):
+        self.writeline(('%s(context, missing=missing%s):' % (self.func(('block_' + name)), envenv)), block, 1)
+        self.indent()
+        self.write_commons()
+        block_frame = Frame(eval_ctx)
+        undeclared = find_undeclared(block.body, ('self', 'super'))
+        if ('self' in undeclared):
+            ref = block_frame.symbols.declare_parameter('self')
+            self.writeline(('%s = TemplateReference(context)' % ref))
+        if ('super' in undeclared):
+            ref = block_frame.symbols.declare_parameter('super')
+            self.writeline(('%s = context.super(%r, block_%s)' % (ref, name, name)))
+        block_frame.symbols.analyze_node(block)
+        block_frame.block = name
+        self.enter_frame(block_frame)
+        self.pull_dependencies(block.body)
+        self.blockvisit(block.body, block_frame)
+        self.leave_frame(block_frame, with_python_scope=True)
+        self.outdent()
+    self.writeline(('blocks = {%s}' % ', '.join((('%r: block_%s' % (x, x)) for x in self.blocks))), extra=1)
+    self.writeline(('debug_info = %r' % '&'.join((('%s=%s' % x) for x in self.debug_info))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 52:------------------- similar code ------------------ index = 26, score = 1.0 
+def get_download_url(self, version='latest', os_name=None, bitness=None):
+    '\n        Method for getting the download URL for the Opera Chromium driver binary.\n\n        :param version: String representing the version of the web driver binary to download.  For example, "v2.36".\n                        Default if no version is specified is "latest".  The version string should match the version\n                        as specified on the download page of the webdriver binary.\n        :param os_name: Name of the OS to download the web driver binary for, as a str.  If not specified, we will use\n                        platform.system() to get the OS.\n        :param bitness: Bitness of the web driver binary to download, as a str e.g. "32", "64".  If not specified, we\n                        will try to guess the bitness by using util.get_architecture_bitness().\n        :returns: The download URL for the Opera Chromium driver binary.\n        '
+    if (version == 'latest'):
+        opera_chromium_driver_version_release_api_url = (self.opera_chromium_driver_releases_api_url + version)
+        opera_chromium_driver_version_release_ui_url = (self.opera_chromium_driver_releases_ui_url + version)
+    else:
+        opera_chromium_driver_version_release_api_url = ((self.opera_chromium_driver_releases_api_url + 'tags/') + version)
+        opera_chromium_driver_version_release_ui_url = ((self.opera_chromium_driver_releases_ui_url + 'tags/') + version)
+    logger.debug('Attempting to access URL: {0}'.format(opera_chromium_driver_version_release_api_url))
+    info = requests.get(opera_chromium_driver_version_release_api_url)
+    if (info.status_code != 200):
+        info_message = 'Error, unable to get info for opera chromium driver {0} release. Status code: {1}'.format(version, info.status_code)
+        logger.info(info_message)
+        resp = requests.get(opera_chromium_driver_version_release_ui_url, allow_redirects=True)
+        if (resp.status_code == 200):
+            json_data = {'assets': []}
+        soup = BeautifulSoup(resp.text, features='html.parser')
+        urls = [(resp.url + a['href']) for a in soup.find_all('a', href=True) if ('/download/' in a['href'])]
+        for url in urls:
+            json_data['assets'].append({'name': Path(urlsplit(url).path).name, 'browser_download_url': url})
+    else:
+        json_data = info.json()
+    if (os_name is None):
+        os_name = platform.system()
+        if (os_name == 'Darwin'):
+            os_name = 'mac'
+        elif (os_name == 'Windows'):
+            os_name = 'win'
+        elif (os_name == 'Linux'):
+            os_name = 'linux'
+    if (bitness is None):
+        bitness = get_architecture_bitness()
+        logger.debug('Detected OS: {0}bit {1}'.format(bitness, os_name))
+    filenames = [asset['name'] for asset in json_data['assets']]
+    filename = [name for name in filenames if (os_name in name)]
+    if (len(filename) == 0):
+        error_message = 'Error, unable to find a download for os: {0}'.format(os_name)
+        logger.error(error_message)
+        raise RuntimeError(error_message)
+    if (len(filename) > 1):
+        filename = [name for name in filenames if ((os_name + bitness) in name)]
+        if (len(filename) != 1):
+            error_message = 'Error, unable to determine correct filename for {0}bit {1}'.format(bitness, os_name)
+            logger.error(error_message)
+            raise RuntimeError(error_message)
+    filename = filename[0]
+    result = json_data['assets'][filenames.index(filename)]['browser_download_url']
+    logger.info('Download URL: {0}'.format(result))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = [ for  ...  in  ... .find_all]
+
+idx = 53:------------------- similar code ------------------ index = 27, score = 1.0 
+@staticmethod
+def __get_supported_langs() -> dict:
+    supported_langs = {}
+    response = requests.get('https://context.reverso.net/translation/', headers=HEADERS)
+    soup = BeautifulSoup(response.content, features='lxml')
+    src_selector = soup.find('div', id='src-selector')
+    trg_selector = soup.find('div', id='trg-selector')
+    for (selector, attribute) in ((src_selector, 'source_lang'), (trg_selector, 'target_lang')):
+        dd_spans = selector.find(class_='drop-down').find_all('span')
+        langs = [span.get('data-value') for span in dd_spans]
+        langs = [lang for lang in langs if (isinstance(lang, str) and (len(lang) == 2))]
+        supported_langs[attribute] = tuple(langs)
+    return supported_langs
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->  ... :
+    for in:
+         ...  =  ... .find_all
+
+idx = 54:------------------- similar code ------------------ index = 30, score = 1.0 
+def find_referenced_templates(ast):
+    'Finds all the referenced templates from the AST.  This will return an\n    iterator over all the hardcoded template extensions, inclusions and\n    imports.  If dynamic inheritance or inclusion is used, `None` will be\n    yielded.\n\n    >>> from jinja2 import Environment, meta\n    >>> env = Environment()\n    >>> ast = env.parse(\'{% extends "layout.html" %}{% include helper %}\')\n    >>> list(meta.find_referenced_templates(ast))\n    [\'layout.html\', None]\n\n    This function is useful for dependency tracking.  For example if you want\n    to rebuild parts of the website after a layout template has changed.\n    '
+    for node in ast.find_all((nodes.Extends, nodes.FromImport, nodes.Import, nodes.Include)):
+        if (not isinstance(node.template, nodes.Const)):
+            if isinstance(node.template, (nodes.Tuple, nodes.List)):
+                for template_name in node.template.items:
+                    if isinstance(template_name, nodes.Const):
+                        if isinstance(template_name.value, string_types):
+                            (yield template_name.value)
+                    else:
+                        (yield None)
+            else:
+                (yield None)
+            continue
+        if isinstance(node.template.value, string_types):
+            (yield node.template.value)
+        elif (isinstance(node, nodes.Include) and isinstance(node.template.value, (tuple, list))):
+            for template_name in node.template.value:
+                if isinstance(template_name, string_types):
+                    (yield template_name)
+        else:
+            (yield None)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 55:------------------- similar code ------------------ index = 31, score = 1.0 
+@classmethod
+def login(cls, session, username, password):
+    r = session.requests_session.post(session.login_action, {'CSRFHW': session.csrfhw, 'wlanuserip': session.wlanuserip, 'username': username, 'password': password})
+    if (not r.ok):
+        raise NautaLoginException('Falló el inicio de sesión: {} - {}'.format(r.status_code, r.reason))
+    if (not ('online.do' in r.url)):
+        soup = bs4.BeautifulSoup(r.text, 'html.parser')
+        script_text = soup.find_all('script')[(- 1)].get_text()
+        match = re.search('alert\\(\\"(?P<reason>[^\\"]*?)\\"\\)', script_text)
+        raise NautaLoginException('Falló el inicio de sesión: {}'.format((match and match.groupdict().get('reason'))))
+    m = re.search('ATTRIBUTE_UUID=(\\w+)&CSRFHW=', r.text)
+    return (m.group(1) if m else None)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .find_all
+
+idx = 56:------------------- similar code ------------------ index = 76, score = 1.0 
+def test_has_accepted_answer_true():
+    '\n    Ensures that has_accepted_answer returns True when the post\n    does in fact have an accepted answer.\n    '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summary = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})[4]
+    accepted_answer = has_accepted_answer(post_summary)
+    assert accepted_answer
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 57:------------------- similar code ------------------ index = 67, score = 1.0 
 @property
 def _groups(self):
     nodes = {self.diagram: self.diagram.nodes}
@@ -592,54 +1824,582 @@ def _groups(self):
 def  ... ( ... ):
     for  ...  in:
         for  ...  in  ... .find_all():
-idx = 18:------------------- similar code ------------------ index = 0, score = 1.0 
-@app.route('/api/rsvps', methods=['GET', 'POST'])
-def api_rsvps():
-    if (request.method == 'GET'):
-        docs = [rsvp.dict() for rsvp in RSVP.find_all()]
-        return json.dumps(docs, indent=True)
-    else:
-        try:
-            doc = json.loads(request.data)
-        except ValueError:
-            return ('{"error": "expecting JSON payload"}', 400)
-        if ('name' not in doc):
-            return ('{"error": "name field is missing"}', 400)
-        if ('email' not in doc):
-            return ('{"error": "email field is missing"}', 400)
-        rsvp = RSVP.new(name=doc['name'], email=doc['email'])
-        return json.dumps(rsvp.dict(), indent=True)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-    if:
-         ...  = [ for  ...  in  ... .find_all()]
-
-idx = 19:------------------- similar code ------------------ index = 26, score = 1.0 
-def _parse_tables(self, doc, match, attrs):
-    element_name = self._strainer.name
-    tables = doc.find_all(element_name, attrs=attrs)
-    if (not tables):
-        raise ValueError('No tables found')
-    result = []
-    unique_tables = set()
-    tables = self._handle_hidden_tables(tables, 'attrs')
-    for table in tables:
-        if self.displayed_only:
-            for elem in table.find_all(style=re.compile('display:\\s*none')):
-                elem.decompose()
-        if ((table not in unique_tables) and (table.find(text=match) is not None)):
-            result.append(table)
-        unique_tables.add(table)
-    if (not result):
-        raise ValueError('No tables found matching pattern {patt!r}'.format(patt=match.pattern))
-    return result
+idx = 58:------------------- similar code ------------------ index = 78, score = 1.0 
+def test_has_accepted_answer_false():
+    '\n    Ensures that has_accepted_answer returns False when the post\n    does not have an accepted answer.\n    '
+    html = open('autostack/so_web_scraper/__tests__/data/query_post_summaries.html').read()
+    post_summary = BeautifulSoup(html, 'lxml').find_all(attrs={'class': 'question-summary'})[0]
+    accepted_answer = has_accepted_answer(post_summary)
+    assert (not accepted_answer)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  =  ... .find_all
 
-idx = 20:------------------- similar code ------------------ index = 42, score = 1.0 
+idx = 59:------------------- similar code ------------------ index = 99, score = 1.0 
+@staticmethod
+def parse_results_html_to_json(html: str) -> str:
+    'Parse the results and sort them descending by similarity\n\n        :type html: str\n        :return:\n        '
+    soup = Soup(html, 'html.parser')
+    results = {'header': {}, 'results': []}
+    for res in soup.find_all('td', attrs={'class': 'resulttablecontent'}):
+        title_tag = res.find_next('div', attrs={'class': 'resulttitle'})
+        if title_tag:
+            title = title_tag.text
+        else:
+            title = ''
+        similarity = res.find_next('div', attrs={'class': 'resultsimilarityinfo'}).text.replace('%', '')
+        alternate_links = [a_tag['href'] for a_tag in res.find_next('div', attrs={'class': 'resultmiscinfo'}).find_all('a', href=True)]
+        content_column = []
+        content_column_tags = res.find_all('div', attrs={'class': 'resultcontentcolumn'})
+        for content_column_tag in content_column_tags:
+            for br in content_column_tag.find_all('br'):
+                br.replace_with('\n')
+            content_column.append(content_column_tag.text)
+        result = {'header': {'similarity': similarity}, 'data': {'title': title, 'content': content_column, 'ext_urls': alternate_links}}
+        results['results'].append(result)
+    return json.dumps(results)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->  ... :
+    for  ...  in  ... .find_all:
+idx = 60:------------------- similar code ------------------ index = 120, score = 1.0 
+def parse_files(file_names):
+    '\n\tParse the given HTML files\n\n\tParses Silkroad2 HTML pages, extracts item details and stores it in items list\n\n\tParameters:\n\tfile_names (list): list of file names to be parsed\n\n\tReturns:\n\tlist: list of items that has been parsed\n\n\t'
+    s3 = boto3.resource('s3')
+    items = []
+    for file_name in file_names:
+        if ((file_name is not None) and (file_name is not '')):
+            obj = s3.Object(config.s3['S3BUCKET2'], file_name)
+            if (obj is not None):
+                body = obj.get()['Body'].read()
+                x = file_name.split('/')
+                date = x[1]
+                category = x[3]
+                html_soup = BeautifulSoup(body, 'html.parser')
+                item_container = html_soup.find_all('div', class_='item')
+                for item in item_container:
+                    if item.find('div', class_='item_title'):
+                        title = item.find('div', class_='item_title')
+                        if title.a:
+                            link = title.a
+                            product_name = title.a.text.strip()
+                            href = link.get('href')
+                            if item.find('div', class_='item_details'):
+                                details = item.find('div', class_='item_details')
+                                if details.a:
+                                    vendor = details.a.text.strip()
+                                    if details.br:
+                                        ship_from = details.br.next_sibling.strip()[12:]
+                                        ship_to = details.find_all('br')[(- 1)].next_sibling.strip()[10:]
+                                    else:
+                                        ship_from = ' '
+                                        ship_to = ' '
+                                    if item.find('div', class_='price_big'):
+                                        price = item.find('div', class_='price_big').text.strip()[1:]
+                                        items.append(('silkroad2', product_name, float(price), category, vendor, '', datetime.strptime(date, '%Y-%m-%d'), ship_to, ship_from, href))
+    return items
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... :
+        if:
+            if:
+                 ...  =  ... .find_all
+
+idx = 61:------------------- similar code ------------------ index = 94, score = 1.0 
+def is_valid(self):
+    ingredient_list = self.soup.find_all('li', {'class': 'IngredientLine'})
+    return bool(ingredient_list)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .find_all
+
+idx = 62:------------------- similar code ------------------ index = 95, score = 1.0 
+def get_urls(url):
+    scraper = create_scraper(referer=url)
+    try:
+        res = scraper.get(url)
+        c = res.content
+        soup = BeautifulSoup(c, 'lxml')
+        entry = soup.find_all('div', 'entry-content')[0]
+        links = entry.find_all('a')
+        return [x.get('href') for x in links]
+    except Exception:
+        return [url]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    try:
+         ...  =  ... .find_all
+
+idx = 63:------------------- similar code ------------------ index = 117, score = 1.0 
+def get_network(self, network, find_all=False):
+    search_network = Network.get(network)
+    current_regions = self.view.sel()
+    logger.debug('Searching for network {}'.format(search_network))
+    if (not search_network):
+        logger.debug('Invalid network {}'.format(network))
+    else:
+        for region in self.view.sel():
+            cursor = region.end()
+            searched_from_start = (cursor is 0)
+            while True:
+                found_region = self.view.find(sublime_ip.v4.any, cursor, sublime.IGNORECASE)
+                if (not found_region):
+                    self.view.sel().clear()
+                    if (not searched_from_start):
+                        self.view.sel().add(sublime.Region(0, 0))
+                        searched_from_start = True
+                        cursor = 0
+                        continue
+                    self.view.sel().add_all(current_regions)
+                    break
+                cleaned_region = Network.clean_region(self.view, found_region)
+                network_re_match = self.view.substr(cleaned_region)
+                logger.debug('Network RE match {}'.format(network_re_match))
+                found_network = Network.get(network_re_match)
+                logger.debug('Network Object {} generated'.format(found_network))
+                if (found_network and Network.contains(search_network, found_network)):
+                    self.view.sel().clear()
+                    self.view.show_at_center(cleaned_region.begin())
+                    logger.debug('Network found in {} {}'.format(cleaned_region.begin(), cleaned_region.end()))
+                    self.view.sel().add(sublime.Region(cleaned_region.begin(), cleaned_region.end()))
+                    break
+                cursor = cleaned_region.end()
+    self._find_input_panel(network)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,  ... , find_all=False):
+idx = 64:------------------- similar code ------------------ index = 97, score = 1.0 
+def extract_from_ast(node, gettext_functions=GETTEXT_FUNCTIONS, babel_style=True):
+    'Extract localizable strings from the given template node.  Per\n    default this function returns matches in babel style that means non string\n    parameters as well as keyword arguments are returned as `None`.  This\n    allows Babel to figure out what you really meant if you are using\n    gettext functions that allow keyword arguments for placeholder expansion.\n    If you don\'t want that behavior set the `babel_style` parameter to `False`\n    which causes only strings to be returned and parameters are always stored\n    in tuples.  As a consequence invalid gettext calls (calls without a single\n    string parameter or string parameters after non-string parameters) are\n    skipped.\n\n    This example explains the behavior:\n\n    >>> from jinja2 import Environment\n    >>> env = Environment()\n    >>> node = env.parse(\'{{ (_("foo"), _(), ngettext("foo", "bar", 42)) }}\')\n    >>> list(extract_from_ast(node))\n    [(1, \'_\', \'foo\'), (1, \'_\', ()), (1, \'ngettext\', (\'foo\', \'bar\', None))]\n    >>> list(extract_from_ast(node, babel_style=False))\n    [(1, \'_\', (\'foo\',)), (1, \'ngettext\', (\'foo\', \'bar\'))]\n\n    For every string found this function yields a ``(lineno, function,\n    message)`` tuple, where:\n\n    * ``lineno`` is the number of the line on which the string was found,\n    * ``function`` is the name of the ``gettext`` function used (if the\n      string was extracted from embedded Python code), and\n    *  ``message`` is the string itself (a ``unicode`` object, or a tuple\n       of ``unicode`` objects for functions with multiple string arguments).\n\n    This extraction function operates on the AST and is because of that unable\n    to extract any comments.  For comment support you have to use the babel\n    extraction interface or extract comments yourself.\n    '
+    for node in node.find_all(nodes.Call):
+        if ((not isinstance(node.node, nodes.Name)) or (node.node.name not in gettext_functions)):
+            continue
+        strings = []
+        for arg in node.args:
+            if (isinstance(arg, nodes.Const) and isinstance(arg.value, string_types)):
+                strings.append(arg.value)
+            else:
+                strings.append(None)
+        for arg in node.kwargs:
+            strings.append(None)
+        if (node.dyn_args is not None):
+            strings.append(None)
+        if (node.dyn_kwargs is not None):
+            strings.append(None)
+        if (not babel_style):
+            strings = tuple((x for x in strings if (x is not None)))
+            if (not strings):
+                continue
+        elif (len(strings) == 1):
+            strings = strings[0]
+        else:
+            strings = tuple(strings)
+        (yield (node.lineno, node.node.name, strings))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all:
+idx = 65:------------------- similar code ------------------ index = 116, score = 1.0 
+def GetPage(self, resp):
+    '获取页码'
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_div_lists = soup.find('div', id='dict_page_list')
+    dict_td_lists = dict_div_lists.find_all('a')
+    page = dict_td_lists[(- 2)].string
+    return int(page)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 66:------------------- similar code ------------------ index = 98, score = 1.0 
+def GetCategory2Type2(self, resp):
+    '获取第二种类型的小类链接'
+    category2Type2Urls = {}
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_td_lists = soup.find_all('div', class_='cate_no_child no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type2Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    dict_td_lists = soup.find_all('div', class_='cate_has_child no_select')
+    for dict_td_list in dict_td_lists:
+        dict_td_url = ('https://pinyin.sogou.com' + dict_td_list.a['href'])
+        category2Type2Urls[dict_td_list.get_text().replace('\n', '')] = dict_td_url
+    return category2Type2Urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 67:------------------- similar code ------------------ index = 115, score = 1.0 
+def extract_tables(html):
+    soup = BeautifulSoup(html, 'lxml')
+    set_ids_by_labels(soup)
+    fix_span_tables(soup)
+    fix_th(soup)
+    remove_ltx_errors(soup)
+    flatten_tables(soup)
+    tables = soup.find_all('table', class_='ltx_tabular')
+    data = []
+    for table in tables:
+        if (table.find_parent(class_='ltx_authors') is not None):
+            continue
+        float_div = table.find_parent(is_figure)
+        if (float_div and perhaps_not_tabular(table, float_div)):
+            continue
+        remove_footnotes(table)
+        move_out_references(table)
+        move_out_text_styles(table)
+        move_out_cell_styles(table)
+        escape_table_content(table)
+        tab = html2data(table)
+        if (tab is None):
+            continue
+        (tab, layout) = fix_table(tab)
+        if is_table_empty(tab):
+            continue
+        caption = None
+        if (float_div is not None):
+            cap_el = float_div.find('figcaption')
+            if (cap_el is not None):
+                caption = clear_ws(cap_el.get_text())
+        figure_id = table.get('data-figure-id')
+        data.append(Table(f'table_{(len(data) + 1):02}', tab, layout.applymap(str), caption, figure_id))
+    return data
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .find_all
+
+idx = 68:------------------- similar code ------------------ index = 123, score = 1.0 
+def get_odds(self, tag):
+    '\n        Extract the betting odds for a match from an HTML tag for a soccer\n        match row.\n\n        Args:\n            tag (obj): HTML tag object from BeautifulSoup.\n\n        Returns:\n            (list of str) Extracted match odds.\n        '
+    odds_cells = tag.find_all(class_='odds-nowrp')
+    odds = []
+    for cell in odds_cells:
+        odds.append(cell.text)
+    return odds
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 69:------------------- similar code ------------------ index = 114, score = 1.0 
+def fix_th(soup):
+    for elem in soup.find_all('th'):
+        elem.name = 'td'
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 70:------------------- similar code ------------------ index = 79, score = 1.0 
+def get_network(self, networks, find_all=False):
+    search_networks = {Network.get(n) for n in networks.split(',')}
+    current_regions = self.view.sel()
+    logger.debug('Searching for network(s) {}'.format(networks))
+    for network in search_networks:
+        if (not network):
+            message = 'Invalid network {}'.format(network)
+            logger.debug(message)
+            self.view.show_popup_menu(message)
+            return
+    else:
+        self.view.sel().clear()
+        self.view.sel().add(sublime.Region(0, 0))
+        found_regions = self.view.find_all(sublime_ip.v4.any, sublime.IGNORECASE)
+        matching_networks = set()
+        found_networks = {self.view.substr(r) for r in found_regions}
+        logger.debug('Found {} IP like objects'.format(len(found_networks)))
+        for found_network in found_networks:
+            if (found_network in matching_networks):
+                continue
+            logger.debug('Getting network "{}"'.format(found_network))
+            for search_network in search_networks:
+                network_object = Network.get(found_network)
+                if (network_object and Network.contains(search_network, network_object)):
+                    matching_networks.add(found_network)
+                    break
+        self.view.sel().clear()
+        if matching_networks:
+            moved_view = False
+            for region in found_regions:
+                cleaned_region = Network.clean_region(self.view, region)
+                if (self.view.substr(cleaned_region) in matching_networks):
+                    self.view.sel().add(cleaned_region)
+                    if (not moved_view):
+                        self.view.show_at_center(cleaned_region.begin())
+                        moved_view = True
+        else:
+            logger.debug('No matches')
+            self.view.sel().add_all(current_regions)
+            self.view.show_at_center(current_regions[0].begin())
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ,  ... , find_all=False):
+idx = 71:------------------- similar code ------------------ index = 113, score = 1.0 
+def get_list_of_ingredients(self):
+    ingredients_div = self.soup.find('div', 'field field-name-field-skladniki field-type-text-long field-label-hidden')
+    ingredient_list = ingredients_div.find_all('li')
+    return [ing.get_text().strip() for ing in ingredient_list]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .find_all
+
+idx = 72:------------------- similar code ------------------ index = 112, score = 1.0 
+def test_body(self):
+    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
+    res = self.app.get('/.html')
+    soup = BeautifulSoup(res.text, 'html.parser')
+    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
+    self.assertEqual(soup.form['action'], 'http://localhost/.html')
+    self.assertEqual(soup.form['method'], 'POST')
+    ids = [var.id for var in walk(VerySimpleSequence)]
+    for (h2, id_) in zip(soup.find_all('h2'), ids):
+        self.assertEqual(h2.string, id_)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for in  ... ( ... .find_all,  ... ):
+idx = 73:------------------- similar code ------------------ index = 103, score = 1.0 
+def get_download_url(self, version='latest', os_name=None, bitness=None):
+    '\n        Method for getting the download URL for the Gecko (Mozilla Firefox) driver binary.\n\n        :param version: String representing the version of the web driver binary to download.  For example, "v0.20.1".\n                        Default if no version is specified is "latest".  The version string should match the version\n                        as specified on the download page of the webdriver binary.\n        :param os_name: Name of the OS to download the web driver binary for, as a str.  If not specified, we will use\n                        platform.system() to get the OS.\n        :param bitness: Bitness of the web driver binary to download, as a str e.g. "32", "64".  If not specified, we\n                        will try to guess the bitness by using util.get_architecture_bitness().\n        :returns: The download URL for the Gecko (Mozilla Firefox) driver binary.\n        '
+    if (version == 'latest'):
+        gecko_driver_version_release_api_url = (self.gecko_driver_releases_api_url + version)
+        gecko_driver_version_release_ui_url = (self.gecko_driver_releases_ui_url + version)
+    else:
+        gecko_driver_version_release_api_url = ((self.gecko_driver_releases_api_url + 'tags/') + version)
+        gecko_driver_version_release_ui_url = ((self.gecko_driver_releases_ui_url + 'tags/') + version)
+    logger.debug('Attempting to access URL: {0}'.format(gecko_driver_version_release_api_url))
+    info = requests.get(gecko_driver_version_release_api_url)
+    if (info.status_code != 200):
+        info_message = 'Error, unable to get info for gecko driver {0} release. Status code: {1}'.format(version, info.status_code)
+        logger.info(info_message)
+        resp = requests.get(gecko_driver_version_release_ui_url, allow_redirects=True)
+        if (resp.status_code == 200):
+            json_data = {'assets': []}
+        soup = BeautifulSoup(resp.text, features='html.parser')
+        urls = [(resp.url + a['href']) for a in soup.find_all('a', href=True) if ('/download/' in a['href'])]
+        for url in urls:
+            json_data['assets'].append({'name': Path(urlsplit(url).path).name, 'browser_download_url': url})
+    else:
+        json_data = info.json()
+    if (os_name is None):
+        os_name = platform.system()
+        if (os_name == 'Darwin'):
+            os_name = 'macos'
+        elif (os_name == 'Windows'):
+            os_name = 'win'
+        elif (os_name == 'Linux'):
+            os_name = 'linux'
+    if (bitness is None):
+        bitness = get_architecture_bitness()
+        logger.debug('Detected OS: {0}bit {1}'.format(bitness, os_name))
+    filenames = [asset['name'] for asset in json_data['assets']]
+    filename = [name for name in filenames if (os_name in name)]
+    if (len(filename) == 0):
+        info_message = 'Error, unable to find a download for os: {0}'.format(os_name)
+        logger.error(info_message)
+        raise RuntimeError(info_message)
+    if (len(filename) > 1):
+        filename = [name for name in filenames if ((os_name + bitness) in name)]
+        if (len(filename) != 1):
+            info_message = 'Error, unable to determine correct filename for {0}bit {1}'.format(bitness, os_name)
+            logger.error(info_message)
+            raise RuntimeError(info_message)
+    filename = filename[0]
+    result = json_data['assets'][filenames.index(filename)]['browser_download_url']
+    logger.info('Download URL: {0}'.format(result))
+    return result
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  = [ for  ...  in  ... .find_all]
+
+idx = 74:------------------- similar code ------------------ index = 110, score = 1.0 
+def __init__(self, app, window):
+    '\n        Handle Viewer initialization\n\n        :param App app: The main App class of Suplemon\n        :param Window window: The ui window to use for the viewer\n        '
+    self.app = app
+    self.window = window
+    self.logger = logging.getLogger(__name__)
+    self.config = {}
+    self.data = ''
+    self.lines = [Line()]
+    self.file_extension = ''
+    self.extension_map = {'scss': 'css', 'less': 'css', 'tmtheme': 'xml', 'ts': 'js'}
+    self.show_line_ends = True
+    self.cursor_style = curses.A_UNDERLINE
+    self.y_scroll = 0
+    self.x_scroll = 0
+    self.cursors = [Cursor()]
+    self.buffer = []
+    self.last_find = ''
+    self.operations = {'arrow_right': self.arrow_right, 'arrow_left': self.arrow_left, 'arrow_up': self.arrow_up, 'arrow_down': self.arrow_down, 'jump_left': self.jump_left, 'jump_right': self.jump_right, 'jump_up': self.jump_up, 'jump_down': self.jump_down, 'page_up': self.page_up, 'page_down': self.page_down, 'home': self.home, 'end': self.end, 'find': self.find_query, 'find_next': self.find_next, 'find_all': self.find_all}
+    self.pygments_syntax = None
+    self.lexer = None
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = { ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :,  ... :  ... .find_all}
+
+idx = 75:------------------- similar code ------------------ index = 109, score = 1.0 
+def get_torrent_urls(self):
+    torrindex = self.entry[1].find_all('div')[self.torr_index].find_all('p')
+    torrent = None
+    for para in torrindex:
+        if (para.text.strip() == 'TORRENT'):
+            torrent = para.strong.a['href']
+    if (not torrent):
+        return []
+    try:
+        torrenturl = decrypt_url(torrent, self.scraper)
+    except Exception:
+        self.scraper = create_scraper()
+        torrenturl = decrypt_url(torrent, self.scraper)
+    return torrenturl
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .find_all
+
+idx = 76:------------------- similar code ------------------ index = 92, score = 1.0 
+def escape_table_content(soup):
+    for item in soup.find_all(['td', 'th']):
+        escaped = escape(clear_ws(item.get_text()))
+        item.string = escaped
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 77:------------------- similar code ------------------ index = 107, score = 1.0 
+def print_ul(ul_element):
+    '\n    Prints an unordered list.\n\n    Parameter {bs4.Tag} ul_element: the unordered list to print.\n    '
+    for item in ul_element.find_all('li'):
+        print(colored(('    - ' + item.text), 'green', attrs=['bold']))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in  ... .find_all:
+idx = 78:------------------- similar code ------------------ index = 89, score = 1.0 
+@classmethod
+def find_by_level(cls, level):
+    edges = []
+    for e in cls.find_all():
+        edge = e.duplicate()
+        skips = 0
+        if (edge.node1.group.level < level):
+            skips += 1
+        else:
+            while (edge.node1.group.level != level):
+                edge.node1 = edge.node1.group
+        if (edge.node2.group.level < level):
+            skips += 1
+        else:
+            while (edge.node2.group.level != level):
+                edge.node2 = edge.node2.group
+        if (skips == 2):
+            continue
+        edges.append(edge)
+    return edges
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... .find_all():
+idx = 79:------------------- similar code ------------------ index = 84, score = 1.0 
+@staticmethod
+def _get_options(r):
+    soup = BeautifulSoup(r.text, 'lxml')
+    options = [h.text for h in soup.find_all('a', href=True) if h.text.endswith(('.zip', 'tar.gz'))]
+    return options
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = [ for  ...  in  ... .find_all]
+
+idx = 80:------------------- similar code ------------------ index = 132, score = 1.0 
+def get_ddl_parts(self, entry):
+    all_parts = self.entry[1].find_all('div', class_='dropshadowboxes-container')
+    return [(part.a.text.strip(), part.a['href']) for part in all_parts if ('Download' in part.a.text)]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 81:------------------- similar code ------------------ index = 131, score = 1.0 
+def GetDownloadList(self, resp):
+    '获取下载链接'
+    downloadUrls = {}
+    pattern = re.compile('name=(.*)')
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_dl_lists = soup.find_all('div', class_='dict_dl_btn')
+    for dict_dl_list in dict_dl_lists:
+        dict_dl_url = dict_dl_list.a['href']
+        dict_name = pattern.findall(dict_dl_url)[0]
+        dict_ch_name = unquote(dict_name, 'utf-8').replace('/', '-').replace(',', '-').replace('|', '-').replace('\\', '-').replace("'", '-')
+        downloadUrls[dict_ch_name] = dict_dl_url
+    return downloadUrls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 82:------------------- similar code ------------------ index = 129, score = 1.0 
+def __call__(self, lines):
+    '\n        Return HTML data from lines as a generator.\n        '
+    for line in lines:
+        if (not isinstance(line, SoupString)):
+            raise TypeError('HTML lines should be of type SoupString')
+        soup = line.soup
+        header_elements = soup.find_all('th')
+        if header_elements:
+            (yield [((el.text.strip(), el['colspan']) if el.has_attr('colspan') else el.text.strip()) for el in header_elements])
+        data_elements = soup.find_all('td')
+        if data_elements:
+            (yield [el.text.strip() for el in data_elements])
+    if (len(lines) == 0):
+        raise core.InconsistentTableError('HTML tables must contain data in a <table> tag')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in  ... :
+         ...  =  ... .find_all
+
+idx = 83:------------------- similar code ------------------ index = 128, score = 1.0 
+def read_sitemap_urls(sitemap_url, limit=None):
+    ' Grabs recursive URLs from a sitemap or sitemap index.\n\n    Parameters\n    ----------\n    sitemap_url: str\n        URL of the sitemap (XML).\n    limit: int\n        Restict to this many results.\n\n    Returns\n    -------\n    list\n        All found URLs\n\n    '
+    all_urls = []
+    headers = {'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept-Encoding': 'gzip'}
+    try:
+        response = requests.get(sitemap_url, headers=headers)
+        if (response.headers['Content-Type'].lower() == 'application/x-gzip'):
+            xml = gzip.decompress(response.content)
+        else:
+            xml = response.content
+        soup = BeautifulSoup(xml, 'lxml')
+        urls = [url.get_text().lower() for url in soup.find_all('loc')]
+        while urls:
+            url = urls.pop(0)
+            if ('.xml' in url[(- 8):]):
+                urls.extend(read_sitemap_urls(url))
+                continue
+            all_urls.append(url)
+            if (limit and (len(all_urls) >= limit)):
+                break
+    except Exception as e:
+        _LOG.error('Read Sitemap Error: ', str(e))
+    return all_urls
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    try:
+         ...  = [ for  ...  in  ... .find_all]
+
+idx = 84:------------------- similar code ------------------ index = 126, score = 1.0 
 def get_dce_daily(date=None, type='future', retries=0):
     "\n        获取大连商品交易所日交易数据\n    Parameters\n    ------\n        date: 日期 format：YYYY-MM-DD 或 YYYYMMDD 或 datetime.date对象 为空时为当天\n        type: 数据类型, 为'future'期货 或 'option'期权二者之一\n        retries: int, 当前重试次数，达到3次则获取数据失败\n    Return\n    -------\n        DataFrame\n            大商所日交易数据(DataFrame):\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                volume        成交量\n                open_interest   持仓量\n                turnover       成交额\n                settle        结算价\n                pre_settle    前结算价\n                variety       合约类别\n        或 \n        DataFrame\n           郑商所每日期权交易数据\n                symbol        合约代码\n                date          日期\n                open          开盘价\n                high          最高价\n                low           最低价\n                close         收盘价\n                pre_settle      前结算价\n                settle         结算价\n                delta          对冲值  \n                volume         成交量\n                open_interest     持仓量\n                oi_change       持仓变化\n                turnover        成交额\n                implied_volatility 隐含波动率\n                exercise_volume   行权量\n                variety        合约类别\n        或 None(给定日期没有交易数据)\n    "
     day = (ct.convert_date(date) if (date is not None) else datetime.date.today())
@@ -719,125 +2479,86 @@ def get_dce_daily(date=None, type='future', retries=0):
 def  ... ():
      ...  =  ... .find_all
 
-idx = 21:------------------- similar code ------------------ index = 27, score = 1.0 
-def get_network(self, networks, find_all=False):
-    search_networks = {Network.get(n) for n in networks.split(',')}
-    current_regions = self.view.sel()
-    logger.debug('Searching for network(s) {}'.format(networks))
-    for network in search_networks:
-        if (not network):
-            message = 'Invalid network {}'.format(network)
-            logger.debug(message)
-            self.view.show_popup_menu(message)
-            return
-    else:
-        self.view.sel().clear()
-        self.view.sel().add(sublime.Region(0, 0))
-        found_regions = self.view.find_all(sublime_ip.v4.any, sublime.IGNORECASE)
-        matching_networks = set()
-        found_networks = {self.view.substr(r) for r in found_regions}
-        logger.debug('Found {} IP like objects'.format(len(found_networks)))
-        for found_network in found_networks:
-            if (found_network in matching_networks):
-                continue
-            logger.debug('Getting network "{}"'.format(found_network))
-            for search_network in search_networks:
-                network_object = Network.get(found_network)
-                if (network_object and Network.contains(search_network, network_object)):
-                    matching_networks.add(found_network)
-                    break
-        self.view.sel().clear()
-        if matching_networks:
-            moved_view = False
-            for region in found_regions:
-                cleaned_region = Network.clean_region(self.view, region)
-                if (self.view.substr(cleaned_region) in matching_networks):
-                    self.view.sel().add(cleaned_region)
-                    if (not moved_view):
-                        self.view.show_at_center(cleaned_region.begin())
-                        moved_view = True
-        else:
-            logger.debug('No matches')
-            self.view.sel().add_all(current_regions)
-            self.view.show_at_center(current_regions[0].begin())
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ,  ... , find_all=False):
-idx = 22:------------------- similar code ------------------ index = 29, score = 1.0 
-@classmethod
-def find_by_level(cls, level):
-    edges = []
-    for e in cls.find_all():
-        edge = e.duplicate()
-        skips = 0
-        if (edge.node1.group.level < level):
-            skips += 1
-        else:
-            while (edge.node1.group.level != level):
-                edge.node1 = edge.node1.group
-        if (edge.node2.group.level < level):
-            skips += 1
-        else:
-            while (edge.node2.group.level != level):
-                edge.node2 = edge.node2.group
-        if (skips == 2):
-            continue
-        edges.append(edge)
-    return edges
+idx = 85:------------------- similar code ------------------ index = 82, score = 1.0 
+@staticmethod
+def get_all_connected_interfaces():
+    '! @brief Returns all the connected devices with a CMSIS-DAPv2 interface.'
+    try:
+        all_devices = usb.core.find(find_all=True, custom_match=HasCmsisDapv2Interface())
+    except usb.core.NoBackendError:
+        return []
+    boards = []
+    for board in all_devices:
+        new_board = PyUSBv2()
+        new_board.vid = board.idVendor
+        new_board.pid = board.idProduct
+        new_board.product_name = board.product
+        new_board.vendor_name = board.manufacturer
+        new_board.serial_number = board.serial_number
+        boards.append(new_board)
+    return boards
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    for  ...  in  ... .find_all():
-idx = 23:------------------- similar code ------------------ index = 36, score = 1.0 
-def test_body(self):
-    'Test the HTML response.\n\n        We use BeautifulSoup to parse the response, and check for some\n        elements that should be there.\n\n        '
-    res = self.app.get('/.html')
-    soup = BeautifulSoup(res.text, 'html.parser')
-    self.assertEqual(soup.title.string, 'Dataset http://localhost/.html')
-    self.assertEqual(soup.form['action'], 'http://localhost/.html')
-    self.assertEqual(soup.form['method'], 'POST')
-    ids = [var.id for var in walk(VerySimpleSequence)]
-    for (h2, id_) in zip(soup.find_all('h2'), ids):
-        self.assertEqual(h2.string, id_)
+    try:
+         ...  =  ... . ... (find_all=True,)
+
+idx = 86:------------------- similar code ------------------ index = 81, score = 1.0 
+def get_list_of_ingredients(self):
+    ingredient_list = self.soup.find_all('li', {'class': 'IngredientLine'})
+    return [ing.get_text().strip() for ing in ingredient_list]
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
-    for in  ... ( ... .find_all,  ... ):
-idx = 24:------------------- similar code ------------------ index = 37, score = 1.0 
-def get_network(self, network, find_all=False):
-    search_network = Network.get(network)
-    current_regions = self.view.sel()
-    logger.debug('Searching for network {}'.format(search_network))
-    if (not search_network):
-        logger.debug('Invalid network {}'.format(network))
-    else:
-        for region in self.view.sel():
-            cursor = region.end()
-            searched_from_start = (cursor is 0)
-            while True:
-                found_region = self.view.find(sublime_ip.v4.any, cursor, sublime.IGNORECASE)
-                if (not found_region):
-                    self.view.sel().clear()
-                    if (not searched_from_start):
-                        self.view.sel().add(sublime.Region(0, 0))
-                        searched_from_start = True
-                        cursor = 0
-                        continue
-                    self.view.sel().add_all(current_regions)
-                    break
-                cleaned_region = Network.clean_region(self.view, found_region)
-                network_re_match = self.view.substr(cleaned_region)
-                logger.debug('Network RE match {}'.format(network_re_match))
-                found_network = Network.get(network_re_match)
-                logger.debug('Network Object {} generated'.format(found_network))
-                if (found_network and Network.contains(search_network, found_network)):
-                    self.view.sel().clear()
-                    self.view.show_at_center(cleaned_region.begin())
-                    logger.debug('Network found in {} {}'.format(cleaned_region.begin(), cleaned_region.end()))
-                    self.view.sel().add(sublime.Region(cleaned_region.begin(), cleaned_region.end()))
-                    break
-                cursor = cleaned_region.end()
-    self._find_input_panel(network)
+     ...  =  ... .find_all
+
+idx = 87:------------------- similar code ------------------ index = 87, score = 1.0 
+def GetCategoryOne(self, resp):
+    '获取大类链接'
+    categoryOneUrls = []
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    dict_nav = soup.find('div', id='dict_nav_list')
+    dict_nav_lists = dict_nav.find_all('a')
+    for dict_nav_list in dict_nav_lists:
+        dict_nav_url = ('https://pinyin.sogou.com' + dict_nav_list['href'])
+        categoryOneUrls.append(dict_nav_url)
+    return categoryOneUrls
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ,  ... , find_all=False):
+def  ... ():
+     ...  =  ... .find_all
+
+idx = 88:------------------- similar code ------------------ index = 86, score = 1.0 
+def process(self):
+    if (self.input_data.ext in '.html'):
+        text = str(self.input_data)
+        soup = BeautifulSoup(text, 'html.parser')
+        modified_html = text.replace('style="color: ', 'data-mx-color="').replace('style="background: ', 'data-mx-bg-color="')
+        content = {'msgtype': 'm.text', 'format': 'org.matrix.custom.html', 'body': soup.get_text(), 'formatted_body': modified_html}
+    elif (self.input_data.ext in '.md'):
+        text = str(self.input_data)
+        html = markdown.markdown(text, extensions=['fenced_code'])
+        soup = BeautifulSoup(html, 'html.parser')
+        for code_block in soup.find_all('code'):
+            code_block['class'] = ('language-%s' % code_block['class'][0])
+            code_block.string = code_block.string.lstrip()
+        content = {'msgtype': 'm.text', 'format': 'org.matrix.custom.html', 'body': soup.get_text(), 'formatted_body': str(soup)}
+    elif (self.input_data.ext in '.txt'):
+        text = str(self.input_data)
+        content = {'msgtype': 'm.text', 'body': text}
+    elif (self.input_data.ext in ('.png', '.jpeg', '.jpg', '.bmp')):
+        if hasattr(self.doc, 'created_by_doc'):
+            description = ('image %s generated by script %s' % (self.input_data.name, self.doc.created_by_doc.name))
+        else:
+            description = ('automatically generated image %s' % self.input_data.name)
+        content = {'msgtype': 'm.image', 'body': description}
+    else:
+        content = {'msgtype': 'm.file', 'filename': self.input_data.name, 'body': self.input_data.name}
+    loop = asyncio.get_event_loop()
+    response = loop.run_until_complete(main_nio(homeserver=self.read_param('homeserver'), user=self.read_param('username'), password=self.read_param('password'), room_id=self.setting('room-id'), ext=self.input_data.ext, mimetype=mimetypes.guess_type(self.input_data.name)[0], data_provider=self.data_provider, content=content, log_fn=self.log_debug))
+    self.output_data.set_data(json.dumps(response))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if:    elif:
+        for  ...  in  ... .find_all:

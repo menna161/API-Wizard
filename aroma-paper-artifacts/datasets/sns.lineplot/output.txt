@@ -1,0 +1,166 @@
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+
+avg       ||          0           ||        0         ||         0        ||         0        
+
+idx = 0:------------------- similar code ------------------ index = 4, score = 7.0 
+def plot_line(x, xp_path, filename, title='', xlabel='Epochs', ylabel='Values', legendlabel=None, log_scale=False):
+    '\n    Draw a line plot with grouping options.\n\n    :param x: Data as a series, 1d-array, or list.\n    :param xp_path: Export path for the plot as string.\n    :param filename: Filename as string.\n    :param title: Title for the plot as string. Optional.\n    :param xlabel: Label for x-axis as string. Optional.\n    :param ylabel: Label for y-axis as string. Optional.\n    :param legendlabel: String or list of strings with data series legend labels. Optional.\n    :param log_scale: Boolean to set y-axis to log-scale.\n    '
+    sns.set()
+    sns.set_style('whitegrid')
+    data = {'x': [], 'y': [], 'label': []}
+    if isinstance(x, list):
+        n_series = len(x)
+        if (legendlabel is None):
+            legendlabel = [('series ' + str((i + 1))) for i in range(n_series)]
+        else:
+            assert (len(legendlabel) == n_series)
+        for (i, series) in enumerate(x):
+            data['x'].extend(list(range(1, (len(x[i]) + 1))))
+            data['y'].extend(list(x[i]))
+            data['label'].extend(([legendlabel[i]] * len(x[i])))
+    else:
+        if (legendlabel is None):
+            legendlabel = ['series 1']
+        else:
+            assert (len(legendlabel) == 1)
+        data['x'].extend(list(range(1, (len(x) + 1))))
+        data['y'].extend(list(x))
+        data['label'].extend((legendlabel * len(x)))
+    df = pd.DataFrame(data, columns=['x', 'y', 'label'])
+    sns.lineplot(x='x', y='y', hue='label', data=df, palette='colorblind')
+    if log_scale:
+        plt.yscale('symlog')
+        plt.grid(True, axis='both')
+    else:
+        plt.grid(False, axis='x')
+        plt.grid(True, axis='y')
+    if (not (title == '')):
+        plt.title(title)
+    plt.legend(legendlabel, title=False)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig(((xp_path + '/') + filename), bbox_inches='tight')
+    plt.clf()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    sns.lineplot
+
+idx = 1:------------------- similar code ------------------ index = 3, score = 7.0 
+def lineplot(x, y, filename, xaxis='Steps', yaxis='Returns'):
+    y = np.array(y)
+    (y_mean, y_std) = (y.mean(axis=1), y.std(axis=1))
+    sns.lineplot(x=x, y=y_mean, color='coral')
+    plt.fill_between(x, (y_mean - y_std), (y_mean + y_std), color='coral', alpha=0.3)
+    plt.xlim(left=0, right=x[(- 1)])
+    plt.xlabel(xaxis)
+    plt.ylabel(yaxis)
+    plt.savefig(f'{filename}.png')
+    plt.close()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    sns.lineplot
+
+idx = 2:------------------- similar code ------------------ index = 1, score = 7.0 
+def plot(exp_path, step='sample_frames'):
+    exp_path = Path(exp_path)
+    (results, demo_returns) = get_results(exp_path)
+    if ('sample_frames' == step):
+        x = 'samples'
+    elif ('sample_episodes' == step):
+        x = 'episodes'
+    elif ('train_steps' == step):
+        x = 'steps'
+    elif ('minutes' == step):
+        x = 'minutes'
+    else:
+        raise ValueError("Invalid argument 'step'. step must be from            [sample_frames, sample_episodes, train_steps, minutes]")
+    num_cols = len(results)
+    (fig, axes) = plt.subplots(1, num_cols, figsize=((num_cols * 6), 4))
+    if (num_cols == 1):
+        axes = [axes]
+    sns.set(style='darkgrid')
+    colors = sns.color_palette()
+    agents = []
+    for (i, env) in enumerate(results):
+        xlim = 0
+        for agent in results[env]:
+            df = results[env][agent][step]
+            if (agent not in agents):
+                agents.append(agent)
+            sns.lineplot(x=x, y='return', ci='sd', data=df, ax=axes[i], label=agent, legend=None, color=colors[agents.index(agent)])
+            xlim = max(xlim, df[x].max())
+        axes[i].set_title(env)
+        axes[i].set_xlim(0, xlim)
+        demo_return = demo_returns[env]
+        if (demo_return is not None):
+            if ('Demonstration' not in agents):
+                agents.append('Demonstration')
+            axes[i].axhline(demo_return, ls='--', label='Demonstration', color=colors[agents.index('Demonstration')])
+    handles = ([None] * len(agents))
+    for ax in axes:
+        (handle, label) = ax.get_legend_handles_labels()
+        for (h, agent) in zip(handle, label):
+            handles[agents.index(agent)] = h
+    lgd = fig.legend(handles, agents, loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=len(agents))
+    fig.tight_layout()
+    fig.savefig(str((exp_path / 'result.png')), bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    for in:
+        for  ...  in:
+            sns.lineplot
+
+idx = 3:------------------- similar code ------------------ index = 0, score = 7.0 
+def plot_dim():
+    'Plot increasing dimension over increasing difficulty.'
+    df = pd.read_csv('results.csv')
+    df = df[((df['Model'] == ARGS.model) & (df['Training'] == 'curr'))]
+    print(df.head())
+    sns.set_style('whitegrid')
+    sns.lineplot(x='Dim', y='Mean', hue='Set', data=df, hue_order=['validation', 'easy', 'medium', 'hard'])
+    plt.ylim(0.5, 1.0)
+    plt.ylabel('Mean Accuracy')
+    plt.xlim(32, 128)
+    plt.xlabel('Dimension')
+    plt.legend(loc='upper left')
+    showsave_plot()
+
+------------------- similar code (pruned) ------------------ score = 0.7272727272727273 
+def  ... ():
+    sns.lineplot
+
+idx = 4:------------------- similar code ------------------ index = 2, score = 6.0 
+def plot_relative_error(data_dir='heterogeneous_example_data'):
+    if (data_dir[(- 1)] != '/'):
+        data_dir += '/'
+    data_filename = (data_dir + 'heterogeneous_example_error_data.json')
+    data = json.load(open(data_filename))
+    plotting_data = []
+    for n in data.keys():
+        for i in data[n].keys():
+            d = {'Sample Size': int(n), 'Iteration': int(i)}
+            true_effects = data[n][str(i)]['true_effects']
+            estimated_effects = data[n][str(i)]['estimated_effects']
+            error = (np.array(true_effects) - np.array(estimated_effects))
+            relative_error = (np.linalg.norm(error) / np.linalg.norm(true_effects))
+            d['Relative Error'] = relative_error
+            plotting_data.append(d)
+    plotting_df = pd.DataFrame(plotting_data)
+    plt.figure(figsize=(18, 8))
+    ax = plt.gca()
+    grid = sns.lineplot(x='Sample Size', y='Relative Error', data=plotting_df, marker='o', ax=ax)
+    sample_sizes = [int(n) for n in data.keys()]
+    ax.set_xticks(sample_sizes)
+    ax.set_xticklabels(([''] + sample_sizes[1:]), rotation=45)
+    ax.set_xlim([0, (max(sample_sizes) + 100)])
+    sns.despine()
+    plt.title('Relative Error of Causal Forest')
+    plt.show()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = sns.lineplot
+

@@ -1,0 +1,25 @@
+import tensorflow as tf
+
+
+def __init__(self, use_bn=False):
+    super(VGG, self).__init__()
+    self.conv1 = VGG._make_conv_block(64, 3, 1, 'same', use_bn)
+    self.conv2 = VGG._make_conv_block(64, 3, 1, 'same', use_bn)
+    self.pool1 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='same')
+    self.conv3 = VGG._make_conv_block(128, 3, 1, 'same', use_bn)
+    self.conv4 = VGG._make_conv_block(128, 3, 1, 'same', use_bn)
+    self.pool2 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='same')
+    self.conv5 = VGG._make_conv_block(256, 3, 1, 'same', use_bn)
+    self.conv6 = VGG._make_conv_block(256, 3, 1, 'same', use_bn)
+    self.conv7 = VGG._make_conv_block(256, 3, 1, 'same', use_bn)
+    self.pool3 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='same')
+    self.conv8 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.conv9 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.conv10 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.pool4 = tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='same')
+    self.conv11 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.conv12 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.conv13 = VGG._make_conv_block(512, 3, 1, 'same', use_bn)
+    self.pool5 = tf.keras.layers.MaxPool2D(pool_size=3, strides=1, padding='same')
+    self.conv14 = tf.keras.layers.Conv2D(filters=1024, kernel_size=3, strides=1, padding='same', dilation_rate=6)
+    self.conv15 = tf.keras.layers.Conv2D(filters=1024, kernel_size=1, strides=1, padding='same')

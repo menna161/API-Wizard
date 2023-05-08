@@ -1,4 +1,36 @@
 ------------------------- example 1 ------------------------ 
+def _crop_random(self, image, mask):
+    '\n        Randomly crops image and mask in accord.\n        '
+    cond_crop_image = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32, seed=self.seed), tf.bool)
+    shape = tf.cast(tf.shape(image), tf.float32)
+    h = tf.cast((shape[0] * self.crop_percent), tf.int32)
+// your code ...
+    comb_tensor = tf.cond(cond_crop_image, (lambda : tf.image.random_crop(comb_tensor, [h, w, (self.channels[0] + self.channels[1])], seed=self.seed)), (lambda : tf.identity(comb_tensor)))
+    (image, mask) = tf.split(comb_tensor, [self.channels[0], self.channels[1]], axis=2)
+    return (image, mask)
+
+------------------------- example 2 ------------------------ 
+@staticmethod
+def static(imgs, DIFFICULTY):
+    'Gaussian noise, or "static"\n    '
+// your code ...
+    stddev = tf.gather(STATIC_STDDEVS, DIFFICULTY)
+    stddev = tf.random.uniform([], 0, stddev)
+    noise = tf.random.normal((batch_size, *img_shape), mean=0, stddev=stddev)
+    imgs = (imgs + noise)
+    return imgs
+
+------------------------- example 3 ------------------------ 
+@staticmethod
+def random_scale(imgs, DIFFICULTY):
+    'Randomly scales all of the values in each channel\n    '
+// your code ...
+    scales = tf.gather(MULTIPLY_SCALES, DIFFICULTY)
+    scales = tf.random.uniform([channels], minval=scales[0], maxval=scales[1])
+    imgs = (imgs * scales)
+    return imgs
+
+------------------------- example 4 ------------------------ 
 def get_visual_samples(test_ds, model, test_num_samples, difficulty):
     sample_idxs = tf.random.uniform([CFG['batch_size']], 0, test_num_samples, tf.int32)
     spy_imgs = None
@@ -6,67 +38,78 @@ def get_visual_samples(test_ds, model, test_num_samples, difficulty):
         vis_batch = tf.gather(test_ds, sample_idxs)
         (_, sample_imgs, aug_imgs) = model(vis_batch, difficulty)
 // your code ...
-
     else:
         vis_batch = {'adj': tf.gather(test_ds['adj'], sample_idxs), 'node_features': {name: tf.gather(tensor, sample_idxs) for (name, tensor) in test_ds['node_features'].items()}, 'adj_labels': tf.gather(test_ds['adj_labels'], sample_idxs), 'nf_labels': {name: tf.gather(tensor, sample_idxs) for (name, tensor) in test_ds['nf_labels'].items()}, 'num_nodes': tf.gather(test_ds['num_nodes'], sample_idxs)}
         (_, _, sample_imgs, aug_imgs, _, _) = model(vis_batch, difficulty)
 // your code ...
-
     sample_imgs = ((sample_imgs + 1) / 2)
 // your code ...
 
+------------------------- example 5 ------------------------ 
+def _corrupt_contrast(self, image, mask):
+    '\n        Randomly applies a random contrast change.\n        '
+    cond_contrast = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
+    image = tf.cond(cond_contrast, (lambda : tf.image.random_contrast(image, 0.1, 0.8)), (lambda : tf.identity(image)))
+    return (image, mask)
 
-------------------------- example 2 ------------------------ 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        8         ||         1        ||        0.125         
+example2  ||          3           ||        8         ||         1        ||        0.25         
+example3  ||          3           ||        7         ||         1        ||        0.14285714285714285         
+example4  ||          5           ||        10         ||         3        ||        0.1         
+example5  ||          2           ||        5         ||         0        ||        0.2         
+
+avg       ||          17.77777777777778           ||        7.6         ||         1.2        ||         16.357142857142858        
+
+idx = 0:------------------- similar code ------------------ index = 12, score = 9.0 
 def _crop_random(self, image, mask):
     '\n        Randomly crops image and mask in accord.\n        '
     cond_crop_image = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32, seed=self.seed), tf.bool)
     shape = tf.cast(tf.shape(image), tf.float32)
     h = tf.cast((shape[0] * self.crop_percent), tf.int32)
-// your code ...
-
+    w = tf.cast((shape[1] * self.crop_percent), tf.int32)
+    comb_tensor = tf.concat([image, mask], axis=2)
     comb_tensor = tf.cond(cond_crop_image, (lambda : tf.image.random_crop(comb_tensor, [h, w, (self.channels[0] + self.channels[1])], seed=self.seed)), (lambda : tf.identity(comb_tensor)))
     (image, mask) = tf.split(comb_tensor, [self.channels[0], self.channels[1]], axis=2)
     return (image, mask)
 
-------------------------- example 3 ------------------------ 
-def make_symbol_data(num_samples, NUM_SYMBOLS, test=False, **kwargs):
-    'Generate training data for toy problem (no GraphVAE)\n  '
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  =  ... . ... (tf.random.uniform,)
 
-    x = tf.random.uniform((_num_samples,), 0, NUM_SYMBOLS, dtype=tf.int32)
-    x = tf.one_hot(x, depth=NUM_SYMBOLS)
-    samples = tf.range(NUM_SYMBOLS)
-    samples = tf.one_hot(samples, depth=NUM_SYMBOLS)
-    return (x, samples)
+idx = 1:------------------- similar code ------------------ index = 11, score = 9.0 
+@staticmethod
+def static(imgs, DIFFICULTY):
+    'Gaussian noise, or "static"\n    '
+    STATIC_STDDEVS = [0.0, 0.03, 0.06, 0.1, 0.13, 0.16, 0.2, 0.23, 0.26, 0.3, 0.33, 0.36, 0.4, 0.43, 0.46, 0.5]
+    img_shape = imgs[0].shape
+    batch_size = imgs.shape[0]
+    stddev = tf.gather(STATIC_STDDEVS, DIFFICULTY)
+    stddev = tf.random.uniform([], 0, stddev)
+    noise = tf.random.normal((batch_size, *img_shape), mean=0, stddev=stddev)
+    imgs = (imgs + noise)
+    return imgs
 
-------------------------- example 4 ------------------------ 
-def _corrupt_saturation(self, image, mask):
-    '\n        Randomly applies a random saturation change.\n        '
-    cond_saturation = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
-    image = tf.cond(cond_saturation, (lambda : tf.image.random_saturation(image, 0.1, 0.8)), (lambda : tf.identity(image)))
-    return (image, mask)
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.uniform
 
-------------------------- example 5 ------------------------ 
+idx = 2:------------------- similar code ------------------ index = 10, score = 9.0 
 @staticmethod
 def random_scale(imgs, DIFFICULTY):
     'Randomly scales all of the values in each channel\n    '
-// your code ...
-
+    MULTIPLY_SCALES = [[1, 1], [0.9, 1.1], [0.85, 1.15], [0.8, 1.2], [0.75, 1.25], [0.7, 1.3], [0.65, 1.325], [0.6, 1.35], [0.55, 1.375], [0.5, 1.4], [0.48, 1.42], [0.46, 1.44], [0.44, 1.46], [0.42, 1.48], [0.4, 1.5], [0.35, 1.6]]
+    channels = imgs.shape[(- 1)]
     scales = tf.gather(MULTIPLY_SCALES, DIFFICULTY)
     scales = tf.random.uniform([channels], minval=scales[0], maxval=scales[1])
     imgs = (imgs * scales)
     return imgs
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          5           ||        13         ||         3        
-example2  ||          2           ||        9         ||         1        
-example3  ||          4           ||        8         ||         1        
-example4  ||          3           ||        5         ||         0        
-example5  ||          3           ||        8         ||         1        
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.uniform
 
-avg       ||          3.4           ||        8.6         ||         1.2        
-
-idx = 0:------------------- similar code ------------------ index = 12, score = 9.0 
+idx = 3:------------------- similar code ------------------ index = 9, score = 9.0 
 def get_visual_samples(test_ds, model, test_num_samples, difficulty):
     sample_idxs = tf.random.uniform([CFG['batch_size']], 0, test_num_samples, tf.int32)
     spy_imgs = None
@@ -90,7 +133,62 @@ def get_visual_samples(test_ds, model, test_num_samples, difficulty):
 def  ... ():
      ...  = tf.random.uniform
 
-idx = 1:------------------- similar code ------------------ index = 11, score = 9.0 
+idx = 4:------------------- similar code ------------------ index = 8, score = 9.0 
+@staticmethod
+def cutout(imgs, DIFFICULTY):
+    MASK_PERCENT = [0.0, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3, 0.325, 0.34, 0.36, 0.38, 0.4]
+    mask_percent = tf.gather(MASK_PERCENT, DIFFICULTY)
+    y_size = tf.random.uniform([], 0, mask_percent)
+    x_size = tf.random.uniform([], 0, mask_percent)
+    y_size = (tf.cast(((imgs.shape[1] * y_size) / 2), tf.int32) * 2)
+    x_size = (tf.cast(((imgs.shape[2] * x_size) / 2), tf.int32) * 2)
+    for _ in range(2):
+        imgs = tfa.image.random_cutout(imgs, mask_size=[y_size, x_size])
+    return imgs
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.uniform
+
+idx = 5:------------------- similar code ------------------ index = 7, score = 9.0 
+def _corrupt_contrast(self, image, mask):
+    '\n        Randomly applies a random contrast change.\n        '
+    cond_contrast = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
+    image = tf.cond(cond_contrast, (lambda : tf.image.random_contrast(image, 0.1, 0.8)), (lambda : tf.identity(image)))
+    return (image, mask)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  =  ... . ... (tf.random.uniform,)
+
+idx = 6:------------------- similar code ------------------ index = 6, score = 9.0 
+@tf.function
+def _random_jitter(self, input_image, real_image):
+    (input_image, real_image) = self._resize(input_image, real_image, 286, 286)
+    (input_image, real_image) = self._random_crop(input_image, real_image)
+    if (tf.random.uniform(()) > 0.5):
+        input_image = tf.image.flip_left_right(input_image)
+        real_image = tf.image.flip_left_right(real_image)
+    return (input_image, real_image)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    if (tf.random.uniform(()) >  ... ):
+idx = 7:------------------- similar code ------------------ index = 5, score = 9.0 
+def make_symbol_data(num_samples, NUM_SYMBOLS, test=False, **kwargs):
+    'Generate training data for toy problem (no GraphVAE)\n  '
+    _num_samples = (int((num_samples * 0.2)) if test else num_samples)
+    x = tf.random.uniform((_num_samples,), 0, NUM_SYMBOLS, dtype=tf.int32)
+    x = tf.one_hot(x, depth=NUM_SYMBOLS)
+    samples = tf.range(NUM_SYMBOLS)
+    samples = tf.one_hot(samples, depth=NUM_SYMBOLS)
+    return (x, samples)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.uniform
+
+idx = 8:------------------- similar code ------------------ index = 4, score = 9.0 
 if (__name__ == '__main__'):
     batch_size = 8
     nclass = 10
@@ -112,80 +210,18 @@ if (__name__ == '__main__'):
 if:
      ...  = tf.random.uniform
 
-idx = 2:------------------- similar code ------------------ index = 10, score = 9.0 
-def _crop_random(self, image, mask):
-    '\n        Randomly crops image and mask in accord.\n        '
-    cond_crop_image = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32, seed=self.seed), tf.bool)
-    shape = tf.cast(tf.shape(image), tf.float32)
-    h = tf.cast((shape[0] * self.crop_percent), tf.int32)
-    w = tf.cast((shape[1] * self.crop_percent), tf.int32)
-    comb_tensor = tf.concat([image, mask], axis=2)
-    comb_tensor = tf.cond(cond_crop_image, (lambda : tf.image.random_crop(comb_tensor, [h, w, (self.channels[0] + self.channels[1])], seed=self.seed)), (lambda : tf.identity(comb_tensor)))
-    (image, mask) = tf.split(comb_tensor, [self.channels[0], self.channels[1]], axis=2)
+idx = 9:------------------- similar code ------------------ index = 3, score = 9.0 
+def _corrupt_brightness(self, image, mask):
+    '\n        Radnomly applies a random brightness change.\n        '
+    cond_brightness = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
+    image = tf.cond(cond_brightness, (lambda : tf.image.random_brightness(image, 0.1)), (lambda : tf.identity(image)))
     return (image, mask)
 
 ------------------- similar code (pruned) ------------------ score = 0.55 
 def  ... ():
      ...  =  ... . ... (tf.random.uniform,)
 
-idx = 3:------------------- similar code ------------------ index = 9, score = 9.0 
-def make_symbol_data(num_samples, NUM_SYMBOLS, test=False, **kwargs):
-    'Generate training data for toy problem (no GraphVAE)\n  '
-    _num_samples = (int((num_samples * 0.2)) if test else num_samples)
-    x = tf.random.uniform((_num_samples,), 0, NUM_SYMBOLS, dtype=tf.int32)
-    x = tf.one_hot(x, depth=NUM_SYMBOLS)
-    samples = tf.range(NUM_SYMBOLS)
-    samples = tf.one_hot(samples, depth=NUM_SYMBOLS)
-    return (x, samples)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  = tf.random.uniform
-
-idx = 4:------------------- similar code ------------------ index = 8, score = 9.0 
-@staticmethod
-def cutout(imgs, DIFFICULTY):
-    MASK_PERCENT = [0.0, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3, 0.325, 0.34, 0.36, 0.38, 0.4]
-    mask_percent = tf.gather(MASK_PERCENT, DIFFICULTY)
-    y_size = tf.random.uniform([], 0, mask_percent)
-    x_size = tf.random.uniform([], 0, mask_percent)
-    y_size = (tf.cast(((imgs.shape[1] * y_size) / 2), tf.int32) * 2)
-    x_size = (tf.cast(((imgs.shape[2] * x_size) / 2), tf.int32) * 2)
-    for _ in range(2):
-        imgs = tfa.image.random_cutout(imgs, mask_size=[y_size, x_size])
-    return imgs
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  = tf.random.uniform
-
-idx = 5:------------------- similar code ------------------ index = 7, score = 9.0 
-def _corrupt_saturation(self, image, mask):
-    '\n        Randomly applies a random saturation change.\n        '
-    cond_saturation = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
-    image = tf.cond(cond_saturation, (lambda : tf.image.random_saturation(image, 0.1, 0.8)), (lambda : tf.identity(image)))
-    return (image, mask)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  =  ... . ... (tf.random.uniform,)
-
-idx = 6:------------------- similar code ------------------ index = 6, score = 9.0 
-@staticmethod
-def random_scale(imgs, DIFFICULTY):
-    'Randomly scales all of the values in each channel\n    '
-    MULTIPLY_SCALES = [[1, 1], [0.9, 1.1], [0.85, 1.15], [0.8, 1.2], [0.75, 1.25], [0.7, 1.3], [0.65, 1.325], [0.6, 1.35], [0.55, 1.375], [0.5, 1.4], [0.48, 1.42], [0.46, 1.44], [0.44, 1.46], [0.42, 1.48], [0.4, 1.5], [0.35, 1.6]]
-    channels = imgs.shape[(- 1)]
-    scales = tf.gather(MULTIPLY_SCALES, DIFFICULTY)
-    scales = tf.random.uniform([channels], minval=scales[0], maxval=scales[1])
-    imgs = (imgs * scales)
-    return imgs
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  = tf.random.uniform
-
-idx = 7:------------------- similar code ------------------ index = 5, score = 9.0 
+idx = 10:------------------- similar code ------------------ index = 2, score = 9.0 
 @tf.function
 def train_step(self, images, labels):
     with tf.GradientTape() as disc_tape:
@@ -216,57 +252,16 @@ def  ... ():
     with:
          ...  =  ... .random.uniform
 
-idx = 8:------------------- similar code ------------------ index = 4, score = 9.0 
-def _corrupt_contrast(self, image, mask):
-    '\n        Randomly applies a random contrast change.\n        '
-    cond_contrast = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
-    image = tf.cond(cond_contrast, (lambda : tf.image.random_contrast(image, 0.1, 0.8)), (lambda : tf.identity(image)))
-    return (image, mask)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  =  ... . ... (tf.random.uniform,)
-
-idx = 9:------------------- similar code ------------------ index = 3, score = 9.0 
-def _corrupt_brightness(self, image, mask):
-    '\n        Radnomly applies a random brightness change.\n        '
-    cond_brightness = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
-    image = tf.cond(cond_brightness, (lambda : tf.image.random_brightness(image, 0.1)), (lambda : tf.identity(image)))
-    return (image, mask)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  =  ... . ... (tf.random.uniform,)
-
-idx = 10:------------------- similar code ------------------ index = 2, score = 9.0 
-@tf.function
-def _random_jitter(self, input_image, real_image):
-    (input_image, real_image) = self._resize(input_image, real_image, 286, 286)
-    (input_image, real_image) = self._random_crop(input_image, real_image)
-    if (tf.random.uniform(()) > 0.5):
-        input_image = tf.image.flip_left_right(input_image)
-        real_image = tf.image.flip_left_right(real_image)
-    return (input_image, real_image)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-    if (tf.random.uniform(()) >  ... ):
 idx = 11:------------------- similar code ------------------ index = 1, score = 9.0 
-@staticmethod
-def static(imgs, DIFFICULTY):
-    'Gaussian noise, or "static"\n    '
-    STATIC_STDDEVS = [0.0, 0.03, 0.06, 0.1, 0.13, 0.16, 0.2, 0.23, 0.26, 0.3, 0.33, 0.36, 0.4, 0.43, 0.46, 0.5]
-    img_shape = imgs[0].shape
-    batch_size = imgs.shape[0]
-    stddev = tf.gather(STATIC_STDDEVS, DIFFICULTY)
-    stddev = tf.random.uniform([], 0, stddev)
-    noise = tf.random.normal((batch_size, *img_shape), mean=0, stddev=stddev)
-    imgs = (imgs + noise)
-    return imgs
+def _corrupt_saturation(self, image, mask):
+    '\n        Randomly applies a random saturation change.\n        '
+    cond_saturation = tf.cast(tf.random.uniform([], maxval=2, dtype=tf.int32), tf.bool)
+    image = tf.cond(cond_saturation, (lambda : tf.image.random_saturation(image, 0.1, 0.8)), (lambda : tf.identity(image)))
+    return (image, mask)
 
 ------------------- similar code (pruned) ------------------ score = 0.55 
 def  ... ():
-     ...  = tf.random.uniform
+     ...  =  ... . ... (tf.random.uniform,)
 
 idx = 12:------------------- similar code ------------------ index = 0, score = 9.0 
 @staticmethod

@@ -1,6 +1,354 @@
 ------------------------- example 1 ------------------------ 
-def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
-    "Instantiates the Inception v3 architecture.\n    Optionally loads weights pre-trained\n    on ImageNet. Note that when using TensorFlow,\n    for best performance you should set\n    `image_data_format='channels_last'` in your Keras config\n    at ~/.keras/keras.json.\n    The model and the weights are compatible with both\n    TensorFlow and Theano. The data format\n    convention used by the model is the one\n    specified in your Keras config file.\n    Note that the default input image size for this model is 299x299.\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              'imagenet' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is False (otherwise the input shape\n            has to be `(299, 299, 3)` (with `channels_last` data format)\n            or `(3, 299, 299)` (with `channels_first` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the\n                last convolutional layer.\n            - `avg` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `max` means that global max pooling will\n                be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is True, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras model instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    "
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------------- example 2 ------------------------ 
+def reduction_A(input):
+    if (K.image_dim_ordering() == 'th'):
+        channel_axis = 1
+    else:
+        channel_axis = (- 1)
+    r1 = conv_block(input, 384, 3, 3, subsample=(2, 2), border_mode='valid')
+    r2 = conv_block(input, 192, 1, 1)
+    r2 = conv_block(r2, 224, 3, 3)
+    r2 = conv_block(r2, 256, 3, 3, subsample=(2, 2), border_mode='valid')
+    r3 = MaxPooling2D((3, 3), strides=(2, 2), border_mode='valid')(input)
+    m = merge([r1, r2, r3], mode='concat', concat_axis=channel_axis)
+// your code ...
+
+------------------------- example 3 ------------------------ 
+def ml_net_model(img_rows=480, img_cols=640, downsampling_factor_net=8, downsampling_factor_product=10):
+    f = h5py.File('vgg16_weights.h5')
+    input_ml_net = Input(shape=(3, img_rows, img_cols))
+    weights = get_weights_vgg16(f, 1)
+    conv1_1 = Convolution2D(64, 3, 3, weights=weights, activation='relu', border_mode='same')(input_ml_net)
+    weights = get_weights_vgg16(f, 3)
+    conv1_2 = Convolution2D(64, 3, 3, weights=weights, activation='relu', border_mode='same')(conv1_1)
+    conv1_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv1_2)
+    weights = get_weights_vgg16(f, 6)
+// your code ...
+    conv2_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv2_2)
+    weights = get_weights_vgg16(f, 11)
+    conv3_1 = Convolution2D(256, 3, 3, weights=weights, activation='relu', border_mode='same')(conv2_pool)
+    weights = get_weights_vgg16(f, 13)
+    conv3_2 = Convolution2D(256, 3, 3, weights=weights, activation='relu', border_mode='same')(conv3_1)
+    weights = get_weights_vgg16(f, 15)
+// your code ...
+    conv3_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv3_3)
+    weights = get_weights_vgg16(f, 18)
+// your code ...
+    conv4_pool = MaxPooling2D((2, 2), strides=(1, 1), border_mode='same')(conv4_3)
+    weights = get_weights_vgg16(f, 25)
+// your code ...
+    concatenated = merge([conv3_pool, conv4_pool, conv5_3], mode='concat', concat_axis=1)
+    dropout = Dropout(0.5)(concatenated)
+// your code ...
+    pre_final_conv = Convolution2D(1, 1, 1, init='glorot_normal', activation='relu')(int_conv)
+    rows_elt = (math.ceil((img_rows / downsampling_factor_net)) // your code ... downsampling_factor_product)
+// your code ...
+    eltprod = EltWiseProduct(init='zero', W_regularizer=l2((1 / (rows_elt * cols_elt))))(pre_final_conv)
+    output_ml_net = Activation('relu')(eltprod)
+    model = Model(input=[input_ml_net], output=[output_ml_net])
+    for layer in model.layers:
+// your code ...
+    return model
+
+------------------------- example 4 ------------------------ 
+def InceptionResNetV2(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
+    'Instantiates the Inception-ResNet v2 architecture.\n    Optionally loads weights pre-trained on ImageNet.\n    Note that when using TensorFlow, for best performance you should\n    set `"image_data_format": "channels_last"` in your Keras config\n    at `~/.keras/keras.json`.\n    The model and the weights are compatible with TensorFlow, Theano and\n    CNTK backends. The data format convention used by the model is\n    the one specified in your Keras config file.\n    Note that the default input image size for this model is 299x299, instead\n    of 224x224 as in the VGG16 and ResNet models. Also, the input preprocessing\n    function is different (i.e., do not use `imagenet_utils.preprocess_input()`\n    with this model. Use `preprocess_input()` defined in this module instead).\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              \'imagenet\' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is `False` (otherwise the input shape\n            has to be `(299, 299, 3)` (with `\'channels_last\'` data format)\n            or `(3, 299, 299)` (with `\'channels_first\'` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the last convolutional layer.\n            - `\'avg\'` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `\'max\'` means that global max pooling will be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is `True`, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras `Model` instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    '
+// your code ...
+    if ((weights == 'imagenet') and include_top and (classes != 1000)):
+// your code ...
+    input_shape = _obtain_input_shape(input_shape, default_size=299, min_size=139, data_format=K.image_data_format(), require_flatten=False, weights=weights)
+    if (input_tensor is None):
+        img_input = Input(shape=input_shape)
+    elif (not K.is_keras_tensor(input_tensor)):
+        img_input = Input(tensor=input_tensor, shape=input_shape)
+    else:
+        img_input = input_tensor
+    x = conv2d_bn(img_input, 32, 3, strides=2, padding='same')
+    x = conv2d_bn(x, 32, 3, padding='same')
+    x = conv2d_bn(x, 64, 3)
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    x = conv2d_bn(x, 80, 1, padding='same')
+    x = conv2d_bn(x, 192, 3, padding='same')
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    branch_0 = conv2d_bn(x, 96, 1)
+// your code ...
+    branch_pool = AveragePooling2D(3, strides=1, padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 64, 1)
+// your code ...
+    x = Concatenate(axis=channel_axis, name='mixed_5b')(branches)
+    for block_idx in range(1, 11):
+        x = inception_resnet_block(x, scale=0.17, block_type='block35', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+// your code ...
+    branch_1 = conv2d_bn(branch_1, 384, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_6a')(branches)
+    for block_idx in range(1, 21):
+        x = inception_resnet_block(x, scale=0.1, block_type='block17', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 256, 1)
+    branch_0 = conv2d_bn(branch_0, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+    branch_1 = conv2d_bn(branch_1, 288, 3, strides=2, padding='same')
+    branch_2 = conv2d_bn(x, 256, 1)
+// your code ...
+    branch_2 = conv2d_bn(branch_2, 320, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_7a')(branches)
+    for block_idx in range(1, 10):
+        x = inception_resnet_block(x, scale=0.2, block_type='block8', block_idx=block_idx)
+    x = inception_resnet_block(x, scale=1.0, activation=None, block_type='block8', block_idx=10)
+    x = conv2d_bn(x, 1536, 1, name='conv_7b')
+    if include_top:
+        x = GlobalAveragePooling2D(name='avg_pool')(x)
+        x = Dense(classes, activation='softmax', name='predictions')(x)
+    elif (pooling == 'avg'):
+// your code ...
+    elif (pooling == 'max'):
+        x = GlobalMaxPooling2D()(x)
+    if (input_tensor is not None):
+        inputs = get_source_inputs(input_tensor)
+    else:
+        inputs = img_input
+    model = Model(inputs, x, name='inception_resnet_v2')
+    if (weights == 'imagenet'):
+// your code ...
+    return model
+
+------------------------- example 5 ------------------------ 
+
+def build(width, height, depth, classes):
+    model = Sequential()
+    input_shape = (height, width, depth)
+// your code ...
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Dropout(0.5))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(Flatten())
+    model.add(Activation('relu'))
+    model.add(Dense(classes))
+    model.add(Activation('softmax'))
+    return model
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        27         ||         0        ||        0.07407407407407407         
+example2  ||          6           ||        11         ||         1        ||        0.09090909090909091         
+example3  ||          7           ||        27         ||         8        ||        0.14814814814814814         
+example4  ||          6           ||        57         ||         8        ||        0.10526315789473684         
+example5  ||          3           ||        21         ||         1        ||        0.42857142857142855         
+
+avg       ||          7.042253521126761           ||        28.6         ||         3.6        ||         16.939317991949572        
+
+idx = 0:------------------- similar code ------------------ index = 38, score = 1.0 
+def build(self, input_shape):
+    self.input_spec = [InputSpec(shape=input_shape)]
+    self.conv_layers = {c: [] for c in ['i', 'f', 'c', 'o', 'a', 'ahat']}
+    self.e_up_layers = []
+    self.e_down_layers = []
+    self.e_layers = []
+    for l in range(self.nb_layers):
+        for c in ['i', 'f', 'c', 'o']:
+            act = (self.LSTM_activation if (c == 'c') else self.LSTM_inner_activation)
+            self.conv_layers[c].append(Conv2D(self.R_stack_sizes[l], self.R_filt_sizes[l], padding='same', activation=act, data_format=self.data_format))
+        act = ('relu' if (l == 0) else self.A_activation)
+        self.conv_layers['ahat'].append(Conv2D(self.stack_sizes[l], self.Ahat_filt_sizes[l], padding='same', activation=act, data_format=self.data_format))
+        if (l < (self.nb_layers - 1)):
+            self.conv_layers['a'].append(Conv2D(self.stack_sizes[(l + 1)], self.A_filt_sizes[l], padding='same', activation=self.A_activation, data_format=self.data_format))
+    self.upsample = UpSampling2D(data_format=self.data_format)
+    self.pool = MaxPooling2D(data_format=self.data_format)
+    self.trainable_weights = []
+    (nb_row, nb_col) = ((input_shape[(- 2)], input_shape[(- 1)]) if (self.data_format == 'channels_first') else (input_shape[(- 3)], input_shape[(- 2)]))
+    for c in sorted(self.conv_layers.keys()):
+        for l in range(len(self.conv_layers[c])):
+            ds_factor = (2 ** l)
+            if (c == 'ahat'):
+                nb_channels = self.R_stack_sizes[l]
+            elif (c == 'a'):
+                nb_channels = (2 * self.R_stack_sizes[l])
+            else:
+                nb_channels = ((self.stack_sizes[l] * 2) + self.R_stack_sizes[l])
+                if (l < (self.nb_layers - 1)):
+                    nb_channels += self.R_stack_sizes[(l + 1)]
+            in_shape = (input_shape[0], nb_channels, (nb_row // ds_factor), (nb_col // ds_factor))
+            if (self.data_format == 'channels_last'):
+                in_shape = (in_shape[0], in_shape[2], in_shape[3], in_shape[1])
+            if (c == 'ahat'):
+                self.e_down_layers.append(Subtract())
+                self.e_up_layers.append(Subtract())
+                self.e_layers.append(Concatenate())
+                with K.name_scope(('layer_e_down_' + str(l))):
+                    self.e_down_layers[(- 1)].build([in_shape, in_shape])
+                with K.name_scope(('layer_e_up_' + str(l))):
+                    self.e_up_layers[(- 1)].build([in_shape, in_shape])
+                with K.name_scope(('layer_e_' + str(l))):
+                    self.e_layers[(- 1)].build([in_shape, in_shape])
+            with K.name_scope(((('layer_' + c) + '_') + str(l))):
+                self.conv_layers[c][l].build(in_shape)
+            self.trainable_weights += self.conv_layers[c][l].trainable_weights
+    self.states = (([None] * self.nb_layers) * 3)
+    if (self.extrap_start_time is not None):
+        self.t_extrap = K.variable(self.extrap_start_time, (int if (K.backend() != 'tensorflow') else 'int32'))
+        self.states += ([None] * 2)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = MaxPooling2D
+
+idx = 1:------------------- similar code ------------------ index = 9, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ...  =  ... .MaxPooling2D
+
+idx = 2:------------------- similar code ------------------ index = 16, score = 1.0 
+def reduction_A(input):
+    if (K.image_dim_ordering() == 'th'):
+        channel_axis = 1
+    else:
+        channel_axis = (- 1)
+    r1 = conv_block(input, 384, 3, 3, subsample=(2, 2), border_mode='valid')
+    r2 = conv_block(input, 192, 1, 1)
+    r2 = conv_block(r2, 224, 3, 3)
+    r2 = conv_block(r2, 256, 3, 3, subsample=(2, 2), border_mode='valid')
+    r3 = MaxPooling2D((3, 3), strides=(2, 2), border_mode='valid')(input)
+    m = merge([r1, r2, r3], mode='concat', concat_axis=channel_axis)
+    return m
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = MaxPooling2D
+
+idx = 3:------------------- similar code ------------------ index = 15, score = 1.0 
+@classmethod
+def _conv_pool_block(cls, x, kernel_count: int, kernel_size: int, padding: str, activation: str, pool_size: int) -> typing.Any:
+    output = keras.layers.Conv2D(kernel_count, kernel_size, padding=padding, activation=activation)(x)
+    output = keras.layers.MaxPooling2D(pool_size=pool_size)(output)
+    return output
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () ->:
+     ...  =  ... .MaxPooling2D
+
+idx = 4:------------------- similar code ------------------ index = 14, score = 1.0 
+def ml_net_model(img_rows=480, img_cols=640, downsampling_factor_net=8, downsampling_factor_product=10):
+    f = h5py.File('vgg16_weights.h5')
+    input_ml_net = Input(shape=(3, img_rows, img_cols))
+    weights = get_weights_vgg16(f, 1)
+    conv1_1 = Convolution2D(64, 3, 3, weights=weights, activation='relu', border_mode='same')(input_ml_net)
+    weights = get_weights_vgg16(f, 3)
+    conv1_2 = Convolution2D(64, 3, 3, weights=weights, activation='relu', border_mode='same')(conv1_1)
+    conv1_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv1_2)
+    weights = get_weights_vgg16(f, 6)
+    conv2_1 = Convolution2D(128, 3, 3, weights=weights, activation='relu', border_mode='same')(conv1_pool)
+    weights = get_weights_vgg16(f, 8)
+    conv2_2 = Convolution2D(128, 3, 3, weights=weights, activation='relu', border_mode='same')(conv2_1)
+    conv2_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv2_2)
+    weights = get_weights_vgg16(f, 11)
+    conv3_1 = Convolution2D(256, 3, 3, weights=weights, activation='relu', border_mode='same')(conv2_pool)
+    weights = get_weights_vgg16(f, 13)
+    conv3_2 = Convolution2D(256, 3, 3, weights=weights, activation='relu', border_mode='same')(conv3_1)
+    weights = get_weights_vgg16(f, 15)
+    conv3_3 = Convolution2D(256, 3, 3, weights=weights, activation='relu', border_mode='same')(conv3_2)
+    conv3_pool = MaxPooling2D((2, 2), strides=(2, 2), border_mode='same')(conv3_3)
+    weights = get_weights_vgg16(f, 18)
+    conv4_1 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv3_pool)
+    weights = get_weights_vgg16(f, 20)
+    conv4_2 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv4_1)
+    weights = get_weights_vgg16(f, 22)
+    conv4_3 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv4_2)
+    conv4_pool = MaxPooling2D((2, 2), strides=(1, 1), border_mode='same')(conv4_3)
+    weights = get_weights_vgg16(f, 25)
+    conv5_1 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv4_pool)
+    weights = get_weights_vgg16(f, 27)
+    conv5_2 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv5_1)
+    weights = get_weights_vgg16(f, 29)
+    conv5_3 = Convolution2D(512, 3, 3, weights=weights, activation='relu', border_mode='same')(conv5_2)
+    concatenated = merge([conv3_pool, conv4_pool, conv5_3], mode='concat', concat_axis=1)
+    dropout = Dropout(0.5)(concatenated)
+    int_conv = Convolution2D(64, 3, 3, init='glorot_normal', activation='relu', border_mode='same')(dropout)
+    pre_final_conv = Convolution2D(1, 1, 1, init='glorot_normal', activation='relu')(int_conv)
+    rows_elt = (math.ceil((img_rows / downsampling_factor_net)) // downsampling_factor_product)
+    cols_elt = (math.ceil((img_cols / downsampling_factor_net)) // downsampling_factor_product)
+    eltprod = EltWiseProduct(init='zero', W_regularizer=l2((1 / (rows_elt * cols_elt))))(pre_final_conv)
+    output_ml_net = Activation('relu')(eltprod)
+    model = Model(input=[input_ml_net], output=[output_ml_net])
+    for layer in model.layers:
+        print(layer.input_shape, layer.output_shape)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 5:------------------- similar code ------------------ index = 13, score = 1.0 
+def InceptionResNetV2(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
+    'Instantiates the Inception-ResNet v2 architecture.\n    Optionally loads weights pre-trained on ImageNet.\n    Note that when using TensorFlow, for best performance you should\n    set `"image_data_format": "channels_last"` in your Keras config\n    at `~/.keras/keras.json`.\n    The model and the weights are compatible with TensorFlow, Theano and\n    CNTK backends. The data format convention used by the model is\n    the one specified in your Keras config file.\n    Note that the default input image size for this model is 299x299, instead\n    of 224x224 as in the VGG16 and ResNet models. Also, the input preprocessing\n    function is different (i.e., do not use `imagenet_utils.preprocess_input()`\n    with this model. Use `preprocess_input()` defined in this module instead).\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              \'imagenet\' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is `False` (otherwise the input shape\n            has to be `(299, 299, 3)` (with `\'channels_last\'` data format)\n            or `(3, 299, 299)` (with `\'channels_first\'` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the last convolutional layer.\n            - `\'avg\'` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `\'max\'` means that global max pooling will be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is `True`, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras `Model` instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    '
     if (not ((weights in {'imagenet', None}) or os.path.exists(weights))):
         raise ValueError('The `weights` argument should be either `None` (random initialization), `imagenet` (pre-training on ImageNet), or the path to the weights file to be loaded.')
     if ((weights == 'imagenet') and include_top and (classes != 1000)):
@@ -12,85 +360,49 @@ def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_s
         img_input = Input(tensor=input_tensor, shape=input_shape)
     else:
         img_input = input_tensor
-    if (K.image_data_format() == 'channels_first'):
-        channel_axis = 1
-    else:
-        channel_axis = 3
-    x = conv2d_bn(img_input, 32, 3, 3, strides=(2, 2), padding='same')
-    x = conv2d_bn(x, 32, 3, 3, padding='same')
-    x = conv2d_bn(x, 64, 3, 3)
-    x = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    x = conv2d_bn(x, 80, 1, 1, padding='same')
-    x = conv2d_bn(x, 192, 3, 3, padding='same')
-    x = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    branch1x1 = conv2d_bn(x, 64, 1, 1)
-    branch5x5 = conv2d_bn(x, 48, 1, 1)
-    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
-    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
-    branch_pool = conv2d_bn(branch_pool, 32, 1, 1)
-    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed0')
-    branch1x1 = conv2d_bn(x, 64, 1, 1)
-    branch5x5 = conv2d_bn(x, 48, 1, 1)
-    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
-    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
-    branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
-    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed1')
-    branch1x1 = conv2d_bn(x, 64, 1, 1)
-    branch5x5 = conv2d_bn(x, 48, 1, 1)
-    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
-    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-// your code ...
-
-    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
-    branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
-    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed2')
-    branch3x3 = conv2d_bn(x, 384, 3, 3, strides=(2, 2), padding='same')
-    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
-    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3, strides=(2, 2), padding='same')
-    branch_pool = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    x = layers.concatenate([branch3x3, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed3')
-    branch1x1 = conv2d_bn(x, 192, 1, 1)
-    branch7x7 = conv2d_bn(x, 128, 1, 1)
-// your code ...
-
-    x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name='mixed4')
-    for i in range(2):
-        branch1x1 = conv2d_bn(x, 192, 1, 1)
-// your code ...
-
-        x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name=('mixed' + str((5 + i))))
-    branch1x1 = conv2d_bn(x, 192, 1, 1)
-// your code ...
-
-    x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name='mixed7')
-    branch3x3 = conv2d_bn(x, 192, 1, 1)
-    branch3x3 = conv2d_bn(branch3x3, 320, 3, 3, strides=(2, 2), padding='same')
-    branch7x7x3 = conv2d_bn(x, 192, 1, 1)
-// your code ...
-
-    branch7x7x3 = conv2d_bn(branch7x7x3, 192, 3, 3, strides=(2, 2), padding='same')
-    branch_pool = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    x = layers.concatenate([branch3x3, branch7x7x3, branch_pool], axis=channel_axis, name='mixed8')
-    for i in range(2):
-        branch1x1 = conv2d_bn(x, 320, 1, 1)
-// your code ...
-
-        branch3x3_2 = conv2d_bn(branch3x3, 384, 3, 1)
-        branch3x3 = layers.concatenate([branch3x3_1, branch3x3_2], axis=channel_axis, name=('mixed9_' + str(i)))
-// your code ...
-
-        branch3x3dbl = conv2d_bn(branch3x3dbl, 384, 3, 3)
-        branch3x3dbl_1 = conv2d_bn(branch3x3dbl, 384, 1, 3)
-// your code ...
-
+    x = conv2d_bn(img_input, 32, 3, strides=2, padding='same')
+    x = conv2d_bn(x, 32, 3, padding='same')
+    x = conv2d_bn(x, 64, 3)
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    x = conv2d_bn(x, 80, 1, padding='same')
+    x = conv2d_bn(x, 192, 3, padding='same')
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    branch_0 = conv2d_bn(x, 96, 1)
+    branch_1 = conv2d_bn(x, 48, 1)
+    branch_1 = conv2d_bn(branch_1, 64, 5)
+    branch_2 = conv2d_bn(x, 64, 1)
+    branch_2 = conv2d_bn(branch_2, 96, 3)
+    branch_2 = conv2d_bn(branch_2, 96, 3)
+    branch_pool = AveragePooling2D(3, strides=1, padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 64, 1)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    channel_axis = (1 if (K.image_data_format() == 'channels_first') else 3)
+    x = Concatenate(axis=channel_axis, name='mixed_5b')(branches)
+    for block_idx in range(1, 11):
+        x = inception_resnet_block(x, scale=0.17, block_type='block35', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+    branch_1 = conv2d_bn(branch_1, 256, 3)
+    branch_1 = conv2d_bn(branch_1, 384, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_6a')(branches)
+    for block_idx in range(1, 21):
+        x = inception_resnet_block(x, scale=0.1, block_type='block17', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 256, 1)
+    branch_0 = conv2d_bn(branch_0, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+    branch_1 = conv2d_bn(branch_1, 288, 3, strides=2, padding='same')
+    branch_2 = conv2d_bn(x, 256, 1)
+    branch_2 = conv2d_bn(branch_2, 288, 3)
+    branch_2 = conv2d_bn(branch_2, 320, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_7a')(branches)
+    for block_idx in range(1, 10):
+        x = inception_resnet_block(x, scale=0.2, block_type='block8', block_idx=block_idx)
+    x = inception_resnet_block(x, scale=1.0, activation=None, block_type='block8', block_idx=10)
+    x = conv2d_bn(x, 1536, 1, name='conv_7b')
     if include_top:
         x = GlobalAveragePooling2D(name='avg_pool')(x)
         x = Dense(classes, activation='softmax', name='predictions')(x)
@@ -102,34 +414,240 @@ def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_s
         inputs = get_source_inputs(input_tensor)
     else:
         inputs = img_input
-    model = Model(inputs, x, name='inception_v3')
+    model = Model(inputs, x, name='inception_resnet_v2')
     if (weights == 'imagenet'):
         if (K.image_data_format() == 'channels_first'):
             if (K.backend() == 'tensorflow'):
                 warnings.warn('You are using the TensorFlow backend, yet you are using the Theano image data format convention (`image_data_format="channels_first"`). For best performance, set `image_data_format="channels_last"` in your Keras config at ~/.keras/keras.json.')
         if include_top:
-            weights_path = get_file('inception_v3_weights_tf_dim_ordering_tf_kernels.h5', WEIGHTS_PATH, cache_subdir='/project/backbones_weights', file_hash='9a0d58056eeedaa3f26cb7ebd46da564')
+            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels.h5'
+            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='models', file_hash='e693bd0210a403b3192acc6073ad2e96')
         else:
-            weights_path = get_file('inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5', WEIGHTS_PATH_NO_TOP, cache_subdir='/project/backbones_weights', file_hash='bcbd6486424b2319ff4ef7d526e38f63')
+            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels_notop.h5'
+            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='models', file_hash='d19885ff4a710c122648d3b5c3b684e4')
         model.load_weights(weights_path)
     elif (weights is not None):
         model.load_weights(weights)
     return model
 
-------------------------- example 2 ------------------------ 
-def build_model(x_train, num_classes):
-    tf.reset_default_graph()
-    inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
-    x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
-    x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
-    x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
-    x = KL.Flatten(name='flat1')(x)
-    x = KL.Dense(128, activation='relu', name='dense1')(x)
-    x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
-    return KM.Model(inputs, x, 'digit_classifier_model')
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
 
-------------------------- example 3 ------------------------ 
-def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, first_conv_filters=64, first_block_filters=64):
+idx = 6:------------------- similar code ------------------ index = 12, score = 1.0 
+@staticmethod
+def build(width, height, depth, classes):
+    model = Sequential()
+    input_shape = (height, width, depth)
+    if (K.image_data_format() == 'channels_first'):
+        input_shape = (depth, height, width)
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Dropout(0.5))
+    model.add(Conv2D(size, (3, 3), padding='same', input_shape=input_shape))
+    model.add(Activation('relu'))
+    model.add(Flatten())
+    model.add(Activation('relu'))
+    model.add(Dense(classes))
+    model.add(Activation('softmax'))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (MaxPooling2D)
+
+idx = 7:------------------- similar code ------------------ index = 11, score = 1.0 
+def make_default_model(self):
+    '\n        Makes a CNN keras model with the default hyper parameters.\n        '
+    self.model.add(Conv2D(8, (13, 13), input_shape=(self.input_shape[0], self.input_shape[1], 1)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(Conv2D(8, (13, 13)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(MaxPooling2D(pool_size=(2, 1)))
+    self.model.add(Conv2D(8, (13, 13)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(Conv2D(8, (2, 2)))
+    self.model.add(BatchNormalization(axis=(- 1)))
+    self.model.add(Activation('relu'))
+    self.model.add(MaxPooling2D(pool_size=(2, 1)))
+    self.model.add(Flatten())
+    self.model.add(Dense(64))
+    self.model.add(BatchNormalization())
+    self.model.add(Activation('relu'))
+    self.model.add(Dropout(0.2))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (MaxPooling2D)
+
+idx = 8:------------------- similar code ------------------ index = 10, score = 1.0 
+@add_arg_scope
+def max_pool2d(inputs, kernel_size, stride=2, padding='VALID', data_format=DATA_FORMAT_NHWC, outputs_collections=None, scope=None):
+    "Adds a 2D Max Pooling op.\n\n  It is assumed that the pooling is done per image but not in batch or channels.\n\n  Args:\n    inputs: A 4-D tensor of shape `[batch_size, height, width, channels]` if\n      `data_format` is `NHWC`, and `[batch_size, channels, height, width]` if\n      `data_format` is `NCHW`.\n    kernel_size: A list of length 2: [kernel_height, kernel_width] of the\n      pooling kernel over which the op is computed. Can be an int if both\n      values are the same.\n    stride: A list of length 2: [stride_height, stride_width].\n      Can be an int if both strides are the same. Note that presently\n      both strides must have the same value.\n    padding: The padding method, either 'VALID' or 'SAME'.\n    data_format: A string. `NHWC` (default) and `NCHW` are supported.\n    outputs_collections: The collections to which the outputs are added.\n    scope: Optional scope for name_scope.\n\n  Returns:\n    A `Tensor` representing the results of the pooling operation.\n\n  Raises:\n    ValueError: If `data_format` is neither `NHWC` nor `NCHW`.\n    ValueError: If 'kernel_size' is not a 2-D list\n  "
+    if (data_format not in (DATA_FORMAT_NCHW, DATA_FORMAT_NHWC)):
+        raise ValueError('data_format has to be either NCHW or NHWC.')
+    with ops.name_scope(scope, 'MaxPool2D', [inputs]) as sc:
+        inputs = ops.convert_to_tensor(inputs)
+        df = ('channels_first' if (data_format and data_format.startswith('NC')) else 'channels_last')
+        layer = pooling_layers.MaxPooling2D(pool_size=kernel_size, strides=stride, padding=padding, data_format=df, _scope=sc)
+        outputs = layer.apply(inputs)
+        return utils.collect_named_outputs(outputs_collections, sc, outputs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    with:
+         ...  =  ... .MaxPooling2D
+
+idx = 9:------------------- similar code ------------------ index = 8, score = 1.0 
+def build_model(self):
+    dropout = 0.2
+    shape = (None, self.ydim, self.xdim, self.channels)
+    left = Input(batch_shape=shape)
+    right = Input(batch_shape=shape)
+    x = SeparableConv2D(filters=16, kernel_size=5, padding='same')(left)
+    xleft = SeparableConv2D(filters=1, kernel_size=5, padding='same', dilation_rate=2)(left)
+    xin = keras.layers.concatenate([left, right])
+    xin = SeparableConv2D(filters=32, kernel_size=5, padding='same')(xin)
+    x8 = MaxPooling2D(8)(xin)
+    x8 = BatchNormalization()(x8)
+    x8 = Activation('relu', name='downsampled_stereo')(x8)
+    num_dilations = 4
+    dilation_rate = 1
+    y = x8
+    for i in range(num_dilations):
+        a = SeparableConv2D(filters=32, kernel_size=5, padding='same', dilation_rate=dilation_rate)(x8)
+        a = Dropout(dropout)(a, training=self.dropout_test)
+        y = keras.layers.concatenate([a, y])
+        dilation_rate += 1
+    dilation_rate = 1
+    x = MaxPooling2D(8)(x)
+    for i in range(num_dilations):
+        x = keras.layers.concatenate([x, y])
+        y = BatchNormalization()(x)
+        y = Activation('relu')(y)
+        y = SeparableConv2D(filters=64, kernel_size=1, padding='same')(y)
+        y = BatchNormalization()(y)
+        y = Activation('relu')(y)
+        y = SeparableConv2D(filters=16, kernel_size=5, padding='same', dilation_rate=dilation_rate)(y)
+        y = Dropout(dropout)(y, training=self.dropout_test)
+        dilation_rate += 1
+    x = keras.layers.concatenate([x, y], name='upsampled_disparity')
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = SeparableConv2D(filters=32, kernel_size=1, padding='same')(x)
+    x = UpSampling2D(8)(x)
+    if (not self.settings.nopadding):
+        x = ZeroPadding2D(padding=(2, 0))(x)
+    x = keras.layers.concatenate([x, xleft])
+    y = BatchNormalization()(x)
+    y = Activation('relu')(y)
+    y = SeparableConv2D(filters=16, kernel_size=5, padding='same')(y)
+    x = keras.layers.concatenate([x, y])
+    y = BatchNormalization()(x)
+    y = Activation('relu')(y)
+    y = Conv2DTranspose(filters=1, kernel_size=9, padding='same')(y)
+    self.model = Model([left, right], y)
+    if self.settings.model_weights:
+        print(('Loading checkpoint model weights %s....' % self.settings.model_weights))
+        self.model.load_weights(self.settings.model_weights)
+    return self.model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = MaxPooling2D
+
+idx = 10:------------------- similar code ------------------ index = 18, score = 1.0 
+def get_my_CNN_model_architecture():
+    '\n    The network should accept a 96x96 grayscale image as input, and it should output a vector with 30 entries,\n    corresponding to the predicted (horizontal and vertical) locations of 15 facial keypoints.\n    '
+    model = Sequential()
+    model.add(Convolution2D(32, (5, 5), input_shape=(96, 96, 1), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Convolution2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.1))
+    model.add(Convolution2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.2))
+    model.add(Convolution2D(30, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.3))
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(30))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (MaxPooling2D)
+
+idx = 11:------------------- similar code ------------------ index = 7, score = 1.0 
+def tiny_yolo_body(inputs, num_anchors, num_classes):
+    'Create Tiny YOLO_v3 model CNN body in keras.'
+    x1 = compose(DarknetConv2D_BN_Leaky(16, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(32, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(64, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(128, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(256, (3, 3)))(inputs)
+    x2 = compose(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'), DarknetConv2D_BN_Leaky(512, (3, 3)), MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding='same'), DarknetConv2D_BN_Leaky(1024, (3, 3)), DarknetConv2D_BN_Leaky(256, (1, 1)))(x1)
+    y1 = compose(DarknetConv2D_BN_Leaky(512, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))(x2)
+    x2 = compose(DarknetConv2D_BN_Leaky(128, (1, 1)), UpSampling2D(2))(x2)
+    y2 = compose(Concatenate(), DarknetConv2D_BN_Leaky(256, (3, 3)), DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1)))([x2, x1])
+    return Model(inputs, [y1, y2])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... (, MaxPooling2D,,,,,,,)
+
+idx = 12:------------------- similar code ------------------ index = 6, score = 1.0 
+if (__name__ == '__main__'):
+    import os
+    import numpy as np
+    import keras.optimizers
+    from keras.datasets import mnist
+    from keras.preprocessing.image import ImageDataGenerator
+    GPU_COUNT = 2
+    ROOT_DIR = os.path.abspath('../')
+    MODEL_DIR = os.path.join(ROOT_DIR, 'logs')
+
+    def build_model(x_train, num_classes):
+        tf.reset_default_graph()
+        inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
+        x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
+        x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
+        x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
+        x = KL.Flatten(name='flat1')(x)
+        x = KL.Dense(128, activation='relu', name='dense1')(x)
+        x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
+        return KM.Model(inputs, x, 'digit_classifier_model')
+    ((x_train, y_train), (x_test, y_test)) = mnist.load_data()
+    x_train = (np.expand_dims(x_train, (- 1)).astype('float32') / 255)
+    x_test = (np.expand_dims(x_test, (- 1)).astype('float32') / 255)
+    print('x_train shape:', x_train.shape)
+    print('x_test shape:', x_test.shape)
+    datagen = ImageDataGenerator()
+    model = build_model(x_train, 10)
+    model = ParallelModel(model, GPU_COUNT)
+    optimizer = keras.optimizers.SGD(lr=0.01, momentum=0.9, clipnorm=5.0)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    model.summary()
+    model.fit_generator(datagen.flow(x_train, y_train, batch_size=64), steps_per_epoch=50, epochs=10, verbose=1, validation_data=(x_test, y_test), callbacks=[keras.callbacks.TensorBoard(log_dir=MODEL_DIR, write_graph=True)])
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+    def  ... ():
+         ...  =  ... .MaxPooling2D
+
+idx = 13:------------------- similar code ------------------ index = 5, score = 1.0 
+def build_resnet(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, block_type='usual'):
     '\n    TODO\n    '
     input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
     if (input_tensor is None):
@@ -140,11 +658,17 @@ def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None,
         img_input = input_tensor
     no_scale_bn_params = get_bn_params(scale=False)
     bn_params = get_bn_params()
-// your code ...
-
+    conv_params = get_conv_params()
+    init_filters = 64
+    if (block_type == 'basic'):
+        conv_block = basic_conv_block
+        identity_block = basic_identity_block
+    else:
+        conv_block = usual_conv_block
+        identity_block = usual_identity_block
     x = BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
     x = ZeroPadding2D(padding=(3, 3))(x)
-    x = Conv2D(first_conv_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
+    x = Conv2D(init_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
     x = BatchNormalization(name='bn0', **bn_params)(x)
     x = Activation('relu', name='relu0')(x)
     x = ZeroPadding2D(padding=(1, 1))(x)
@@ -152,12 +676,14 @@ def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None,
     for (stage, rep) in enumerate(repetitions):
         for block in range(rep):
             filters = (init_filters * (2 ** stage))
-            if ((stage == 0) and (block == 0)):
+            if ((block == 0) and (stage == 0)):
                 x = conv_block(filters, stage, block, strides=(1, 1))(x)
             elif (block == 0):
                 x = conv_block(filters, stage, block, strides=(2, 2))(x)
             else:
                 x = identity_block(filters, stage, block)(x)
+    x = BatchNormalization(name='bn1', **bn_params)(x)
+    x = Activation('relu', name='relu1')(x)
     if include_top:
         x = GlobalAveragePooling2D(name='pool1')(x)
         x = Dense(classes, name='fc1')(x)
@@ -169,60 +695,862 @@ def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None,
     model = Model(inputs, x)
     return model
 
-------------------------- example 4 ------------------------ 
-def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
-    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
-    assert (architecture in ['resnet50', 'resnet101'])
-    x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
-    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    if (2 in dilation):
-        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-        print('stage 2 dilated')
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 14:------------------- similar code ------------------ index = 4, score = 1.0 
+def decode(self, genome):
+    if (not self.is_compatible_genome(genome)):
+        raise ValueError('Invalid genome for specified configs')
+    model = Sequential()
+    dim = 0
+    offset = 0
+    if (self.convolution_layers > 0):
+        dim = min(self.input_shape[:(- 1)])
+    input_layer = True
+    for i in range(self.convolution_layers):
+        if genome[offset]:
+            convolution = None
+            if input_layer:
+                convolution = Convolution2D(genome[(offset + 1)], (3, 3), padding='same', input_shape=self.input_shape)
+                input_layer = False
+            else:
+                convolution = Convolution2D(genome[(offset + 1)], (3, 3), padding='same')
+            model.add(convolution)
+            if genome[(offset + 2)]:
+                model.add(BatchNormalization())
+            model.add(Activation(self.activation[genome[(offset + 3)]]))
+            model.add(Dropout(float((genome[(offset + 4)] / 20.0))))
+            max_pooling_type = genome[(offset + 5)]
+            if ((max_pooling_type == 1) and (dim >= 5)):
+                model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+                dim = int(math.ceil((dim / 2)))
+        offset += self.convolution_layer_size
+    if (not input_layer):
+        model.add(Flatten())
+    for i in range(self.dense_layers):
+        if genome[offset]:
+            dense = None
+            if input_layer:
+                dense = Dense(genome[(offset + 1)], input_shape=self.input_shape)
+                input_layer = False
+            else:
+                dense = Dense(genome[(offset + 1)])
+            model.add(dense)
+            if genome[(offset + 2)]:
+                model.add(BatchNormalization())
+            model.add(Activation(self.activation[genome[(offset + 3)]]))
+            model.add(Dropout(float((genome[(offset + 4)] / 20.0))))
+        offset += self.dense_layer_size
+    model.add(Dense(self.n_classes, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer=self.optimizer[genome[offset]], metrics=['accuracy'])
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+        if:
+            if:
+                 ... . ... (MaxPooling2D)
+
+idx = 15:------------------- similar code ------------------ index = 3, score = 1.0 
+def inception_stem(input):
+    if (K.image_dim_ordering() == 'th'):
+        channel_axis = 1
     else:
-        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
-    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
-    if (3 in dilation):
-        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-        print('stage 3 dilated')
+        channel_axis = (- 1)
+    x = conv_block(input, 32, 3, 3, subsample=(2, 2), border_mode='valid')
+    x = conv_block(x, 32, 3, 3, border_mode='valid')
+    x = conv_block(x, 64, 3, 3)
+    x1 = MaxPooling2D((3, 3), strides=(2, 2), border_mode='valid')(x)
+    x2 = conv_block(x, 96, 3, 3, subsample=(2, 2), border_mode='valid')
+    x = merge([x1, x2], mode='concat', concat_axis=channel_axis)
+    x1 = conv_block(x, 64, 1, 1)
+    x1 = conv_block(x1, 96, 3, 3, border_mode='valid')
+    x2 = conv_block(x, 64, 1, 1)
+    x2 = conv_block(x2, 64, 1, 7)
+    x2 = conv_block(x2, 64, 7, 1)
+    x2 = conv_block(x2, 96, 3, 3, border_mode='valid')
+    x = merge([x1, x2], mode='concat', concat_axis=channel_axis)
+    x1 = conv_block(x, 192, 3, 3, subsample=(2, 2), border_mode='valid')
+    x2 = MaxPooling2D((3, 3), strides=(2, 2), border_mode='valid')(x)
+    x = merge([x1, x2], mode='concat', concat_axis=channel_axis)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = MaxPooling2D
+
+idx = 16:------------------- similar code ------------------ index = 2, score = 1.0 
+def InceptionResNetV2(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
+    'Instantiates the Inception-ResNet v2 architecture.\n    Optionally loads weights pre-trained on ImageNet.\n    Note that when using TensorFlow, for best performance you should\n    set `"image_data_format": "channels_last"` in your Keras config\n    at `~/.keras/keras.json`.\n    The model and the weights are compatible with TensorFlow, Theano and\n    CNTK backends. The data format convention used by the model is\n    the one specified in your Keras config file.\n    Note that the default input image size for this model is 299x299, instead\n    of 224x224 as in the VGG16 and ResNet models. Also, the input preprocessing\n    function is different (i.e., do not use `imagenet_utils.preprocess_input()`\n    with this model. Use `preprocess_input()` defined in this module instead).\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              \'imagenet\' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is `False` (otherwise the input shape\n            has to be `(299, 299, 3)` (with `\'channels_last\'` data format)\n            or `(3, 299, 299)` (with `\'channels_first\'` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the last convolutional layer.\n            - `\'avg\'` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `\'max\'` means that global max pooling will be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is `True`, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras `Model` instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    '
+    if (not ((weights in {'imagenet', None}) or os.path.exists(weights))):
+        raise ValueError('The `weights` argument should be either `None` (random initialization), `imagenet` (pre-training on ImageNet), or the path to the weights file to be loaded.')
+    if ((weights == 'imagenet') and include_top and (classes != 1000)):
+        raise ValueError('If using `weights` as imagenet with `include_top` as true, `classes` should be 1000')
+    input_shape = _obtain_input_shape(input_shape, default_size=299, min_size=139, data_format=K.image_data_format(), require_flatten=False, weights=weights)
+    if (input_tensor is None):
+        img_input = Input(shape=input_shape)
+    elif (not K.is_keras_tensor(input_tensor)):
+        img_input = Input(tensor=input_tensor, shape=input_shape)
     else:
-        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
-    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
-    if (4 in dilation):
-        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-        print('stage 4 dilated')
+        img_input = input_tensor
+    x = conv2d_bn(img_input, 32, 3, strides=2, padding='same')
+    x = conv2d_bn(x, 32, 3, padding='same')
+    x = conv2d_bn(x, 64, 3)
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    x = conv2d_bn(x, 80, 1, padding='same')
+    x = conv2d_bn(x, 192, 3, padding='same')
+    x = MaxPooling2D(3, strides=2, padding='same')(x)
+    branch_0 = conv2d_bn(x, 96, 1)
+    branch_1 = conv2d_bn(x, 48, 1)
+    branch_1 = conv2d_bn(branch_1, 64, 5)
+    branch_2 = conv2d_bn(x, 64, 1)
+    branch_2 = conv2d_bn(branch_2, 96, 3)
+    branch_2 = conv2d_bn(branch_2, 96, 3)
+    branch_pool = AveragePooling2D(3, strides=1, padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 64, 1)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    channel_axis = (1 if (K.image_data_format() == 'channels_first') else 3)
+    x = Concatenate(axis=channel_axis, name='mixed_5b')(branches)
+    for block_idx in range(1, 11):
+        x = inception_resnet_block(x, scale=0.17, block_type='block35', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+    branch_1 = conv2d_bn(branch_1, 256, 3)
+    branch_1 = conv2d_bn(branch_1, 384, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_6a')(branches)
+    for block_idx in range(1, 21):
+        x = inception_resnet_block(x, scale=0.1, block_type='block17', block_idx=block_idx)
+    branch_0 = conv2d_bn(x, 256, 1)
+    branch_0 = conv2d_bn(branch_0, 384, 3, strides=2, padding='same')
+    branch_1 = conv2d_bn(x, 256, 1)
+    branch_1 = conv2d_bn(branch_1, 288, 3, strides=2, padding='same')
+    branch_2 = conv2d_bn(x, 256, 1)
+    branch_2 = conv2d_bn(branch_2, 288, 3)
+    branch_2 = conv2d_bn(branch_2, 320, 3, strides=2, padding='same')
+    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
+    branches = [branch_0, branch_1, branch_2, branch_pool]
+    x = Concatenate(axis=channel_axis, name='mixed_7a')(branches)
+    for block_idx in range(1, 10):
+        x = inception_resnet_block(x, scale=0.2, block_type='block8', block_idx=block_idx)
+    x = inception_resnet_block(x, scale=1.0, activation=None, block_type='block8', block_idx=10)
+    x = conv2d_bn(x, 1536, 1, name='conv_7b')
+    if include_top:
+        x = GlobalAveragePooling2D(name='avg_pool')(x)
+        x = Dense(classes, activation='softmax', name='predictions')(x)
+    elif (pooling == 'avg'):
+        x = GlobalAveragePooling2D()(x)
+    elif (pooling == 'max'):
+        x = GlobalMaxPooling2D()(x)
+    if (input_tensor is not None):
+        inputs = get_source_inputs(input_tensor)
     else:
-        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
-    for i in range(block_count):
-        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
-    C4 = x
-    if stage5:
-        if (5 in dilation):
-            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-            print('stage 5 dilated')
+        inputs = img_input
+    model = Model(inputs, x, name='inception_resnet_v2')
+    if (weights == 'imagenet'):
+        if (K.image_data_format() == 'channels_first'):
+            if (K.backend() == 'tensorflow'):
+                warnings.warn('You are using the TensorFlow backend, yet you are using the Theano image data format convention (`image_data_format="channels_first"`). For best performance, set `image_data_format="channels_last"` in your Keras config at ~/.keras/keras.json.')
+        if include_top:
+            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels.h5'
+            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='/wdata/backbones_weights', file_hash='e693bd0210a403b3192acc6073ad2e96')
         else:
-            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
-        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels_notop.h5'
+            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='/wdata/backbones_weights', file_hash='d19885ff4a710c122648d3b5c3b684e4')
+        model.load_weights(weights_path, skip_mismatch=True)
+    elif (weights is not None):
+        model.load_weights(weights)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 17:------------------- similar code ------------------ index = 1, score = 1.0 
+def build_icnet(height, width, bands, n_classes, weights_path=None, train=False):
+    inp = Input(shape=(height, width, bands))
+    dropout = 0.2
+    y = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) // 2), (int(x.shape[2]) // 2)))), name='data_sub2')(inp)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv1_1_3x3_s2')(y)
+    y = BatchNormalization(name='conv1_1_3x3_s2_bn')(y)
+    y = SeparableConv2D(32, 3, padding='same', activation='relu', name='conv1_2_3x3')(y)
+    y = BatchNormalization(name='conv1_2_3x3_s2_bn')(y)
+    y = SeparableConv2D(64, 3, padding='same', activation='relu', name='conv1_3_3x3')(y)
+    y = BatchNormalization(name='conv1_3_3x3_bn')(y)
+    y_ = MaxPooling2D(pool_size=3, strides=2, name='pool1_3x3_s2')(y)
+    y = SeparableConv2D(128, 1, name='conv2_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv2_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(32, 1, activation='relu', name='conv2_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv2_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(name='padding1')(y_)
+    y_ = SeparableConv2D(32, 3, activation='relu', name='conv2_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv2_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(128, 1, name='conv2_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv2_1_1x1_increase_bn')(y_)
+    y = Add(name='conv2_1')([y, y_])
+    y_ = Activation('relu', name='conv2_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(32, 1, activation='relu', name='conv2_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv2_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding2')(y)
+    y = SeparableConv2D(32, 3, activation='relu', name='conv2_2_3x3')(y)
+    y = BatchNormalization(name='conv2_2_3x3_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv2_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv2_2_1x1_increase_bn')(y)
+    y = Add(name='conv2_2')([y, y_])
+    y_ = Activation('relu', name='conv2_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(32, 1, activation='relu', name='conv2_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv2_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding3')(y)
+    y = SeparableConv2D(32, 3, activation='relu', name='conv2_3_3x3')(y)
+    y = BatchNormalization(name='conv2_3_3x3_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv2_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv2_3_1x1_increase_bn')(y)
+    y = Add(name='conv2_3')([y, y_])
+    y_ = Activation('relu', name='conv2_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, strides=2, name='conv3_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv3_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(64, 1, strides=2, activation='relu', name='conv3_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv3_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(name='padding4')(y_)
+    y_ = SeparableConv2D(64, 3, activation='relu', name='conv3_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv3_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(256, 1, name='conv3_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv3_1_1x1_increase_bn')(y_)
+    y = Add(name='conv3_1')([y, y_])
+    z = Activation('relu', name='conv3_1/relu')(y)
+    z = Dropout(dropout)(z)
+    y_ = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) // 2), (int(x.shape[2]) // 2)))), name='conv3_1_sub4')(z)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding5')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_2_3x3')(y)
+    y = BatchNormalization(name='conv3_2_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_2_1x1_increase_bn')(y)
+    y = Add(name='conv3_2')([y, y_])
+    y_ = Activation('relu', name='conv3_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding6')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_3_3x3')(y)
+    y = BatchNormalization(name='conv3_3_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_3_1x1_increase_bn')(y)
+    y = Add(name='conv3_3')([y, y_])
+    y_ = Activation('relu', name='conv3_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_4_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_4_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding7')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_4_3x3')(y)
+    y = BatchNormalization(name='conv3_4_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_4_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_4_1x1_increase_bn')(y)
+    y = Add(name='conv3_4')([y, y_])
+    y_ = Activation('relu', name='conv3_4/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(512, 1, name='conv4_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv4_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(128, 1, activation='relu', name='conv4_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv4_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(padding=2, name='padding8')(y_)
+    y_ = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv4_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(512, 1, name='conv4_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv4_1_1x1_increase_bn')(y_)
+    y = Add(name='conv4_1')([y, y_])
+    y_ = Activation('relu', name='conv4_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding9')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_2_3x3')(y)
+    y = BatchNormalization(name='conv4_2_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_2_1x1_increase_bn')(y)
+    y = Add(name='conv4_2')([y, y_])
+    y_ = Activation('relu', name='conv4_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding10')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_3_3x3')(y)
+    y = BatchNormalization(name='conv4_3_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_3_1x1_increase_bn')(y)
+    y = Add(name='conv4_3')([y, y_])
+    y_ = Activation('relu', name='conv4_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_4_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_4_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding11')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_4_3x3')(y)
+    y = BatchNormalization(name='conv4_4_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_4_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_4_1x1_increase_bn')(y)
+    y = Add(name='conv4_4')([y, y_])
+    y_ = Activation('relu', name='conv4_4/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_5_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_5_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding12')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_5_3x3')(y)
+    y = BatchNormalization(name='conv4_5_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_5_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_5_1x1_increase_bn')(y)
+    y = Add(name='conv4_5')([y, y_])
+    y_ = Activation('relu', name='conv4_5/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_6_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_6_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding13')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_6_3x3')(y)
+    y = BatchNormalization(name='conv4_6_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_6_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_6_1x1_increase_bn')(y)
+    y = Add(name='conv4_6')([y, y_])
+    y = Activation('relu', name='conv4_6/relu')(y)
+    y = Dropout(dropout)(y)
+    y_ = SeparableConv2D(1024, 1, name='conv5_1_1x1_proj')(y)
+    y_ = BatchNormalization(name='conv5_1_1x1_proj_bn')(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_1_1x1_reduce')(y)
+    y = BatchNormalization(name='conv5_1_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding14')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_1_3x3')(y)
+    y = BatchNormalization(name='conv5_1_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_1_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_1_1x1_increase_bn')(y)
+    y = Add(name='conv5_1')([y, y_])
+    y_ = Activation('relu', name='conv5_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv5_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding15')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_2_3x3')(y)
+    y = BatchNormalization(name='conv5_2_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_2_1x1_increase_bn')(y)
+    y = Add(name='conv5_2')([y, y_])
+    y_ = Activation('relu', name='conv5_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv5_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding16')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_3_3x3')(y)
+    y = BatchNormalization(name='conv5_3_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_3_1x1_increase_bn')(y)
+    y = Add(name='conv5_3')([y, y_])
+    y = Activation('relu', name='conv5_3/relu')(y)
+    y = Dropout(dropout)(y)
+    (h, w) = y.shape[1:3].as_list()
+    pool1 = AveragePooling2D(pool_size=(h, w), strides=(h, w), name='conv5_3_pool1')(y)
+    pool1 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool1_interp')(pool1)
+    pool2 = AveragePooling2D(pool_size=((h / 2), (w / 2)), strides=((h // 2), (w // 2)), name='conv5_3_pool2')(y)
+    pool2 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool2_interp')(pool2)
+    pool3 = AveragePooling2D(pool_size=((h / 3), (w / 3)), strides=((h // 3), (w // 3)), name='conv5_3_pool3')(y)
+    pool3 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool3_interp')(pool3)
+    pool6 = AveragePooling2D(pool_size=((h / 4), (w / 4)), strides=((h // 4), (w // 4)), name='conv5_3_pool6')(y)
+    pool6 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool6_interp')(pool6)
+    y = Add(name='conv5_3_sum')([y, pool1, pool2, pool3, pool6])
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_4_k1')(y)
+    y = BatchNormalization(name='conv5_4_k1_bn')(y)
+    aux_1 = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='conv5_4_interp')(y)
+    y = ZeroPadding2D(padding=2, name='padding17')(aux_1)
+    y = SeparableConv2D(128, 3, dilation_rate=2, name='conv_sub4')(y)
+    y = BatchNormalization(name='conv_sub4_bn')(y)
+    y_ = SeparableConv2D(128, 1, name='conv3_1_sub2_proj')(z)
+    y_ = BatchNormalization(name='conv3_1_sub2_proj_bn')(y_)
+    y = Add(name='sub24_sum')([y, y_])
+    y = Activation('relu', name='sub24_sum/relu')(y)
+    aux_2 = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='sub24_sum_interp')(y)
+    y = ZeroPadding2D(padding=2, name='padding18')(aux_2)
+    y_ = SeparableConv2D(128, 3, dilation_rate=2, name='conv_sub2')(y)
+    y_ = BatchNormalization(name='conv_sub2_bn')(y_)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv1_sub1')(inp)
+    y = BatchNormalization(name='conv1_sub1_bn')(y)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv2_sub1')(y)
+    y = BatchNormalization(name='conv2_sub1_bn')(y)
+    y = SeparableConv2D(64, 3, strides=2, padding='same', activation='relu', name='conv3_sub1')(y)
+    y = BatchNormalization(name='conv3_sub1_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv3_sub1_proj')(y)
+    y = BatchNormalization(name='conv3_sub1_proj_bn')(y)
+    y = Add(name='sub12_sum')([y, y_])
+    y = Activation('relu', name='sub12_sum/relu')(y)
+    y = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='sub12_sum_interp')(y)
+    out = SeparableConv2D(n_classes, 1, activation='softmax', name='conv6_cls')(y)
+    if train:
+        aux_1 = SeparableConv2D(n_classes, 1, activation='softmax', name='sub4_out')(aux_1)
+        aux_2 = SeparableConv2D(n_classes, 1, activation='softmax', name='sub24_out')(aux_2)
+        model = Model(inputs=inp, outputs=[out, aux_2, aux_1])
+        print('ICNet Model:')
+        model.summary()
     else:
-        C5 = None
-    return [C1, C2, C3, C4, C5]
+        out = UpSampling2D(4)(out)
+        model = Model(inputs=inp, outputs=out)
+    if (weights_path is not None):
+        model.load_weights(weights_path, by_name=True)
+    return model
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        108         ||         8        
-example2  ||          2           ||        10         ||         0        
-example3  ||          3           ||        38         ||         1        
-example4  ||          3           ||        43         ||         0        
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
 
-avg       ||          2.5           ||        49.75         ||         2.25        
+idx = 18:------------------- similar code ------------------ index = 17, score = 1.0 
+def yolo4_body(inputs, num_anchors, num_classes):
+    'Create YOLO_V4 model CNN body in Keras.'
+    darknet = Model(inputs, darknet_body(inputs))
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(darknet.output)
+    y19 = DarknetConv2D_BN_Leaky(1024, (3, 3))(y19)
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    maxpool1 = MaxPooling2D(pool_size=(13, 13), strides=(1, 1), padding='same')(y19)
+    maxpool2 = MaxPooling2D(pool_size=(9, 9), strides=(1, 1), padding='same')(y19)
+    maxpool3 = MaxPooling2D(pool_size=(5, 5), strides=(1, 1), padding='same')(y19)
+    y19 = Concatenate()([maxpool1, maxpool2, maxpool3, y19])
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    y19 = DarknetConv2D_BN_Leaky(1024, (3, 3))(y19)
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    y19_upsample = compose(DarknetConv2D_BN_Leaky(256, (1, 1)), UpSampling2D(2))(y19)
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(darknet.layers[204].output)
+    y38 = Concatenate()([y38, y19_upsample])
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38 = DarknetConv2D_BN_Leaky(512, (3, 3))(y38)
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38 = DarknetConv2D_BN_Leaky(512, (3, 3))(y38)
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38_upsample = compose(DarknetConv2D_BN_Leaky(128, (1, 1)), UpSampling2D(2))(y38)
+    y76 = DarknetConv2D_BN_Leaky(128, (1, 1))(darknet.layers[131].output)
+    y76 = Concatenate()([y76, y38_upsample])
+    y76 = DarknetConv2D_BN_Leaky(128, (1, 1))(y76)
+    y76 = DarknetConv2D_BN_Leaky(256, (3, 3))(y76)
+    y76 = DarknetConv2D_BN_Leaky(128, (1, 1))(y76)
+    y76 = DarknetConv2D_BN_Leaky(256, (3, 3))(y76)
+    y76 = DarknetConv2D_BN_Leaky(128, (1, 1))(y76)
+    y76_output = DarknetConv2D_BN_Leaky(256, (3, 3))(y76)
+    y76_output = DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1))(y76_output)
+    y76_downsample = ZeroPadding2D(((1, 0), (1, 0)))(y76)
+    y76_downsample = DarknetConv2D_BN_Leaky(256, (3, 3), strides=(2, 2))(y76_downsample)
+    y38 = Concatenate()([y76_downsample, y38])
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38 = DarknetConv2D_BN_Leaky(512, (3, 3))(y38)
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38 = DarknetConv2D_BN_Leaky(512, (3, 3))(y38)
+    y38 = DarknetConv2D_BN_Leaky(256, (1, 1))(y38)
+    y38_output = DarknetConv2D_BN_Leaky(512, (3, 3))(y38)
+    y38_output = DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1))(y38_output)
+    y38_downsample = ZeroPadding2D(((1, 0), (1, 0)))(y38)
+    y38_downsample = DarknetConv2D_BN_Leaky(512, (3, 3), strides=(2, 2))(y38_downsample)
+    y19 = Concatenate()([y38_downsample, y19])
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    y19 = DarknetConv2D_BN_Leaky(1024, (3, 3))(y19)
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    y19 = DarknetConv2D_BN_Leaky(1024, (3, 3))(y19)
+    y19 = DarknetConv2D_BN_Leaky(512, (1, 1))(y19)
+    y19_output = DarknetConv2D_BN_Leaky(1024, (3, 3))(y19)
+    y19_output = DarknetConv2D((num_anchors * (num_classes + 5)), (1, 1))(y19_output)
+    yolo4_model = Model(inputs, [y19_output, y38_output, y76_output])
+    return yolo4_model
 
-idx = 0:------------------- similar code ------------------ index = 8, score = 1.0 
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 19:------------------- similar code ------------------ index = 19, score = 1.0 
+def reduction_B(input):
+    if (K.image_dim_ordering() == 'th'):
+        channel_axis = 1
+    else:
+        channel_axis = (- 1)
+    r1 = conv_block(input, 192, 1, 1)
+    r1 = conv_block(r1, 192, 3, 3, subsample=(2, 2), border_mode='valid')
+    r2 = conv_block(input, 256, 1, 1)
+    r2 = conv_block(r2, 256, 1, 7)
+    r2 = conv_block(r2, 320, 7, 1)
+    r2 = conv_block(r2, 320, 3, 3, subsample=(2, 2), border_mode='valid')
+    r3 = MaxPooling2D((3, 3), strides=(2, 2), border_mode='valid')(input)
+    m = merge([r1, r2, r3], mode='concat', concat_axis=channel_axis)
+    return m
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = MaxPooling2D
+
+idx = 20:------------------- similar code ------------------ index = 37, score = 1.0 
+def darknet_body():
+    'Generate first 18 conv layers of Darknet-19.'
+    return compose(DarknetConv2D_BN_Leaky(32, (3, 3)), MaxPooling2D(), DarknetConv2D_BN_Leaky(64, (3, 3)), MaxPooling2D(), bottleneck_block(128, 64), MaxPooling2D(), bottleneck_block(256, 128), MaxPooling2D(), bottleneck_x2_block(512, 256), MaxPooling2D(), bottleneck_x2_block(1024, 512))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... (, MaxPooling2D(),,,,,,,,,)
+
+idx = 21:------------------- similar code ------------------ index = 29, score = 1.0 
+def build_model(x_train, num_classes):
+    tf.reset_default_graph()
+    inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
+    x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
+    x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
+    x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
+    x = KL.Flatten(name='flat1')(x)
+    x = KL.Dense(128, activation='relu', name='dense1')(x)
+    x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
+    return KM.Model(inputs, x, 'digit_classifier_model')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .MaxPooling2D
+
+idx = 22:------------------- similar code ------------------ index = 36, score = 1.0 
+def build_icnet(height, width, bands, n_classes, weights_path=None, train=False):
+    inp = Input(shape=(height, width, bands))
+    dropout = 0.2
+    y = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) // 2), (int(x.shape[2]) // 2)))), name='data_sub2')(inp)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv1_1_3x3_s2')(y)
+    y = BatchNormalization(name='conv1_1_3x3_s2_bn')(y)
+    y = SeparableConv2D(32, 3, padding='same', activation='relu', name='conv1_2_3x3')(y)
+    y = BatchNormalization(name='conv1_2_3x3_s2_bn')(y)
+    y = SeparableConv2D(64, 3, padding='same', activation='relu', name='conv1_3_3x3')(y)
+    y = BatchNormalization(name='conv1_3_3x3_bn')(y)
+    y_ = MaxPooling2D(pool_size=3, strides=2, name='pool1_3x3_s2')(y)
+    y = SeparableConv2D(128, 1, name='conv2_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv2_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(32, 1, activation='relu', name='conv2_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv2_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(name='padding1')(y_)
+    y_ = SeparableConv2D(32, 3, activation='relu', name='conv2_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv2_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(128, 1, name='conv2_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv2_1_1x1_increase_bn')(y_)
+    y = Add(name='conv2_1')([y, y_])
+    y_ = Activation('relu', name='conv2_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(32, 1, activation='relu', name='conv2_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv2_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding2')(y)
+    y = SeparableConv2D(32, 3, activation='relu', name='conv2_2_3x3')(y)
+    y = BatchNormalization(name='conv2_2_3x3_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv2_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv2_2_1x1_increase_bn')(y)
+    y = Add(name='conv2_2')([y, y_])
+    y_ = Activation('relu', name='conv2_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(32, 1, activation='relu', name='conv2_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv2_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding3')(y)
+    y = SeparableConv2D(32, 3, activation='relu', name='conv2_3_3x3')(y)
+    y = BatchNormalization(name='conv2_3_3x3_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv2_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv2_3_1x1_increase_bn')(y)
+    y = Add(name='conv2_3')([y, y_])
+    y_ = Activation('relu', name='conv2_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, strides=2, name='conv3_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv3_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(64, 1, strides=2, activation='relu', name='conv3_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv3_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(name='padding4')(y_)
+    y_ = SeparableConv2D(64, 3, activation='relu', name='conv3_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv3_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(256, 1, name='conv3_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv3_1_1x1_increase_bn')(y_)
+    y = Add(name='conv3_1')([y, y_])
+    z = Activation('relu', name='conv3_1/relu')(y)
+    z = Dropout(dropout)(z)
+    y_ = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) // 2), (int(x.shape[2]) // 2)))), name='conv3_1_sub4')(z)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding5')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_2_3x3')(y)
+    y = BatchNormalization(name='conv3_2_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_2_1x1_increase_bn')(y)
+    y = Add(name='conv3_2')([y, y_])
+    y_ = Activation('relu', name='conv3_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding6')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_3_3x3')(y)
+    y = BatchNormalization(name='conv3_3_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_3_1x1_increase_bn')(y)
+    y = Add(name='conv3_3')([y, y_])
+    y_ = Activation('relu', name='conv3_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(64, 1, activation='relu', name='conv3_4_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv3_4_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(name='padding7')(y)
+    y = SeparableConv2D(64, 3, activation='relu', name='conv3_4_3x3')(y)
+    y = BatchNormalization(name='conv3_4_3x3_bn')(y)
+    y = SeparableConv2D(256, 1, name='conv3_4_1x1_increase')(y)
+    y = BatchNormalization(name='conv3_4_1x1_increase_bn')(y)
+    y = Add(name='conv3_4')([y, y_])
+    y_ = Activation('relu', name='conv3_4/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(512, 1, name='conv4_1_1x1_proj')(y_)
+    y = BatchNormalization(name='conv4_1_1x1_proj_bn')(y)
+    y_ = SeparableConv2D(128, 1, activation='relu', name='conv4_1_1x1_reduce')(y_)
+    y_ = BatchNormalization(name='conv4_1_1x1_reduce_bn')(y_)
+    y_ = ZeroPadding2D(padding=2, name='padding8')(y_)
+    y_ = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_1_3x3')(y_)
+    y_ = BatchNormalization(name='conv4_1_3x3_bn')(y_)
+    y_ = SeparableConv2D(512, 1, name='conv4_1_1x1_increase')(y_)
+    y_ = BatchNormalization(name='conv4_1_1x1_increase_bn')(y_)
+    y = Add(name='conv4_1')([y, y_])
+    y_ = Activation('relu', name='conv4_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding9')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_2_3x3')(y)
+    y = BatchNormalization(name='conv4_2_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_2_1x1_increase_bn')(y)
+    y = Add(name='conv4_2')([y, y_])
+    y_ = Activation('relu', name='conv4_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding10')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_3_3x3')(y)
+    y = BatchNormalization(name='conv4_3_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_3_1x1_increase_bn')(y)
+    y = Add(name='conv4_3')([y, y_])
+    y_ = Activation('relu', name='conv4_3/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_4_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_4_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding11')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_4_3x3')(y)
+    y = BatchNormalization(name='conv4_4_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_4_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_4_1x1_increase_bn')(y)
+    y = Add(name='conv4_4')([y, y_])
+    y_ = Activation('relu', name='conv4_4/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_5_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_5_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding12')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_5_3x3')(y)
+    y = BatchNormalization(name='conv4_5_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_5_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_5_1x1_increase_bn')(y)
+    y = Add(name='conv4_5')([y, y_])
+    y_ = Activation('relu', name='conv4_5/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(128, 1, activation='relu', name='conv4_6_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv4_6_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=2, name='padding13')(y)
+    y = SeparableConv2D(128, 3, dilation_rate=2, activation='relu', name='conv4_6_3x3')(y)
+    y = BatchNormalization(name='conv4_6_3x3_bn')(y)
+    y = SeparableConv2D(512, 1, name='conv4_6_1x1_increase')(y)
+    y = BatchNormalization(name='conv4_6_1x1_increase_bn')(y)
+    y = Add(name='conv4_6')([y, y_])
+    y = Activation('relu', name='conv4_6/relu')(y)
+    y = Dropout(dropout)(y)
+    y_ = SeparableConv2D(1024, 1, name='conv5_1_1x1_proj')(y)
+    y_ = BatchNormalization(name='conv5_1_1x1_proj_bn')(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_1_1x1_reduce')(y)
+    y = BatchNormalization(name='conv5_1_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding14')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_1_3x3')(y)
+    y = BatchNormalization(name='conv5_1_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_1_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_1_1x1_increase_bn')(y)
+    y = Add(name='conv5_1')([y, y_])
+    y_ = Activation('relu', name='conv5_1/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_2_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv5_2_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding15')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_2_3x3')(y)
+    y = BatchNormalization(name='conv5_2_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_2_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_2_1x1_increase_bn')(y)
+    y = Add(name='conv5_2')([y, y_])
+    y_ = Activation('relu', name='conv5_2/relu')(y)
+    y_ = Dropout(dropout)(y_)
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_3_1x1_reduce')(y_)
+    y = BatchNormalization(name='conv5_3_1x1_reduce_bn')(y)
+    y = ZeroPadding2D(padding=4, name='padding16')(y)
+    y = SeparableConv2D(256, 3, dilation_rate=4, activation='relu', name='conv5_3_3x3')(y)
+    y = BatchNormalization(name='conv5_3_3x3_bn')(y)
+    y = SeparableConv2D(1024, 1, name='conv5_3_1x1_increase')(y)
+    y = BatchNormalization(name='conv5_3_1x1_increase_bn')(y)
+    y = Add(name='conv5_3')([y, y_])
+    y = Activation('relu', name='conv5_3/relu')(y)
+    y = Dropout(dropout)(y)
+    (h, w) = y.shape[1:3].as_list()
+    pool1 = AveragePooling2D(pool_size=(h, w), strides=(h, w), name='conv5_3_pool1')(y)
+    pool1 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool1_interp')(pool1)
+    pool2 = AveragePooling2D(pool_size=((h / 2), (w / 2)), strides=((h // 2), (w // 2)), name='conv5_3_pool2')(y)
+    pool2 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool2_interp')(pool2)
+    pool3 = AveragePooling2D(pool_size=((h / 3), (w / 3)), strides=((h // 3), (w // 3)), name='conv5_3_pool3')(y)
+    pool3 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool3_interp')(pool3)
+    pool6 = AveragePooling2D(pool_size=((h / 4), (w / 4)), strides=((h // 4), (w // 4)), name='conv5_3_pool6')(y)
+    pool6 = Lambda((lambda x: tf.image.resize_bilinear(x, size=(h, w))), name='conv5_3_pool6_interp')(pool6)
+    y = Add(name='conv5_3_sum')([y, pool1, pool2, pool3, pool6])
+    y = SeparableConv2D(256, 1, activation='relu', name='conv5_4_k1')(y)
+    y = BatchNormalization(name='conv5_4_k1_bn')(y)
+    aux_1 = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='conv5_4_interp')(y)
+    y = ZeroPadding2D(padding=2, name='padding17')(aux_1)
+    y = SeparableConv2D(128, 3, dilation_rate=2, name='conv_sub4')(y)
+    y = BatchNormalization(name='conv_sub4_bn')(y)
+    y_ = SeparableConv2D(128, 1, name='conv3_1_sub2_proj')(z)
+    y_ = BatchNormalization(name='conv3_1_sub2_proj_bn')(y_)
+    y = Add(name='sub24_sum')([y, y_])
+    y = Activation('relu', name='sub24_sum/relu')(y)
+    aux_2 = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='sub24_sum_interp')(y)
+    y = ZeroPadding2D(padding=2, name='padding18')(aux_2)
+    y_ = SeparableConv2D(128, 3, dilation_rate=2, name='conv_sub2')(y)
+    y_ = BatchNormalization(name='conv_sub2_bn')(y_)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv1_sub1')(inp)
+    y = BatchNormalization(name='conv1_sub1_bn')(y)
+    y = SeparableConv2D(32, 3, strides=2, padding='same', activation='relu', name='conv2_sub1')(y)
+    y = BatchNormalization(name='conv2_sub1_bn')(y)
+    y = SeparableConv2D(64, 3, strides=2, padding='same', activation='relu', name='conv3_sub1')(y)
+    y = BatchNormalization(name='conv3_sub1_bn')(y)
+    y = SeparableConv2D(128, 1, name='conv3_sub1_proj')(y)
+    y = BatchNormalization(name='conv3_sub1_proj_bn')(y)
+    y = Add(name='sub12_sum')([y, y_])
+    y = Activation('relu', name='sub12_sum/relu')(y)
+    y = Lambda((lambda x: tf.image.resize_bilinear(x, size=((int(x.shape[1]) * 2), (int(x.shape[2]) * 2)))), name='sub12_sum_interp')(y)
+    out = SeparableConv2D(n_classes, 1, activation='softmax', name='conv6_cls')(y)
+    if train:
+        aux_1 = SeparableConv2D(n_classes, 1, activation='softmax', name='sub4_out')(aux_1)
+        aux_2 = SeparableConv2D(n_classes, 1, activation='softmax', name='sub24_out')(aux_2)
+        model = Model(inputs=inp, outputs=[out, aux_2, aux_1])
+        print('ICNet Model:')
+    else:
+        out = UpSampling2D(4)(out)
+        model = Model(inputs=inp, outputs=out)
+    if (weights_path is not None):
+        model.load_weights(weights_path, by_name=True)
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 23:------------------- similar code ------------------ index = 35, score = 1.0 
+def __new__(self, input_shapes, optimizer, loss, weights=None):
+    x1 = Input(input_shapes[0])
+    x2 = Input(input_shapes[1])
+    y1 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(x1)
+    y1 = LeakyReLU(alpha=0.2)(y1)
+    y1 = BatchNormalization()(y1)
+    y2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(x2)
+    y2 = LeakyReLU(alpha=0.2)(y2)
+    y2 = BatchNormalization()(y2)
+    y = Concatenate()([y1, y2])
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = MaxPooling2D(pool_size=(2, 2))(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = MaxPooling2D(pool_size=(2, 2))(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = UpSampling2D(size=(2, 2))(y)
+    y = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    y = Conv2D(filters=3, kernel_size=(3, 3), padding='same')(y)
+    y = LeakyReLU(alpha=0.2)(y)
+    model = Model(inputs=[x1, x2], outputs=y)
+    model.compile(optimizer=optimizer, loss=loss)
+    try:
+        if (not (weights is None)):
+            model.load_weights(weights)
+    except:
+        pass
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = MaxPooling2D
+
+idx = 24:------------------- similar code ------------------ index = 34, score = 1.0 
+if (__name__ == '__main__'):
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    assert (len(physical_devices) > 0), 'Not enough GPU hardware devices available'
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    batch_size = 500
+    tf.random.set_seed(10101)
+    np.random.seed(10101)
+    ((train_x, train_y), (test_x, test_y)) = k.datasets.cifar10.load_data()
+    train_x = ((train_x - 127.5) / 127.5).astype('float32')
+    test_x = ((test_x - 127.5) / 127.5).astype('float32')
+    softmax_model: k.Model = k.Sequential([kl.Input(shape=(32, 32, 3)), kl.Conv2D(64, kernel_size=(3, 3), padding='SAME'), kl.BatchNormalization(), kl.ReLU(6), kl.MaxPooling2D((2, 2)), kl.Conv2D(128, kernel_size=(3, 3), padding='SAME'), kl.BatchNormalization(), kl.ReLU(6), kl.MaxPooling2D((2, 2)), kl.Conv2D(256, kernel_size=(3, 3), padding='SAME'), kl.BatchNormalization(), kl.ReLU(6), kl.MaxPooling2D((2, 2)), kl.Conv2D(256, kernel_size=(3, 3), padding='SAME'), kl.BatchNormalization(), kl.ReLU(6), kl.Conv2D(128, kernel_size=(3, 3), padding='SAME'), kl.BatchNormalization(), kl.ReLU(6), kl.GlobalMaxPooling2D(), kl.Dense(128), kl.Lambda((lambda x: tf.nn.l2_normalize(x, 1)), name='emmbeding'), kl.Dense(10, use_bias=False, kernel_constraint=k.constraints.unit_norm())])
+    ams_model = k.models.clone_model(softmax_model)
+    circle_model = k.models.clone_model(softmax_model)
+    proxy_model = k.models.clone_model(softmax_model)
+    softmax_model.compile(loss=k.losses.SparseCategoricalCrossentropy(from_logits=True), optimizer=k.optimizers.Adam(), metrics=[k.metrics.SparseCategoricalAccuracy('acc')])
+    ams_model.compile(loss=SparseAmsoftmaxLoss(batch_size=batch_size), optimizer=k.optimizers.Adam(), metrics=[k.metrics.SparseCategoricalAccuracy('acc')])
+    circle_model.compile(loss=SparseCircleLoss(batch_size=batch_size), optimizer=k.optimizers.Adam(), metrics=[k.metrics.SparseCategoricalAccuracy('acc')])
+    proxy_model.compile(loss=ProxyAnchorLoss(batch_size=batch_size), optimizer=k.optimizers.Adam(), metrics=[k.metrics.CategoricalAccuracy('acc')])
+    if (not tf.io.gfile.exists('softmax_loss.h5')):
+        softmax_history = softmax_model.fit(x=train_x, y=train_y, batch_size=batch_size, epochs=20, validation_data=(test_x, test_y))
+        softmax_model.save('softmax_loss.h5')
+        plt.plot(softmax_history.epoch, softmax_history.history['val_acc'], label='softmax')
+    else:
+        softmax_model.load_weights('softmax_loss.h5')
+    if (not tf.io.gfile.exists('ams_loss.h5')):
+        ams_history = ams_model.fit(x=train_x, y=train_y, batch_size=batch_size, epochs=20, validation_data=(test_x, test_y))
+        ams_model.save('ams_loss.h5')
+        plt.plot(ams_history.epoch, ams_history.history['val_acc'], label='am-softmax')
+    else:
+        ams_model.load_weights('ams_loss.h5')
+    if (not tf.io.gfile.exists('circle_loss.h5')):
+        circle_history = circle_model.fit(x=train_x, y=train_y, batch_size=batch_size, epochs=20, validation_data=(test_x, test_y))
+        circle_model.save('circle_loss.h5')
+        plt.plot(circle_history.epoch, circle_history.history['val_acc'], label='circle loss')
+    else:
+        circle_model.load_weights('circle_loss.h5')
+    if (not tf.io.gfile.exists('proxy_loss.h5')):
+        proxy_history = proxy_model.fit(x=train_x, y=tf.keras.utils.to_categorical(train_y, 10), batch_size=batch_size, epochs=20, validation_data=(test_x, tf.keras.utils.to_categorical(test_y, 10)))
+        proxy_model.save('proxy_loss.h5')
+        plt.plot(proxy_history.epoch, proxy_history.history['val_acc'], label='proxy loss')
+        plt.legend(loc='upper left')
+        plt.title('Validation Accuracy')
+        plt.tight_layout()
+        plt.savefig('benchmark.png', transparent=True, bbox_inches='tight', pad_inches=0)
+        plt.show()
+    else:
+        proxy_model.load_weights('proxy_loss.h5')
+    print('Softmax evaluate:')
+    softmax_model.evaluate(test_x, test_y, batch_size=batch_size)
+    print('Am Softmax evaluate:')
+    ams_model.evaluate(test_x, test_y, batch_size=batch_size)
+    print('Circle Loss evaluate:')
+    circle_model.evaluate(test_x, test_y, batch_size=batch_size)
+    print('Proxy Loss evaluate:')
+    proxy_model.evaluate(test_x, tf.keras.utils.to_categorical(test_y, 10), batch_size=batch_size)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+     ... : =  ... . ... ([,,,,  ... .MaxPooling2D,,,,,,,,,,,,,,,,,,])
+
+idx = 25:------------------- similar code ------------------ index = 33, score = 1.0 
 def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
     "Instantiates the Inception v3 architecture.\n    Optionally loads weights pre-trained\n    on ImageNet. Note that when using TensorFlow,\n    for best performance you should set\n    `image_data_format='channels_last'` in your Keras config\n    at ~/.keras/keras.json.\n    The model and the weights are compatible with both\n    TensorFlow and Theano. The data format\n    convention used by the model is the one\n    specified in your Keras config file.\n    Note that the default input image size for this model is 299x299.\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              'imagenet' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is False (otherwise the input shape\n            has to be `(299, 299, 3)` (with `channels_last` data format)\n            or `(3, 299, 299)` (with `channels_first` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the\n                last convolutional layer.\n            - `avg` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `max` means that global max pooling will\n                be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is True, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras model instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    "
     if (not ((weights in {'imagenet', None}) or os.path.exists(weights))):
@@ -368,23 +1696,7 @@ def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_s
 def  ... ():
      ...  = MaxPooling2D
 
-idx = 1:------------------- similar code ------------------ index = 7, score = 1.0 
-def build_model(x_train, num_classes):
-    tf.reset_default_graph()
-    inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
-    x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
-    x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
-    x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
-    x = KL.Flatten(name='flat1')(x)
-    x = KL.Dense(128, activation='relu', name='dense1')(x)
-    x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
-    return KM.Model(inputs, x, 'digit_classifier_model')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... .MaxPooling2D
-
-idx = 2:------------------- similar code ------------------ index = 6, score = 1.0 
+idx = 26:------------------- similar code ------------------ index = 32, score = 1.0 
 def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, first_conv_filters=64, first_block_filters=64):
     '\n    TODO\n    '
     input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
@@ -429,177 +1741,211 @@ def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None,
 def  ... ():
      ...  = MaxPooling2D
 
-idx = 3:------------------- similar code ------------------ index = 5, score = 1.0 
-def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
-    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
-    assert (architecture in ['resnet50', 'resnet101'])
-    x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
-    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    if (2 in dilation):
-        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-        print('stage 2 dilated')
+idx = 27:------------------- similar code ------------------ index = 31, score = 1.0 
+def InceptionV3(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
+    "Instantiates the Inception v3 architecture.\n    Optionally loads weights pre-trained\n    on ImageNet. Note that when using TensorFlow,\n    for best performance you should set\n    `image_data_format='channels_last'` in your Keras config\n    at ~/.keras/keras.json.\n    The model and the weights are compatible with both\n    TensorFlow and Theano. The data format\n    convention used by the model is the one\n    specified in your Keras config file.\n    Note that the default input image size for this model is 299x299.\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              'imagenet' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is False (otherwise the input shape\n            has to be `(299, 299, 3)` (with `channels_last` data format)\n            or `(3, 299, 299)` (with `channels_first` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the\n                last convolutional layer.\n            - `avg` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `max` means that global max pooling will\n                be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is True, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras model instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    "
+    if (not ((weights in {'imagenet', None}) or os.path.exists(weights))):
+        raise ValueError('The `weights` argument should be either `None` (random initialization), `imagenet` (pre-training on ImageNet), or the path to the weights file to be loaded.')
+    if ((weights == 'imagenet') and include_top and (classes != 1000)):
+        raise ValueError('If using `weights` as imagenet with `include_top` as true, `classes` should be 1000')
+    input_shape = _obtain_input_shape(input_shape, default_size=299, min_size=139, data_format=K.image_data_format(), require_flatten=False, weights=weights)
+    if (input_tensor is None):
+        img_input = Input(shape=input_shape)
+    elif (not K.is_keras_tensor(input_tensor)):
+        img_input = Input(tensor=input_tensor, shape=input_shape)
     else:
-        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
-    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
-    if (3 in dilation):
-        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-        print('stage 3 dilated')
+        img_input = input_tensor
+    if (K.image_data_format() == 'channels_first'):
+        channel_axis = 1
     else:
-        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
-    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
-    if (4 in dilation):
-        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-        print('stage 4 dilated')
+        channel_axis = 3
+    x = conv2d_bn(img_input, 32, 3, 3, strides=(2, 2), padding='same')
+    x = conv2d_bn(x, 32, 3, 3, padding='same')
+    x = conv2d_bn(x, 64, 3, 3)
+    x = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = conv2d_bn(x, 80, 1, 1, padding='same')
+    x = conv2d_bn(x, 192, 3, 3, padding='same')
+    x = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    branch1x1 = conv2d_bn(x, 64, 1, 1)
+    branch5x5 = conv2d_bn(x, 48, 1, 1)
+    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
+    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 32, 1, 1)
+    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed0')
+    branch1x1 = conv2d_bn(x, 64, 1, 1)
+    branch5x5 = conv2d_bn(x, 48, 1, 1)
+    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
+    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
+    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed1')
+    branch1x1 = conv2d_bn(x, 64, 1, 1)
+    branch5x5 = conv2d_bn(x, 48, 1, 1)
+    branch5x5 = conv2d_bn(branch5x5, 64, 5, 5)
+    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
+    x = layers.concatenate([branch1x1, branch5x5, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed2')
+    branch3x3 = conv2d_bn(x, 384, 3, 3, strides=(2, 2), padding='same')
+    branch3x3dbl = conv2d_bn(x, 64, 1, 1)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
+    branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3, strides=(2, 2), padding='same')
+    branch_pool = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = layers.concatenate([branch3x3, branch3x3dbl, branch_pool], axis=channel_axis, name='mixed3')
+    branch1x1 = conv2d_bn(x, 192, 1, 1)
+    branch7x7 = conv2d_bn(x, 128, 1, 1)
+    branch7x7 = conv2d_bn(branch7x7, 128, 1, 7)
+    branch7x7 = conv2d_bn(branch7x7, 192, 7, 1)
+    branch7x7dbl = conv2d_bn(x, 128, 1, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 128, 7, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 128, 1, 7)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 128, 7, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 1, 7)
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
+    x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name='mixed4')
+    for i in range(2):
+        branch1x1 = conv2d_bn(x, 192, 1, 1)
+        branch7x7 = conv2d_bn(x, 160, 1, 1)
+        branch7x7 = conv2d_bn(branch7x7, 160, 1, 7)
+        branch7x7 = conv2d_bn(branch7x7, 192, 7, 1)
+        branch7x7dbl = conv2d_bn(x, 160, 1, 1)
+        branch7x7dbl = conv2d_bn(branch7x7dbl, 160, 7, 1)
+        branch7x7dbl = conv2d_bn(branch7x7dbl, 160, 1, 7)
+        branch7x7dbl = conv2d_bn(branch7x7dbl, 160, 7, 1)
+        branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 1, 7)
+        branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+        branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
+        x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name=('mixed' + str((5 + i))))
+    branch1x1 = conv2d_bn(x, 192, 1, 1)
+    branch7x7 = conv2d_bn(x, 192, 1, 1)
+    branch7x7 = conv2d_bn(branch7x7, 192, 1, 7)
+    branch7x7 = conv2d_bn(branch7x7, 192, 7, 1)
+    branch7x7dbl = conv2d_bn(x, 192, 1, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 7, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 1, 7)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 7, 1)
+    branch7x7dbl = conv2d_bn(branch7x7dbl, 192, 1, 7)
+    branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+    branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
+    x = layers.concatenate([branch1x1, branch7x7, branch7x7dbl, branch_pool], axis=channel_axis, name='mixed7')
+    branch3x3 = conv2d_bn(x, 192, 1, 1)
+    branch3x3 = conv2d_bn(branch3x3, 320, 3, 3, strides=(2, 2), padding='same')
+    branch7x7x3 = conv2d_bn(x, 192, 1, 1)
+    branch7x7x3 = conv2d_bn(branch7x7x3, 192, 1, 7)
+    branch7x7x3 = conv2d_bn(branch7x7x3, 192, 7, 1)
+    branch7x7x3 = conv2d_bn(branch7x7x3, 192, 3, 3, strides=(2, 2), padding='same')
+    branch_pool = MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    x = layers.concatenate([branch3x3, branch7x7x3, branch_pool], axis=channel_axis, name='mixed8')
+    for i in range(2):
+        branch1x1 = conv2d_bn(x, 320, 1, 1)
+        branch3x3 = conv2d_bn(x, 384, 1, 1)
+        branch3x3_1 = conv2d_bn(branch3x3, 384, 1, 3)
+        branch3x3_2 = conv2d_bn(branch3x3, 384, 3, 1)
+        branch3x3 = layers.concatenate([branch3x3_1, branch3x3_2], axis=channel_axis, name=('mixed9_' + str(i)))
+        branch3x3dbl = conv2d_bn(x, 448, 1, 1)
+        branch3x3dbl = conv2d_bn(branch3x3dbl, 384, 3, 3)
+        branch3x3dbl_1 = conv2d_bn(branch3x3dbl, 384, 1, 3)
+        branch3x3dbl_2 = conv2d_bn(branch3x3dbl, 384, 3, 1)
+        branch3x3dbl = layers.concatenate([branch3x3dbl_1, branch3x3dbl_2], axis=channel_axis)
+        branch_pool = AveragePooling2D((3, 3), strides=(1, 1), padding='same')(x)
+        branch_pool = conv2d_bn(branch_pool, 192, 1, 1)
+        x = layers.concatenate([branch1x1, branch3x3, branch3x3dbl, branch_pool], axis=channel_axis, name=('mixed' + str((9 + i))))
+    if include_top:
+        x = GlobalAveragePooling2D(name='avg_pool')(x)
+        x = Dense(classes, activation='softmax', name='predictions')(x)
+    elif (pooling == 'avg'):
+        x = GlobalAveragePooling2D()(x)
+    elif (pooling == 'max'):
+        x = GlobalMaxPooling2D()(x)
+    if (input_tensor is not None):
+        inputs = get_source_inputs(input_tensor)
     else:
-        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
-    for i in range(block_count):
-        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
-    C4 = x
-    if stage5:
-        if (5 in dilation):
-            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-            print('stage 5 dilated')
+        inputs = img_input
+    model = Model(inputs, x, name='inception_v3')
+    if (weights == 'imagenet'):
+        if (K.image_data_format() == 'channels_first'):
+            if (K.backend() == 'tensorflow'):
+                warnings.warn('You are using the TensorFlow backend, yet you are using the Theano image data format convention (`image_data_format="channels_first"`). For best performance, set `image_data_format="channels_last"` in your Keras config at ~/.keras/keras.json.')
+        if include_top:
+            weights_path = get_file('inception_v3_weights_tf_dim_ordering_tf_kernels.h5', WEIGHTS_PATH, cache_subdir='models', file_hash='9a0d58056eeedaa3f26cb7ebd46da564')
         else:
-            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
-        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
-    else:
-        C5 = None
-    return [C1, C2, C3, C4, C5]
+            weights_path = get_file('inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5', WEIGHTS_PATH_NO_TOP, cache_subdir='models', file_hash='bcbd6486424b2319ff4ef7d526e38f63')
+        model.load_weights(weights_path)
+    elif (weights is not None):
+        model.load_weights(weights)
+    return model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-     ...  =  ...  =  ... .MaxPooling2D
+     ...  = MaxPooling2D
 
-idx = 4:------------------- similar code ------------------ index = 4, score = 1.0 
-def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
-    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
-    assert (architecture in ['resnet50', 'resnet101'])
-    x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
-    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    if (2 in dilation):
-        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-        print('stage 2 dilated')
-    else:
-        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
-    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
-    if (3 in dilation):
-        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-        print('stage 3 dilated')
-    else:
-        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
-    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
-    if (4 in dilation):
-        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-        print('stage 4 dilated')
-    else:
-        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
-    for i in range(block_count):
-        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
-    C4 = x
-    if stage5:
-        if (5 in dilation):
-            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-            print('stage 5 dilated')
-        else:
-            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
-        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
-    else:
-        C5 = None
-    return [C1, C2, C3, C4, C5]
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ...  =  ... .MaxPooling2D
-
-idx = 5:------------------- similar code ------------------ index = 3, score = 1.0 
-def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
-    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
-    assert (architecture in ['resnet50', 'resnet101'])
-    x = KL.ZeroPadding2D((3, 3))(input_image)
-    x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True)(x)
-    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
-    x = KL.Activation('relu')(x)
-    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
-    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
-    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
-    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
-    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
-    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
-    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
-    for i in range(block_count):
-        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
-    C4 = x
-    if stage5:
-        x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
-        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
-        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
-    else:
-        C5 = None
-    return [C1, C2, C3, C4, C5]
+idx = 28:------------------- similar code ------------------ index = 30, score = 1.0 
+def build_model(self):
+    dropout = 0.2
+    shape = (None, self.ydim, self.xdim, self.channels)
+    left = Input(batch_shape=shape)
+    right = Input(batch_shape=shape)
+    x = SeparableConv2D(filters=16, kernel_size=5, padding='same')(left)
+    xleft = SeparableConv2D(filters=1, kernel_size=5, padding='same', dilation_rate=2)(left)
+    xin = keras.layers.concatenate([left, right])
+    xin = SeparableConv2D(filters=32, kernel_size=5, padding='same')(xin)
+    x8 = MaxPooling2D(8)(xin)
+    x8 = BatchNormalization()(x8)
+    x8 = Activation('relu', name='downsampled_stereo')(x8)
+    num_dilations = 4
+    dilation_rate = 1
+    y = x8
+    for i in range(num_dilations):
+        a = SeparableConv2D(filters=32, kernel_size=5, padding='same', dilation_rate=dilation_rate)(x8)
+        a = Dropout(dropout)(a, training=self.dropout_test)
+        y = keras.layers.concatenate([a, y])
+        dilation_rate += 1
+    dilation_rate = 1
+    x = MaxPooling2D(8)(x)
+    for i in range(num_dilations):
+        x = keras.layers.concatenate([x, y])
+        y = BatchNormalization()(x)
+        y = Activation('relu')(y)
+        y = SeparableConv2D(filters=64, kernel_size=1, padding='same')(y)
+        y = BatchNormalization()(y)
+        y = Activation('relu')(y)
+        y = SeparableConv2D(filters=16, kernel_size=5, padding='same', dilation_rate=dilation_rate)(y)
+        y = Dropout(dropout)(y, training=self.dropout_test)
+        dilation_rate += 1
+    x = keras.layers.concatenate([x, y], name='upsampled_disparity')
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = SeparableConv2D(filters=32, kernel_size=1, padding='same')(x)
+    x = UpSampling2D(8)(x)
+    if (not self.settings.nopadding):
+        x = ZeroPadding2D(padding=(2, 0))(x)
+    x = keras.layers.concatenate([x, xleft])
+    y = BatchNormalization()(x)
+    y = Activation('relu')(y)
+    y = SeparableConv2D(filters=16, kernel_size=5, padding='same')(y)
+    x = keras.layers.concatenate([x, y])
+    y = BatchNormalization()(x)
+    y = Activation('relu')(y)
+    y = Conv2DTranspose(filters=1, kernel_size=9, padding='same')(y)
+    self.model = Model([left, right], y)
+    if self.settings.model_weights:
+        print(('Loading checkpoint model weights %s....' % self.settings.model_weights))
+        self.model.load_weights(self.settings.model_weights)
+    return self.model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ...  =  ... .MaxPooling2D
+def  ... ( ... ):
+     ...  = MaxPooling2D
 
-idx = 6:------------------- similar code ------------------ index = 2, score = 1.0 
-if (__name__ == '__main__'):
-    import os
-    import numpy as np
-    import keras.optimizers
-    from keras.datasets import mnist
-    from keras.preprocessing.image import ImageDataGenerator
-    GPU_COUNT = 2
-    ROOT_DIR = os.path.abspath('../')
-    MODEL_DIR = os.path.join(ROOT_DIR, 'logs')
-
-    def build_model(x_train, num_classes):
-        tf.reset_default_graph()
-        inputs = KL.Input(shape=x_train.shape[1:], name='input_image')
-        x = KL.Conv2D(32, (3, 3), activation='relu', padding='same', name='conv1')(inputs)
-        x = KL.Conv2D(64, (3, 3), activation='relu', padding='same', name='conv2')(x)
-        x = KL.MaxPooling2D(pool_size=(2, 2), name='pool1')(x)
-        x = KL.Flatten(name='flat1')(x)
-        x = KL.Dense(128, activation='relu', name='dense1')(x)
-        x = KL.Dense(num_classes, activation='softmax', name='dense2')(x)
-        return KM.Model(inputs, x, 'digit_classifier_model')
-    ((x_train, y_train), (x_test, y_test)) = mnist.load_data()
-    x_train = (np.expand_dims(x_train, (- 1)).astype('float32') / 255)
-    x_test = (np.expand_dims(x_test, (- 1)).astype('float32') / 255)
-    print('x_train shape:', x_train.shape)
-    print('x_test shape:', x_test.shape)
-    datagen = ImageDataGenerator()
-    model = build_model(x_train, 10)
-    model = ParallelModel(model, GPU_COUNT)
-    optimizer = keras.optimizers.SGD(lr=0.01, momentum=0.9, clipnorm=5.0)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-    model.summary()
-    model.fit_generator(datagen.flow(x_train, y_train, batch_size=64), steps_per_epoch=50, epochs=10, verbose=1, validation_data=(x_test, y_test), callbacks=[keras.callbacks.TensorBoard(log_dir=MODEL_DIR, write_graph=True)])
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-if:
-    def  ... ():
-         ...  =  ... .MaxPooling2D
-
-idx = 7:------------------- similar code ------------------ index = 1, score = 1.0 
+idx = 29:------------------- similar code ------------------ index = 28, score = 1.0 
 def build_resnet(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, block_type='usual'):
     '\n    TODO\n    '
     input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
@@ -652,91 +1998,484 @@ def build_resnet(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, 
 def  ... ():
      ...  = MaxPooling2D
 
-idx = 8:------------------- similar code ------------------ index = 0, score = 1.0 
-def InceptionResNetV2(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000):
-    'Instantiates the Inception-ResNet v2 architecture.\n    Optionally loads weights pre-trained on ImageNet.\n    Note that when using TensorFlow, for best performance you should\n    set `"image_data_format": "channels_last"` in your Keras config\n    at `~/.keras/keras.json`.\n    The model and the weights are compatible with TensorFlow, Theano and\n    CNTK backends. The data format convention used by the model is\n    the one specified in your Keras config file.\n    Note that the default input image size for this model is 299x299, instead\n    of 224x224 as in the VGG16 and ResNet models. Also, the input preprocessing\n    function is different (i.e., do not use `imagenet_utils.preprocess_input()`\n    with this model. Use `preprocess_input()` defined in this module instead).\n    # Arguments\n        include_top: whether to include the fully-connected\n            layer at the top of the network.\n        weights: one of `None` (random initialization),\n              \'imagenet\' (pre-training on ImageNet),\n              or the path to the weights file to be loaded.\n        input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)\n            to use as image input for the model.\n        input_shape: optional shape tuple, only to be specified\n            if `include_top` is `False` (otherwise the input shape\n            has to be `(299, 299, 3)` (with `\'channels_last\'` data format)\n            or `(3, 299, 299)` (with `\'channels_first\'` data format).\n            It should have exactly 3 inputs channels,\n            and width and height should be no smaller than 139.\n            E.g. `(150, 150, 3)` would be one valid value.\n        pooling: Optional pooling mode for feature extraction\n            when `include_top` is `False`.\n            - `None` means that the output of the model will be\n                the 4D tensor output of the last convolutional layer.\n            - `\'avg\'` means that global average pooling\n                will be applied to the output of the\n                last convolutional layer, and thus\n                the output of the model will be a 2D tensor.\n            - `\'max\'` means that global max pooling will be applied.\n        classes: optional number of classes to classify images\n            into, only to be specified if `include_top` is `True`, and\n            if no `weights` argument is specified.\n    # Returns\n        A Keras `Model` instance.\n    # Raises\n        ValueError: in case of invalid argument for `weights`,\n            or invalid input shape.\n    '
-    if (not ((weights in {'imagenet', None}) or os.path.exists(weights))):
-        raise ValueError('The `weights` argument should be either `None` (random initialization), `imagenet` (pre-training on ImageNet), or the path to the weights file to be loaded.')
-    if ((weights == 'imagenet') and include_top and (classes != 1000)):
-        raise ValueError('If using `weights` as imagenet with `include_top` as true, `classes` should be 1000')
-    input_shape = _obtain_input_shape(input_shape, default_size=299, min_size=139, data_format=K.image_data_format(), require_flatten=False, weights=weights)
+idx = 30:------------------- similar code ------------------ index = 20, score = 1.0 
+def __init__(self, restore=None, session=None, use_softmax=False):
+    self.num_channels = 3
+    self.image_size = 32
+    self.num_labels = 10
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), input_shape=(32, 32, 3)))
+    model.add(Activation('relu'))
+    model.add(Conv2D(64, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(128, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(Conv2D(128, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Flatten())
+    model.add(Dense(256))
+    model.add(Activation('relu'))
+    model.add(Dense(256))
+    model.add(Activation('relu'))
+    model.add(Dense(10))
+    if use_softmax:
+        model.add(Activation('softmax'))
+    if restore:
+        model.load_weights(restore)
+    self.model = model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (MaxPooling2D)
+
+idx = 31:------------------- similar code ------------------ index = 27, score = 1.0 
+def build_resnext(repetitions=(2, 2, 2, 2), include_top=True, input_tensor=None, input_shape=None, classes=1000, first_conv_filters=64, first_block_filters=64):
+    '\n    TODO\n    '
+    input_shape = _obtain_input_shape(input_shape, default_size=224, min_size=197, data_format='channels_last', require_flatten=include_top)
     if (input_tensor is None):
-        img_input = Input(shape=input_shape)
+        img_input = Input(shape=input_shape, name='data')
     elif (not K.is_keras_tensor(input_tensor)):
         img_input = Input(tensor=input_tensor, shape=input_shape)
     else:
         img_input = input_tensor
-    x = conv2d_bn(img_input, 32, 3, strides=2, padding='same')
-    x = conv2d_bn(x, 32, 3, padding='same')
-    x = conv2d_bn(x, 64, 3)
-    x = MaxPooling2D(3, strides=2, padding='same')(x)
-    x = conv2d_bn(x, 80, 1, padding='same')
-    x = conv2d_bn(x, 192, 3, padding='same')
-    x = MaxPooling2D(3, strides=2, padding='same')(x)
-    branch_0 = conv2d_bn(x, 96, 1)
-    branch_1 = conv2d_bn(x, 48, 1)
-    branch_1 = conv2d_bn(branch_1, 64, 5)
-    branch_2 = conv2d_bn(x, 64, 1)
-    branch_2 = conv2d_bn(branch_2, 96, 3)
-    branch_2 = conv2d_bn(branch_2, 96, 3)
-    branch_pool = AveragePooling2D(3, strides=1, padding='same')(x)
-    branch_pool = conv2d_bn(branch_pool, 64, 1)
-    branches = [branch_0, branch_1, branch_2, branch_pool]
-    channel_axis = (1 if (K.image_data_format() == 'channels_first') else 3)
-    x = Concatenate(axis=channel_axis, name='mixed_5b')(branches)
-    for block_idx in range(1, 11):
-        x = inception_resnet_block(x, scale=0.17, block_type='block35', block_idx=block_idx)
-    branch_0 = conv2d_bn(x, 384, 3, strides=2, padding='same')
-    branch_1 = conv2d_bn(x, 256, 1)
-    branch_1 = conv2d_bn(branch_1, 256, 3)
-    branch_1 = conv2d_bn(branch_1, 384, 3, strides=2, padding='same')
-    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
-    branches = [branch_0, branch_1, branch_pool]
-    x = Concatenate(axis=channel_axis, name='mixed_6a')(branches)
-    for block_idx in range(1, 21):
-        x = inception_resnet_block(x, scale=0.1, block_type='block17', block_idx=block_idx)
-    branch_0 = conv2d_bn(x, 256, 1)
-    branch_0 = conv2d_bn(branch_0, 384, 3, strides=2, padding='same')
-    branch_1 = conv2d_bn(x, 256, 1)
-    branch_1 = conv2d_bn(branch_1, 288, 3, strides=2, padding='same')
-    branch_2 = conv2d_bn(x, 256, 1)
-    branch_2 = conv2d_bn(branch_2, 288, 3)
-    branch_2 = conv2d_bn(branch_2, 320, 3, strides=2, padding='same')
-    branch_pool = MaxPooling2D(3, strides=2, padding='same')(x)
-    branches = [branch_0, branch_1, branch_2, branch_pool]
-    x = Concatenate(axis=channel_axis, name='mixed_7a')(branches)
-    for block_idx in range(1, 10):
-        x = inception_resnet_block(x, scale=0.2, block_type='block8', block_idx=block_idx)
-    x = inception_resnet_block(x, scale=1.0, activation=None, block_type='block8', block_idx=10)
-    x = conv2d_bn(x, 1536, 1, name='conv_7b')
+    no_scale_bn_params = get_bn_params(scale=False)
+    bn_params = get_bn_params()
+    conv_params = get_conv_params()
+    init_filters = first_block_filters
+    x = BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
+    x = ZeroPadding2D(padding=(3, 3))(x)
+    x = Conv2D(first_conv_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
+    x = BatchNormalization(name='bn0', **bn_params)(x)
+    x = Activation('relu', name='relu0')(x)
+    x = ZeroPadding2D(padding=(1, 1))(x)
+    x = MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
+    for (stage, rep) in enumerate(repetitions):
+        for block in range(rep):
+            filters = (init_filters * (2 ** stage))
+            if ((stage == 0) and (block == 0)):
+                x = conv_block(filters, stage, block, strides=(1, 1))(x)
+            elif (block == 0):
+                x = conv_block(filters, stage, block, strides=(2, 2))(x)
+            else:
+                x = identity_block(filters, stage, block)(x)
     if include_top:
-        x = GlobalAveragePooling2D(name='avg_pool')(x)
-        x = Dense(classes, activation='softmax', name='predictions')(x)
-    elif (pooling == 'avg'):
-        x = GlobalAveragePooling2D()(x)
-    elif (pooling == 'max'):
-        x = GlobalMaxPooling2D()(x)
+        x = GlobalAveragePooling2D(name='pool1')(x)
+        x = Dense(classes, name='fc1')(x)
+        x = Activation('softmax', name='softmax')(x)
     if (input_tensor is not None):
         inputs = get_source_inputs(input_tensor)
     else:
         inputs = img_input
-    model = Model(inputs, x, name='inception_resnet_v2')
-    if (weights == 'imagenet'):
-        if (K.image_data_format() == 'channels_first'):
-            if (K.backend() == 'tensorflow'):
-                warnings.warn('You are using the TensorFlow backend, yet you are using the Theano image data format convention (`image_data_format="channels_first"`). For best performance, set `image_data_format="channels_last"` in your Keras config at ~/.keras/keras.json.')
-        if include_top:
-            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels.h5'
-            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='/wdata/backbones_weights', file_hash='e693bd0210a403b3192acc6073ad2e96')
-        else:
-            fname = 'inception_resnet_v2_weights_tf_dim_ordering_tf_kernels_notop.h5'
-            weights_path = get_file(fname, (BASE_WEIGHT_URL + fname), cache_subdir='/wdata/backbones_weights', file_hash='d19885ff4a710c122648d3b5c3b684e4')
-        model.load_weights(weights_path, skip_mismatch=True)
-    elif (weights is not None):
-        model.load_weights(weights)
+    model = Model(inputs, x)
     return model
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  = MaxPooling2D
+
+idx = 32:------------------- similar code ------------------ index = 26, score = 1.0 
+def get_convnet():
+    model = Sequential()
+    model.add(ZeroPadding2D())
+    for (filtersize, poolsize) in [(11, 2), (3, 3), (3, 3)]:
+        model.add(Dropout(0.2))
+        model.add(Convolution2D(32, 1, filtersize, filtersize, W_regularizer=l2()))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(poolsize=(poolsize, poolsize)))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.2))
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.1))
+    model.add(Dense(2))
+    model.add(Activation('sigmoid'))
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+         ... . ... (MaxPooling2D)
+
+idx = 33:------------------- similar code ------------------ index = 25, score = 1.0 
+def _main(args):
+    config_path = os.path.expanduser(args.config_path)
+    weights_path = os.path.expanduser(args.weights_path)
+    assert config_path.endswith('.cfg'), '{} is not a .cfg file'.format(config_path)
+    assert weights_path.endswith('.weights'), '{} is not a .weights file'.format(weights_path)
+    output_path = os.path.expanduser(args.output_path)
+    assert output_path.endswith('.h5'), 'output path {} is not a .h5 file'.format(output_path)
+    output_root = os.path.splitext(output_path)[0]
+    print('Loading weights.')
+    weights_file = open(weights_path, 'rb')
+    weights_header = np.ndarray(shape=(4,), dtype='int32', buffer=weights_file.read(16))
+    print('Weights Header: ', weights_header)
+    print('Parsing Darknet config.')
+    unique_config_file = unique_config_sections(config_path)
+    cfg_parser = configparser.ConfigParser()
+    cfg_parser.read_file(unique_config_file)
+    print('Creating Keras model.')
+    if args.fully_convolutional:
+        (image_height, image_width) = (None, None)
+    else:
+        image_height = int(cfg_parser['net_0']['height'])
+        image_width = int(cfg_parser['net_0']['width'])
+    prev_layer = Input(shape=(image_height, image_width, 3))
+    all_layers = [prev_layer]
+    weight_decay = (float(cfg_parser['net_0']['decay']) if ('net_0' in cfg_parser.sections()) else 0.0005)
+    count = 0
+    for section in cfg_parser.sections():
+        print('Parsing section {}'.format(section))
+        if section.startswith('convolutional'):
+            filters = int(cfg_parser[section]['filters'])
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            pad = int(cfg_parser[section]['pad'])
+            activation = cfg_parser[section]['activation']
+            batch_normalize = ('batch_normalize' in cfg_parser[section])
+            border_mode = ('same' if (pad == 1) else 'valid')
+            prev_layer_shape = K.int_shape(prev_layer)
+            weights_shape = (size, size, prev_layer_shape[(- 1)], filters)
+            darknet_w_shape = (filters, weights_shape[2], size, size)
+            weights_size = np.product(weights_shape)
+            print('conv2d', ('bn' if batch_normalize else '  '), activation, weights_shape)
+            conv_bias = np.ndarray(shape=(filters,), dtype='float32', buffer=weights_file.read((filters * 4)))
+            count += filters
+            if batch_normalize:
+                bn_weights = np.ndarray(shape=(3, filters), dtype='float32', buffer=weights_file.read((filters * 12)))
+                count += (3 * filters)
+                bn_weight_list = [bn_weights[0], conv_bias, bn_weights[1], bn_weights[2]]
+            conv_weights = np.ndarray(shape=darknet_w_shape, dtype='float32', buffer=weights_file.read((weights_size * 4)))
+            count += weights_size
+            conv_weights = np.transpose(conv_weights, [2, 3, 1, 0])
+            conv_weights = ([conv_weights] if batch_normalize else [conv_weights, conv_bias])
+            act_fn = None
+            if (activation == 'leaky'):
+                pass
+            elif (activation != 'linear'):
+                raise ValueError('Unknown activation function `{}` in section {}'.format(activation, section))
+            conv_layer = Convolution2D(filters, size, size, border_mode=border_mode, subsample=(stride, stride), bias=(not batch_normalize), weights=conv_weights, activation=act_fn, W_regularizer=l2(weight_decay))(prev_layer)
+            if batch_normalize:
+                conv_layer = BatchNormalization(weights=bn_weight_list)(conv_layer)
+            prev_layer = conv_layer
+            if (activation == 'linear'):
+                all_layers.append(prev_layer)
+            elif (activation == 'leaky'):
+                act_layer = LeakyReLU(alpha=0.1)(prev_layer)
+                prev_layer = act_layer
+                all_layers.append(act_layer)
+        elif section.startswith('maxpool'):
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            all_layers.append(MaxPooling2D(pool_size=(size, size), strides=(stride, stride), border_mode='same')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('avgpool'):
+            if (cfg_parser.items(section) != []):
+                raise ValueError('{} with params unsupported.'.format(section))
+            all_layers.append(GlobalAveragePooling2D()(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('route'):
+            ids = [int(i) for i in cfg_parser[section]['layers'].split(',')]
+            layers = [all_layers[i] for i in ids]
+            if (len(layers) > 1):
+                print('Merging layers:', layers)
+                merge_layer = merge(layers, mode='concat')
+                all_layers.append(merge_layer)
+                prev_layer = merge_layer
+            else:
+                skip_layer = layers[0]
+                all_layers.append(skip_layer)
+                prev_layer = skip_layer
+        elif section.startswith('reorg'):
+            block_size = int(cfg_parser[section]['stride'])
+            assert (block_size == 2), 'Only reorg with stride 2 supported.'
+            all_layers.append(Lambda(space_to_depth_x2, output_shape=space_to_depth_x2_output_shape, name='space_to_depth_x2')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('region'):
+            with open('{}_anchors.txt'.format(output_root), 'w') as f:
+                print(cfg_parser[section]['anchors'], file=f)
+        elif (section.startswith('net') or section.startswith('cost') or section.startswith('softmax')):
+            pass
+        else:
+            raise ValueError('Unsupported section header type: {}'.format(section))
+    model = Model(input=all_layers[0], output=all_layers[(- 1)])
+    print(model.summary())
+    model.save('{}'.format(output_path))
+    print('Saved Keras model to {}'.format(output_path))
+    remaining_weights = (len(weights_file.read()) / 4)
+    weights_file.close()
+    print('Read {} of {} from Darknet weights.'.format(count, (count + remaining_weights)))
+    if (remaining_weights > 0):
+        print('Warning: {} unused weights'.format(len(remaining_weights)))
+    if args.plot_model:
+        plot(model, to_file='{}.png'.format(output_root), show_shapes=True)
+        print('Saved model plot to {}.png'.format(output_root))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+        if:        elif:
+             ... . ... (MaxPooling2D)
+
+idx = 34:------------------- similar code ------------------ index = 23, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    if (2 in dilation):
+        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+        print('stage 2 dilated')
+    else:
+        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    if (3 in dilation):
+        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+        print('stage 3 dilated')
+    else:
+        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    if (4 in dilation):
+        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+        print('stage 4 dilated')
+    else:
+        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        if (5 in dilation):
+            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+            print('stage 5 dilated')
+        else:
+            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ...  =  ... .MaxPooling2D
+
+idx = 35:------------------- similar code ------------------ index = 22, score = 1.0 
+def __init__(self, restore=None, session=None, use_softmax=False):
+    self.num_channels = 1
+    self.image_size = 28
+    self.num_labels = 10
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), input_shape=(28, 28, 1)))
+    model.add(Activation('relu'))
+    model.add(Conv2D(32, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(64, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(Conv2D(64, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Flatten())
+    model.add(Dense(200))
+    model.add(Activation('relu'))
+    model.add(Dense(200))
+    model.add(Activation('relu'))
+    model.add(Dense(10))
+    if use_softmax:
+        model.add(Activation('softmax'))
+    if restore:
+        model.load_weights(restore)
+    self.model = model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... . ... (MaxPooling2D)
+
+idx = 36:------------------- similar code ------------------ index = 21, score = 1.0 
+def resnet_graph(input_image, architecture, stage5=False, train_bn=True, dilation=[]):
+    'Build a ResNet graph.\n        architecture: Can be resnet50 or resnet101\n        stage5: Boolean. If False, stage5 of the network is not created\n        train_bn: Boolean. Train or freeze Batch Norm layres\n    '
+    assert (architecture in ['resnet50', 'resnet101'])
+    x = KL.ZeroPadding2D((3, 3))(input_image)
+    x = KL.Conv2D(64, (7, 7), strides=(1, 1), name='conv1', use_bias=True)(x)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = KL.Activation('relu')(x)
+    C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
+    if (2 in dilation):
+        x = det_conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+        print('stage 2 dilated')
+    else:
+        x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), train_bn=train_bn)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', train_bn=train_bn)
+    C2 = x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', train_bn=train_bn)
+    if (3 in dilation):
+        x = det_conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+        print('stage 3 dilated')
+    else:
+        x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', train_bn=train_bn)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', train_bn=train_bn)
+    C3 = x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', train_bn=train_bn)
+    if (4 in dilation):
+        x = det_conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+        print('stage 4 dilated')
+    else:
+        x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', train_bn=train_bn)
+    block_count = {'resnet50': 5, 'resnet101': 22}[architecture]
+    for i in range(block_count):
+        x = identity_block(x, 3, [256, 256, 1024], stage=4, block=chr((98 + i)), train_bn=train_bn)
+    C4 = x
+    if stage5:
+        if (5 in dilation):
+            x = det_conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+            print('stage 5 dilated')
+        else:
+            x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', train_bn=train_bn)
+        x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', train_bn=train_bn)
+        C5 = x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', train_bn=train_bn)
+    else:
+        C5 = None
+    return [C1, C2, C3, C4, C5]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ...  =  ... .MaxPooling2D
+
+idx = 37:------------------- similar code ------------------ index = 0, score = 1.0 
+def _main(args):
+    config_path = os.path.expanduser(args.config_path)
+    weights_path = os.path.expanduser(args.weights_path)
+    assert config_path.endswith('.cfg'), '{} is not a .cfg file'.format(config_path)
+    assert weights_path.endswith('.weights'), '{} is not a .weights file'.format(weights_path)
+    output_path = os.path.expanduser(args.output_path)
+    assert output_path.endswith('.h5'), 'output path {} is not a .h5 file'.format(output_path)
+    output_root = os.path.splitext(output_path)[0]
+    print('Loading weights.')
+    weights_file = open(weights_path, 'rb')
+    (major, minor, revision) = np.ndarray(shape=(3,), dtype='int32', buffer=weights_file.read(12))
+    if ((((major * 10) + minor) >= 2) and (major < 1000) and (minor < 1000)):
+        seen = np.ndarray(shape=(1,), dtype='int64', buffer=weights_file.read(8))
+    else:
+        seen = np.ndarray(shape=(1,), dtype='int32', buffer=weights_file.read(4))
+    print('Weights Header: ', major, minor, revision, seen)
+    print('Parsing Darknet config.')
+    unique_config_file = unique_config_sections(config_path)
+    cfg_parser = configparser.ConfigParser()
+    cfg_parser.read_file(unique_config_file)
+    print('Creating Keras model.')
+    input_layer = Input(shape=(None, None, 3))
+    prev_layer = input_layer
+    all_layers = []
+    weight_decay = (float(cfg_parser['net_0']['decay']) if ('net_0' in cfg_parser.sections()) else 0.0005)
+    count = 0
+    out_index = []
+    for section in cfg_parser.sections():
+        print('Parsing section {}'.format(section))
+        if section.startswith('convolutional'):
+            filters = int(cfg_parser[section]['filters'])
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            pad = int(cfg_parser[section]['pad'])
+            activation = cfg_parser[section]['activation']
+            batch_normalize = ('batch_normalize' in cfg_parser[section])
+            padding = ('same' if ((pad == 1) and (stride == 1)) else 'valid')
+            prev_layer_shape = K.int_shape(prev_layer)
+            weights_shape = (size, size, prev_layer_shape[(- 1)], filters)
+            darknet_w_shape = (filters, weights_shape[2], size, size)
+            weights_size = np.product(weights_shape)
+            print('conv2d', ('bn' if batch_normalize else '  '), activation, weights_shape)
+            conv_bias = np.ndarray(shape=(filters,), dtype='float32', buffer=weights_file.read((filters * 4)))
+            count += filters
+            if batch_normalize:
+                bn_weights = np.ndarray(shape=(3, filters), dtype='float32', buffer=weights_file.read((filters * 12)))
+                count += (3 * filters)
+                bn_weight_list = [bn_weights[0], conv_bias, bn_weights[1], bn_weights[2]]
+            conv_weights = np.ndarray(shape=darknet_w_shape, dtype='float32', buffer=weights_file.read((weights_size * 4)))
+            count += weights_size
+            conv_weights = np.transpose(conv_weights, [2, 3, 1, 0])
+            conv_weights = ([conv_weights] if batch_normalize else [conv_weights, conv_bias])
+            act_fn = None
+            if (activation == 'leaky'):
+                pass
+            elif (activation != 'linear'):
+                raise ValueError('Unknown activation function `{}` in section {}'.format(activation, section))
+            if (stride > 1):
+                prev_layer = ZeroPadding2D(((1, 0), (1, 0)))(prev_layer)
+            conv_layer = Conv2D(filters, (size, size), strides=(stride, stride), kernel_regularizer=l2(weight_decay), use_bias=(not batch_normalize), weights=conv_weights, activation=act_fn, padding=padding)(prev_layer)
+            if batch_normalize:
+                conv_layer = BatchNormalization(weights=bn_weight_list)(conv_layer)
+            prev_layer = conv_layer
+            if (activation == 'linear'):
+                all_layers.append(prev_layer)
+            elif (activation == 'leaky'):
+                act_layer = LeakyReLU(alpha=0.1)(prev_layer)
+                prev_layer = act_layer
+                all_layers.append(act_layer)
+        elif section.startswith('route'):
+            ids = [int(i) for i in cfg_parser[section]['layers'].split(',')]
+            layers = [all_layers[i] for i in ids]
+            if (len(layers) > 1):
+                print('Concatenating route layers:', layers)
+                concatenate_layer = Concatenate()(layers)
+                all_layers.append(concatenate_layer)
+                prev_layer = concatenate_layer
+            else:
+                skip_layer = layers[0]
+                all_layers.append(skip_layer)
+                prev_layer = skip_layer
+        elif section.startswith('maxpool'):
+            size = int(cfg_parser[section]['size'])
+            stride = int(cfg_parser[section]['stride'])
+            all_layers.append(MaxPooling2D(pool_size=(size, size), strides=(stride, stride), padding='same')(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('shortcut'):
+            index = int(cfg_parser[section]['from'])
+            activation = cfg_parser[section]['activation']
+            assert (activation == 'linear'), 'Only linear activation supported.'
+            all_layers.append(Add()([all_layers[index], prev_layer]))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('upsample'):
+            stride = int(cfg_parser[section]['stride'])
+            assert (stride == 2), 'Only stride=2 supported.'
+            all_layers.append(UpSampling2D(stride)(prev_layer))
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('yolo'):
+            out_index.append((len(all_layers) - 1))
+            all_layers.append(None)
+            prev_layer = all_layers[(- 1)]
+        elif section.startswith('net'):
+            pass
+        else:
+            raise ValueError('Unsupported section header type: {}'.format(section))
+    if (len(out_index) == 0):
+        out_index.append((len(all_layers) - 1))
+    model = Model(inputs=input_layer, outputs=[all_layers[i] for i in out_index])
+    print(model.summary())
+    if args.weights_only:
+        model.save_weights('{}'.format(output_path))
+        print('Saved Keras weights to {}'.format(output_path))
+    else:
+        model.save('{}'.format(output_path))
+        print('Saved Keras model to {}'.format(output_path))
+    remaining_weights = (len(weights_file.read()) / 4)
+    weights_file.close()
+    print('Read {} of {} from Darknet weights.'.format(count, (count + remaining_weights)))
+    if (remaining_weights > 0):
+        print('Warning: {} unused weights'.format(remaining_weights))
+    if args.plot_model:
+        plot(model, to_file='{}.png'.format(output_root), show_shapes=True)
+        print('Saved model plot to {}.png'.format(output_root))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    for  ...  in:
+        if:        elif:
+             ... . ... (MaxPooling2D)
 

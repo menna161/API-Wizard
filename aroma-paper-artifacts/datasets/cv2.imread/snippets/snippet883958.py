@@ -1,0 +1,30 @@
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from keras.models import load_model
+from Utils.ImageTools import ImageToArrayPreprocessor
+from PrePorcessor.Preprocessor import SimplePreprocessor
+from dataset.SimpleDatasetLoader import SimpleDatasetLoader
+from keras.optimizers import SGD
+from Model.IncludeNet import IncludeNet
+import matplotlib.pyplot as plt
+import numpy as np
+import argparse
+from imutils import paths
+import cv2
+
+
+def amin():
+    image_path = args['image_path']
+    size = 50
+    sp = SimplePreprocessor(size, size)
+    iap = ImageToArrayPreprocessor()
+    sdl = SimpleDatasetLoader(preprocessors=[sp, iap])
+    (data, labels) = sdl.single_load(image_path)
+    data = (data.astype('float') / 255.0)
+    model = load_model('./SavedModel/amin.hdf5')
+    preds = model.predict(data, batch_size=size).argmax(axis=1)
+    image = cv2.imread(image_path)
+    cv2.putText(image, 'Label: {}'.format(classLabels[preds[preds[0]]]), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    cv2.imshow('Image', image)
+    cv2.waitKey(0)

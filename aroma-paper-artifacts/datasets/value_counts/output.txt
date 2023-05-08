@@ -1,4 +1,14 @@
 ------------------------- example 1 ------------------------ 
+def preds_for_cell_content_multi(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].sum().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------------- example 2 ------------------------ 
 def preds_for_cell_content(test_df, probs, group_by=['cell_content']):
     test_df = test_df.copy()
     test_df['pred'] = np.argmax(probs, axis=1)
@@ -7,12 +17,68 @@ def preds_for_cell_content(test_df, probs, group_by=['cell_content']):
     results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
     return results
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        7         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        8         ||         0        ||        0.125         
+example2  ||          2           ||        7         ||         0        ||        0.2857142857142857         
 
-avg       ||          3.0           ||        7.0         ||         0.0        
+avg       ||          40.0           ||        7.5         ||         0.0        ||         20.535714285714285        
 
-idx = 0:------------------- similar code ------------------ index = 3, score = 1.0 
+idx = 0:------------------- similar code ------------------ index = 4, score = 1.0 
+def preds_for_cell_content_multi(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].sum().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ({ ... :  ... . ... ((lambda  ... :  ... .value_counts())),  ... :  ... ,  ... :  ... })
+
+idx = 1:------------------- similar code ------------------ index = 3, score = 1.0 
+def creator_plot(watch: pd.DataFrame, number: int):
+    df = watch['channel'].value_counts()
+    df.drop(['unknown'], inplace=True)
+    df = df.head(number).sort_values()
+    plot = df.plot(kind='barh', color=COLOR, figsize=[6.4, (number * 0.28)])
+    plot.set_xlabel('videos watched')
+    plot.set_title(f'Top {number} creators')
+    return plot
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .value_counts()
+
+idx = 2:------------------- similar code ------------------ index = 2, score = 1.0 
+def preds_for_cell_content(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    test_df['pred'] = np.argmax(probs, axis=1)
+    grouped_preds = test_df.groupby(group_by)['pred'].agg((lambda x: x.value_counts().index[0]))
+    grouped_counts = test_df.groupby(group_by)['pred'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ((lambda  ... :  ... .value_counts()))
+
+idx = 3:------------------- similar code ------------------ index = 1, score = 1.0 
+def preds_for_cell_content_max(test_df, probs, group_by=['cell_content']):
+    test_df = test_df.copy()
+    probs_df = pd.DataFrame(probs, index=test_df.index)
+    test_df = pd.concat([test_df, probs_df], axis=1)
+    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].max().values, axis=1)
+    grouped_counts = test_df.groupby(group_by)['label'].count()
+    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
+    return results
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... . ... ({ ... :  ... . ... ((lambda  ... :  ... .value_counts())),  ... :  ... ,  ... :  ... })
+
+idx = 4:------------------- similar code ------------------ index = 0, score = 1.0 
 def generate_data(self):
     self.df = pd.read_csv(self.options.samplefile, nrows=self.options.numsamples, header=0)
     if self.options.prevent_zero:
@@ -58,45 +124,4 @@ def generate_data(self):
 def  ... ( ... ):
     for  ...  in:
  =  ... .value_counts
-
-idx = 1:------------------- similar code ------------------ index = 2, score = 1.0 
-def preds_for_cell_content(test_df, probs, group_by=['cell_content']):
-    test_df = test_df.copy()
-    test_df['pred'] = np.argmax(probs, axis=1)
-    grouped_preds = test_df.groupby(group_by)['pred'].agg((lambda x: x.value_counts().index[0]))
-    grouped_counts = test_df.groupby(group_by)['pred'].count()
-    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
-    return results
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... . ... ((lambda  ... :  ... .value_counts()))
-
-idx = 2:------------------- similar code ------------------ index = 1, score = 1.0 
-def preds_for_cell_content_max(test_df, probs, group_by=['cell_content']):
-    test_df = test_df.copy()
-    probs_df = pd.DataFrame(probs, index=test_df.index)
-    test_df = pd.concat([test_df, probs_df], axis=1)
-    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].max().values, axis=1)
-    grouped_counts = test_df.groupby(group_by)['label'].count()
-    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
-    return results
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... . ... ({ ... :  ... . ... ((lambda  ... :  ... .value_counts())),  ... :  ... ,  ... :  ... })
-
-idx = 3:------------------- similar code ------------------ index = 0, score = 1.0 
-def preds_for_cell_content_multi(test_df, probs, group_by=['cell_content']):
-    test_df = test_df.copy()
-    probs_df = pd.DataFrame(probs, index=test_df.index)
-    test_df = pd.concat([test_df, probs_df], axis=1)
-    grouped_preds = np.argmax(test_df.groupby(group_by)[probs_df.columns].sum().values, axis=1)
-    grouped_counts = test_df.groupby(group_by)['label'].count()
-    results = pd.DataFrame({'true': test_df.groupby(group_by)['label'].agg((lambda x: x.value_counts().index[0])), 'pred': grouped_preds, 'counts': grouped_counts})
-    return results
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... . ... ({ ... :  ... . ... ((lambda  ... :  ... .value_counts())),  ... :  ... ,  ... :  ... })
 

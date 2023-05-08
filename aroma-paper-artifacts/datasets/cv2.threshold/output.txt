@@ -1,0 +1,93 @@
+------------------------- example 1 ------------------------ 
+def extract_color(src, h_th_low, h_th_up, s_th, v_th):
+    hsv = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+    (h, s, v) = cv2.split(hsv)
+    if (h_th_low > h_th_up):
+        (ret, h_dst_1) = cv2.threshold(h, h_th_low, 255, cv2.THRESH_BINARY)
+        (ret, h_dst_2) = cv2.threshold(h, h_th_up, 255, cv2.THRESH_BINARY_INV)
+        dst = cv2.bitwise_or(h_dst_1, h_dst_2)
+    else:
+        (ret, dst) = cv2.threshold(h, h_th_low, 255, cv2.THRESH_TOZERO)
+        (ret, dst) = cv2.threshold(dst, h_th_up, 255, cv2.THRESH_TOZERO_INV)
+        (ret, dst) = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
+    (ret, s_dst) = cv2.threshold(s, s_th, 255, cv2.THRESH_BINARY)
+    (ret, v_dst) = cv2.threshold(v, v_th, 255, cv2.THRESH_BINARY)
+// your code ...
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        13         ||         1        ||        0.0         
+
+avg       ||          40.0           ||        13.0         ||         1.0        ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 2, score = 5.0 
+def extract_color(src, h_th_low, h_th_up, s_th, v_th):
+    hsv = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+    (h, s, v) = cv2.split(hsv)
+    if (h_th_low > h_th_up):
+        (ret, h_dst_1) = cv2.threshold(h, h_th_low, 255, cv2.THRESH_BINARY)
+        (ret, h_dst_2) = cv2.threshold(h, h_th_up, 255, cv2.THRESH_BINARY_INV)
+        dst = cv2.bitwise_or(h_dst_1, h_dst_2)
+    else:
+        (ret, dst) = cv2.threshold(h, h_th_low, 255, cv2.THRESH_TOZERO)
+        (ret, dst) = cv2.threshold(dst, h_th_up, 255, cv2.THRESH_TOZERO_INV)
+        (ret, dst) = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
+    (ret, s_dst) = cv2.threshold(s, s_th, 255, cv2.THRESH_BINARY)
+    (ret, v_dst) = cv2.threshold(v, v_th, 255, cv2.THRESH_BINARY)
+    dst = cv2.bitwise_and(dst, s_dst)
+    dst = cv2.bitwise_and(dst, v_dst)
+    return dst
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = cv2.threshold
+
+idx = 1:------------------- similar code ------------------ index = 1, score = 5.0 
+def binarize(image, points=None, thresh=128, maxval=255, thresh_type=0):
+    image = image.copy()
+    if ((not (points is None)) and (type(points) is list) and (len(points) > 2)):
+        points = sort_points(points)
+        points = numpy.array(points, numpy.int64)
+        mask = numpy.zeros_like(image, numpy.uint8)
+        cv2.fillConvexPoly(mask, points, (255, 255, 255), cv2.LINE_AA)
+        image = cv2.bitwise_and(image, mask)
+    msers = cv2.MSER_create().detectRegions(image)[0]
+    setyx = set()
+    for region in msers:
+        for point in region:
+            setyx.add((point[1], point[0]))
+    setyx = tuple(numpy.transpose(list(setyx)))
+    mask1 = numpy.zeros(image.shape, numpy.uint8)
+    mask1[setyx] = maxval
+    mask2 = cv2.threshold(image, thresh, maxval, thresh_type)[1]
+    image = cv2.bitwise_and(mask1, mask2)
+    return image
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+        cv2
+     ...  =  ... .threshold
+
+idx = 2:------------------- similar code ------------------ index = 0, score = 5.0 
+def watershed(src):
+    gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    (thresh, bin_img) = cv2.threshold(gray, 0, 255, (cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU))
+    kernel = np.ones((3, 3), np.uint8)
+    opening = cv2.morphologyEx(bin_img, cv2.MORPH_OPEN, kernel, iterations=2)
+    sure_bg = cv2.dilate(opening, kernel, iterations=3)
+    dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+    (ret, sure_fg) = cv2.threshold(dist_transform, (0.7 * dist_transform.max()), 255, 0)
+    sure_fg = np.uint8(sure_fg)
+    unknown = cv2.subtract(sure_bg, sure_fg)
+    (ret, markers) = cv2.connectedComponents(sure_fg)
+    markers = (markers + 1)
+    markers[(unknown == 255)] = 0
+    markers = cv2.watershed(src, markers)
+    src[(markers == (- 1))] = [255, 0, 0]
+    return (markers, src)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+ = cv2.threshold
+

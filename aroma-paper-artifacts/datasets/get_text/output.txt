@@ -98,14 +98,14 @@ def parse_citation(self, single_citation):
         pub_date
     return {'patent_number': patent_number, 'priority_date': priority_date, 'pub_date': pub_date}
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        3         ||         0        
-example2  ||          4           ||        1         ||         0        
-example3  ||          2           ||        67         ||         0        
-example4  ||          4           ||        4         ||         0        
-example5  ||          2           ||        15         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        3         ||         0        ||        0.6666666666666666         
+example2  ||          4           ||        1         ||         0        ||        1.0         
+example3  ||          2           ||        67         ||         0        ||        0.11940298507462686         
+example4  ||          4           ||        4         ||         0        ||        0.75         
+example5  ||          2           ||        15         ||         0        ||        0.2         
 
-avg       ||          3.0           ||        18.0         ||         0.0        
+avg       ||          2.941176470588235           ||        18.0         ||         0.0        ||         54.72139303482587        
 
 idx = 0:------------------- similar code ------------------ index = 20, score = 2.0 
 def get_text(self):

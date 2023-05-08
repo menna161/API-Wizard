@@ -1,0 +1,34 @@
+import argparse
+import numpy as np
+import multiprocessing as mp
+import cv2
+import os
+
+
+def compute_confusion_matrix(names, label_root, pred_root, num_cls, num_threads=16, arr_=None):
+    if (num_threads == 1):
+        mat = np.zeros((num_cls, num_cls), np.float32)
+        for name in names:
+            gt = cv2.imread(os.path.join(label_root, (name + '.png')), 0).astype(np.int32)
+            pred = cv2.imread(os.path.join(pred_root, (name + '.png')), 0).astype(np.int32)
+            if (gt.shape != pred.shape):
+                info(None, 'NAME {}, gt.shape != pred.shape: [{} vs. {}]'.format(name, gt.shape, pred.shape), 'red')
+                continue
+            valid = (gt < num_cls)
+            mat += np.bincount(((gt[valid] * num_cls) + pred[valid]), minlength=(num_cls ** 2)).reshape(num_cls, (- 1))
+        if (arr_ is not None):
+            arr_mat = np.frombuffer(arr_.get_obj(), np.float32)
+            arr_mat += mat.ravel()
+        return mat
+    else:
+        workload = np.full((num_threads,), (len(names) // num_threads), np.int32)
+        if (workload.sum() < len(names)):
+            workload[:(len(names) - workload.sum())] += 1
+        workload = np.cumsum(np.hstack([0, workload]))
+        names_split = [names[i:j] for (i, j) in zip(workload[:(- 1)], workload[1:])]
+        arr_ = mp.Array('f', np.zeros(((num_cls * num_cls),), np.float32))
+        mat = np.frombuffer(arr_.get_obj(), np.float32).reshape(num_cls, (- 1))
+        jobs = [mp.Process(target=compute_confusion_matrix, args=(_names, label_root, pred_root, num_cls, 1, arr_)) for _names in names_split]
+        res = [job.start() for job in jobs]
+        res = [job.join() for job in jobs]
+        return mat.copy()

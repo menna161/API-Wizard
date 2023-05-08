@@ -2,7 +2,6 @@
 def compute_ctc_uer(logprobs, targets, input_lengths, target_lengths, blank_idx):
     '\n        Computes utterance error rate for CTC outputs\n\n        Args:\n            logprobs: (Torch.tensor)  N, T1, D tensor of log probabilities out\n                of the encoder\n            targets: (Torch.tensor) N, T2 tensor of targets\n            input_lengths: (Torch.tensor) lengths of inputs for each sample\n            target_lengths: (Torch.tensor) lengths of targets for each sample\n            blank_idx: (integer) id of blank symbol in target dictionary\n\n        Returns:\n            batch_errors: (float) errors in the batch\n            batch_total: (float)  total number of valid samples in batch\n    '
 // your code ...
-
     for b in range(logprobs.shape[0]):
         predicted = logprobs[b][:input_lengths[b]].argmax(1).tolist()
         target = targets[b][:target_lengths[b]].tolist()
@@ -13,7 +12,6 @@ def compute_ctc_uer(logprobs, targets, input_lengths, target_lengths, blank_idx)
                 nonblanks.append(p)
         predicted = nonblanks
 // your code ...
-
         for a in alignment.codes:
             if (a != Code.match):
                 batch_errors += 1
@@ -34,13 +32,11 @@ def preds_for_cell_content_max(test_df, probs, group_by=['cell_content']):
 def convert_mind_match_to_minimized_format(mind_matching_df, table_map=None, file_name='ccn_mindmatch_2019_minimized.csv'):
     '\n    Convert full schedule for mind matching into CSV file with 2 columns\n    ``RegistrantID`` and ``ScheduleTables`` e.g. 1013, 1a|32a|1a|1a|1a|1a\n    '
 // your code ...
-
     for (person_id, mind_matching_schedule_df) in mind_matching_df.groupby('person_id'):
         if (table_map is not None):
             minimized_mind_matching.append({'RegistrantID': registration_id_map[person_id], 'ScheduleTables': '|'.join([table_map[e] for e in list(mind_matching_schedule_df.sort_values('timeslot').table_number.values)])})
         else:
 // your code ...
-
     minimized_mind_matching_df = pd.DataFrame(minimized_mind_matching)
     minimized_mind_matching_df.to_csv(file_name, index=False)
 
@@ -53,7 +49,6 @@ def eval_op(op: RelationalOp) -> Optional[Table]:
         prev_table = eval_op(op.child)
         if (not prev_table):
 // your code ...
-
         if (op.op_type == RelationalOpType.where):
             s_op = cast(Where, op)
             new_table = prev_table.where(s_op.predicate.column_or_label, s_op.predicate.value_or_predicate, s_op.predicate.other)
@@ -77,18 +72,17 @@ def eval_op(op: RelationalOp) -> Optional[Table]:
 def infer_encoding(mdf: MidasDataFrame) -> Optional[EncodingSpec]:
     'Implements basic show me like feature'
 // your code ...
-
     is_groupby = (mdf._ops.op_type == RelationalOpType.groupby)
     return infer_encoding_helper(mdf, selectable, is_groupby)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        18         ||         2        
-example2  ||          2           ||        8         ||         0        
-example3  ||          3           ||        10         ||         2        
-example4  ||          2           ||        26         ||         1        
-example5  ||          3           ||        5         ||         1        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        16         ||         2        ||        0.0625         
+example2  ||          2           ||        8         ||         0        ||        0.375         
+example3  ||          3           ||        8         ||         2        ||        0.125         
+example4  ||          2           ||        25         ||         1        ||        0.04         
+example5  ||          3           ||        4         ||         1        ||        0.5         
 
-avg       ||          2.4           ||        13.4         ||         1.2        
+avg       ||          3.8095238095238093           ||        12.2         ||         1.2        ||         22.05        
 
 idx = 0:------------------- similar code ------------------ index = 52, score = 1.0 
 def total_fees(cash_trans):

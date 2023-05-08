@@ -2,45 +2,64 @@
 def fit(self, train_ds=None, epochs=100, gen_optimizer='Adam', disc_optimizer='Adam', verbose=1, gen_learning_rate=0.0001, disc_learning_rate=0.0002, beta_1=0.5, tensorboard=False, save_model=None):
     'Function to train the model\n\n        Args:\n            train_ds (tf.data object): training data\n            epochs (int, optional): number of epochs to train the model. Defaults to ``100``\n            gen_optimizer (str, optional): optimizer used to train generator. Defaults to ``Adam``\n            disc_optimizer (str, optional): optimizer used to train discriminator. Defaults to ``Adam``\n            verbose (int, optional): 1 - prints training outputs, 0 - no outputs. Defaults to ``1``\n            gen_learning_rate (float, optional): learning rate of the generator optimizer. Defaults to ``0.0001``\n            disc_learning_rate (float, optional): learning rate of the discriminator optimizer. Defaults to ``0.0002``\n            beta_1 (float, optional): decay rate of the first momement. set if ``Adam`` optimizer is used. Defaults to ``0.5``\n            tensorboard (bool, optional): if true, writes loss values to ``logs/gradient_tape`` directory\n                which aids visualization. Defaults to ``False``\n            save_model (str, optional): Directory to save the trained model. Defaults to ``None``\n        '
 // your code ...
-
+    self.__load_model()
+    kwargs = {}
+// your code ...
     gen_optimizer = getattr(tf.keras.optimizers, gen_optimizer)(**kwargs)
     kwargs = {}
 // your code ...
-
     if tensorboard:
         current_time = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 // your code ...
-
         train_summary_writer = tf.summary.create_file_writer(train_log_dir)
     steps = 0
-// your code ...
-
+    generator_loss = tf.keras.metrics.Mean()
     discriminator_loss = tf.keras.metrics.Mean()
     try:
 // your code ...
-
     for epoch in range(epochs):
         generator_loss.reset_states()
 // your code ...
-
-        for (data, labels) in train_ds:
-            sampled_labels = np.random.randint(0, 10, data.shape[0]).reshape((- 1), 1)
-            with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-                noise = tf.random.normal([data.shape[0], self.noise_dim])
-                fake_imgs = self.gen_model([noise, sampled_labels])
+        for data in train_ds:
+            with tf.GradientTape() as tape:
+                Z = tf.random.normal([data.shape[0], self.noise_dim])
+                fake = self.gen_model(Z)
+                fake_logits = self.disc_model(fake)
+                real_logits = self.disc_model(data)
+                D_loss = gan_discriminator_loss(real_logits, fake_logits)
+            gradients = tape.gradient(D_loss, self.disc_model.trainable_variables)
+            disc_optimizer.apply_gradients(zip(gradients, self.disc_model.trainable_variables))
+            with tf.GradientTape() as tape:
+                Z = tf.random.normal([data.shape[0], self.noise_dim])
+                fake = self.gen_model(Z)
 // your code ...
-
-            gradients_of_generator = gen_tape.gradient(G_loss, self.gen_model.trainable_variables)
+            gradients = tape.gradient(G_loss, self.gen_model.trainable_variables)
+            gen_optimizer.apply_gradients(zip(gradients, self.gen_model.trainable_variables))
+            generator_loss(G_loss)
 // your code ...
-
         pbar.close()
 // your code ...
-
     if (save_model is not None):
+        assert isinstance(save_model, str), 'Not a valid directory'
+        if (save_model[(- 1)] != '/'):
+            self.gen_model.save_weights((save_model + '/generator_checkpoint'))
+            self.disc_model.save_weights((save_model + '/discriminator_checkpoint'))
+        else:
 // your code ...
 
-
 ------------------------- example 2 ------------------------ 
+if (__name__ == '__main__'):
+    import os
+// your code ...
+    x = tf.random.normal((4, 100, 100, 3))
+    x = (x - tf.math.reduce_min(x))
+// your code ...
+    x_aug = transform(x)
+    (fig, axes) = plt.subplots(4, 2)
+    for b in range(4):
+// your code ...
+
+------------------------- example 3 ------------------------ 
 def generate_samples(self, n_samples=1, save_dir=None):
     'Generate samples using the trained model\n\n        Args:\n            n_samples (int, optional): number of samples to generate. Defaults to ``1``\n            save_dir (str, optional): directory to save the generated images. Defaults to ``None``\n\n        Return:\n            returns ``None`` if save_dir is ``not None``, otherwise returns a numpy array with generated samples\n        '
     if (self.gen_model is None):
@@ -50,131 +69,48 @@ def generate_samples(self, n_samples=1, save_dir=None):
     if (save_dir is None):
 // your code ...
 
-
-------------------------- example 3 ------------------------ 
-def test_global_attn():
-    x = tf.random.normal((2, 7, 512))
-    global_attn = GlobalAttention(num_heads=5, graph_hidden_size=512)
-    y = global_attn(x)
-
 ------------------------- example 4 ------------------------ 
-def clipped_random():
-    rand = tf.random.normal([1], dtype=tf.float32)
-    rand = (tf.clip_by_value(rand, (- 2.0), 2.0) / 2.0)
-    return rand
+
+def static(imgs, DIFFICULTY):
+    'Gaussian noise, or "static"\n    '
+// your code ...
+    batch_size = imgs.shape[0]
+    stddev = tf.gather(STATIC_STDDEVS, DIFFICULTY)
+    stddev = tf.random.uniform([], 0, stddev)
+    noise = tf.random.normal((batch_size, *img_shape), mean=0, stddev=stddev)
+    imgs = (imgs + noise)
+// your code ...
 
 ------------------------- example 5 ------------------------ 
-def make_variational_model(model, *args, **kwargs):
-    variational_parameters = collections.OrderedDict()
-
-    def get_or_init(name, shape=None):
-        loc_name = (name + '_loc')
-        scale_name = (name + '_scale')
-        if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
-            return (variational_parameters[loc_name], variational_parameters[scale_name])
+def __init__(self, sigma_prior, n_in, init_rho=None, momentum=0.99, beta_initializer=tf.zeros_initializer(), gamma_initializer=tf.ones_initializer(), name='batch_norm_bayes', reuse=None):
+    self.momentum = momentum
+    self.sigma_prior = sigma_prior
+    with tf.variable_scope(name, reuse=reuse):
+        self.moving_mean = tf.get_variable('moving_mean', [n_in], initializer=tf.zeros_initializer(), trainable=False)
+        self.moving_var = tf.get_variable('moving_var', [n_in], initializer=tf.ones_initializer(), trainable=False)
+        self.mu_gamma = tf.get_variable('mu_gamma', shape=[n_in], initializer=tf.initializers.random_uniform(0, 1))
+        self.mu_beta = tf.get_variable('mu_beta', shape=[n_in], initializer=tf.zeros_initializer())
+        self.epsilon_gamma = tf.random.normal(shape=[n_in], mean=0.0, stddev=1.0)
+        self.epsilon_beta = tf.random.normal(shape=[n_in], mean=0.0, stddev=1.0)
+        if (init_rho is None):
+            self.rho_gamma = tf.get_variable('rho_gamma', shape=[n_in])
+            self.rho_beta = tf.get_variable('rho_beta', shape=[n_in])
         else:
-            variational_parameters[loc_name] = tf.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
-            variational_parameters[scale_name] = tf.nn.softplus(tf.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
-            return (variational_parameters[loc_name], variational_parameters[scale_name])
+            self.rho_gamma = tf.get_variable('rho_gamma', shape=[n_in], initializer=tf.constant_initializer(value=init_rho))
+            self.rho_beta = tf.get_variable('rho_beta', shape=[n_in], initializer=tf.constant_initializer(value=init_rho))
+        self.sigma_gamma = softplus(self.rho_gamma)
+        self.sigma_beta = softplus(self.rho_beta)
 
-    def mean_field(rv_constructor, *rv_args, **rv_kwargs):
-        name = rv_kwargs['name']
-        if (name not in kwargs.keys()):
-            rv = rv_constructor(*rv_args, **rv_kwargs)
-            (loc, scale) = get_or_init(name, rv.shape)
-            return Normal(loc=loc, scale=scale, name=name)
-        else:
-            rv_kwargs['value'] = kwargs[name]
-            return rv_constructor(*rv_args, **rv_kwargs)
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          4           ||        37         ||         10        ||        0.05405405405405406         
+example2  ||          2           ||        7         ||         3        ||        0.14285714285714285         
+example3  ||          3           ||        7         ||         1        ||        0.14285714285714285         
+example4  ||          3           ||        8         ||         2        ||        0.25         
+example5  ||          2           ||        18         ||         0        ||        0.3888888888888889         
 
-    def variational_model(*args):
-        with interception(mean_field):
-            return model(*args)
-    _ = variational_model(*args)
-    return (variational_model, variational_parameters)
-
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          4           ||        30         ||         10        
-example2  ||          2           ||        8         ||         1        
-example3  ||          2           ||        4         ||         0        
-example4  ||          2           ||        4         ||         0        
-example5  ||          2           ||        22         ||         0        
-
-avg       ||          2.4           ||        13.6         ||         2.2        
+avg       ||          16.470588235294116           ||        15.4         ||         3.2        ||         19.57314457314457        
 
 idx = 0:------------------- similar code ------------------ index = 8, score = 10.0 
-def fit(self, train_ds=None, epochs=100, gen_optimizer='Adam', disc_optimizer='Adam', verbose=1, gen_learning_rate=0.0001, disc_learning_rate=0.0002, beta_1=0.5, tensorboard=False, save_model=None):
-    'Function to train the model\n\n        Args:\n            train_ds (tf.data object): training data\n            epochs (int, optional): number of epochs to train the model. Defaults to ``100``\n            gen_optimizer (str, optional): optimizer used to train generator. Defaults to ``Adam``\n            disc_optimizer (str, optional): optimizer used to train discriminator. Defaults to ``Adam``\n            verbose (int, optional): 1 - prints training outputs, 0 - no outputs. Defaults to ``1``\n            gen_learning_rate (float, optional): learning rate of the generator optimizer. Defaults to ``0.0001``\n            disc_learning_rate (float, optional): learning rate of the discriminator optimizer. Defaults to ``0.0002``\n            beta_1 (float, optional): decay rate of the first momement. set if ``Adam`` optimizer is used. Defaults to ``0.5``\n            tensorboard (bool, optional): if true, writes loss values to ``logs/gradient_tape`` directory\n                which aids visualization. Defaults to ``False``\n            save_model (str, optional): Directory to save the trained model. Defaults to ``None``\n        '
-    assert (train_ds is not None), 'Initialize training data through train_ds parameter'
-    self.__load_model()
-    kwargs = {}
-    kwargs['learning_rate'] = gen_learning_rate
-    if (gen_optimizer == 'Adam'):
-        kwargs['beta_1'] = beta_1
-    gen_optimizer = getattr(tf.keras.optimizers, gen_optimizer)(**kwargs)
-    kwargs = {}
-    kwargs['learning_rate'] = disc_learning_rate
-    if (disc_optimizer == 'Adam'):
-        kwargs['beta_1'] = beta_1
-    disc_optimizer = getattr(tf.keras.optimizers, disc_optimizer)(**kwargs)
-    if tensorboard:
-        current_time = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-        train_log_dir = (('logs/gradient_tape/' + current_time) + '/train')
-        train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-    steps = 0
-    generator_loss = tf.keras.metrics.Mean()
-    discriminator_loss = tf.keras.metrics.Mean()
-    try:
-        total = tf.data.experimental.cardinality(train_ds).numpy()
-    except:
-        total = 0
-    for epoch in range(epochs):
-        generator_loss.reset_states()
-        discriminator_loss.reset_states()
-        pbar = tqdm(total=total, desc=('Epoch - ' + str((epoch + 1))))
-        for (data, labels) in train_ds:
-            sampled_labels = np.random.randint(0, 10, data.shape[0]).reshape((- 1), 1)
-            with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-                noise = tf.random.normal([data.shape[0], self.noise_dim])
-                fake_imgs = self.gen_model([noise, sampled_labels])
-                real_output = self.disc_model([data, labels], training=True)
-                fake_output = self.disc_model([fake_imgs, sampled_labels], training=True)
-                G_loss = gan_generator_loss(fake_output)
-                D_loss = gan_discriminator_loss(real_output, fake_output)
-            gradients_of_generator = gen_tape.gradient(G_loss, self.gen_model.trainable_variables)
-            gradients_of_discriminator = disc_tape.gradient(D_loss, self.disc_model.trainable_variables)
-            gen_optimizer.apply_gradients(zip(gradients_of_generator, self.gen_model.trainable_variables))
-            disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_model.trainable_variables))
-            generator_loss(G_loss)
-            discriminator_loss(D_loss)
-            steps += 1
-            pbar.update(1)
-            pbar.set_postfix(disc_loss=discriminator_loss.result().numpy(), gen_loss=generator_loss.result().numpy())
-            if tensorboard:
-                with train_summary_writer.as_default():
-                    tf.summary.scalar('discr_loss', D_loss.numpy(), step=steps)
-                    tf.summary.scalar('genr_loss', G_loss.numpy(), step=steps)
-        pbar.close()
-        del pbar
-        if (verbose == 1):
-            print('Epoch:', (epoch + 1), 'D_loss:', generator_loss.result().numpy(), 'G_loss', discriminator_loss.result().numpy())
-    if (save_model is not None):
-        assert isinstance(save_model, str), 'Not a valid directory'
-        if (save_model[(- 1)] != '/'):
-            self.gen_model.save_weights((save_model + '/generator_checkpoint'))
-            self.disc_model.save_weights((save_model + '/discriminator_checkpoint'))
-        else:
-            self.gen_model.save_weights((save_model + 'generator_checkpoint'))
-            self.disc_model.save_weights((save_model + 'discriminator_checkpoint'))
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-    for  ...  in:
-        for in  ... :
-            with,:
-                 ...  = tf.random.normal
-
-idx = 1:------------------- similar code ------------------ index = 0, score = 10.0 
 def fit(self, train_ds=None, epochs=100, gen_optimizer='Adam', disc_optimizer='Adam', verbose=1, gen_learning_rate=0.0001, disc_learning_rate=0.0002, beta_1=0.5, tensorboard=False, save_model=None):
     'Function to train the model\n\n        Args:\n            train_ds (tf.data object): training data\n            epochs (int, optional): number of epochs to train the model. Defaults to ``100``\n            gen_optimizer (str, optional): optimizer used to train generator. Defaults to ``Adam``\n            disc_optimizer (str, optional): optimizer used to train discriminator. Defaults to ``Adam``\n            verbose (int, optional): 1 - prints training outputs, 0 - no outputs. Defaults to ``1``\n            gen_learning_rate (float, optional): learning rate of the generator optimizer. Defaults to ``0.0001``\n            disc_learning_rate (float, optional): learning rate of the discriminator optimizer. Defaults to ``0.0002``\n            beta_1 (float, optional): decay rate of the first momement. set if ``Adam`` optimizer is used. Defaults to ``0.5``\n            tensorboard (bool, optional): if true, writes loss values to ``logs/gradient_tape`` directory\n                which aids visualization. Defaults to ``False``\n            save_model (str, optional): Directory to save the trained model. Defaults to ``None``\n        '
     assert (train_ds is not None), 'Initialize training data through train_ds parameter'
@@ -249,44 +185,79 @@ def  ... ():
             with:
                  ...  = tf.random.normal
 
-idx = 2:------------------- similar code ------------------ index = 11, score = 9.0 
-def generate_samples(self, n_samples=1, save_dir=None):
-    'Generate samples using the trained model\n\n        Args:\n            n_samples (int, optional): number of samples to generate. Defaults to ``1``\n            save_dir (str, optional): directory to save the generated images. Defaults to ``None``\n\n        Return:\n            returns ``None`` if save_dir is ``not None``, otherwise returns a numpy array with generated samples\n        '
-    if (self.gen_model is None):
-        self.__load_model()
-    Z = tf.random.normal([n_samples, self.noise_dim])
-    generated_samples = self.gen_model(Z).numpy()
-    if (save_dir is None):
-        return generated_samples
-    assert os.path.exists(save_dir), 'Directory does not exist'
-    for (i, sample) in enumerate(generated_samples):
-        imageio.imwrite(os.path.join(save_dir, (('sample_' + str(i)) + '.jpg')), sample)
+idx = 1:------------------- similar code ------------------ index = 7, score = 10.0 
+def fit(self, train_ds=None, epochs=100, gen_optimizer='Adam', disc_optimizer='Adam', verbose=1, gen_learning_rate=0.0001, disc_learning_rate=0.0002, beta_1=0.5, tensorboard=False, save_model=None):
+    'Function to train the model\n\n        Args:\n            train_ds (tf.data object): training data\n            epochs (int, optional): number of epochs to train the model. Defaults to ``100``\n            gen_optimizer (str, optional): optimizer used to train generator. Defaults to ``Adam``\n            disc_optimizer (str, optional): optimizer used to train discriminator. Defaults to ``Adam``\n            verbose (int, optional): 1 - prints training outputs, 0 - no outputs. Defaults to ``1``\n            gen_learning_rate (float, optional): learning rate of the generator optimizer. Defaults to ``0.0001``\n            disc_learning_rate (float, optional): learning rate of the discriminator optimizer. Defaults to ``0.0002``\n            beta_1 (float, optional): decay rate of the first momement. set if ``Adam`` optimizer is used. Defaults to ``0.5``\n            tensorboard (bool, optional): if true, writes loss values to ``logs/gradient_tape`` directory\n                which aids visualization. Defaults to ``False``\n            save_model (str, optional): Directory to save the trained model. Defaults to ``None``\n        '
+    assert (train_ds is not None), 'Initialize training data through train_ds parameter'
+    self.__load_model()
+    kwargs = {}
+    kwargs['learning_rate'] = gen_learning_rate
+    if (gen_optimizer == 'Adam'):
+        kwargs['beta_1'] = beta_1
+    gen_optimizer = getattr(tf.keras.optimizers, gen_optimizer)(**kwargs)
+    kwargs = {}
+    kwargs['learning_rate'] = disc_learning_rate
+    if (disc_optimizer == 'Adam'):
+        kwargs['beta_1'] = beta_1
+    disc_optimizer = getattr(tf.keras.optimizers, disc_optimizer)(**kwargs)
+    if tensorboard:
+        current_time = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+        train_log_dir = (('logs/gradient_tape/' + current_time) + '/train')
+        train_summary_writer = tf.summary.create_file_writer(train_log_dir)
+    steps = 0
+    generator_loss = tf.keras.metrics.Mean()
+    discriminator_loss = tf.keras.metrics.Mean()
+    try:
+        total = tf.data.experimental.cardinality(train_ds).numpy()
+    except:
+        total = 0
+    for epoch in range(epochs):
+        generator_loss.reset_states()
+        discriminator_loss.reset_states()
+        pbar = tqdm(total=total, desc=('Epoch - ' + str((epoch + 1))))
+        for (data, labels) in train_ds:
+            sampled_labels = np.random.randint(0, 10, data.shape[0]).reshape((- 1), 1)
+            with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+                noise = tf.random.normal([data.shape[0], self.noise_dim])
+                fake_imgs = self.gen_model([noise, sampled_labels])
+                real_output = self.disc_model([data, labels], training=True)
+                fake_output = self.disc_model([fake_imgs, sampled_labels], training=True)
+                G_loss = gan_generator_loss(fake_output)
+                D_loss = gan_discriminator_loss(real_output, fake_output)
+            gradients_of_generator = gen_tape.gradient(G_loss, self.gen_model.trainable_variables)
+            gradients_of_discriminator = disc_tape.gradient(D_loss, self.disc_model.trainable_variables)
+            gen_optimizer.apply_gradients(zip(gradients_of_generator, self.gen_model.trainable_variables))
+            disc_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_model.trainable_variables))
+            generator_loss(G_loss)
+            discriminator_loss(D_loss)
+            steps += 1
+            pbar.update(1)
+            pbar.set_postfix(disc_loss=discriminator_loss.result().numpy(), gen_loss=generator_loss.result().numpy())
+            if tensorboard:
+                with train_summary_writer.as_default():
+                    tf.summary.scalar('discr_loss', D_loss.numpy(), step=steps)
+                    tf.summary.scalar('genr_loss', G_loss.numpy(), step=steps)
+        pbar.close()
+        del pbar
+        if (verbose == 1):
+            print('Epoch:', (epoch + 1), 'D_loss:', generator_loss.result().numpy(), 'G_loss', discriminator_loss.result().numpy())
+    if (save_model is not None):
+        assert isinstance(save_model, str), 'Not a valid directory'
+        if (save_model[(- 1)] != '/'):
+            self.gen_model.save_weights((save_model + '/generator_checkpoint'))
+            self.disc_model.save_weights((save_model + '/discriminator_checkpoint'))
+        else:
+            self.gen_model.save_weights((save_model + 'generator_checkpoint'))
+            self.disc_model.save_weights((save_model + 'discriminator_checkpoint'))
 
 ------------------- similar code (pruned) ------------------ score = 0.55 
 def  ... ():
-     ...  = tf.random.normal
+    for  ...  in:
+        for in  ... :
+            with,:
+                 ...  = tf.random.normal
 
-idx = 3:------------------- similar code ------------------ index = 10, score = 9.0 
-def test_global_attn():
-    x = tf.random.normal((2, 7, 512))
-    global_attn = GlobalAttention(num_heads=5, graph_hidden_size=512)
-    y = global_attn(x)
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  = tf.random.normal
-
-idx = 4:------------------- similar code ------------------ index = 9, score = 9.0 
-def clipped_random():
-    rand = tf.random.normal([1], dtype=tf.float32)
-    rand = (tf.clip_by_value(rand, (- 2.0), 2.0) / 2.0)
-    return rand
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-     ...  = tf.random.normal
-
-idx = 5:------------------- similar code ------------------ index = 7, score = 9.0 
+idx = 2:------------------- similar code ------------------ index = 15, score = 9.0 
 if (__name__ == '__main__'):
     import os
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
@@ -307,106 +278,24 @@ if (__name__ == '__main__'):
 if:
      ...  = tf.random.normal
 
-idx = 6:------------------- similar code ------------------ index = 6, score = 9.0 
-def make_variational_model(model, *args, **kwargs):
-    variational_parameters = collections.OrderedDict()
-
-    def get_or_init(name, shape=None):
-        loc_name = (name + '_loc')
-        scale_name = (name + '_scale')
-        if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
-            return (variational_parameters[loc_name], variational_parameters[scale_name])
-        else:
-            variational_parameters[loc_name] = tf.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
-            variational_parameters[scale_name] = tf.nn.softplus(tf.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
-            return (variational_parameters[loc_name], variational_parameters[scale_name])
-
-    def mean_field(rv_constructor, *rv_args, **rv_kwargs):
-        name = rv_kwargs['name']
-        if (name not in kwargs.keys()):
-            rv = rv_constructor(*rv_args, **rv_kwargs)
-            (loc, scale) = get_or_init(name, rv.shape)
-            return Normal(loc=loc, scale=scale, name=name)
-        else:
-            rv_kwargs['value'] = kwargs[name]
-            return rv_constructor(*rv_args, **rv_kwargs)
-
-    def variational_model(*args):
-        with interception(mean_field):
-            return model(*args)
-    _ = variational_model(*args)
-    return (variational_model, variational_parameters)
+idx = 3:------------------- similar code ------------------ index = 14, score = 9.0 
+def generate_samples(self, n_samples=1, save_dir=None):
+    'Generate samples using the trained model\n\n        Args:\n            n_samples (int, optional): number of samples to generate. Defaults to ``1``\n            save_dir (str, optional): directory to save the generated images. Defaults to ``None``\n\n        Return:\n            returns ``None`` if save_dir is ``not None``, otherwise returns a numpy array with generated samples\n        '
+    if (self.gen_model is None):
+        self.__load_model()
+    Z = tf.random.normal([n_samples, self.noise_dim])
+    generated_samples = self.gen_model(Z).numpy()
+    if (save_dir is None):
+        return generated_samples
+    assert os.path.exists(save_dir), 'Directory does not exist'
+    for (i, sample) in enumerate(generated_samples):
+        imageio.imwrite(os.path.join(save_dir, (('sample_' + str(i)) + '.jpg')), sample)
 
 ------------------- similar code (pruned) ------------------ score = 0.55 
 def  ... ():
-    def  ... ():
-        if:        else:
- =  ... . ... (,  ... =( ...  * tf.random.normal))
+     ...  = tf.random.normal
 
-idx = 7:------------------- similar code ------------------ index = 5, score = 9.0 
-def get_or_init(name, shape=None):
-    loc_name = (name + '_loc')
-    scale_name = (name + '_scale')
-    if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
-        return (variational_parameters[loc_name], variational_parameters[scale_name])
-    else:
-        variational_parameters[loc_name] = tf.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
-        variational_parameters[scale_name] = tf.nn.softplus(tf.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
-        return (variational_parameters[loc_name], variational_parameters[scale_name])
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-    if:    else:
- =  ... . ... (,  ... =( ...  * tf.random.normal))
-
-idx = 8:------------------- similar code ------------------ index = 4, score = 9.0 
-@tf.function
-def train_step(self, images, labels):
-    with tf.GradientTape() as disc_tape:
-        bs = images.shape[0]
-        noise = tf.random.normal([bs, self.noise_dim])
-        fake_labels = tf.convert_to_tensor(np.random.randint(0, self.n_classes, bs))
-        generated_images = self.gen_model(noise, labels)
-        real_output = self.disc_model(images, labels, training=True)
-        fake_output = self.disc_model(generated_images, fake_labels, training=True)
-        disc_loss = hinge_loss_discriminator(real_output, fake_output)
-        gradients_of_discriminator = disc_tape.gradient(disc_loss, self.disc_model.trainable_variables)
-        self.discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_model.trainable_variables))
-    with tf.GradientTape() as gen_tape:
-        noise = tf.random.normal([bs, self.noise_dim])
-        fake_labels = tf.random.uniform((bs,), 0, 10, dtype=tf.int32)
-        generated_images = self.gen_model(noise, fake_labels)
-        fake_output = self.disc_model(generated_images, fake_labels, training=False)
-        gen_loss = hinge_loss_generator(fake_output)
-        gradients_of_generator = gen_tape.gradient(gen_loss, self.gen_model.trainable_variables)
-        self.generator_optimizer.apply_gradients(zip(gradients_of_generator, self.gen_model.trainable_variables))
-        train_stats = {'d_loss': disc_loss, 'g_loss': gen_loss, 'd_grads': gradients_of_discriminator, 'g_grads': gradients_of_generator}
-        return train_stats
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-    with:
-         ...  = tf.random.normal
-
-idx = 9:------------------- similar code ------------------ index = 3, score = 9.0 
-def get_or_init(name, a, b, L=None, std_mean=None, prior_mean=None, prior_scale=None, shape=None):
-    loc_name = (name + '_loc')
-    scale_name = (name + '_scale')
-    if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
-        return (variational_parameters[loc_name], variational_parameters[scale_name])
-    else:
-        pre_loc = tf.compat.v1.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
-        pre_scale = tf.nn.softplus(tf.compat.v1.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
-        variational_parameters[loc_name] = ((a + 0.1) * pre_loc)
-        variational_parameters[scale_name] = (pre_scale ** (b + 0.1))
-        return (variational_parameters[loc_name], variational_parameters[scale_name])
-
-------------------- similar code (pruned) ------------------ score = 0.55 
-def  ... ():
-    if:    else:
-         ...  =  ... . ... (,  ... =( ...  * tf.random.normal))
-
-idx = 10:------------------- similar code ------------------ index = 2, score = 9.0 
+idx = 4:------------------- similar code ------------------ index = 13, score = 9.0 
 @staticmethod
 def static(imgs, DIFFICULTY):
     'Gaussian noise, or "static"\n    '
@@ -424,7 +313,60 @@ def  ... ():
      ...  = tf
      ...  =  ... .random.normal
 
-idx = 11:------------------- similar code ------------------ index = 1, score = 9.0 
+idx = 5:------------------- similar code ------------------ index = 12, score = 9.0 
+def __init__(self, sigma_prior, n_in, init_rho=None, momentum=0.99, beta_initializer=tf.zeros_initializer(), gamma_initializer=tf.ones_initializer(), name='batch_norm_bayes', reuse=None):
+    self.momentum = momentum
+    self.sigma_prior = sigma_prior
+    with tf.variable_scope(name, reuse=reuse):
+        self.moving_mean = tf.get_variable('moving_mean', [n_in], initializer=tf.zeros_initializer(), trainable=False)
+        self.moving_var = tf.get_variable('moving_var', [n_in], initializer=tf.ones_initializer(), trainable=False)
+        self.mu_gamma = tf.get_variable('mu_gamma', shape=[n_in], initializer=tf.initializers.random_uniform(0, 1))
+        self.mu_beta = tf.get_variable('mu_beta', shape=[n_in], initializer=tf.zeros_initializer())
+        self.epsilon_gamma = tf.random.normal(shape=[n_in], mean=0.0, stddev=1.0)
+        self.epsilon_beta = tf.random.normal(shape=[n_in], mean=0.0, stddev=1.0)
+        if (init_rho is None):
+            self.rho_gamma = tf.get_variable('rho_gamma', shape=[n_in])
+            self.rho_beta = tf.get_variable('rho_beta', shape=[n_in])
+        else:
+            self.rho_gamma = tf.get_variable('rho_gamma', shape=[n_in], initializer=tf.constant_initializer(value=init_rho))
+            self.rho_beta = tf.get_variable('rho_beta', shape=[n_in], initializer=tf.constant_initializer(value=init_rho))
+        self.sigma_gamma = softplus(self.rho_gamma)
+        self.sigma_beta = softplus(self.rho_beta)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    with:
+ = tf.random.normal
+
+idx = 6:------------------- similar code ------------------ index = 11, score = 9.0 
+def get_or_init(name, a, b, L=None, std_mean=None, prior_mean=None, prior_scale=None, shape=None):
+    loc_name = (name + '_loc')
+    scale_name = (name + '_scale')
+    if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
+        return (variational_parameters[loc_name], variational_parameters[scale_name])
+    else:
+        pre_loc = tf.compat.v1.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
+        pre_scale = tf.nn.softplus(tf.compat.v1.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
+        variational_parameters[loc_name] = ((a + 0.1) * pre_loc)
+        variational_parameters[scale_name] = (pre_scale ** (b + 0.1))
+        return (variational_parameters[loc_name], variational_parameters[scale_name])
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    if:    else:
+         ...  =  ... . ... (,  ... =( ...  * tf.random.normal))
+
+idx = 7:------------------- similar code ------------------ index = 10, score = 9.0 
+def print_model_summary(network):
+    sample_inputs = tf.random.normal(shape=(1, IMAGE_HEIGHT, IMAGE_WIDTH, CHANNELS))
+    _ = network(sample_inputs, training=True)
+    network.summary()
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ( ... ):
+     ...  = tf.random.normal
+
+idx = 8:------------------- similar code ------------------ index = 9, score = 9.0 
 def make_variational_model_special(model, *args, **kwargs):
     variational_parameters = collections.OrderedDict()
     param_params = kwargs['parameterisation']
@@ -467,4 +409,154 @@ def  ... ():
     def  ... ():
         if:        else:
              ...  =  ... . ... (,  ... =( ...  * tf.random.normal))
+
+idx = 9:------------------- similar code ------------------ index = 6, score = 9.0 
+def get_or_init(name, shape=None):
+    loc_name = (name + '_loc')
+    scale_name = (name + '_scale')
+    if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
+        return (variational_parameters[loc_name], variational_parameters[scale_name])
+    else:
+        variational_parameters[loc_name] = tf.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
+        variational_parameters[scale_name] = tf.nn.softplus(tf.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
+        return (variational_parameters[loc_name], variational_parameters[scale_name])
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    if:    else:
+ =  ... . ... (,  ... =( ...  * tf.random.normal))
+
+idx = 10:------------------- similar code ------------------ index = 5, score = 9.0 
+def __init__(self, sigma_prior, n_in, n_out, init_rho=None, name='dense_bayes', reuse=None):
+    self.sigma_prior = sigma_prior
+    limit = (1.0 / math.sqrt(n_in))
+    with tf.variable_scope(name, reuse=reuse):
+        self.mu_w = tf.get_variable('mu_w', shape=[n_in, n_out], initializer=tf.initializers.random_uniform((- limit), limit), dtype=tf.float32)
+        self.mu_b = tf.get_variable('mu_b', shape=[n_out], initializer=tf.initializers.random_uniform((- limit), limit), dtype=tf.float32)
+        self.epsilon_w = tf.random.normal(shape=[n_in, n_out], mean=0.0, stddev=1.0)
+        self.epsilon_b = tf.random.normal(shape=[n_out], mean=0.0, stddev=1.0)
+        if (init_rho is None):
+            self.rho_w = tf.get_variable('rho_w', shape=[n_in, n_out], dtype=tf.float32)
+            self.rho_b = tf.get_variable('rho_b', shape=[n_out], dtype=tf.float32)
+        else:
+            self.rho_w = tf.get_variable('rho_w', shape=[n_in, n_out], initializer=tf.constant_initializer(value=init_rho), dtype=tf.float32)
+            self.rho_b = tf.get_variable('rho_b', shape=[n_out], initializer=tf.constant_initializer(value=init_rho), dtype=tf.float32)
+    self.sigma_w = softplus(self.rho_w)
+    self.sigma_b = softplus(self.rho_b)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    with:
+ = tf.random.normal
+
+idx = 11:------------------- similar code ------------------ index = 4, score = 9.0 
+def test_global_attn():
+    x = tf.random.normal((2, 7, 512))
+    global_attn = GlobalAttention(num_heads=5, graph_hidden_size=512)
+    y = global_attn(x)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.normal
+
+idx = 12:------------------- similar code ------------------ index = 3, score = 9.0 
+def make_variational_model(model, *args, **kwargs):
+    variational_parameters = collections.OrderedDict()
+
+    def get_or_init(name, shape=None):
+        loc_name = (name + '_loc')
+        scale_name = (name + '_scale')
+        if ((loc_name in variational_parameters.keys()) and (scale_name in variational_parameters.keys())):
+            return (variational_parameters[loc_name], variational_parameters[scale_name])
+        else:
+            variational_parameters[loc_name] = tf.get_variable(name=loc_name, initializer=(0.01 * tf.random.normal(shape, dtype=tf.float32)))
+            variational_parameters[scale_name] = tf.nn.softplus(tf.get_variable(name=scale_name, initializer=((- 2) * tf.ones(shape, dtype=tf.float32))))
+            return (variational_parameters[loc_name], variational_parameters[scale_name])
+
+    def mean_field(rv_constructor, *rv_args, **rv_kwargs):
+        name = rv_kwargs['name']
+        if (name not in kwargs.keys()):
+            rv = rv_constructor(*rv_args, **rv_kwargs)
+            (loc, scale) = get_or_init(name, rv.shape)
+            return Normal(loc=loc, scale=scale, name=name)
+        else:
+            rv_kwargs['value'] = kwargs[name]
+            return rv_constructor(*rv_args, **rv_kwargs)
+
+    def variational_model(*args):
+        with interception(mean_field):
+            return model(*args)
+    _ = variational_model(*args)
+    return (variational_model, variational_parameters)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    def  ... ():
+        if:        else:
+ =  ... . ... (,  ... =( ...  * tf.random.normal))
+
+idx = 13:------------------- similar code ------------------ index = 2, score = 9.0 
+def clipped_random():
+    rand = tf.random.normal([1], dtype=tf.float32)
+    rand = (tf.clip_by_value(rand, (- 2.0), 2.0) / 2.0)
+    return rand
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+     ...  = tf.random.normal
+
+idx = 14:------------------- similar code ------------------ index = 1, score = 9.0 
+@tf.function
+def train_step(self, images, labels):
+    with tf.GradientTape() as disc_tape:
+        bs = images.shape[0]
+        noise = tf.random.normal([bs, self.noise_dim])
+        fake_labels = tf.convert_to_tensor(np.random.randint(0, self.n_classes, bs))
+        generated_images = self.gen_model(noise, labels)
+        real_output = self.disc_model(images, labels, training=True)
+        fake_output = self.disc_model(generated_images, fake_labels, training=True)
+        disc_loss = hinge_loss_discriminator(real_output, fake_output)
+        gradients_of_discriminator = disc_tape.gradient(disc_loss, self.disc_model.trainable_variables)
+        self.discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, self.disc_model.trainable_variables))
+    with tf.GradientTape() as gen_tape:
+        noise = tf.random.normal([bs, self.noise_dim])
+        fake_labels = tf.random.uniform((bs,), 0, 10, dtype=tf.int32)
+        generated_images = self.gen_model(noise, fake_labels)
+        fake_output = self.disc_model(generated_images, fake_labels, training=False)
+        gen_loss = hinge_loss_generator(fake_output)
+        gradients_of_generator = gen_tape.gradient(gen_loss, self.gen_model.trainable_variables)
+        self.generator_optimizer.apply_gradients(zip(gradients_of_generator, self.gen_model.trainable_variables))
+        train_stats = {'d_loss': disc_loss, 'g_loss': gen_loss, 'd_grads': gradients_of_discriminator, 'g_grads': gradients_of_generator}
+        return train_stats
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    with:
+         ...  = tf.random.normal
+
+idx = 15:------------------- similar code ------------------ index = 0, score = 9.0 
+def __init__(self, sigma_prior, n_in, n_out, kernel_size, init_rho=None, strides=1, padding='VALID', name='conv_bayes', reuse=None):
+    self.strides = 1
+    self.padding = padding
+    self.sigma_prior = sigma_prior
+    self.kernel_size = kernel_size
+    limit = (1.0 / math.sqrt((n_in * (kernel_size ** 2))))
+    with tf.variable_scope(name, reuse=reuse):
+        self.mu_w = tf.get_variable('mu_w', shape=[kernel_size, kernel_size, n_in, n_out], initializer=tf.initializers.random_uniform((- limit), limit), dtype=tf.float32)
+        self.mu_b = tf.get_variable('mu_b', shape=[n_out], initializer=tf.initializers.random_uniform((- limit), limit), dtype=tf.float32)
+        self.epsilon_w = tf.random.normal(shape=[kernel_size, kernel_size, n_in, n_out], mean=0.0, stddev=1.0)
+        self.epsilon_b = tf.random.normal(shape=[n_out], mean=0.0, stddev=1.0)
+        if (init_rho is None):
+            self.rho_w = tf.get_variable('rho_w', shape=[kernel_size, kernel_size, n_in, n_out], dtype=tf.float32)
+            self.rho_b = tf.get_variable('rho_b', shape=[n_out], dtype=tf.float32)
+        else:
+            self.rho_w = tf.get_variable('rho_w', shape=[kernel_size, kernel_size, n_in, n_out], initializer=tf.constant_initializer(value=init_rho), dtype=tf.float32)
+            self.rho_b = tf.get_variable('rho_b', shape=[n_out], initializer=tf.constant_initializer(value=init_rho), dtype=tf.float32)
+        self.sigma_w = softplus(self.rho_w)
+        self.sigma_b = softplus(self.rho_b)
+
+------------------- similar code (pruned) ------------------ score = 0.55 
+def  ... ():
+    with:
+ = tf.random.normal
 

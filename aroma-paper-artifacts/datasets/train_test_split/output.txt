@@ -1,93 +1,169 @@
 ------------------------- example 1 ------------------------ 
-def extract_data(flatten):
-    (data, labels) = get_data(_DATA_PATH, class_labels=_CLASS_LABELS, flatten=flatten)
-    (x_train, x_test, y_train, y_test) = train_test_split(data, labels, test_size=0.2, random_state=42)
-    return (np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test), len(_CLASS_LABELS))
+def train_model(extractor, data_dir, output_dir=None):
+    '\n    Train an extractor model, then write train/test block-level classification\n    performance as well as the model itself to disk in ``output_dir``.\n\n    Args:\n        extractor (:class:`Extractor`): Instance of the ``Extractor`` class to\n            be trained.\n        data_dir (str): Directory on disk containing subdirectories for all\n            training data, including raw html and gold standard blocks files\n        output_dir (str): Directory on disk to which the trained model files,\n            errors, etc. are to be written. If None, outputs are not saved.\n\n    Returns:\n        :class:`Extractor`: A trained extractor model.\n    '
+// your code ...
+    (training_data, test_data) = train_test_split(data, test_size=0.2, random_state=42)
+    (train_html, train_labels, train_weights) = extractor.get_html_labels_weights(training_data)
+// your code ...
+    try:
+        extractor.fit(train_html, train_labels, weights=train_weights)
+    except (TypeError, ValueError):
+// your code ...
 
 ------------------------- example 2 ------------------------ 
-def run():
-    text_data = datasets.TatoebaDataset('data/ben-eng/ben.txt', cfg.NUM_DATA_TO_LOAD)
+def split_train_val(args, per_val=0.1):
+    loader_type = 'section'
+    labels = np.load(pjoin('data', 'train', 'train_labels.npy'))
+    i_list = list(range(labels.shape[0]))
+    i_list = [('i_' + str(inline)) for inline in i_list]
 // your code ...
-
-    (input_train, input_val, target_train, target_val) = train_test_split(input_tensor, target_tensor, test_size=0.2)
-    buffer_size = len(input_train)
-    steps_per_epoch = (len(input_train) // your code ...
- cfg.BATCH_SIZE)
-    vocab_inp_size = (len(inp_lang_tokenizer.word_index) + 1)
-    vocab_tar_size = (len(targ_lang_tokenizer.word_index) + 1)
-    dataset = tf.data.Dataset.from_tensor_slices((input_train, target_train))
-    dataset = dataset.shuffle(buffer_size)
-    dataset = dataset.batch(cfg.BATCH_SIZE, drop_remainder=True)
-    optimizer = tf.keras.optimizers.Adam()
+    (list_train, list_val) = train_test_split(list_train_val, test_size=per_val, shuffle=True)
+    file_object = open(pjoin('data', 'splits', (loader_type + '_train_val.txt')), 'w')
 // your code ...
-
-    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
-    checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
-// your code ...
-
-    for epoch in range(cfg.EPOCHS):
-        print('Epoch {} / {}'.format(epoch, cfg.EPOCHS))
-        pbar = tqdm(dataset.take(steps_per_epoch), ascii=True)
-        total_loss = 0
-        enc_hidden = encoder.initialize_hidden_state()
-        for (step, data) in enumerate(pbar):
-            (inp, targ) = data
-// your code ...
-
-            pbar.set_description('Step - {} / {} - batch loss - {:.4f} - '.format(steps_per_epoch, (step + 1), batch_loss.numpy()))
-        if (((epoch + 1) % 2) == 0):
-// your code ...
-
 
 ------------------------- example 3 ------------------------ 
-def test_dict_completion_missing():
-    rng = np.random.RandomState(0)
-    U = rng.rand(100, 4)
+def compute_components(n_components, batch_size, learning_rate, positive, reduction, alpha, method, n_epochs, verbose, smoothing_fwhm, n_jobs, raw_dir, output_dir):
+    if (not os.path.exists(output_dir)):
 // your code ...
-
-    (X_tr, X_te) = train_test_split(X, train_size=0.95)
-    X_tr = sp.csr_matrix(X_tr)
+    (train_imgs, test_imgs) = train_test_split(data, train_size=None, test_size=1, random_state=0)
+    train_imgs = train_imgs['filename'].values
 // your code ...
-
-    mf = RecsysDictFact(n_components=4, n_epochs=1, alpha=1, random_state=0, detrend=True, verbose=0)
-    mf.fit(X_tr)
+    dict_fact = fMRIDictFact(method=method, mask=masker, smoothing_fwhm=smoothing_fwhm, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, positive=positive, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, alpha=alpha, callback=cb)
+    dict_fact.fit(train_imgs)
 // your code ...
-
-    rmse = sqrt((np.sum(((X_te.data - X_pred.data) ** 2)) / X_te.data.shape[0]))
-    X_te_centered = check_array(X_te, accept_sparse='csr', copy=True)
-// your code ...
-
-    rmse_c = sqrt((np.sum(((X_te.data - X_te_centered.data) ** 2)) / X_te.data.shape[0]))
-    assert (rmse < rmse_c)
 
 ------------------------- example 4 ------------------------ 
-def load_recsys(dataset, random_state):
-    if (dataset in ['100k', '1m', '10m']):
-        X = load_movielens(dataset)
-        (X_tr, X_te) = train_test_split(X, train_size=0.75, random_state=random_state)
-        X_tr = X_tr.tocsr()
+def _conversion_decimal(context, is_train, is_extrapolation):
+    'E.g., "How many grams are in 5kg?".'
+    dimension = random.choice(DIMENSIONS)
+    while True:
+        (base_value, base_unit, target_value, target_unit) = _sample_conversion_decimal(dimension, is_extrapolation)
+        if (train_test_split.is_train(base_value) == is_train):
+            break
+    templates = ['How many {target_name} are there in {base_value} {base_name}?', 'What is {base_value} {base_name} in {target_name}?', 'Convert {base_value} {base_name} to {target_name}.']
+// your code ...
+    template = random.choice(templates)
+    base_name = pluralize(base_unit.name)
+// your code ...
+    question = example.question(context, template, base_name=base_name, base_symbol=base_unit.symbol, base_value=base_value, target_name=target_name)
+    return example.Problem(question=question, answer=target_value)
+
+------------------------- example 5 ------------------------ 
+def main():
+    ' Create image datasets. Processes images and saves them in train,\n    val, test splits. For each split, this creates a numpy array w/\n    dimensions n_images, height, width, depth.\n    '
+// your code ...
+    (val_recordings, test_recordings) = train_test_split(recordings, test_size=test_size, random_state=123)
+    splits = {s: [] for s in ['train', 'test', 'val']}
+// your code ...
+    for split in splits:
+        im_list = []
+// your code ...
+        for (_, folder) in splits[split]:
+            files = glob.glob(os.path.join(folder, '*.tif'), recursive=False)
+// your code ...
+            for skip in range(0, (skip_frames + 1)):
+                for (c, f) in enumerate(files):
+                    if ((c % (skip_frames + 1)) == skip):
+                        im_list.append(f)
+                        source_list.append(os.path.dirname(f))
+// your code ...
+        print((((('Creating ' + split) + ' data set with ') + str(len(im_list))) + ' images'))
+        X = np.zeros((((len(im_list),) + desired_im_sz) + (3,)), np.uint8)
+        for (i, im_file) in enumerate(im_list):
+            try:
+// your code ...
+            try:
+                X[i] = np.asarray(process_im(im, desired_im_sz))
+            except Exception as e:
+// your code ...
+        if (split in ['val', 'test']):
+            print(('Creating anomaly dataset for %s split' % split))
+// your code ...
+            with open(anom_anot_filename, 'r') as f:
+                lines = f.readlines()
+            del lines[0]
+// your code ...
+            anoms = np.zeros(X.shape[0])
+            for (f, folder) in enumerate(splits[split]):
+                row = int(os.path.basename(folder[1])[(- 3):])
+                anom = anom_indices[(row - 1)]
+// your code ...
+        hkl.dump(X, os.path.join(preprocessed_data_path, (('X_' + split) + '.hkl')))
 // your code ...
 
-    if (dataset is 'netflix'):
-// your code ...
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          5           ||        7         ||         3        ||        0.14285714285714285         
+example2  ||          4           ||        7         ||         2        ||        0.14285714285714285         
+example3  ||          5           ||        6         ||         3        ||        0.16666666666666666         
+example4  ||          2           ||        12         ||         2        ||        0.08333333333333333         
+example5  ||          3           ||        30         ||         11        ||        0.03333333333333333         
 
+avg       ||          8.636363636363637           ||        12.4         ||         4.2        ||         11.38095238095238        
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          4           ||        4         ||         0        
-example2  ||          2           ||        27         ||         6        
-example3  ||          3           ||        15         ||         4        
-example4  ||          2           ||        8         ||         2        
-
-avg       ||          2.75           ||        13.5         ||         3.0        
-
-idx = 0:------------------- similar code ------------------ index = 4, score = 2.0 
+idx = 0:------------------- similar code ------------------ index = 12, score = 2.0 
 def train_test_split(X, train_size=0.75, random_state=None):
     cv = ShuffleSplit(n_iter=1, train_size=train_size, random_state=random_state)
     return next(cv.split(X))
 
 ------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
 def train_test_split():
-idx = 1:------------------- similar code ------------------ index = 7, score = 1.0 
+idx = 1:------------------- similar code ------------------ index = 17, score = 2.0 
+def test_make_train_val_test_split_mol_lists_family(self):
+    train_test_split = train_test_split_utils.TrainValTestFractions(0.5, 0.25, 0.25)
+    (train_inchikeys, val_inchikeys, test_inchikeys) = train_test_split_utils.make_train_val_test_split_inchikey_lists(self.inchikey_list_large, self.inchikey_dict_large, train_test_split, holdout_inchikey_list=self.inchikey_list_small, splitting_type='diazo')
+    self.assertCountEqual(train_inchikeys, ['UFHFLCQGNIYNRP-UHFFFAOYSA-N', 'CCGKOQOJPYTBIH-UHFFFAOYSA-N', 'ASTNYHRQIBTGNO-UHFFFAOYSA-N', 'UFHFLCQGNIYNRP-VVKOMZTBSA-N', 'PVVBOXUQVSZBMK-UHFFFAOYSA-N'])
+    self.assertCountEqual((val_inchikeys + test_inchikeys), ['OWKPLCCVKXABQF-UHFFFAOYSA-N', 'COVPJOWITGLAKX-UHFFFAOYSA-N', 'GKVDXUXIAHWQIK-UHFFFAOYSA-N', 'UCIXUAPVXAZYDQ-VMPITWQZSA-N'])
+    (replicate_train_inchikeys, _, replicate_test_inchikeys) = train_test_split_utils.make_train_val_test_split_inchikey_lists(self.inchikey_list_small, self.inchikey_dict_small, train_test_split, splitting_type='diazo')
+    self.assertEqual(replicate_train_inchikeys[0], 'PNYUDNYAXSEACV-RVDMUPIBSA-N')
+    self.assertEqual(replicate_test_inchikeys[0], 'YXHKONLOYHBTNS-UHFFFAOYSA-N')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ( ... ):
+    train_test_split
+
+idx = 2:------------------- similar code ------------------ index = 25, score = 2.0 
+def _train_test_split(cache, test_size=0.1):
+    data_lst = list()
+    target = list()
+    filenames = list()
+    data = cache['all']
+    data_lst.extend(data.data)
+    target.extend(data.target)
+    filenames.extend(data.filenames)
+    data.data = data_lst
+    data.target = np.array(target)
+    data.filenames = np.array(filenames)
+    return train_test_split(data.data, data.target, test_size=test_size, random_state=0)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return train_test_split
+
+idx = 3:------------------- similar code ------------------ index = 33, score = 1.0 
+def train_model(extractor, data_dir, output_dir=None):
+    '\n    Train an extractor model, then write train/test block-level classification\n    performance as well as the model itself to disk in ``output_dir``.\n\n    Args:\n        extractor (:class:`Extractor`): Instance of the ``Extractor`` class to\n            be trained.\n        data_dir (str): Directory on disk containing subdirectories for all\n            training data, including raw html and gold standard blocks files\n        output_dir (str): Directory on disk to which the trained model files,\n            errors, etc. are to be written. If None, outputs are not saved.\n\n    Returns:\n        :class:`Extractor`: A trained extractor model.\n    '
+    (output_dir, fname_prefix) = _set_up_output_dir_and_fname_prefix(output_dir, extractor)
+    logging.info('preparing, splitting, and concatenating the data...')
+    data = prepare_all_data(data_dir)
+    (training_data, test_data) = train_test_split(data, test_size=0.2, random_state=42)
+    (train_html, train_labels, train_weights) = extractor.get_html_labels_weights(training_data)
+    (test_html, test_labels, test_weights) = extractor.get_html_labels_weights(test_data)
+    logging.info('fitting and evaluating the extractor features and model...')
+    try:
+        extractor.fit(train_html, train_labels, weights=train_weights)
+    except (TypeError, ValueError):
+        extractor.fit(train_html, train_labels)
+    train_eval = evaluate_model_predictions(np.concatenate(train_labels), extractor.predict(train_html), np.concatenate(train_weights))
+    test_eval = evaluate_model_predictions(np.concatenate(test_labels), extractor.predict(test_html), np.concatenate(test_weights))
+    _report_model_performance(output_dir, fname_prefix, train_eval, test_eval)
+    _write_model_to_disk(output_dir, fname_prefix, extractor)
+    return extractor
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 4:------------------- similar code ------------------ index = 1, score = 1.0 
 def extract_data(flatten):
     (data, labels) = get_data(_DATA_PATH, class_labels=_CLASS_LABELS, flatten=flatten)
     (x_train, x_test, y_train, y_test) = train_test_split(data, labels, test_size=0.2, random_state=42)
@@ -97,49 +173,31 @@ def extract_data(flatten):
 def  ... ( ... ):
  = train_test_split
 
-idx = 2:------------------- similar code ------------------ index = 6, score = 1.0 
-def run():
-    text_data = datasets.TatoebaDataset('data/ben-eng/ben.txt', cfg.NUM_DATA_TO_LOAD)
-    (tensors, tokenizer) = text_data.load_data()
-    (input_tensor, target_tensor) = tensors
-    (inp_lang_tokenizer, targ_lang_tokenizer) = tokenizer
-    utils.save_tokenizer(tokenizer=inp_lang_tokenizer, save_at='models', file_name='input_language_tokenizer.json')
-    utils.save_tokenizer(tokenizer=targ_lang_tokenizer, save_at='models', file_name='target_language_tokenizer.json')
-    (input_train, input_val, target_train, target_val) = train_test_split(input_tensor, target_tensor, test_size=0.2)
-    buffer_size = len(input_train)
-    steps_per_epoch = (len(input_train) // cfg.BATCH_SIZE)
-    vocab_inp_size = (len(inp_lang_tokenizer.word_index) + 1)
-    vocab_tar_size = (len(targ_lang_tokenizer.word_index) + 1)
-    dataset = tf.data.Dataset.from_tensor_slices((input_train, target_train))
-    dataset = dataset.shuffle(buffer_size)
-    dataset = dataset.batch(cfg.BATCH_SIZE, drop_remainder=True)
-    optimizer = tf.keras.optimizers.Adam()
-    encoder = models.Encoder(vocab_inp_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
-    decoder = models.Decoder(vocab_tar_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
-    checkpoint_dir = 'models/training_checkpoints'
-    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
-    checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
-    if cfg.RESTORE_SAVED_CHECKPOINT:
-        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
-    for epoch in range(cfg.EPOCHS):
-        print('Epoch {} / {}'.format(epoch, cfg.EPOCHS))
-        pbar = tqdm(dataset.take(steps_per_epoch), ascii=True)
-        total_loss = 0
-        enc_hidden = encoder.initialize_hidden_state()
-        for (step, data) in enumerate(pbar):
-            (inp, targ) = data
-            batch_loss = train_step(inp, targ, targ_lang_tokenizer, enc_hidden, encoder, decoder, optimizer)
-            total_loss += batch_loss
-            pbar.set_description('Step - {} / {} - batch loss - {:.4f} - '.format(steps_per_epoch, (step + 1), batch_loss.numpy()))
-        if (((epoch + 1) % 2) == 0):
-            checkpoint.save(file_prefix=checkpoint_prefix)
-        print('Epoch loss - {:.4f}'.format((total_loss / steps_per_epoch)))
+idx = 5:------------------- similar code ------------------ index = 2, score = 1.0 
+def split_train_val(args, per_val=0.1):
+    loader_type = 'section'
+    labels = np.load(pjoin('data', 'train', 'train_labels.npy'))
+    i_list = list(range(labels.shape[0]))
+    i_list = [('i_' + str(inline)) for inline in i_list]
+    x_list = list(range(labels.shape[1]))
+    x_list = [('x_' + str(crossline)) for crossline in x_list]
+    list_train_val = (i_list + x_list)
+    (list_train, list_val) = train_test_split(list_train_val, test_size=per_val, shuffle=True)
+    file_object = open(pjoin('data', 'splits', (loader_type + '_train_val.txt')), 'w')
+    file_object.write('\n'.join(list_train_val))
+    file_object.close()
+    file_object = open(pjoin('data', 'splits', (loader_type + '_train.txt')), 'w')
+    file_object.write('\n'.join(list_train))
+    file_object.close()
+    file_object = open(pjoin('data', 'splits', (loader_type + '_val.txt')), 'w')
+    file_object.write('\n'.join(list_val))
+    file_object.close()
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
  = train_test_split
 
-idx = 3:------------------- similar code ------------------ index = 5, score = 1.0 
+idx = 6:------------------- similar code ------------------ index = 3, score = 1.0 
 def compute_components(n_components, batch_size, learning_rate, positive, reduction, alpha, method, n_epochs, verbose, smoothing_fwhm, n_jobs, raw_dir, output_dir):
     if (not os.path.exists(output_dir)):
         os.makedirs(output_dir)
@@ -157,95 +215,30 @@ def compute_components(n_components, batch_size, learning_rate, positive, reduct
 def  ... ():
  = train_test_split
 
-idx = 4:------------------- similar code ------------------ index = 3, score = 1.0 
-def test_dict_completion_missing():
-    rng = np.random.RandomState(0)
-    U = rng.rand(100, 4)
-    V = rng.rand(4, 20)
-    X = np.dot(U, V)
-    X = sp.csr_matrix(X)
-    (X_tr, X_te) = train_test_split(X, train_size=0.95)
-    X_tr = sp.csr_matrix(X_tr)
-    X_te = sp.csr_matrix(X_te)
-    mf = RecsysDictFact(n_components=4, n_epochs=1, alpha=1, random_state=0, detrend=True, verbose=0)
-    mf.fit(X_tr)
-    X_pred = mf.predict(X_te)
-    rmse = sqrt((np.sum(((X_te.data - X_pred.data) ** 2)) / X_te.data.shape[0]))
-    X_te_centered = check_array(X_te, accept_sparse='csr', copy=True)
-    compute_biases(X_te_centered, inplace=True)
-    rmse_c = sqrt((np.sum(((X_te.data - X_te_centered.data) ** 2)) / X_te.data.shape[0]))
-    assert (rmse < rmse_c)
+idx = 7:------------------- similar code ------------------ index = 4, score = 1.0 
+def _conversion_decimal(context, is_train, is_extrapolation):
+    'E.g., "How many grams are in 5kg?".'
+    dimension = random.choice(DIMENSIONS)
+    while True:
+        (base_value, base_unit, target_value, target_unit) = _sample_conversion_decimal(dimension, is_extrapolation)
+        if (train_test_split.is_train(base_value) == is_train):
+            break
+    templates = ['How many {target_name} are there in {base_value} {base_name}?', 'What is {base_value} {base_name} in {target_name}?', 'Convert {base_value} {base_name} to {target_name}.']
+    if (base_unit.symbol is not None):
+        templates += ['How many {target_name} are there in {base_value}{base_symbol}?', 'What is {base_value}{base_symbol} in {target_name}?', 'Convert {base_value}{base_symbol} to {target_name}.']
+    template = random.choice(templates)
+    base_name = pluralize(base_unit.name)
+    target_name = pluralize(target_unit.name)
+    question = example.question(context, template, base_name=base_name, base_symbol=base_unit.symbol, base_value=base_value, target_name=target_name)
+    return example.Problem(question=question, answer=target_value)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
- = train_test_split
+    while True:
+        if (train_test_split ==  ... ):
+            break
 
-idx = 5:------------------- similar code ------------------ index = 2, score = 1.0 
-def load_recsys(dataset, random_state):
-    if (dataset in ['100k', '1m', '10m']):
-        X = load_movielens(dataset)
-        (X_tr, X_te) = train_test_split(X, train_size=0.75, random_state=random_state)
-        X_tr = X_tr.tocsr()
-        X_te = X_te.tocsr()
-        return (X_tr, X_te)
-    if (dataset is 'netflix'):
-        return load_netflix()
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-    if:
- = train_test_split
-
-idx = 6:------------------- similar code ------------------ index = 1, score = 1.0 
-@exp.automain
-def compute_components(n_components, batch_size, learning_rate, method, reduction, alpha, step_size, n_jobs, n_epochs, verbose, source, _run):
-    basedir = join(_run.observers[0].basedir, str(_run._id))
-    artifact_dir = join(basedir, 'artifacts')
-    if (not os.path.exists(artifact_dir)):
-        os.makedirs(artifact_dir)
-    if (source == 'hcp'):
-        train_size = None
-        smoothing_fwhm = 3
-        test_size = 2
-        data_dir = get_data_dirs()[0]
-        mask = fetch_hcp_mask()
-        masker = MultiRawMasker(mask_img=mask, smoothing_fwhm=smoothing_fwhm, detrend=True, standardize=True)
-        mapping = json.load(open(join(data_dir, 'HCP_unmasked/mapping.json'), 'r'))
-        data = sorted(list(mapping.values()))
-        data = list(map((lambda x: join(data_dir, x)), data))
-        data = pd.DataFrame(data, columns=['filename'])
-    else:
-        smoothing_fwhm = 6
-        train_size = 4
-        test_size = 4
-        raw_res_dir = join(get_output_dir(), 'unmasked', source)
-        try:
-            (masker, data) = get_raw_rest_data(raw_res_dir)
-        except ValueError:
-            raw_res_dir = join(get_output_dir(), 'unmask', source)
-            (masker, data) = get_raw_rest_data(raw_res_dir)
-    (train_imgs, test_imgs) = train_test_split(data, test_size=test_size, random_state=0, train_size=train_size)
-    train_imgs = train_imgs['filename'].values
-    test_imgs = test_imgs['filename'].values
-    cb = rfMRIDictionaryScorer(test_imgs, info=_run.info)
-    dict_fact = fMRIDictFact(method=method, mask=masker, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, smoothing_fwhm=smoothing_fwhm, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, step_size=step_size, alpha=alpha, callback=cb)
-    dict_fact.fit(train_imgs)
-    dict_fact.components_img_.to_filename(join(artifact_dir, 'components.nii.gz'))
-    fig = plt.figure()
-    display_maps(fig, dict_fact.components_img_)
-    plt.savefig(join(artifact_dir, 'components.png'))
-    (fig, ax) = plt.subplots(1, 1)
-    ax.plot(cb.cpu_time, cb.score, marker='o')
-    _run.info['time'] = cb.cpu_time
-    _run.info['score'] = cb.score
-    _run.info['iter'] = cb.iter
-    plt.savefig(join(artifact_dir, 'score.png'))
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
- = train_test_split
-
-idx = 7:------------------- similar code ------------------ index = 0, score = 1.0 
+idx = 8:------------------- similar code ------------------ index = 6, score = 1.0 
 def main():
     ' Create image datasets. Processes images and saves them in train,\n    val, test splits. For each split, this creates a numpy array w/\n    dimensions n_images, height, width, depth.\n    '
     parser = argparse.ArgumentParser(description='Process input arguments')
@@ -334,6 +327,454 @@ def main():
                     hkl.dump(anoms, os.path.join(preprocessed_data_path, (('y_' + split) + '.hkl')))
         hkl.dump(X, os.path.join(preprocessed_data_path, (('X_' + split) + '.hkl')))
         hkl.dump(source_list, os.path.join(preprocessed_data_path, (('sources_' + split) + '.hkl')))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 9:------------------- similar code ------------------ index = 7, score = 1.0 
+def _sample_letter_bag(is_train, min_total):
+    'Samples a "container of letters" and returns info on it.'
+    while True:
+        num_distinct_letters = random.randint(1, _MAX_DISTINCT_LETTERS)
+        num_letters_total = random.randint(max(num_distinct_letters, min_total), min(_MAX_TOTAL_LETTERS, (num_distinct_letters * _MAX_LETTER_REPEAT)))
+        letter_counts = combinatorics.uniform_positive_integers_with_sum(num_distinct_letters, num_letters_total)
+        if ((is_train is None) or (train_test_split.is_train(sorted(letter_counts)) == is_train)):
+            break
+    letters_distinct = random.sample(_LETTERS, num_distinct_letters)
+    weights = {i: 1 for i in range(num_letters_total)}
+    letters_with_repetition = []
+    for (letter, count) in zip(letters_distinct, letter_counts):
+        letters_with_repetition += ([letter] * count)
+    random.shuffle(letters_with_repetition)
+    random_variable = probability.DiscreteRandomVariable({i: letter for (i, letter) in enumerate(letters_with_repetition)})
+    if random.choice([False, True]):
+        bag_contents = ''.join(letters_with_repetition)
+    else:
+        letters_and_counts = ['{}: {}'.format(letter, count) for (letter, count) in zip(letters_distinct, letter_counts)]
+        bag_contents = (('{' + ', '.join(letters_and_counts)) + '}')
+    return LetterBag(weights=weights, random_variable=random_variable, letters_distinct=letters_distinct, bag_contents=bag_contents)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    while True:
+        if ( or (train_test_split ==  ... )):
+            break
+
+idx = 10:------------------- similar code ------------------ index = 8, score = 1.0 
+@staticmethod
+def loading_dataset():
+    print('[INFO] loading Images')
+    image_paths = list(paths.list_images(args['dataset']))
+    sp = PreProcessor(size, size)
+    iap = ImageToArray.ImageToArrayPreprocessor()
+    sdl = DatasetLoader(preprocessors=[sp, iap])
+    (data, labels) = sdl.load(image_paths, verbose=500)
+    print(data)
+    data = (data.astype('float') / 255.0)
+    (train_x, test_x, train_y, test_y) = train_test_split(data, labels, test_size=0.25, random_state=42)
+    train_y = LabelBinarizer().fit_transform(train_y)
+    test_y = LabelBinarizer().fit_transform(test_y)
+    return (test_x, test_y, train_x, train_y)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 11:------------------- similar code ------------------ index = 9, score = 1.0 
+def load_recsys(dataset, random_state):
+    if (dataset in ['100k', '1m', '10m']):
+        X = load_movielens(dataset)
+        (X_tr, X_te) = train_test_split(X, train_size=0.75, random_state=random_state)
+        X_tr = X_tr.tocsr()
+        X_te = X_te.tocsr()
+        return (X_tr, X_te)
+    if (dataset is 'netflix'):
+        return load_netflix()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+ = train_test_split
+
+idx = 12:------------------- similar code ------------------ index = 13, score = 1.0 
+def test_dict_completion_missing():
+    rng = np.random.RandomState(0)
+    U = rng.rand(100, 4)
+    V = rng.rand(4, 20)
+    X = np.dot(U, V)
+    X = sp.csr_matrix(X)
+    (X_tr, X_te) = train_test_split(X, train_size=0.95)
+    X_tr = sp.csr_matrix(X_tr)
+    X_te = sp.csr_matrix(X_te)
+    mf = RecsysDictFact(n_components=4, n_epochs=1, alpha=1, random_state=0, detrend=True, verbose=0)
+    mf.fit(X_tr)
+    X_pred = mf.predict(X_te)
+    rmse = sqrt((np.sum(((X_te.data - X_pred.data) ** 2)) / X_te.data.shape[0]))
+    X_te_centered = check_array(X_te, accept_sparse='csr', copy=True)
+    compute_biases(X_te_centered, inplace=True)
+    rmse_c = sqrt((np.sum(((X_te.data - X_te_centered.data) ** 2)) / X_te.data.shape[0]))
+    assert (rmse < rmse_c)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 13:------------------- similar code ------------------ index = 32, score = 1.0 
+def split_train_dev_test():
+    f = open('wos_total.json', 'r')
+    data = f.readlines()
+    f.close()
+    id = [i for i in range(46985)]
+    np_data = np.array(data)
+    np.random.shuffle(id)
+    np_data = np_data[id]
+    (train, test) = train_test_split(np_data, test_size=0.2, random_state=0)
+    (train, val) = train_test_split(train, test_size=0.2, random_state=0)
+    train = list(train)
+    val = list(val)
+    test = list(test)
+    f = open('wos_train.json', 'w')
+    f.writelines(train)
+    f.close()
+    f = open('wos_test.json', 'w')
+    f.writelines(test)
+    f.close()
+    f = open('wos_val.json', 'w')
+    f.writelines(val)
+    f.close()
+    print(len(train), len(val), len(test))
+    return
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+    return
+
+idx = 14:------------------- similar code ------------------ index = 16, score = 1.0 
+def time(is_train):
+    'Questions for calculating start, end, or time differences.'
+    context = composition.Context()
+    start_minutes = random.randint(1, ((24 * 60) - 1))
+    while True:
+        duration_minutes = random.randint(1, ((12 * 60) - 1))
+        if (train_test_split.is_train(duration_minutes) == is_train):
+            break
+    end_minutes = (start_minutes + duration_minutes)
+
+    def format_12hr(minutes):
+        'Format minutes from midnight in 12 hr format.'
+        hours = ((minutes // 60) % 24)
+        minutes %= 60
+        am_pm = ('AM' if (hours < 12) else 'PM')
+        hours = (((hours - 1) % 12) + 1)
+        return '{}:{:02} {}'.format(hours, minutes, am_pm)
+    start = format_12hr(start_minutes)
+    end = format_12hr(end_minutes)
+    which_question = random.randint(0, 3)
+    if (which_question == 0):
+        template = random.choice(['What is {duration} minutes before {end}?'])
+        return example.Problem(question=example.question(context, template, duration=duration_minutes, end=end), answer=start)
+    elif (which_question == 1):
+        template = random.choice(['What is {duration} minutes after {start}?'])
+        return example.Problem(question=example.question(context, template, duration=duration_minutes, start=start), answer=end)
+    else:
+        template = random.choice(['How many minutes are there between {start} and {end}?'])
+        return example.Problem(question=example.question(context, template, start=start, end=end), answer=duration_minutes)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    while True:
+        if (train_test_split ==  ... ):
+            break
+
+idx = 15:------------------- similar code ------------------ index = 31, score = 1.0 
+def train_many_models(extractor, param_grid, data_dir, output_dir=None, **kwargs):
+    "\n    Train many extractor models, then for the best-scoring model, write\n    train/test block-level classification performance as well as the model itself\n    to disk in ``output_dir``.\n\n    Args:\n        extractor (:class:`Extractor`): Instance of the ``Extractor`` class to\n            be trained.\n        param_grid (dict or List[dict]): Dictionary with parameters names (str)\n            as keys and lists of parameter settings to try as values, or a list\n            of such dictionaries, in which case the grids spanned by each are\n            explored. See documentation for :class:`GridSearchCV` for details.\n        data_dir (str): Directory on disk containing subdirectories for all\n            training data, including raw html and gold standard blocks files\n        output_dir (str): Directory on disk to which the trained model files,\n            errors, etc. are to be written. If None, outputs are not saved.\n        **kwargs:\n            scoring (str or Callable): default 'f1'\n            cv (int): default 5\n            n_jobs (int): default 1\n            verbose (int): default 1\n\n    Returns:\n        :class:`Extractor`: The trained extractor model with the best-scoring\n            set of params.\n\n    See Also:\n        Documentation for grid search :class:`GridSearchCV` in ``scikit-learn``:\n            http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html\n    "
+    (output_dir, fname_prefix) = _set_up_output_dir_and_fname_prefix(output_dir, extractor)
+    logging.info('preparing and splitting the data...')
+    data = prepare_all_data(data_dir)
+    (training_data, test_data) = train_test_split(data, test_size=0.2, random_state=42)
+    (train_html, train_labels, train_weights) = extractor.get_html_labels_weights(training_data)
+    (test_html, test_labels, test_weights) = extractor.get_html_labels_weights(test_data)
+    train_blocks = np.array([extractor.blockifier.blockify(doc) for doc in train_html])
+    train_mask = [extractor._has_enough_blocks(blocks) for blocks in train_blocks]
+    train_blocks = train_blocks[train_mask]
+    train_labels = np.concatenate(train_labels[train_mask])
+    train_weights = np.concatenate(train_weights[train_mask])
+    test_labels = np.concatenate(test_labels)
+    test_weights = np.concatenate(test_weights)
+    train_features = np.concatenate([extractor.features.fit_transform(blocks) for blocks in train_blocks])
+    gscv = GridSearchCV(extractor.model, param_grid, fit_params={'sample_weight': train_weights}, scoring=kwargs.get('scoring', 'f1'), cv=kwargs.get('cv', 5), n_jobs=kwargs.get('n_jobs', 1), verbose=kwargs.get('verbose', 1))
+    gscv = gscv.fit(train_features, train_labels)
+    logging.info('Score of the best model, on left-out data: %s', gscv.best_score_)
+    logging.info('Params of the best model: %s', gscv.best_params_)
+    extractor.model = gscv.best_estimator_
+    train_eval = evaluate_model_predictions(train_labels, extractor.predict(train_html[train_mask]), weights=train_weights)
+    test_eval = evaluate_model_predictions(test_labels, extractor.predict(test_html), weights=test_weights)
+    _write_model_to_disk(output_dir, fname_prefix, extractor)
+    return extractor
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 16:------------------- similar code ------------------ index = 30, score = 1.0 
+def split_train_val(args, per_val=0.1):
+    loader_type = 'patch'
+    labels = np.load(pjoin('data', 'train', 'train_labels.npy'))
+    (iline, xline, depth) = labels.shape
+    i_list = []
+    horz_locations = range(0, (xline - args.stride), args.stride)
+    vert_locations = range(0, (depth - args.stride), args.stride)
+    for i in range(iline):
+        locations = [[j, k] for j in horz_locations for k in vert_locations]
+        patches_list = [((((('i_' + str(i)) + '_') + str(j)) + '_') + str(k)) for (j, k) in locations]
+        i_list.append(patches_list)
+    i_list = list(itertools.chain(*i_list))
+    x_list = []
+    horz_locations = range(0, (iline - args.stride), args.stride)
+    vert_locations = range(0, (depth - args.stride), args.stride)
+    for j in range(xline):
+        locations = [[i, k] for i in horz_locations for k in vert_locations]
+        patches_list = [((((('x_' + str(i)) + '_') + str(j)) + '_') + str(k)) for (i, k) in locations]
+        x_list.append(patches_list)
+    x_list = list(itertools.chain(*x_list))
+    list_train_val = (i_list + x_list)
+    (list_train, list_val) = train_test_split(list_train_val, test_size=per_val, shuffle=True)
+    file_object = open(pjoin('data', 'splits', (loader_type + '_train_val.txt')), 'w')
+    file_object.write('\n'.join(list_train_val))
+    file_object.close()
+    file_object = open(pjoin('data', 'splits', (loader_type + '_train.txt')), 'w')
+    file_object.write('\n'.join(list_train))
+    file_object.close()
+    file_object = open(pjoin('data', 'splits', (loader_type + '_val.txt')), 'w')
+    file_object.write('\n'.join(list_val))
+    file_object.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 17:------------------- similar code ------------------ index = 29, score = 1.0 
+@exp.automain
+def compute_components(n_components, batch_size, learning_rate, method, reduction, alpha, step_size, n_jobs, n_epochs, verbose, source, _run):
+    basedir = join(_run.observers[0].basedir, str(_run._id))
+    artifact_dir = join(basedir, 'artifacts')
+    if (not os.path.exists(artifact_dir)):
+        os.makedirs(artifact_dir)
+    if (source == 'hcp'):
+        train_size = None
+        smoothing_fwhm = 3
+        test_size = 2
+        data_dir = get_data_dirs()[0]
+        mask = fetch_hcp_mask()
+        masker = MultiRawMasker(mask_img=mask, smoothing_fwhm=smoothing_fwhm, detrend=True, standardize=True)
+        mapping = json.load(open(join(data_dir, 'HCP_unmasked/mapping.json'), 'r'))
+        data = sorted(list(mapping.values()))
+        data = list(map((lambda x: join(data_dir, x)), data))
+        data = pd.DataFrame(data, columns=['filename'])
+    else:
+        smoothing_fwhm = 6
+        train_size = 4
+        test_size = 4
+        raw_res_dir = join(get_output_dir(), 'unmasked', source)
+        try:
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+        except ValueError:
+            raw_res_dir = join(get_output_dir(), 'unmask', source)
+            (masker, data) = get_raw_rest_data(raw_res_dir)
+    (train_imgs, test_imgs) = train_test_split(data, test_size=test_size, random_state=0, train_size=train_size)
+    train_imgs = train_imgs['filename'].values
+    test_imgs = test_imgs['filename'].values
+    cb = rfMRIDictionaryScorer(test_imgs, info=_run.info)
+    dict_fact = fMRIDictFact(method=method, mask=masker, verbose=verbose, n_epochs=n_epochs, n_jobs=n_jobs, random_state=1, n_components=n_components, smoothing_fwhm=smoothing_fwhm, learning_rate=learning_rate, batch_size=batch_size, reduction=reduction, step_size=step_size, alpha=alpha, callback=cb)
+    dict_fact.fit(train_imgs)
+    dict_fact.components_img_.to_filename(join(artifact_dir, 'components.nii.gz'))
+    fig = plt.figure()
+    display_maps(fig, dict_fact.components_img_)
+    plt.savefig(join(artifact_dir, 'components.png'))
+    (fig, ax) = plt.subplots(1, 1)
+    ax.plot(cb.cpu_time, cb.score, marker='o')
+    _run.info['time'] = cb.cpu_time
+    _run.info['score'] = cb.score
+    _run.info['iter'] = cb.iter
+    plt.savefig(join(artifact_dir, 'score.png'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 18:------------------- similar code ------------------ index = 21, score = 1.0 
+def _conversion_fraction(context, is_train):
+    'E.g., "How many grams are in three quarters of a kg?".'
+    dimension = random.choice(DIMENSIONS)
+    allow_zero = (random.random() < 0.2)
+    while True:
+        (base_unit, target_unit) = random.sample(list(dimension.keys()), 2)
+        base_value = number.non_integer_rational(2, signed=False)
+        if (train_test_split.is_train(base_value) != is_train):
+            continue
+        answer = ((base_value * sympy.Rational(dimension[base_unit])) / sympy.Rational(dimension[target_unit]))
+        if ((abs(answer) <= 100000) and (sympy.denom(answer) == 1) and (allow_zero or (answer != 0))):
+            break
+    template = random.choice(['How many {target_name} are there in {base_value} of a {base_name}?', 'What is {base_value} of a {base_name} in {target_name}?'])
+    if ((sympy.denom(base_value) > 20) or random.choice([False, True])):
+        base_value_string = base_value
+    else:
+        base_value_string = display.StringNumber(base_value)
+    question = example.question(context, template, base_name=base_unit.name, base_value=base_value_string, target_name=pluralize(target_unit.name))
+    return example.Problem(question=question, answer=answer)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    while True:
+        if (train_test_split !=  ... ):
+            continue
+
+idx = 19:------------------- similar code ------------------ index = 22, score = 1.0 
+def run():
+    text_data = datasets.TatoebaDataset('data/ben-eng/ben.txt', cfg.NUM_DATA_TO_LOAD)
+    (tensors, tokenizer) = text_data.load_data()
+    (input_tensor, target_tensor) = tensors
+    (inp_lang_tokenizer, targ_lang_tokenizer) = tokenizer
+    utils.save_tokenizer(tokenizer=inp_lang_tokenizer, save_at='models', file_name='input_language_tokenizer.json')
+    utils.save_tokenizer(tokenizer=targ_lang_tokenizer, save_at='models', file_name='target_language_tokenizer.json')
+    (input_train, input_val, target_train, target_val) = train_test_split(input_tensor, target_tensor, test_size=0.2)
+    buffer_size = len(input_train)
+    steps_per_epoch = (len(input_train) // cfg.BATCH_SIZE)
+    vocab_inp_size = (len(inp_lang_tokenizer.word_index) + 1)
+    vocab_tar_size = (len(targ_lang_tokenizer.word_index) + 1)
+    dataset = tf.data.Dataset.from_tensor_slices((input_train, target_train))
+    dataset = dataset.shuffle(buffer_size)
+    dataset = dataset.batch(cfg.BATCH_SIZE, drop_remainder=True)
+    optimizer = tf.keras.optimizers.Adam()
+    encoder = models.Encoder(vocab_inp_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
+    decoder = models.Decoder(vocab_tar_size, cfg.EMBEDDING_DIM, cfg.UNITS, cfg.BATCH_SIZE)
+    checkpoint_dir = 'models/training_checkpoints'
+    checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
+    checkpoint = tf.train.Checkpoint(optimizer=optimizer, encoder=encoder, decoder=decoder)
+    if cfg.RESTORE_SAVED_CHECKPOINT:
+        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+    for epoch in range(cfg.EPOCHS):
+        print('Epoch {} / {}'.format(epoch, cfg.EPOCHS))
+        pbar = tqdm(dataset.take(steps_per_epoch), ascii=True)
+        total_loss = 0
+        enc_hidden = encoder.initialize_hidden_state()
+        for (step, data) in enumerate(pbar):
+            (inp, targ) = data
+            batch_loss = train_step(inp, targ, targ_lang_tokenizer, enc_hidden, encoder, decoder, optimizer)
+            total_loss += batch_loss
+            pbar.set_description('Step - {} / {} - batch loss - {:.4f} - '.format(steps_per_epoch, (step + 1), batch_loss.numpy()))
+        if (((epoch + 1) % 2) == 0):
+            checkpoint.save(file_prefix=checkpoint_prefix)
+        print('Epoch loss - {:.4f}'.format((total_loss / steps_per_epoch)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 20:------------------- similar code ------------------ index = 28, score = 1.0 
+def main():
+    df_train = pd.read_csv(config.RAW_TRAIN_DATA, sep='\t', names=['a1', 'a2', 'e1', 'e2', 'r', 's'], na_values=[], keep_default_na=False)
+    df_test = pd.read_csv(config.RAW_TEST_DATA, sep='\t', names=['a1', 'a2', 'e1', 'e2', 'r', 's', 'end'], na_values=[], keep_default_na=False)
+    df_train = df_train[['a1', 'r', 'a2']]
+    df_test = df_test[['a1', 'r', 'a2']]
+    df_all = pd.concat([df_train, df_test], ignore_index=True)
+    df_all.r = df_all.r.map(transform)
+    df_fb = pd.read_csv(config.KB, sep='\t', names=['a1', 'r', 'a2'])
+    dSet = set((list(df_all.a1) + list(df_all.a2)))
+    f = open(config.E2ID, 'w')
+    for (i, e) in enumerate(dSet):
+        f.write(('%s %d\n' % (e, i)))
+    f.close()
+    fSet = set((list(df_fb.a1) + list(df_fb.a2)))
+    print(('%d entities in data' % len(dSet)))
+    print(('%d entities in subgraph of freebase' % len(fSet)))
+    print(('%d entities in both' % len(dSet.intersection(fSet))))
+    print(('=' * 50))
+
+    def triples(x):
+        return (x.a1, x.r, x.a2)
+    mask = df_all.r.map((lambda x: (x != 'NA')))
+    df_test.r = df_test.r.map(transform)
+    mask = df_test.r.map((lambda x: (x != 'NA')))
+    tFact = set(list(df_test[mask].apply(triples, axis=1)))
+    fFact = set(list(df_fb.apply(triples, axis=1)))
+    print(('%d facts in test data' % len(tFact)))
+    print(('%d facts in subgraph of freebase' % len(fFact)))
+    assert (len(tFact.intersection(fFact)) == 0), 'Testing facts exist in subgraph!!!'
+    print(('%d facts in both' % len(tFact.intersection(fFact))))
+    print(('=' * 50))
+
+    def check(x):
+        return ((x.a1, x.r, x.a2) not in tFact)
+    print('Constructing KG for embedding training...')
+    n = df_fb.shape[0]
+    X = np.zeros((n, 2))
+    y = np.arange(n)
+    (_, _, train_idx, valid_idx) = train_test_split(X, y, test_size=10000)
+    df_train = df_fb.iloc[train_idx]
+    df_valid = df_fb.iloc[valid_idx]
+    df_test = df_valid.iloc[:10]
+    print(('Saving to %s' % config.KG_PATH))
+    if (not os.path.exists(config.KG_PATH)):
+        os.makedirs(config.KG_PATH)
+    df_train.to_csv((config.KG_PATH + '/train.txt'), sep='\t', header=False, index=False)
+    df_valid.to_csv((config.KG_PATH + '/valid.txt'), sep='\t', header=False, index=False)
+    df_test.to_csv((config.KG_PATH + '/test.txt'), sep='\t', header=False, index=False)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 21:------------------- similar code ------------------ index = 19, score = 1.0 
+def train(self, X, y):
+    '\n        Train model.\n\n        Parameters\n        ----------\n        X : pandas DataFrame\n            Features.\n        y : numpy int array\n            Labels.\n        '
+    self.n_train = len(X)
+    (X_train, X_valid, y_train, y_valid) = train_test_split(X, y, test_size=(1 - stg.FRAC_TRAIN), random_state=0)
+    data = {'X_train': X_train, 'y_train': y_train, 'X_valid': X_valid, 'y_valid': y_valid}
+    stg.logger.info(('Split dataset in %d training and %d validation' % (len(y_train), len(y_valid))))
+    start_time = time()
+    objective = PytorchObjective(data, self.options['bounds'], self.n_input, self.n_classes, self.use_gpu)
+    sampler = optuna.samplers.TPESampler(seed=0)
+    pruner = optuna.pruners.MedianPruner()
+    study = optuna.create_study(sampler=sampler, pruner=pruner, direction='minimize')
+    study.optimize(objective, n_trials=self.options['n_train_trials'])
+    self.best_params = study.best_trial.params
+    self.best_params['n_input'] = self.n_input
+    self.best_params['n_classes'] = self.n_classes
+    self.print_trial_stats(study)
+    stg.logger.info('Train with best parameters')
+    self.trainer = Trainer(checkpoint_callback=False, accelerator='dp', logger=False, max_epochs=self.best_params['max_epochs'], gpus=((- 1) if self.use_gpu else None))
+    self.model = LightningNet(self.best_params, data)
+    self.trainer.fit(self.model)
+    end_time = time()
+    stg.logger.info(('Training time %.2f' % (end_time - start_time)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = train_test_split
+
+idx = 22:------------------- similar code ------------------ index = 24, score = 1.0 
+def fit(self, X, Y, T, max_iter=2000):
+    (X, X_val, Y, Y_val, T, T_val) = train_test_split(X, Y, T, test_size=0.1, stratify=Y)
+    idx = np.argsort(T)
+    X = X[idx]
+    Y = Y[idx]
+    T = T[idx]
+    self.t = T
+    d = X.shape[1]
+    self.w = np.zeros((d, 1))
+    f_old = np.inf
+    loss_fn = (lambda w: self.loss(w, X, Y, self.H))
+    for i in range(max_iter):
+        self.H = self.cumulative_h(X, Y)
+        (self.w, self.f) = optimize(loss_fn, self.w)
+        print(f'Iteration {i}: 	 train loss: {(self.f / len(T)):.4f} 	 val error: {self.evaluate(X_val, Y_val, T_val):.4f}')
+        if (abs((self.f - f_old)) < 0.001):
+            break
+        f_old = self.f
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():

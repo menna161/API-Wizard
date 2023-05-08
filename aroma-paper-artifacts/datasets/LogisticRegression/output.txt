@@ -3,7 +3,6 @@ def train_models(self, y_train):
     self.models = []
     if (self.experiment.multinomial_type == 'manual'):
 // your code ...
-
     elif ((self.experiment.multinomial_type == 'multinomial') or (self.experiment.multinomial_type == 'ovr')):
         m = LogisticRegression(C=self.experiment.C, penalty=self.experiment.penalty, dual=self.experiment.dual, solver=self.experiment.solver, max_iter=self.experiment.max_iter, multi_class=self.experiment.multinomial_type, class_weight=self.experiment.class_weight)
         x_nb = self.trn_term_doc
@@ -11,11 +10,10 @@ def train_models(self, y_train):
     else:
 // your code ...
 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        8         ||         2        ||        0.125         
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        10         ||         2        
-
-avg       ||          3.0           ||        10.0         ||         2.0        
+avg       ||          27.27272727272727           ||        8.0         ||         2.0        ||         12.5        
 
 idx = 0:------------------- similar code ------------------ index = 4, score = 1.0 
 def train(plasfile, chromfile, outdir, num_procs, ks=[3, 4, 5, 6, 7], lens=[1000, 10000, 100000, 500000]):

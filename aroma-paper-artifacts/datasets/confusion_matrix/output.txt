@@ -1,63 +1,111 @@
 ------------------------- example 1 ------------------------ 
-def Print_Every_class_Eval(self, out_16_13=False):
-    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
-    MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
-    Precision = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=0))
-    Class_ratio = (np.sum(self.confusion_matrix, axis=1) / np.sum(self.confusion_matrix))
-    Pred_retio = (np.sum(self.confusion_matrix, axis=0) / np.sum(self.confusion_matrix))
-    print(((((('===>Everyclass:\t' + 'MPA\t') + 'MIoU\t') + 'PC\t') + 'Ratio\t') + 'Pred_Retio'))
-    if out_16_13:
-        MIoU = MIoU[synthia_set_16]
-    for ind_class in range(len(MIoU)):
+def confusion_matrix(self, name):
+    pred_y = np.array(self.df[f'{name}_pred'])
 // your code ...
-
+    cm = confusion_matrix(true_y, pred_y, labels)
+    return (cm, labels)
 
 ------------------------- example 2 ------------------------ 
-def add_batch(self, gt_image, pre_image):
-    assert (gt_image.shape == pre_image.shape)
-    self.confusion_matrix += self.__generate_matrix(gt_image, pre_image)
+def find_matching(confusion_matrix):
+    '\n    returns the perfect matching\n    '
+    (_, n) = confusion_matrix.shape
+    path = []
+    for i in range(n):
+        max_val = (- 10000000000.0)
+// your code ...
+        for j in range(n):
+            if (j in path):
+                pass
+            else:
+                temp = confusion_matrix[(i, j)]
+                if (temp > max_val):
+// your code ...
+        path.append(max_ind)
+    return path
 
 ------------------------- example 3 ------------------------ 
-def calc_performance_statistics(all_scores, y):
-    statistics = {}
-    y_pred_all = np.argmax(all_scores, axis=2)
-    statistics = defaultdict(list)
-    for y_pred in y_pred_all:
-        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
-        N = (((TN + TP) + FN) + FP)
-// your code ...
-
-        sen = (TP / (TP + FN))
-        spc = (TN / (TN + FP))
-        prc = (TP / (TP + FP))
-        f1s = ((2 * (prc * sen)) / (prc + sen))
-        mcc = (((TP / N) - (S * P)) / np.sqrt((((P * S) * (1 - S)) * (1 - P))))
-        statistics['confusion_matrix'].append(confusion_matrix(y, y_pred))
-        statistics['accuracy'].append(acc)
-        statistics['sensitivity'].append(sen)
-        statistics['specificity'].append(spc)
-// your code ...
-
-    return statistics
+def total_positives_test(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TP + FP'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tp + fp)
 
 ------------------------- example 4 ------------------------ 
-def Pixel_Accuracy(self):
-    if (np.sum(self.confusion_matrix) == 0):
-// your code ...
+def avg_surface_distance_symmetric(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, voxel_spacing=None, connectivity=1, **kwargs):
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty or test_full or reference_empty or reference_full):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0
+    (test, reference) = (confusion_matrix.test, confusion_matrix.reference)
+    return metric.assd(test, reference, voxel_spacing, connectivity)
 
-    else:
-        PA = (np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum())
-    return PA
+------------------------- example 5 ------------------------ 
+def total_negatives_reference(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TN + FP'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tn + fp)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          4           ||        11         ||         1        
-example2  ||          3           ||        3         ||         0        
-example3  ||          2           ||        19         ||         2        
-example4  ||          2           ||        6         ||         1        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        4         ||         1        ||        0.5         
+example2  ||          2           ||        14         ||         2        ||        0.21428571428571427         
+example3  ||          6           ||        6         ||         0        ||        0.6666666666666666         
+example4  ||          4           ||        11         ||         0        ||        0.45454545454545453         
+example5  ||          6           ||        6         ||         0        ||        0.6666666666666666         
 
-avg       ||          2.75           ||        9.75         ||         1.0        
+avg       ||          3.389830508474576           ||        8.2         ||         0.6        ||         50.04329004329004        
 
-idx = 0:------------------- similar code ------------------ index = 21, score = 2.0 
+idx = 0:------------------- similar code ------------------ index = 47, score = 2.0 
+def confusion_matrix(self, name):
+    pred_y = np.array(self.df[f'{name}_pred'])
+    true_y = np.array(self.df[f'{name}_gold'])
+    labels = list(sorted(set((list(true_y) + list(pred_y)))))
+    cm = confusion_matrix(true_y, pred_y, labels)
+    return (cm, labels)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def confusion_matrix():
+idx = 1:------------------- similar code ------------------ index = 51, score = 2.0 
+def find_matching(confusion_matrix):
+    '\n    returns the perfect matching\n    '
+    (_, n) = confusion_matrix.shape
+    path = []
+    for i in range(n):
+        max_val = (- 10000000000.0)
+        max_ind = (- 1)
+        for j in range(n):
+            if (j in path):
+                pass
+            else:
+                temp = confusion_matrix[(i, j)]
+                if (temp > max_val):
+                    max_val = temp
+                    max_ind = j
+        path.append(max_ind)
+    return path
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def  ... (confusion_matrix):
+idx = 2:------------------- similar code ------------------ index = 92, score = 2.0 
+def report_scores(confusion_matrix):
+    overall_accuracy = (get_overall_accuracy(confusion_matrix) * 100)
+    print('Confusion matrix with overall accuracy: {:.2f}%'.format(overall_accuracy))
+    print_matrix(confusion_matrix)
+    prediction_scores = score_predictions(confusion_matrix)
+    print('MIOU: {}'.format(get_mean_intersection_over_union(prediction_scores)))
+    for (index, prediction_score) in enumerate(prediction_scores):
+        print('Class {:2d} ({:^17}), IOU: {:.4f}'.format(LABELS[index], LABELS_OBJ[LABELS[index]], prediction_score.get_iou()))
+    print()
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def  ... (confusion_matrix):
+idx = 3:------------------- similar code ------------------ index = 87, score = 2.0 
 def confusion_matrix(labels, scores):
     matrix = [[0, 0], [0, 0]]
     for (label, pred) in zip(labels, scores):
@@ -75,7 +123,140 @@ def confusion_matrix(labels, scores):
 
 ------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
 def confusion_matrix():
-idx = 1:------------------- similar code ------------------ index = 15, score = 2.0 
+idx = 4:------------------- similar code ------------------ index = 102, score = 2.0 
+def total_positives_test(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TP + FP'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tp + fp)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 5:------------------- similar code ------------------ index = 46, score = 2.0 
+def avg_surface_distance_symmetric(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, voxel_spacing=None, connectivity=1, **kwargs):
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty or test_full or reference_empty or reference_full):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0
+    (test, reference) = (confusion_matrix.test, confusion_matrix.reference)
+    return metric.assd(test, reference, voxel_spacing, connectivity)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 6:------------------- similar code ------------------ index = 71, score = 2.0 
+def total_negatives_reference(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TN + FP'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tn + fp)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 7:------------------- similar code ------------------ index = 69, score = 2.0 
+def accuracy(test=None, reference=None, confusion_matrix=None, **kwargs):
+    '(TP + TN) / (TP + FP + FN + TN)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return float(((tp + tn) / (((tp + fp) + tn) + fn)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 8:------------------- similar code ------------------ index = 68, score = 2.0 
+def _compute_confusion_matrix(predictions, labels, num_classes):
+    if ((np.min(labels) < 0) or (np.max(labels) >= num_classes)):
+        raise Exception('Labels out of bound.')
+    if ((np.min(predictions) < 0) or (np.max(predictions) >= num_classes)):
+        raise Exception('Predictions out of bound.')
+    values = np.ones(predictions.shape)
+    confusion_matrix = coo_matrix((values, (labels, predictions)), shape=(num_classes, num_classes)).toarray()
+    return confusion_matrix
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return confusion_matrix
+
+idx = 9:------------------- similar code ------------------ index = 64, score = 2.0 
+def evaluate(self, test=None, reference=None, advanced=False, **metric_kwargs):
+    'Compute metrics for segmentations.'
+    if (test is not None):
+        self.set_test(test)
+    if (reference is not None):
+        self.set_reference(reference)
+    if ((self.test is None) or (self.reference is None)):
+        raise ValueError('Need both test and reference segmentations.')
+    if (self.labels is None):
+        self.construct_labels()
+    self.metrics.sort()
+    _funcs = {m: ALL_METRICS[m] for m in (self.metrics + self.advanced_metrics)}
+    frames = inspect.getouterframes(inspect.currentframe())
+    for metric in self.metrics:
+        for f in frames:
+            if (metric in f[0].f_locals):
+                _funcs[metric] = f[0].f_locals[metric]
+                break
+        else:
+            if (metric in _funcs):
+                continue
+            else:
+                raise NotImplementedError('Metric {} not implemented.'.format(metric))
+    self.result = OrderedDict()
+    eval_metrics = self.metrics
+    if advanced:
+        eval_metrics += self.advanced_metrics
+    if isinstance(self.labels, dict):
+        for (label, name) in self.labels.items():
+            k = str(name)
+            self.result[k] = OrderedDict()
+            if (not hasattr(label, '__iter__')):
+                self.confusion_matrix.set_test((self.test == label))
+                self.confusion_matrix.set_reference((self.reference == label))
+            else:
+                current_test = 0
+                current_reference = 0
+                for l in label:
+                    current_test += (self.test == l)
+                    current_reference += (self.reference == l)
+                self.confusion_matrix.set_test(current_test)
+                self.confusion_matrix.set_reference(current_reference)
+            for metric in eval_metrics:
+                self.result[k][metric] = _funcs[metric](confusion_matrix=self.confusion_matrix, nan_for_nonexisting=self.nan_for_nonexisting, **metric_kwargs)
+    else:
+        for (i, l) in enumerate(self.labels):
+            k = str(l)
+            self.result[k] = OrderedDict()
+            self.confusion_matrix.set_test((self.test == l))
+            self.confusion_matrix.set_reference((self.reference == l))
+            for metric in eval_metrics:
+                self.result[k][metric] = _funcs[metric](confusion_matrix=self.confusion_matrix, nan_for_nonexisting=self.nan_for_nonexisting, **metric_kwargs)
+    return self.result
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        for in:
+            if:
+                 ... .confusion_matrix
+
+idx = 10:------------------- similar code ------------------ index = 63, score = 2.0 
 def __generate_matrix(self, gt_image, pre_image):
     mask = ((gt_image >= 0) & (gt_image < self.num_class))
     label = ((self.num_class * gt_image[mask].astype('int')) + pre_image[mask])
@@ -87,7 +268,574 @@ def __generate_matrix(self, gt_image, pre_image):
 def  ... ():
     return confusion_matrix
 
-idx = 2:------------------- similar code ------------------ index = 26, score = 1.0 
+idx = 11:------------------- similar code ------------------ index = 56, score = 2.0 
+def score_prediction_files(ground_truth_file, prediction_file):
+    '\n    Scores a list of prediction files\n    :param ground_truth_file: Ground truth classification file\n    :param prediction_files: Array of classification prediction files\n    :return: None\n    '
+    print('Scoring {} against {}:'.format(prediction_file, ground_truth_file))
+    dim = len(LABELS)
+    confusion_matrix = np.zeros((dim, (dim + 1)), np.uint)
+    with open(str(ground_truth_file), 'r') as file:
+        try:
+            gt_data = [int(line) for line in file]
+        except ValueError:
+            print('Error reading {}'.format(ground_truth_file))
+            return confusion_matrix
+    with open(str(prediction_file), 'r') as file:
+        try:
+            pd_data = [int(line) for line in file]
+        except ValueError:
+            print('Error reading {}'.format(ground_truth_file))
+            return confusion_matrix
+    if (len(gt_data) != len(pd_data)):
+        print('Mismatched file lengths!')
+        return confusion_matrix
+    one_to_one = zip(gt_data, pd_data)
+    confusion_matrix = generate_confusion_matrix(one_to_one)
+    print('Scores for {} (truth: {}):'.format(prediction_file, ground_truth_file))
+    report_scores(confusion_matrix)
+    return confusion_matrix
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return confusion_matrix
+
+idx = 12:------------------- similar code ------------------ index = 50, score = 2.0 
+def sensitivity(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TP / (TP + FN)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if reference_empty:
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float((tp / (tp + fn)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 13:------------------- similar code ------------------ index = 44, score = 2.0 
+def hausdorff_distance_95(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, voxel_spacing=None, connectivity=1, **kwargs):
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty or test_full or reference_empty or reference_full):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0
+    (test, reference) = (confusion_matrix.test, confusion_matrix.reference)
+    return metric.hd95(test, reference, voxel_spacing, connectivity)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 14:------------------- similar code ------------------ index = 73, score = 2.0 
+def specificity(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TN / (TN + FP)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if reference_full:
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float((tn / (tn + fp)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 15:------------------- similar code ------------------ index = 39, score = 2.0 
+def precision(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TP / (TP + FP)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if test_empty:
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float((tp / (tp + fp)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 16:------------------- similar code ------------------ index = 32, score = 2.0 
+def false_omission_rate(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'FN / (TN + FN)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if test_full:
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float((fn / (fn + tn)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 17:------------------- similar code ------------------ index = 27, score = 2.0 
+@staticmethod
+def update(confusion_matrix, preds, labels):
+    preds = tuple(preds)
+    labels = tuple(labels)
+    for (pred, label) in zip(preds, labels):
+        confusion_matrix[(label, pred)] += 1
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    for in:
+        confusion_matrix
+
+idx = 18:------------------- similar code ------------------ index = 26, score = 2.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--ground_truth_directory', type=directory_type)
+    parser.add_argument('-t', '--ground_truth_file', type=file_type)
+    parser.add_argument('-d', '--prediction_directory', type=directory_type)
+    parser.add_argument('-f', '--prediction_file', type=file_type)
+    args = parser.parse_args()
+    truth_files = []
+    if (args.ground_truth_file is not None):
+        truth_files.append(args.ground_truth_file)
+    if (args.ground_truth_directory is not None):
+        truth_files.extend(get_list_of_files(args.ground_truth_directory))
+    if (not truth_files):
+        raise ValueError('No ground truth paths specified')
+    prediction_files = []
+    if (args.prediction_file is not None):
+        prediction_files.append(args.prediction_file)
+    if (args.prediction_directory is not None):
+        prediction_files.extend(get_list_of_files(args.prediction_directory))
+    if (not prediction_files):
+        raise ValueError('No prediction paths specified')
+    file_pairs = match_file_pairs(truth_files, prediction_files)
+    if (not (type(file_pairs) == list)):
+        file_pairs = [file_pairs]
+    confusion_matrix = np.zeros((len(LABELS), (len(LABELS) + 1)), np.uint)
+    for file_pair in file_pairs:
+        confusion_matrix += score_prediction_files(*file_pair)
+    if (len(file_pairs) > 1):
+        print('----- OVERALL SCORES -----')
+        report_scores(confusion_matrix)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+if:
+    if:
+         ... (confusion_matrix)
+
+idx = 19:------------------- similar code ------------------ index = 24, score = 2.0 
+def jaccard(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TP / (TP + FP + FN)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty and reference_empty):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float((tp / ((tp + fp) + fn)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 20:------------------- similar code ------------------ index = 15, score = 2.0 
+def total_negatives_test(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TN + FN'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tn + fn)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 21:------------------- similar code ------------------ index = 11, score = 2.0 
+@register('confusion_matrix')
+def report(y, pred):
+    return confusion_matrix(y, pred)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    return confusion_matrix
+
+idx = 22:------------------- similar code ------------------ index = 8, score = 2.0 
+def total_positives_reference(test=None, reference=None, confusion_matrix=None, **kwargs):
+    'TP + FN'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    return (tp + fn)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 23:------------------- similar code ------------------ index = 72, score = 2.0 
+def dice(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    '2TP / (2TP + FP + FN)'
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (tp, fp, tn, fn) = confusion_matrix.get_matrix()
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty and reference_empty):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0.0
+    return float(((2.0 * tp) / (((2 * tp) + fp) + fn)))
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 24:------------------- similar code ------------------ index = 81, score = 2.0 
+def avg_surface_distance(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, voxel_spacing=None, connectivity=1, **kwargs):
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty or test_full or reference_empty or reference_full):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0
+    (test, reference) = (confusion_matrix.test, confusion_matrix.reference)
+    return metric.asd(test, reference, voxel_spacing, connectivity)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 25:------------------- similar code ------------------ index = 83, score = 2.0 
+def hausdorff_distance(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, voxel_spacing=None, connectivity=1, **kwargs):
+    if (confusion_matrix is None):
+        confusion_matrix = ConfusionMatrix(test, reference)
+    (test_empty, test_full, reference_empty, reference_full) = confusion_matrix.get_existence()
+    if (test_empty or test_full or reference_empty or reference_full):
+        if nan_for_nonexisting:
+            return float('NaN')
+        else:
+            return 0
+    (test, reference) = (confusion_matrix.test, confusion_matrix.reference)
+    return metric.hd(test, reference, voxel_spacing, connectivity)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    if:
+        confusion_matrix
+
+idx = 26:------------------- similar code ------------------ index = 9, score = 1.0 
+def false_positive_rate(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'FP / (FP + TN)'
+    return (1 - specificity(test, reference, confusion_matrix, nan_for_nonexisting))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 27:------------------- similar code ------------------ index = 38, score = 1.0 
+def recall(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TP / (TP + FN)'
+    return sensitivity(test, reference, confusion_matrix, nan_for_nonexisting, **kwargs)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 28:------------------- similar code ------------------ index = 49, score = 1.0 
+def false_negative_rate(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'FN / (TP + FN)'
+    return (1 - sensitivity(test, reference, confusion_matrix, nan_for_nonexisting))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 29:------------------- similar code ------------------ index = 48, score = 1.0 
+def __init__(self, n_classes):
+    self.n_classes = n_classes
+    self.confusion_matrix = np.zeros((n_classes, n_classes))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 30:------------------- similar code ------------------ index = 90, score = 1.0 
+def __init__(self, cfg, is_training=True, global_pool=True, output_stride=None, spatial_squeeze=True, reuse=None, scope='resnet_v1_50', images_ph=None, lbls_ph=None):
+    batch_size = None
+    num_classes = cfg.num_classes
+    dataset_name = cfg.db_name
+    if (lbls_ph is not None):
+        self.gt_lbls = tf.reshape(lbls_ph, [(- 1), num_classes])
+    else:
+        self.gt_lbls = tf.placeholder(tf.int32, shape=(batch_size, num_classes), name='class_lbls')
+    self.do_augmentation = tf.placeholder(tf.bool, name='do_augmentation')
+    self.loss_class_weight = tf.placeholder(tf.float32, shape=(num_classes, num_classes), name='weights')
+    if (dataset_name == 'honda'):
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.frame_height, const.frame_width, const.context_channels), name='context_input')
+    else:
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.max_frame_size, const.max_frame_size, const.frame_channels), name='context_input')
+    if (images_ph is not None):
+        self.input = images_ph
+        (_, w, h, c) = self.input.shape
+        aug_imgs = tf.reshape(self.input, [(- 1), w, h, 3])
+        print('No nnutils Augmentation')
+    elif (dataset_name == 'honda'):
+        aug_imgs = self.input
+    else:
+        aug_imgs = tf.cond(self.do_augmentation, (lambda : batch_augment.augment(self.input, horizontal_flip=True, vertical_flip=False, rotate=0, crop_probability=0, color_aug_probability=0)), (lambda : batch_augment.center_crop(self.input)))
+    with slim.arg_scope(resnet_arg_scope()):
+        (_, train_end_points) = resnet_v1_50(aug_imgs, num_classes, is_training=True, global_pool=global_pool, output_stride=output_stride, spatial_squeeze=spatial_squeeze, reuse=reuse, scope=scope)
+        (_, val_end_points) = resnet_v1_50(aug_imgs, num_classes, is_training=False, global_pool=global_pool, output_stride=output_stride, spatial_squeeze=spatial_squeeze, reuse=True, scope=scope)
+
+    def cal_metrics(end_points):
+        gt = tf.argmax(self.gt_lbls, 1)
+        logits = tf.reshape(end_points['resnet_v1_50/logits'], [(- 1), num_classes])
+        pre_logits = end_points['resnet_v1_50/block4/unit_3/bottleneck_v1']
+        center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+        loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+        predictions = tf.reshape(end_points['predictions'], [(- 1), num_classes])
+        class_prediction = tf.argmax(predictions, 1)
+        supervised_correct_prediction = tf.equal(gt, class_prediction)
+        supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+        confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+        (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+        (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+        per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+        return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+    (self.train_loss, self.train_pre_logits, self.train_accuracy, self.train_confusion_mat, self.train_accumulated_accuracy, self.train_per_class_acc_acc, self.train_class_prediction) = cal_metrics(train_end_points)
+    (self.val_loss, self.val_pre_logits, self.val_accuracy, self.val_confusion_mat, self.val_accumulated_accuracy, self.val_per_class_acc_acc, self.val_class_prediction) = cal_metrics(val_end_points)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  =  ... .confusion_matrix
+
+idx = 31:------------------- similar code ------------------ index = 91, score = 1.0 
+def cal_metrics(end_points):
+    gt = tf.argmax(self.gt_lbls, 1)
+    logits = tf.reshape(end_points['resnet_v1_50/logits'], [(- 1), num_classes])
+    pre_logits = end_points['resnet_v1_50/block4/unit_3/bottleneck_v1']
+    center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+    loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+    predictions = tf.reshape(end_points['predictions'], [(- 1), num_classes])
+    class_prediction = tf.argmax(predictions, 1)
+    supervised_correct_prediction = tf.equal(gt, class_prediction)
+    supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+    confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+    (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+    (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+    per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+    return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .confusion_matrix
+
+idx = 32:------------------- similar code ------------------ index = 43, score = 1.0 
+def test(t_data, t_label, test_iterations=1, evalate=False):
+    assert (test_data.shape[0] == test_label.shape[0])
+    y_predict_class = model['predict_class_number']
+    (overAllAcc, avgAcc, averageAccClass) = ([], [], [])
+    for _ in range(test_iterations):
+        pred_class = []
+        for t in tqdm(t_data):
+            t = np.expand_dims(t, axis=0)
+            feed_dict_test = {img_entry: t, prob: 1.0}
+            prediction = session.run(y_predict_class, feed_dict=feed_dict_test)
+            pred_class.append(prediction)
+        true_class = np.argmax(t_label, axis=1)
+        conMatrix = confusion_matrix(true_class, pred_class)
+        classArray = []
+        for c in range(len(conMatrix)):
+            recallScore = (conMatrix[c][c] / sum(conMatrix[c]))
+            classArray += [recallScore]
+        averageAccClass.append(classArray)
+        avgAcc.append((sum(classArray) / len(classArray)))
+        overAllAcc.append(accuracy_score(true_class, pred_class))
+    averageAccClass = np.transpose(averageAccClass)
+    meanPerClass = np.mean(averageAccClass, axis=1)
+    showClassTable(meanPerClass, title='Class accuracy')
+    print(('Average Accuracy: ' + str(np.mean(avgAcc))))
+    print(('Overall Accuracy: ' + str(np.mean(overAllAcc))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for  ...  in:
+         ...  = confusion_matrix
+
+idx = 33:------------------- similar code ------------------ index = 42, score = 1.0 
+def _set_results(self, prefix, preds, true_y, true_y_ext=None):
+    m = metrics(preds, true_y)
+    r = {}
+    r[f'{prefix}_accuracy'] = m['accuracy']
+    r[f'{prefix}_precision'] = m['precision']
+    r[f'{prefix}_recall'] = m['recall']
+    r[f'{prefix}_cm'] = confusion_matrix(true_y, preds, labels=[x.value for x in Labels]).tolist()
+    if (true_y_ext is not None):
+        r[f'{prefix}_cm_full'] = confusion_matrix(true_y_ext, preds, labels=[x.value for x in LabelsExt]).tolist()
+    self.update_results(**r)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ = confusion_matrix
+
+idx = 34:------------------- similar code ------------------ index = 41, score = 1.0 
+def false_discovery_rate(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'FP / (TP + FP)'
+    return (1 - precision(test, reference, confusion_matrix, nan_for_nonexisting))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 35:------------------- similar code ------------------ index = 99, score = 1.0 
+def reset(self):
+    self.confusion_matrix = np.zeros((self.n_classes, self.n_classes))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... .confusion_matrix
+
+idx = 36:------------------- similar code ------------------ index = 12, score = 1.0 
+def evaluate(self, x_test: numpy.ndarray, y_test: numpy.ndarray) -> None:
+    '\n        Evaluate the current model on the given test data.\n\n        Predict the labels for test data using the model and print the relevant\n        metrics like accuracy and the confusion matrix.\n\n        Args:\n            x_test (numpy.ndarray): Numpy nD array or a list like object\n                                    containing the samples.\n            y_test (numpy.ndarray): Numpy 1D array or list like object\n                                    containing the labels for test samples.\n        '
+    predictions = self.predict(x_test)
+    print(y_test)
+    print(predictions)
+    print(('Accuracy:%.3f\n' % accuracy_score(y_pred=predictions, y_true=y_test)))
+    print('Confusion matrix:', confusion_matrix(y_pred=predictions, y_true=y_test))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... () -> None:
+    print( ... , confusion_matrix)
+
+idx = 37:------------------- similar code ------------------ index = 35, score = 1.0 
+def __init__(self, cfg, weight_decay=0.0001, data_format='NHWC', reuse=None, images_ph=None, lbls_ph=None):
+    self.cfg = cfg
+    num_classes = cfg.num_classes
+    batch_size = None
+    if (lbls_ph is not None):
+        self.gt_lbls = tf.reshape(lbls_ph, [(- 1), num_classes])
+    else:
+        self.gt_lbls = tf.placeholder(tf.int32, shape=(batch_size, num_classes), name='class_lbls')
+    self.do_augmentation = tf.placeholder(tf.bool, name='do_augmentation')
+    self.loss_class_weight = tf.placeholder(tf.float32, shape=(num_classes, num_classes), name='weights')
+    if (cfg.db_name == 'honda'):
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.frame_height, const.frame_width, const.context_channels), name='context_input')
+    else:
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.max_frame_size, const.max_frame_size, const.frame_channels), name='context_input')
+    if (images_ph is not None):
+        self.input = images_ph
+        (_, w, h, c) = self.input.shape
+        aug_imgs = tf.reshape(self.input, [(- 1), w, h, 3])
+        print('No nnutils Augmentation')
+    elif (cfg.db_name == 'honda'):
+        aug_imgs = self.input
+    else:
+        aug_imgs = tf.cond(self.do_augmentation, (lambda : batch_augment.augment(self.input, cfg.preprocess_func, horizontal_flip=True, vertical_flip=False, rotate=0, crop_probability=0, color_aug_probability=0)), (lambda : batch_augment.center_crop(self.input, cfg.preprocess_func)))
+    with tf.contrib.slim.arg_scope(densenet_arg_scope(weight_decay=weight_decay, data_format=data_format)):
+        (nets, train_end_points) = densenet(aug_imgs, num_classes=num_classes, reduction=0.5, growth_rate=48, num_filters=96, num_layers=[6, 12, 36, 24], data_format=data_format, is_training=True, reuse=None, scope='densenet161')
+        (val_nets, val_end_points) = densenet(aug_imgs, num_classes=num_classes, reduction=0.5, growth_rate=48, num_filters=96, num_layers=[6, 12, 36, 24], data_format=data_format, is_training=False, reuse=True, scope='densenet161')
+
+    def cal_metrics(end_points):
+        gt = tf.argmax(self.gt_lbls, 1)
+        logits = tf.reshape(end_points['densenet161/logits'], [(- 1), num_classes])
+        pre_logits = end_points['densenet161/dense_block4']
+        center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+        loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+        predictions = tf.reshape(end_points['predictions'], [(- 1), num_classes])
+        class_prediction = tf.argmax(predictions, 1)
+        supervised_correct_prediction = tf.equal(gt, class_prediction)
+        supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+        confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+        (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+        (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+        per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+        return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc)
+    (self.train_loss, self.train_pre_logits, self.train_accuracy, self.train_confusion_mat, self.train_accumulated_accuracy, self.train_per_class_acc_acc) = cal_metrics(train_end_points)
+    (self.val_loss, self.val_pre_logits, self.val_accuracy, self.val_confusion_mat, self.val_accumulated_accuracy, self.val_per_class_acc_acc) = cal_metrics(val_end_points)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  =  ... .confusion_matrix
+
+idx = 38:------------------- similar code ------------------ index = 37, score = 1.0 
+def __init__(self, cfg=None, is_training=True, global_pool=True, output_stride=None, spatial_squeeze=True, reuse=None, scope='resnet_v2_50', images_ph=None, lbls_ph=None):
+    self.cfg = cfg
+    batch_size = None
+    if (lbls_ph is not None):
+        self.gt_lbls = tf.reshape(lbls_ph, [(- 1), cfg.num_classes])
+    else:
+        self.gt_lbls = tf.placeholder(tf.int32, shape=(batch_size, cfg.num_classes), name='class_lbls')
+    self.do_augmentation = tf.placeholder(tf.bool, name='do_augmentation')
+    self.loss_class_weight = tf.placeholder(tf.float32, shape=(cfg.num_classes, cfg.num_classes), name='weights')
+    if ('honda' in cfg.db_name):
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.frame_height, const.frame_width, const.context_channels), name='context_input')
+    else:
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.max_frame_size, const.max_frame_size, const.frame_channels), name='context_input')
+    if (images_ph is not None):
+        self.input = images_ph
+        (_, w, h, c) = self.input.shape
+        aug_imgs = tf.reshape(self.input, [(- 1), w, h, 3])
+        print('No nnutils Augmentation')
+    elif ('honda' in cfg.db_name):
+        aug_imgs = self.input
+    else:
+        aug_imgs = tf.cond(self.do_augmentation, (lambda : batch_augment.augment(self.input, cfg.preprocess_func, horizontal_flip=True, vertical_flip=False, rotate=0, crop_probability=0, color_aug_probability=0)), (lambda : batch_augment.center_crop(self.input, cfg.preprocess_func)))
+    with slim.arg_scope(resnet_arg_scope()):
+        (_, train_end_points) = resnet_v2_50(aug_imgs, cfg.num_classes, is_training=True, global_pool=global_pool, output_stride=output_stride, spatial_squeeze=spatial_squeeze, reuse=reuse, scope=scope)
+        (_, val_end_points) = resnet_v2_50(aug_imgs, cfg.num_classes, is_training=False, global_pool=global_pool, output_stride=output_stride, spatial_squeeze=spatial_squeeze, reuse=True, scope=scope)
+
+    def cal_metrics(end_points):
+        gt = tf.argmax(self.gt_lbls, 1)
+        logits = tf.reshape(end_points['resnet_v2_50/logits'], [(- 1), cfg.num_classes])
+        pre_logits = end_points['resnet_v2_50/block4/unit_3/bottleneck_v2']
+        center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+        loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+        predictions = tf.reshape(end_points['predictions'], [(- 1), cfg.num_classes])
+        class_prediction = tf.argmax(predictions, 1)
+        supervised_correct_prediction = tf.equal(gt, class_prediction)
+        supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+        confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=cfg.num_classes)
+        (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+        (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=cfg.num_classes)
+        per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+        return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+    (self.train_loss, self.train_pre_logits, self.train_accuracy, self.train_confusion_mat, self.train_accumulated_accuracy, self.train_per_class_acc_acc, self.train_class_prediction) = cal_metrics(train_end_points)
+    (self.val_loss, self.val_pre_logits, self.val_accuracy, self.val_confusion_mat, self.val_accumulated_accuracy, self.val_per_class_acc_acc, self.val_class_prediction) = cal_metrics(val_end_points)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  =  ... .confusion_matrix
+
+idx = 39:------------------- similar code ------------------ index = 101, score = 1.0 
 def Print_Every_class_Eval(self, out_16_13=False):
     MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
     MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
@@ -109,34 +857,170 @@ def Print_Every_class_Eval(self, out_16_13=False):
 def  ... ():
      ...  = ( ... . ... ( ... .confusion_matrix) /)
 
-idx = 3:------------------- similar code ------------------ index = 16, score = 1.0 
-def Mean_Intersection_over_Union(self, out_16_13=False):
-    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+idx = 40:------------------- similar code ------------------ index = 33, score = 1.0 
+def train(saveModel=True):
+    train_data = tools.config()['model']['train-file']
+    valid_data = tools.config()['model']['valid-file']
+    quantizeModel = tools.config()['model']['quantize']
+    extendedValidation = tools.config()['model']['print-confusion-matrix']
+    traningParameters = tools.config()['model']['fasttext']
+    traningParameters['input'] = train_data
+    pp = pprint.PrettyPrinter(depth=1)
+    print('\n traing with following parameters ')
+    pp.pprint(traningParameters)
+    model = train_supervised(**traningParameters)
+    if quantizeModel:
+        print('quantize model')
+        model.quantize(input=train_data, thread=16, qnorm=True, retrain=True, cutoff=400000)
+    if saveModel:
+        path = tools.config()['model']['model-path']
+        if quantizeModel:
+            model.save_model((path + '.ftz'))
+        else:
+            model.save_model((path + '.bin'))
+        with open((path + '.params'), 'w') as text_file:
+            print(yaml.dump(tools.config()), file=text_file)
+    if (extendedValidation is False):
+        print_results(*model.test(valid_data))
+    else:
+        data = loadValidData(valid_data)
+        truth = [row[0].replace('__label__', '') for row in data]
+        texts = [row[1] for row in data]
+        predictions = model.predict(texts)
+        predictions = tools.flatmap(predictions[0])
+        predicted = [x.replace('__label__', '') for x in predictions]
+        (precision, recall, fscore, support) = score(truth, predicted)
+        headers = ['metric', 'negative', 'neutral', 'positive']
+        table = []
+        table.append((['precision'] + [x for x in precision]))
+        table.append((['recall'] + [x for x in recall]))
+        table.append((['fscore'] + [x for x in fscore]))
+        table.append((['sample count'] + [x for x in support]))
+        print(tabulate(table, headers, tablefmt='pipe', floatfmt='.4f'))
+        (precision, recall, fscore, support) = score(truth, predicted, average='macro')
+        print('macro fscore: {}'.format(fscore))
+        (precision, recall, fscore, support) = score(truth, predicted, average='micro')
+        print('micro fscore: {}'.format(fscore))
+        cm = confusion_matrix(truth, predicted, labels=['negative', 'neutral', 'positive'])
+        printcm.plot_confusion_matrix(cm=cm, target_names=['negative', 'neutral', 'positive'], normalize=True, title='sentiment classification')
+    return model
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    else:
+         ...  = confusion_matrix
+
+idx = 41:------------------- similar code ------------------ index = 94, score = 1.0 
+def get(self):
+    'Gets the current evaluation result.'
+    sum_rows = np.sum(self.confusion_matrix, 0)
+    sum_colums = np.sum(self.confusion_matrix, 1)
+    diagonal_entries = np.diag(self.confusion_matrix)
+    denominator = ((sum_rows + sum_colums) - diagonal_entries)
+    valid_classes = (denominator != 0)
+    num_valid_classes = np.sum(valid_classes)
+    denominator += (1 - valid_classes)
+    iou = (diagonal_entries / denominator)
+    if (num_valid_classes == 0):
+        return float('nan')
+    return (np.sum(iou) / num_valid_classes)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... . ... ( ... .confusion_matrix,  ... )
+
+idx = 42:------------------- similar code ------------------ index = 31, score = 1.0 
+def cal_metrics(end_points):
+    gt = tf.argmax(self.gt_lbls, 1)
+    logits = tf.reshape(end_points['Logits'], [(- 1), num_classes])
+    pre_logits = end_points['Mixed_6h']
+    center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+    loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+    predictions = tf.reshape(end_points['Predictions'], [(- 1), num_classes])
+    class_prediction = tf.argmax(predictions, 1)
+    supervised_correct_prediction = tf.equal(gt, class_prediction)
+    supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+    confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+    (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+    (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+    per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+    return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .confusion_matrix
+
+idx = 43:------------------- similar code ------------------ index = 30, score = 1.0 
+def calc_neurologist_statistics(y, y_pred_list):
+    (rslt, sens, spcs, prcs) = ({}, [], [], [])
+    for (i, y_pred) in enumerate(y_pred_list):
+        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
+        sens.append((TP / (TP + FN)))
+        spcs.append((TN / (TN + FP)))
+        prcs.append((TP / (TP + FP)))
+        rslt['neorologist_{}'.format(i)] = {'sensitivity': sens[(- 1)], 'specificity': spcs[(- 1)], 'precision': prcs[(- 1)]}
+    rslt['mean'] = {'sensitivity': np.mean(sens), 'specificity': np.mean(spcs), 'precision': np.mean(prcs)}
+    rslt['std'] = {'sensitivity': np.std(sens), 'specificity': np.std(spcs), 'precision': np.std(prcs)}
+    return rslt
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+ = confusion_matrix
+
+idx = 44:------------------- similar code ------------------ index = 28, score = 1.0 
+def Frequency_Weighted_Intersection_over_Union(self, out_16_13=False):
+    FWIoU = np.multiply(np.sum(self.confusion_matrix, axis=1), np.diag(self.confusion_matrix))
+    FWIoU = (FWIoU / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
     if self.synthia:
-        MIoU_16 = np.nanmean(MIoU[:self.ignore_index])
-        MIoU_13 = np.nanmean(MIoU[synthia_set_16_to_13])
-        return (MIoU_16, MIoU_13)
+        FWIoU_16 = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_16_to_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        return (FWIoU_16, FWIoU_13)
     if out_16_13:
-        MIoU_16 = np.nanmean(MIoU[synthia_set_16])
-        MIoU_13 = np.nanmean(MIoU[synthia_set_13])
-        return (MIoU_16, MIoU_13)
-    MIoU = np.nanmean(MIoU[:self.ignore_index])
-    return MIoU
+        FWIoU_16 = (np.sum((i for i in FWIoU[synthia_set_16] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+        return (FWIoU_16, FWIoU_13)
+    FWIoU = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
+    return FWIoU
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-     ...  = ( ... . ... ( ... .confusion_matrix) /)
+     ...  =  ... . ... ( ... . ... ( ... .confusion_matrix,),)
 
-idx = 4:------------------- similar code ------------------ index = 2, score = 1.0 
-def add_batch(self, gt_image, pre_image):
-    assert (gt_image.shape == pre_image.shape)
-    self.confusion_matrix += self.__generate_matrix(gt_image, pre_image)
+idx = 45:------------------- similar code ------------------ index = 95, score = 1.0 
+def test(t_data, t_label, test_iterations=1, evalate=False):
+    assert (test_data.shape[0] == test_label.shape[0])
+    y_predict_class = model['predict_class_number']
+    (overAllAcc, avgAcc, averageAccClass) = ([], [], [])
+    for _ in range(test_iterations):
+        pred_class = []
+        for t in tqdm(t_data):
+            t = np.expand_dims(t, axis=0)
+            feed_dict_test = {img_entry: t, prob: 1.0}
+            prediction = session.run(y_predict_class, feed_dict=feed_dict_test)
+            pred_class.append(prediction)
+        true_class = np.argmax(t_label, axis=1)
+        conMatrix = confusion_matrix(true_class, pred_class)
+        classArray = []
+        for c in range(len(conMatrix)):
+            recallScore = (conMatrix[c][c] / sum(conMatrix[c]))
+            classArray += [recallScore]
+        averageAccClass.append(classArray)
+        avgAcc.append((sum(classArray) / len(classArray)))
+        overAllAcc.append(accuracy_score(true_class, pred_class))
+    averageAccClass = np.transpose(averageAccClass)
+    meanPerClass = np.mean(averageAccClass, axis=1)
+    showClassTable(meanPerClass, title='Class accuracy')
+    print(('Average Accuracy: ' + str(np.mean(avgAcc))))
+    print(('Overall Accuracy: ' + str(np.mean(overAllAcc))))
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-     ... .confusion_matrix
+    for  ...  in:
+         ...  = confusion_matrix
 
-idx = 5:------------------- similar code ------------------ index = 4, score = 1.0 
+idx = 46:------------------- similar code ------------------ index = 16, score = 1.0 
 def Mean_Pixel_Accuracy(self, out_16_13=False):
     MPA = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=1))
     if self.synthia:
@@ -154,7 +1038,103 @@ def Mean_Pixel_Accuracy(self, out_16_13=False):
 def  ... ():
      ...  = ( ... . ... ( ... .confusion_matrix) /)
 
-idx = 6:------------------- similar code ------------------ index = 5, score = 1.0 
+idx = 47:------------------- similar code ------------------ index = 25, score = 1.0 
+def e2e_score(tru, pred, name, evidence_classes):
+    acc = accuracy_score(tru, pred)
+    f1 = classification_report(tru, pred, output_dict=False, digits=4, target_names=evidence_classes)
+    conf_matrix = confusion_matrix(tru, pred, normalize='true')
+    logging.info(f'''{name} classification accuracy {acc},
+f1:
+{f1}
+confusion matrix:
+{conf_matrix}
+''')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  = confusion_matrix
+
+idx = 48:------------------- similar code ------------------ index = 17, score = 1.0 
+def __init__(self, cfg, weight_decay=0.0001, data_format='NHWC', is_training=False, reuse=None, images_ph=None, lbls_ph=None, weights_ph=None):
+    self.cfg = cfg
+    num_classes = cfg.num_classes
+    batch_size = None
+    if (lbls_ph is not None):
+        self.gt_lbls = tf.reshape(lbls_ph, [(- 1), cfg.num_classes])
+    else:
+        self.gt_lbls = tf.placeholder(tf.int32, shape=(batch_size, cfg.num_classes), name='class_lbls')
+    self.do_augmentation = tf.placeholder(tf.bool, name='do_augmentation')
+    self.loss_class_weight = tf.placeholder(tf.float32, shape=(cfg.num_classes, cfg.num_classes), name='weights')
+    if (cfg.db_name == 'honda'):
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.frame_height, const.frame_width, const.context_channels), name='context_input')
+    else:
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.max_frame_size, const.max_frame_size, const.frame_channels), name='context_input')
+    if (images_ph is not None):
+        self.input = images_ph
+        (_, w, h, c) = self.input.shape
+        aug_imgs = tf.reshape(self.input, [(- 1), w, h, 3])
+        print('No nnutils Augmentation')
+    elif (cfg.db_name == 'honda'):
+        aug_imgs = self.input
+    else:
+        aug_imgs = tf.cond(self.do_augmentation, (lambda : batch_augment.augment(self.input, cfg.preprocess_func, horizontal_flip=True, vertical_flip=False, rotate=0, crop_probability=0, color_aug_probability=0)), (lambda : batch_augment.center_crop(self.input, cfg.preprocess_func)))
+    with tf.contrib.slim.arg_scope(mobilenet_v1_arg_scope(is_training=is_training, weight_decay=weight_decay)):
+        (_, train_end_points) = mobilenet_v1(aug_imgs, num_classes=num_classes, dropout_keep_prob=0.999, is_training=True, min_depth=8, depth_multiplier=1.0, conv_defs=None, prediction_fn=tf.contrib.layers.softmax, spatial_squeeze=True, reuse=None, scope='MobilenetV1', global_pool=True)
+        (_, val_end_points) = mobilenet_v1(aug_imgs, num_classes=num_classes, dropout_keep_prob=0.999, is_training=False, min_depth=8, depth_multiplier=1.0, conv_defs=None, prediction_fn=tf.contrib.layers.softmax, spatial_squeeze=True, reuse=True, scope='MobilenetV1', global_pool=True)
+
+    def cal_metrics(end_points):
+        gt = tf.argmax(self.gt_lbls, 1)
+        logits = tf.reshape(end_points['Logits'], [(- 1), num_classes])
+        pre_logits = end_points['Conv2d_13_pointwise']
+        center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+        loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+        predictions = tf.reshape(end_points['Predictions'], [(- 1), cfg.num_classes])
+        class_prediction = tf.argmax(predictions, 1)
+        supervised_correct_prediction = tf.equal(gt, class_prediction)
+        supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+        confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=cfg.num_classes)
+        (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+        (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=cfg.num_classes)
+        per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+        return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc)
+    (self.train_loss, self.train_pre_logits, self.train_accuracy, self.train_confusion_mat, self.train_accumulated_accuracy, self.train_per_class_acc_acc) = cal_metrics(train_end_points)
+    (self.val_loss, self.val_pre_logits, self.val_accuracy, self.val_confusion_mat, self.val_accumulated_accuracy, self.val_per_class_acc_acc) = cal_metrics(val_end_points)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    def  ... ( ... ):
+         ...  =  ... .confusion_matrix
+
+idx = 49:------------------- similar code ------------------ index = 22, score = 1.0 
+def evaluation(model, criterion, loader, device, config, mode='val'):
+    y_true = []
+    y_pred = []
+    acc_meter = tnt.meter.ClassErrorMeter(accuracy=True)
+    loss_meter = tnt.meter.AverageValueMeter()
+    for (x, y) in loader:
+        y_true.extend(list(map(int, y)))
+        x = recursive_todevice(x, device)
+        y = y.to(device)
+        with torch.no_grad():
+            prediction = model(x)
+            loss = criterion(prediction, y)
+        acc_meter.add(prediction, y)
+        loss_meter.add(loss.item())
+        y_p = prediction.argmax(dim=1).cpu().numpy()
+        y_pred.extend(list(y_p))
+    metrics = {'{}_accuracy'.format(mode): acc_meter.value()[0], '{}_loss'.format(mode): loss_meter.value()[0], '{}_IoU'.format(mode): mIou(y_true, y_pred, config['num_classes'])}
+    if (mode == 'val'):
+        return metrics
+    elif (mode == 'test'):
+        return (metrics, confusion_matrix(y_true, y_pred, labels=list(range(config['num_classes']))))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:    elif:
+        return ( ... , confusion_matrix)
+
+idx = 50:------------------- similar code ------------------ index = 20, score = 1.0 
 def calc_performance_statistics(all_scores, y):
     statistics = {}
     y_pred_all = np.argmax(all_scores, axis=2)
@@ -184,44 +1164,362 @@ def  ... ():
     for  ...  in  ... :
  = confusion_matrix
 
-idx = 7:------------------- similar code ------------------ index = 7, score = 1.0 
-def Frequency_Weighted_Intersection_over_Union(self, out_16_13=False):
-    FWIoU = np.multiply(np.sum(self.confusion_matrix, axis=1), np.diag(self.confusion_matrix))
-    FWIoU = (FWIoU / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
+idx = 51:------------------- similar code ------------------ index = 19, score = 1.0 
+def cal_metrics(end_points):
+    gt = tf.argmax(self.gt_lbls, 1)
+    logits = tf.reshape(end_points['resnet_v2_50/logits'], [(- 1), cfg.num_classes])
+    pre_logits = end_points['resnet_v2_50/block4/unit_3/bottleneck_v2']
+    center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+    loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+    predictions = tf.reshape(end_points['predictions'], [(- 1), cfg.num_classes])
+    class_prediction = tf.argmax(predictions, 1)
+    supervised_correct_prediction = tf.equal(gt, class_prediction)
+    supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+    confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=cfg.num_classes)
+    (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+    (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=cfg.num_classes)
+    per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+    return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .confusion_matrix
+
+idx = 52:------------------- similar code ------------------ index = 66, score = 1.0 
+def Mean_Intersection_over_Union(self, out_16_13=False):
+    MIoU = (np.diag(self.confusion_matrix) / ((np.sum(self.confusion_matrix, axis=1) + np.sum(self.confusion_matrix, axis=0)) - np.diag(self.confusion_matrix)))
     if self.synthia:
-        FWIoU_16 = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
-        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_16_to_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
-        return (FWIoU_16, FWIoU_13)
+        MIoU_16 = np.nanmean(MIoU[:self.ignore_index])
+        MIoU_13 = np.nanmean(MIoU[synthia_set_16_to_13])
+        return (MIoU_16, MIoU_13)
     if out_16_13:
-        FWIoU_16 = (np.sum((i for i in FWIoU[synthia_set_16] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
-        FWIoU_13 = (np.sum((i for i in FWIoU[synthia_set_13] if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
-        return (FWIoU_16, FWIoU_13)
-    FWIoU = (np.sum((i for i in FWIoU if (not np.isnan(i)))) / np.sum(self.confusion_matrix))
-    return FWIoU
+        MIoU_16 = np.nanmean(MIoU[synthia_set_16])
+        MIoU_13 = np.nanmean(MIoU[synthia_set_13])
+        return (MIoU_16, MIoU_13)
+    MIoU = np.nanmean(MIoU[:self.ignore_index])
+    return MIoU
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-     ...  =  ... . ... ( ... . ... ( ... .confusion_matrix,),)
+     ...  = ( ... . ... ( ... .confusion_matrix) /)
 
-idx = 8:------------------- similar code ------------------ index = 8, score = 1.0 
-def calc_neurologist_statistics(y, y_pred_list):
-    (rslt, sens, spcs, prcs) = ({}, [], [], [])
-    for (i, y_pred) in enumerate(y_pred_list):
-        (TN, FP, FN, TP) = confusion_matrix(y, y_pred).ravel()
-        sens.append((TP / (TP + FN)))
-        spcs.append((TN / (TN + FP)))
-        prcs.append((TP / (TP + FP)))
-        rslt['neorologist_{}'.format(i)] = {'sensitivity': sens[(- 1)], 'specificity': spcs[(- 1)], 'precision': prcs[(- 1)]}
-    rslt['mean'] = {'sensitivity': np.mean(sens), 'specificity': np.mean(spcs), 'precision': np.mean(prcs)}
-    rslt['std'] = {'sensitivity': np.std(sens), 'specificity': np.std(spcs), 'precision': np.std(prcs)}
-    return rslt
+idx = 53:------------------- similar code ------------------ index = 86, score = 1.0 
+def fscore(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, beta=1.0, **kwargs):
+    '(1 + b^2) * TP / ((1 + b^2) * TP + b^2 * FN + FP)'
+    precision_ = precision(test, reference, confusion_matrix, nan_for_nonexisting)
+    recall_ = recall(test, reference, confusion_matrix, nan_for_nonexisting)
+    return ((((1 + (beta * beta)) * precision_) * recall_) / (((beta * beta) * precision_) + recall_))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,,):
+idx = 54:------------------- similar code ------------------ index = 75, score = 1.0 
+def __init__(self, cfg=None, is_training=True, dropout_keep_prob=0.8, reuse=None, scope='InceptionV4', create_aux_logits=True, images_ph=None, lbls_ph=None):
+    self.cfg = cfg
+    batch_size = None
+    num_classes = cfg.num_classes
+    if (lbls_ph is not None):
+        self.gt_lbls = tf.reshape(lbls_ph, [(- 1), num_classes])
+    else:
+        self.gt_lbls = tf.placeholder(tf.int32, shape=(batch_size, num_classes), name='class_lbls')
+    self.do_augmentation = tf.placeholder(tf.bool, name='do_augmentation')
+    self.loss_class_weight = tf.placeholder(tf.float32, shape=(num_classes, num_classes), name='weights')
+    if (cfg.db_name == 'honda'):
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.frame_height, const.frame_width, const.context_channels), name='context_input')
+    else:
+        self.input = tf.placeholder(tf.float32, shape=(batch_size, const.max_frame_size, const.max_frame_size, const.frame_channels), name='context_input')
+    if (images_ph is not None):
+        self.input = images_ph
+        (_, w, h, c) = self.input.shape
+        aug_imgs = tf.reshape(self.input, [(- 1), w, h, 3])
+        print('No nnutils Augmentation')
+    elif (cfg.db_name == 'honda'):
+        aug_imgs = self.input
+    else:
+        aug_imgs = tf.cond(self.do_augmentation, (lambda : batch_augment.augment(self.input, cfg.preprocess_func, horizontal_flip=True, vertical_flip=False, rotate=0, crop_probability=0, color_aug_probability=0)), (lambda : batch_augment.center_crop(self.input, cfg.preprocess_func)))
+    with slim.arg_scope(inception_v4_arg_scope()):
+        (_, train_end_points) = inception_v4(aug_imgs, num_classes, dropout_keep_prob=dropout_keep_prob, create_aux_logits=create_aux_logits, is_training=True, reuse=reuse, scope=scope)
+        (_, val_end_points) = inception_v4(aug_imgs, num_classes, dropout_keep_prob=dropout_keep_prob, create_aux_logits=create_aux_logits, is_training=False, reuse=True, scope=scope)
+
+    def cal_metrics(end_points):
+        gt = tf.argmax(self.gt_lbls, 1)
+        logits = tf.reshape(end_points['Logits'], [(- 1), num_classes])
+        pre_logits = end_points['Mixed_6h']
+        center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+        loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+        predictions = tf.reshape(end_points['Predictions'], [(- 1), num_classes])
+        class_prediction = tf.argmax(predictions, 1)
+        supervised_correct_prediction = tf.equal(gt, class_prediction)
+        supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+        confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+        (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+        (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+        per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+        return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc, class_prediction)
+    (self.train_loss, self.train_pre_logits, self.train_accuracy, self.train_confusion_mat, self.train_accumulated_accuracy, self.train_per_class_acc_acc, self.train_class_prediction) = cal_metrics(train_end_points)
+    (self.val_loss, self.val_pre_logits, self.val_accuracy, self.val_confusion_mat, self.val_accumulated_accuracy, self.val_per_class_acc_acc, self.val_class_prediction) = cal_metrics(val_end_points)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
-    for in:
+    def  ... ( ... ):
+         ...  =  ... .confusion_matrix
+
+idx = 55:------------------- similar code ------------------ index = 70, score = 1.0 
+def cal_metrics(end_points):
+    gt = tf.argmax(self.gt_lbls, 1)
+    logits = tf.reshape(end_points['densenet161/logits'], [(- 1), num_classes])
+    pre_logits = end_points['densenet161/dense_block4']
+    center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+    loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+    predictions = tf.reshape(end_points['predictions'], [(- 1), num_classes])
+    class_prediction = tf.argmax(predictions, 1)
+    supervised_correct_prediction = tf.equal(gt, class_prediction)
+    supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+    confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=num_classes)
+    (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+    (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=num_classes)
+    per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+    return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .confusion_matrix
+
+idx = 56:------------------- similar code ------------------ index = 4, score = 1.0 
+def main(opt):
+    (TRAIN, VALIDATION, TEST) = maybeExtract(opt.data, opt.patch_size)
+    (training_data, training_label) = (TRAIN[0], TRAIN[1])
+    (validation_data, validation_label) = (VALIDATION[0], VALIDATION[1])
+    (test_data, test_label) = (TEST[0], TEST[1])
+    print('\nData shapes')
+    print(('training_data shape' + str(training_data.shape)))
+    print((('training_label shape' + str(training_label.shape)) + '\n'))
+    print(('validation_data shape' + str(validation_data.shape)))
+    print((('validation_label shape' + str(validation_label.shape)) + '\n'))
+    print(('test_data shape' + str(test_data.shape)))
+    print((('test_label shape' + str(test_label.shape)) + '\n'))
+    SIZE = training_data.shape[0]
+    HEIGHT = training_data.shape[1]
+    WIDTH = training_data.shape[2]
+    CHANNELS = training_data.shape[3]
+    N_PARALLEL_BAND = number_of_band[opt.data]
+    NUM_CLASS = training_label.shape[1]
+    EPOCHS = opt.epoch
+    BATCH = opt.batch_size
+    graph = tf.Graph()
+    with graph.as_default():
+        img_entry = tf.placeholder(tf.float32, shape=[None, WIDTH, HEIGHT, CHANNELS])
+        img_label = tf.placeholder(tf.uint8, shape=[None, NUM_CLASS])
+        image_true_class = tf.argmax(img_label, axis=1)
+        prob = tf.placeholder(tf.float32)
+        model = net(img_entry, prob, HEIGHT, WIDTH, CHANNELS, N_PARALLEL_BAND, NUM_CLASS)
+        final_layer = model['dense3']
+        with tf.name_scope('loss'):
+            cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=final_layer, labels=img_label)
+            cost = tf.reduce_mean(cross_entropy)
+        with tf.name_scope('adam_optimizer'):
+            optimizer = tf.train.AdamOptimizer(learning_rate=0.0005).minimize(cost)
+        with tf.name_scope('accuracy'):
+            predict_class = model['predict_class_number']
+            correction = tf.equal(predict_class, image_true_class)
+        accuracy = tf.reduce_mean(tf.cast(correction, tf.float32))
+        saver = tf.train.Saver()
+        with tf.Session(graph=graph) as session:
+            session.run(tf.global_variables_initializer())
+
+            def test(t_data, t_label, test_iterations=1, evalate=False):
+                assert (test_data.shape[0] == test_label.shape[0])
+                y_predict_class = model['predict_class_number']
+                (overAllAcc, avgAcc, averageAccClass) = ([], [], [])
+                for _ in range(test_iterations):
+                    pred_class = []
+                    for t in tqdm(t_data):
+                        t = np.expand_dims(t, axis=0)
+                        feed_dict_test = {img_entry: t, prob: 1.0}
+                        prediction = session.run(y_predict_class, feed_dict=feed_dict_test)
+                        pred_class.append(prediction)
+                    true_class = np.argmax(t_label, axis=1)
+                    conMatrix = confusion_matrix(true_class, pred_class)
+                    classArray = []
+                    for c in range(len(conMatrix)):
+                        recallScore = (conMatrix[c][c] / sum(conMatrix[c]))
+                        classArray += [recallScore]
+                    averageAccClass.append(classArray)
+                    avgAcc.append((sum(classArray) / len(classArray)))
+                    overAllAcc.append(accuracy_score(true_class, pred_class))
+                averageAccClass = np.transpose(averageAccClass)
+                meanPerClass = np.mean(averageAccClass, axis=1)
+                showClassTable(meanPerClass, title='Class accuracy')
+                print(('Average Accuracy: ' + str(np.mean(avgAcc))))
+                print(('Overall Accuracy: ' + str(np.mean(overAllAcc))))
+
+            def train(num_iterations, train_batch_size=50):
+                maxValidRate = 0
+                for i in range((num_iterations + 1)):
+                    print(('Optimization Iteration: ' + str(i)))
+                    for x in range((int((SIZE / train_batch_size)) + 1)):
+                        train_batch = training_data[(x * train_batch_size):((x + 1) * train_batch_size)]
+                        train_batch_label = training_label[(x * train_batch_size):((x + 1) * train_batch_size)]
+                        feed_dict_train = {img_entry: train_batch, img_label: train_batch_label, prob: 0.5}
+                        (_, loss_val) = session.run([optimizer, cross_entropy], feed_dict=feed_dict_train)
+                    if ((i % 15) == 0):
+                        acc = session.run(accuracy, feed_dict={img_entry: validation_data, img_label: validation_label, prob: 1.0})
+                        print('Model Performance, Validation accuracy: ', (acc * 100))
+                        if (maxValidRate < acc):
+                            location = i
+                            maxValidRate = acc
+                            saver.save(session, ((('./Trained_model/' + str(opt.data)) + '/the3dnetwork-') + opt.data))
+                        print('Maximum validation accuracy: ', acc, ' at epoch ', location)
+                        test(validation_data, validation_label, 1)
+
+            def count_param():
+                total_parameters = 0
+                for variable in tf.trainable_variables():
+                    shape = variable.get_shape()
+                    variable_parameters = 1
+                    for dim in shape:
+                        variable_parameters *= dim.value
+                    total_parameters += variable_parameters
+                print(((('Trainable parameters: ' + '\x1b[92m') + str(total_parameters)) + '\x1b[0m'))
+            count_param()
+            train(num_iterations=EPOCHS, train_batch_size=BATCH)
+            test(test_data, test_label, test_iterations=1)
+            print(('End session ' + str(opt.data)))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    with:
+        with:
+            def  ... ():
+                for  ...  in:
+                     ...  = confusion_matrix
+
+idx = 57:------------------- similar code ------------------ index = 85, score = 1.0 
+def reset(self):
+    self.confusion_matrix = np.zeros(((self.num_class,) * 2))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... .confusion_matrix
+
+idx = 58:------------------- similar code ------------------ index = 67, score = 1.0 
+def _set_results(self, prefix, preds, true_y, true_y_ext=None):
+
+    def metrics(preds, true_y):
+        y = true_y
+        p = preds
+        if self.distinguish_ablation:
+            g = {0: 0, 1: 0, 2: 1}.get
+            bin_y = np.array([g(x) for x in y])
+            bin_p = np.array([g(x) for x in p])
+            irr = 2
+        else:
+            bin_y = y
+            bin_p = p
+            irr = 1
+        acc = (p == y).mean()
+        tp = ((y != irr) & (p == y)).sum()
+        fp = ((p != irr) & (p != y)).sum()
+        fn = ((y != irr) & (p == irr)).sum()
+        bin_acc = (bin_p == bin_y).mean()
+        bin_tp = ((bin_y != 1) & (bin_p == bin_y)).sum()
+        bin_fp = ((bin_p != 1) & (bin_p != bin_y)).sum()
+        bin_fn = ((bin_y != 1) & (bin_p == 1)).sum()
+        prec = (tp / (fp + tp))
+        reca = (tp / (fn + tp))
+        bin_prec = (bin_tp / (bin_fp + bin_tp))
+        bin_reca = (bin_tp / (bin_fn + bin_tp))
+        return {'precision': prec, 'accuracy': acc, 'recall': reca, 'TP': tp, 'FP': fp, 'bin_precision': bin_prec, 'bin_accuracy': bin_acc, 'bin_recall': bin_reca, 'bin_TP': bin_tp, 'bin_FP': bin_fp}
+    m = metrics(preds, true_y)
+    r = {}
+    r[f'{prefix}_accuracy'] = m['accuracy']
+    r[f'{prefix}_precision'] = m['precision']
+    r[f'{prefix}_recall'] = m['recall']
+    r[f'{prefix}_bin_accuracy'] = m['bin_accuracy']
+    r[f'{prefix}_bin_precision'] = m['bin_precision']
+    r[f'{prefix}_bin_recall'] = m['bin_recall']
+    r[f'{prefix}_cm'] = confusion_matrix(true_y, preds).tolist()
+    self.update_results(**r)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+
  = confusion_matrix
 
-idx = 9:------------------- similar code ------------------ index = 14, score = 1.0 
+idx = 59:------------------- similar code ------------------ index = 76, score = 1.0 
+def negative_predictive_value(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TN / (TN + FN)'
+    return (1 - false_omission_rate(test, reference, confusion_matrix, nan_for_nonexisting))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 60:------------------- similar code ------------------ index = 53, score = 1.0 
+def __init__(self, test=None, reference=None, labels=None, metrics=None, advanced_metrics=None, nan_for_nonexisting=True):
+    self.test = None
+    self.reference = None
+    self.confusion_matrix = ConfusionMatrix()
+    self.labels = None
+    self.nan_for_nonexisting = nan_for_nonexisting
+    self.result = None
+    self.metrics = []
+    if (metrics is None):
+        for m in self.default_metrics:
+            self.metrics.append(m)
+    else:
+        for m in metrics:
+            self.metrics.append(m)
+    self.advanced_metrics = []
+    if (advanced_metrics is None):
+        for m in self.default_advanced_metrics:
+            self.advanced_metrics.append(m)
+    else:
+        for m in advanced_metrics:
+            self.advanced_metrics.append(m)
+    self.set_reference(reference)
+    self.set_test(test)
+    if (labels is not None):
+        self.set_labels(labels)
+    elif ((test is not None) and (reference is not None)):
+        self.construct_labels()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 61:------------------- similar code ------------------ index = 2, score = 1.0 
+def cal_metrics(end_points):
+    gt = tf.argmax(self.gt_lbls, 1)
+    logits = tf.reshape(end_points['Logits'], [(- 1), num_classes])
+    pre_logits = end_points['Conv2d_13_pointwise']
+    center_supervised_cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.gt_lbls, logits=logits, name='xentropy_center')
+    loss = tf.reduce_mean(center_supervised_cross_entropy, name='xentropy_mean')
+    predictions = tf.reshape(end_points['Predictions'], [(- 1), cfg.num_classes])
+    class_prediction = tf.argmax(predictions, 1)
+    supervised_correct_prediction = tf.equal(gt, class_prediction)
+    supervised_correct_prediction_cast = tf.cast(supervised_correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(supervised_correct_prediction_cast)
+    confusion_mat = tf.confusion_matrix(gt, class_prediction, num_classes=cfg.num_classes)
+    (_, accumulated_accuracy) = tf.metrics.accuracy(gt, class_prediction)
+    (_, per_class_acc_acc) = tf.metrics.mean_per_class_accuracy(gt, class_prediction, num_classes=cfg.num_classes)
+    per_class_acc_acc = tf.reduce_mean(per_class_acc_acc)
+    return (loss, pre_logits, accuracy, confusion_mat, accumulated_accuracy, per_class_acc_acc)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .confusion_matrix
+
+idx = 62:------------------- similar code ------------------ index = 5, score = 1.0 
+def add_batch(self, gt_image, pre_image):
+    assert (gt_image.shape == pre_image.shape)
+    self.confusion_matrix += self.__generate_matrix(gt_image, pre_image)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 63:------------------- similar code ------------------ index = 62, score = 1.0 
 def __init__(self, num_class):
     self.num_class = num_class
     self.confusion_matrix = np.zeros(((self.num_class,) * 2))
@@ -232,7 +1530,27 @@ def __init__(self, num_class):
 def  ... ():
      ... .confusion_matrix
 
-idx = 10:------------------- similar code ------------------ index = 13, score = 1.0 
+idx = 64:------------------- similar code ------------------ index = 61, score = 1.0 
+def plot_confusion_matrix(self, name):
+    (cm, target_names) = self.confusion_matrix(name)
+    df_cm = pd.DataFrame(cm, index=[i for i in target_names], columns=[i for i in target_names])
+    plt.figure(figsize=(20, 20))
+    ax = sn.heatmap(df_cm, annot=True, square=True, fmt='d', cmap='YlGnBu', mask=(cm == 0), linecolor='black', linewidths=0.01)
+    ax.set_ylabel('True')
+    ax.set_xlabel('Predicted')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+ =  ... .confusion_matrix
+
+idx = 65:------------------- similar code ------------------ index = 60, score = 1.0 
+def true_negative_rate(test=None, reference=None, confusion_matrix=None, nan_for_nonexisting=True, **kwargs):
+    'TN / (TN + FP)'
+    return specificity(test, reference, confusion_matrix, nan_for_nonexisting)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... (,, confusion_matrix=None,,):
+idx = 66:------------------- similar code ------------------ index = 59, score = 1.0 
 if (__name__ == '__main__'):
     Matrix = []
     for i in range(10):
@@ -245,27 +1563,25 @@ if:
     for  ...  in:
          ... . ... (confusion_matrix)
 
-idx = 11:------------------- similar code ------------------ index = 20, score = 1.0 
-def reset(self):
-    self.confusion_matrix = np.zeros(((self.num_class,) * 2))
+idx = 67:------------------- similar code ------------------ index = 58, score = 1.0 
+def get_scores(self):
+    'Returns accuracy score evaluation result.\n            - overall accuracy\n            - mean accuracy\n            - mean IU\n            - fwavacc\n        '
+    hist = self.confusion_matrix
+    acc = (np.diag(hist).sum() / hist.sum())
+    acc_cls = (np.diag(hist) / hist.sum(axis=1))
+    mean_acc_cls = np.nanmean(acc_cls)
+    iu = (np.diag(hist) / ((hist.sum(axis=1) + hist.sum(axis=0)) - np.diag(hist)))
+    mean_iu = np.nanmean(iu)
+    freq = (hist.sum(axis=1) / hist.sum())
+    fwavacc = (freq[(freq > 0)] * iu[(freq > 0)]).sum()
+    cls_iu = dict(zip(range(self.n_classes), iu))
+    return ({'Pixel Acc: ': acc, 'Class Accuracy: ': acc_cls, 'Mean Class Acc: ': mean_acc_cls, 'Freq Weighted IoU: ': fwavacc, 'Mean IoU: ': mean_iu, 'confusion_matrix': self.confusion_matrix}, cls_iu)
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ( ... ):
-     ... .confusion_matrix
+     ...  =  ... .confusion_matrix
 
-idx = 12:------------------- similar code ------------------ index = 22, score = 1.0 
-def Pixel_Accuracy(self):
-    if (np.sum(self.confusion_matrix) == 0):
-        print('Attention: pixel_total is zero!!!')
-        PA = 0
-    else:
-        PA = (np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum())
-    return PA
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ( ... ):
-    if ( ... . ... ( ... .confusion_matrix) ==  ... ):
-idx = 13:------------------- similar code ------------------ index = 0, score = 1.0 
+idx = 68:------------------- similar code ------------------ index = 1, score = 1.0 
 def Mean_Precision(self, out_16_13=False):
     Precision = (np.diag(self.confusion_matrix) / self.confusion_matrix.sum(axis=0))
     if self.synthia:
@@ -282,4 +1598,48 @@ def Mean_Precision(self, out_16_13=False):
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  = ( ... . ... ( ... .confusion_matrix) /)
+
+idx = 69:------------------- similar code ------------------ index = 88, score = 1.0 
+def Pixel_Accuracy(self):
+    if (np.sum(self.confusion_matrix) == 0):
+        print('Attention: pixel_total is zero!!!')
+        PA = 0
+    else:
+        PA = (np.diag(self.confusion_matrix).sum() / self.confusion_matrix.sum())
+    return PA
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+    if ( ... . ... ( ... .confusion_matrix) ==  ... ):
+idx = 70:------------------- similar code ------------------ index = 7, score = 1.0 
+def update(self, predictions, labels):
+    'Updates the loss metric.'
+    predictions = torch.argmax(predictions, dim=1)
+    labels = labels.reshape([(- 1)]).cpu().numpy()
+    predictions = predictions.reshape([(- 1)]).cpu().numpy()
+    valid_labels = (labels >= 0)
+    self.confusion_matrix += _compute_confusion_matrix(predictions[valid_labels], labels[valid_labels], self.num_classes)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ... .confusion_matrix
+
+idx = 71:------------------- similar code ------------------ index = 54, score = 1.0 
+def reset(self):
+    'Resets the internal evaluation result to initial state.'
+    self.confusion_matrix = 0
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... .confusion_matrix
+
+idx = 72:------------------- similar code ------------------ index = 82, score = 1.0 
+def update(self, label_trues, label_preds):
+    for (lt, lp) in zip(label_trues, label_preds):
+        self.confusion_matrix += self._fast_hist(lt.flatten(), lp.flatten(), self.n_classes)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    for in:
+         ... .confusion_matrix
 

@@ -3,13 +3,11 @@ def collision(path1, path2, n_predictions=12, person_radius=0.1, inter_parts=2):
     'Check if there is collision or not'
 // your code ...
 
-
     def getinsidepoints(p1, p2, parts=2):
         'return: equally distanced points between starting and ending "control" points'
         return np.array((np.linspace(p1[0], p2[0], (parts + 1)), np.linspace(p1[1], p2[1], (parts + 1))))
     for i in range((len(path1) - 1)):
 // your code ...
-
     return False
 
 ------------------------- example 2 ------------------------ 
@@ -36,17 +34,16 @@ def test_nondefault_nbins(self):
         xd = np.linspace(0, 1, len(bd))
         xs = np.linspace(0, 1, (nbins + 1))
 // your code ...
-
         np.testing.assert_array_equal(self.d[0].hist_bins('FSC-H', nbins=nbins, scale='linear'), bins)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        8         ||         2        
-example2  ||          2           ||        5         ||         0        
-example3  ||          2           ||        3         ||         0        
-example4  ||          3           ||        2         ||         0        
-example5  ||          5           ||        8         ||         1        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        6         ||         2        ||        0.16666666666666666         
+example2  ||          2           ||        5         ||         0        ||        0.2         
+example3  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example4  ||          3           ||        2         ||         0        ||        0.5         
+example5  ||          5           ||        7         ||         1        ||        0.2857142857142857         
 
-avg       ||          2.8           ||        5.2         ||         0.6        
+avg       ||          1.2903225806451613           ||        4.6         ||         0.6        ||         29.714285714285715        
 
 idx = 0:------------------- similar code ------------------ index = 86, score = 6.0 
 def collision(path1, path2, n_predictions=12, person_radius=0.1, inter_parts=2):

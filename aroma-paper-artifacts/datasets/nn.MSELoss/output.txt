@@ -1,94 +1,339 @@
 ------------------------- example 1 ------------------------ 
-def create_model():
-    torch.manual_seed(opt.seed)
-    model = MLP().to(opt.device)
-    loss = nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.weight_decay)
-    logger.debug(str(model))
-    logger.debug(str(loss))
-    logger.debug(str(optimizer))
-    return (model, loss, optimizer)
-
-------------------------- example 2 ------------------------ 
-def forward(self, c, iter):
-    feats_BE = self.BE.forward_branch(c)
-    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+def __init__(self, anchors, num_classes, img_dim=416):
+    super(YOLOLayer, self).__init__()
+    self.anchors = anchors
+    self.num_anchors = len(anchors)
+    self.num_classes = num_classes
+    self.ignore_thres = 0.5
+    self.mse_loss = nn.MSELoss()
+    self.bce_loss = nn.BCELoss()
+    self.obj_scale = 1
+    self.noobj_scale = 100
+    self.metrics = {}
 // your code ...
 
-    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
-    rec = feats_SD[(- 1)]
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    rec_feats_BE = self.BE.forward_branch(rec)
-    rec_perc_loss = 0
-    for i in range(len(rec_feats_BE)):
-        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
-    kd_feat_loss = 0
-    for i in range(len(feats_BD)):
-        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
-    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+------------------------- example 2 ------------------------ 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 4
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet18_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, final_conv=True, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters()}], lr=0.0002)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(50, load_latest=True, fail_safe=False)
 
 ------------------------- example 3 ------------------------ 
-def __init__(self):
-    super(MSETeacherPointwise, self).__init__()
-    self.mse = torch.nn.MSELoss()
+def test_mse_loss_is_float(self):
+    shape = (self.b, self.h)
+    target = torch.randn(shape)
+    mod = nn.MSELoss()
+    m = (lambda x: mod(x, target))
+// your code ...
+    run_layer_test(self, [m], ALWAYS_FLOAT, shape)
 
 ------------------------- example 4 ------------------------ 
-def forward(self, c, iter):
-    cF_BE = self.BE.forward_branch(c)
-    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
-    rec = self.BD(cF_SE[(- 1)])
-    sd_BE = 0
-    if ((iter % self.args.save_interval) == 0):
-        rec_BE = self.BD(cF_BE[(- 1)])
-    feat_loss = 0
-    for i in range(len(cF_BE)):
-        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    recF_BE = self.BE.forward_branch(rec)
-    rec_perc_loss = 0
-    for i in range(len(recF_BE)):
-        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
-    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
-
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        9         ||         0        
-example2  ||          4           ||        15         ||         1        
-example3  ||          2           ||        3         ||         0        
-example4  ||          2           ||        16         ||         0        
-
-avg       ||          2.5           ||        10.75         ||         0.25        
-
-idx = 0:------------------- similar code ------------------ index = 8, score = 5.0 
-def __init__(self, use_lsgan=True, target_real_label=1.0, target_fake_label=0.0):
-    super(GANLoss, self).__init__()
-    self.register_buffer('real_label', torch.tensor(target_real_label))
-    self.register_buffer('fake_label', torch.tensor(target_fake_label))
-    if use_lsgan:
-        self.loss = nn.MSELoss()
+def forward(self, sentence_features: Iterable[Dict[(str, Tensor)]], labels: Tensor):
+    reps = [self.model(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
+// your code ...
+    loss_fct = nn.MSELoss()
+    if (labels is not None):
+        loss = loss_fct(output, labels.view((- 1)))
+        return loss
     else:
-        self.loss = nn.BCELoss()
+// your code ...
+
+------------------------- example 5 ------------------------ 
+def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
+    ' Initialize the GANLoss class.\n        Parameters:\n            gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgangp.\n            target_real_label (bool) - - label for a real image\n            target_fake_label (bool) - - label of a fake image\n        Note: Do not use sigmoid as the last layer of Discriminator.\n        LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.\n        '
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label).cuda())
+    self.register_buffer('fake_label', torch.tensor(target_fake_label).cuda())
+    self.gan_mode = gan_mode
+    if (gan_mode == 'lsgan'):
+        self.loss = nn.MSELoss()
+    elif (gan_mode == 'vanilla'):
+        self.loss = nn.BCEWithLogitsLoss()
+    elif (gan_mode in ['wgangp']):
+        self.loss = None
+    else:
+// your code ...
+
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        11         ||         1        ||        0.09090909090909091         
+example2  ||          4           ||        38         ||         0        ||        0.05263157894736842         
+example3  ||          5           ||        6         ||         1        ||        0.16666666666666666         
+example4  ||          3           ||        7         ||         2        ||        0.14285714285714285         
+example5  ||          4           ||        13         ||         1        ||        0.07692307692307693         
+
+avg       ||          6.440677966101695           ||        15.0         ||         1.0        ||         10.599751126066916        
+
+idx = 0:------------------- similar code ------------------ index = 2, score = 6.0 
+def attack_instances_consistency(model, images, labels, orig_preds, eps, alpha, distrib_params, criterion, iterations=50, rand=False, magnet_data=None, kl_loss=False):
+
+    def get_rand_perturb(images, eps):
+        pert = torch.rand_like(images)
+        pert = (((2 * eps) * pert) - eps)
+        return pert
+    if kl_loss:
+        iterations = 10
+        alpha[(alpha > 0)] = 0.03
+        criterion = torch.nn.KLDivLoss(size_average=False)
+    assert (magnet_data is not None)
+    device = images.device
+    alphas = alpha.unsqueeze(2).unsqueeze(3).to(device)
+    epss = eps.unsqueeze(0).unsqueeze(2).unsqueeze(3).to(device)
+    (minima, maxima) = (distrib_params['minima'], distrib_params['maxima'])
+    minima = minima.unsqueeze(0).unsqueeze(2).unsqueeze(3).to(device)
+    maxima = maxima.unsqueeze(0).unsqueeze(2).unsqueeze(3).to(device)
+    if rand:
+        perturbed_images = (images.data + get_rand_perturb(images, epss))
+        perturbed_images = channelwise_clamp(perturbed_images, minima=minima, maxima=maxima).data.clone()
+    else:
+        perturbed_images = images.data.clone()
+    for _ in range(iterations):
+        perturbed_images.requires_grad = True
+        model.zero_grad()
+        (_, embeddings) = model(perturbed_images)
+        scores = get_softmax_probs(embeddings=embeddings, magnet_data=magnet_data, return_scores=True).to(device)
+        if kl_loss:
+            cost = criterion(F.log_softmax(scores, dim=1), labels)
+        elif isinstance(criterion, nn.MSELoss):
+            cost = criterion(labels, embeddings)
+        else:
+            cost = criterion(labels, scores)
+        cost.backward()
+        with torch.no_grad():
+            eta = perturbed_images.grad.sign()
+            perturbed_images += (alphas * eta)
+            noise = (perturbed_images - images)
+            noise = channelwise_clamp(noise, minima=(- epss), maxima=epss)
+            perturbed_images = channelwise_clamp((images + noise), minima=minima, maxima=maxima)
+    return perturbed_images
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ():
+
+    for  ...  in:
+        if  ... :        elif  ... ( ... , nn.MSELoss):
+idx = 1:------------------- similar code ------------------ index = 26, score = 5.0 
+def __init__(self, anchors, num_classes, img_dim=416):
+    super(YOLOLayer, self).__init__()
+    self.anchors = anchors
+    self.num_anchors = len(anchors)
+    self.num_classes = num_classes
+    self.ignore_thres = 0.5
+    self.mse_loss = nn.MSELoss()
+    self.bce_loss = nn.BCELoss()
+    self.obj_scale = 1
+    self.noobj_scale = 100
+    self.metrics = {}
+    self.img_dim = img_dim
+    self.grid_size = 0
+    self.stride = 0
+    self.grid_x = 0
+    self.grid_y = 0
+    self.scaled_anchors = 0
+    self.anchor_w = 0
+    self.anchor_h = 0
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-    if  ... :
  = nn.MSELoss()
 
-idx = 1:------------------- similar code ------------------ index = 7, score = 5.0 
-def create_model():
-    torch.manual_seed(opt.seed)
-    model = MLP().to(opt.device)
-    loss = nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.weight_decay)
-    logger.debug(str(model))
-    logger.debug(str(loss))
-    logger.debug(str(optimizer))
-    return (model, loss, optimizer)
+idx = 2:------------------- similar code ------------------ index = 36, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 4
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet18_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, final_conv=True, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters()}], lr=0.0002)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(50, load_latest=True, fail_safe=False)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 3:------------------- similar code ------------------ index = 16, score = 5.0 
+def test_mse_loss_is_float(self):
+    shape = (self.b, self.h)
+    target = torch.randn(shape)
+    mod = nn.MSELoss()
+    m = (lambda x: mod(x, target))
+    f = ft.partial(F.mse_loss, target=target)
+    run_layer_test(self, [m], ALWAYS_FLOAT, shape)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = nn.MSELoss()
+
+idx = 4:------------------- similar code ------------------ index = 17, score = 5.0 
+def forward(self, sentence_features: Iterable[Dict[(str, Tensor)]], labels: Tensor):
+    reps = [self.model(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
+    (rep_a, rep_b) = reps
+    output = torch.cosine_similarity(rep_a, rep_b)
+    loss_fct = nn.MSELoss()
+    if (labels is not None):
+        loss = loss_fct(output, labels.view((- 1)))
+        return loss
+    else:
+        return (reps, output)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-     ...  = nn.MSELoss
+     ...  = nn.MSELoss()
 
-idx = 2:------------------- similar code ------------------ index = 2, score = 5.0 
+idx = 5:------------------- similar code ------------------ index = 19, score = 5.0 
+def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
+    ' Initialize the GANLoss class.\n        Parameters:\n            gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgangp.\n            target_real_label (bool) - - label for a real image\n            target_fake_label (bool) - - label of a fake image\n        Note: Do not use sigmoid as the last layer of Discriminator.\n        LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.\n        '
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label).cuda())
+    self.register_buffer('fake_label', torch.tensor(target_fake_label).cuda())
+    self.gan_mode = gan_mode
+    if (gan_mode == 'lsgan'):
+        self.loss = nn.MSELoss()
+    elif (gan_mode == 'vanilla'):
+        self.loss = nn.BCEWithLogitsLoss()
+    elif (gan_mode in ['wgangp']):
+        self.loss = None
+    else:
+        raise NotImplementedError(('gan mode %s not implemented' % gan_mode))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.MSELoss()
+
+idx = 6:------------------- similar code ------------------ index = 20, score = 5.0 
+def __init__(self, num_actions, device='cpu', checkpoint_dir=''):
+    self.num_actions = num_actions
+    self.device = torch.device(device)
+    self.checkpoint_dir = checkpoint_dir
+    self.model = SmallPolicyAtariCNN(num_actions, self.device)
+    if ((checkpoint_dir != '') and os.path.exists(checkpoint_dir)):
+        checkpoint = torch.load(checkpoint_dir, map_location='cpu')
+    self.model.to(device)
+    self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+    self.mseLoss = nn.MSELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = nn.MSELoss()
+
+idx = 7:------------------- similar code ------------------ index = 21, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 6
+    settings.num_workers = 16
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': 2e-05}], lr=0.0002)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(50, load_latest=True, fail_safe=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 8:------------------- similar code ------------------ index = 24, score = 5.0 
+def __init__(self, error_metric=nn.MSELoss(), threshold=None, clip=None):
+    super().__init__()
+    self.error_metric = error_metric
+    self.threshold = (threshold if (threshold is not None) else (- 100))
+    self.clip = clip
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ,  ... =nn.MSELoss(),,):
+idx = 9:------------------- similar code ------------------ index = 10, score = 5.0 
 def train():
     transform = _get_transform()
     print('Loading Data')
@@ -188,90 +433,1443 @@ def train():
 def  ... ():
      ...  = nn.MSELoss
 
-idx = 3:------------------- similar code ------------------ index = 11, score = 3.0 
-def forward(self, c, iter):
-    feats_BE = self.BE.forward_branch(c)
-    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
-    feats_BD = self.BD.forward_branch(feat_SE_aux)
-    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
-    rec = feats_SD[(- 1)]
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    rec_feats_BE = self.BE.forward_branch(rec)
-    rec_perc_loss = 0
-    for i in range(len(rec_feats_BE)):
-        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
-    kd_feat_loss = 0
-    for i in range(len(feats_BD)):
-        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
-    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+idx = 10:------------------- similar code ------------------ index = 27, score = 5.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu_id', default=0, type=int, help='gpu id, if the value is -1, the cpu is used')
+    parser.add_argument('--not_cuda', action='store_true', help='disables cuda', default=0)
+    parser.add_argument('--netG', default='', help='path to netG (to continue training)')
+    parser.add_argument('--netD', default='', help='path to netD (to continue training)')
+    parser.add_argument('--manualSeed', type=int, help='manual seed')
+    parser.add_argument('--nc_z', type=int, help='noise # channels', default=3)
+    parser.add_argument('--nc_im', type=int, help='image # channels', default=3)
+    parser.add_argument('--nfc', type=int, default=32)
+    parser.add_argument('--min_nfc', type=int, default=32)
+    parser.add_argument('--ker_size', type=int, help='kernel size', default=3)
+    parser.add_argument('--num_layer', type=int, help='number of layers', default=5)
+    parser.add_argument('--stride', help='stride', default=1)
+    parser.add_argument('--padd_size', type=int, help='net pad size', default=0)
+    parser.add_argument('--scale_factor', type=float, help='pyramid scale factor', default=0.75)
+    parser.add_argument('--noise_amp_a', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--noise_amp_b', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--min_size', type=int, help='image minimal size at the coarser scale', default=22)
+    parser.add_argument('--max_size', type=int, help='image minimal size at the coarser scale', default=250)
+    parser.add_argument('--niter', type=int, default=24000, help='number of epochs to train per scale')
+    parser.add_argument('--lr_g', type=float, default=0.0005, help='learning rate, default=0.0005')
+    parser.add_argument('--lr_d', type=float, default=0.0001, help='learning rate, default=0.0005')
+    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
+    parser.add_argument('--lambda_grad', type=float, help='gradient penelty weight', default=0.1)
+    parser.add_argument('--alpha', type=float, help='reconstruction loss weight', default=1.0)
+    parser.add_argument('--beta', type=float, help='cycle loss weight', default=1.0)
+    parser.add_argument('--lambda_self', type=float, default=1.0)
+    parser.add_argument('--video_dir', help='input image path', required=True)
+    parser.add_argument('--input_b', help='input image path', required=True)
+    parser.add_argument('--mode', help='task to be done', default='train')
+    parser.add_argument('--num_images', type=int, default=1)
+    parser.add_argument('--vid_ext', default='.jpg', help='ext for video frames')
+    parser.add_argument('--bs', type=int, default=1)
+    parser.add_argument('--switch_res', type=int, default=2)
+    parser.add_argument('--img_size', type=int, default=220)
+    parser.add_argument('--out', default='./out/')
+    parser.add_argument('--print_interval', type=int, default=1000)
+    opt = parser.parse_args()
+    if (not os.path.exists(opt.out)):
+        os.makedirs(opt.out)
+    torch.cuda.set_device(opt.gpu_id)
+    opt.device = ('cuda:%s' % opt.gpu_id)
+    opt.niter_init = opt.niter
+    opt.noise_amp_init = opt.noise_amp_a
+    opt.nfc_init = opt.nfc
+    opt.min_nfc_init = opt.min_nfc
+    opt.scale_factor_init = opt.scale_factor
+    adjust_scales2image(opt.img_size, opt)
+    if (opt.manualSeed is None):
+        opt.manualSeed = random.randint(1, 10000)
+    print('Random Seed: ', opt.manualSeed)
+    random.seed(opt.manualSeed)
+    torch.manual_seed(opt.manualSeed)
+    if (torch.cuda.is_available() and (opt.gpu_id == (- 1))):
+        print('WARNING: You have a CUDA device, so you should probably run with --cuda')
+    opt.print_interval = int((opt.print_interval / opt.num_images))
+    Gs_a = []
+    reals_a = []
+    NoiseAmp_a = []
+    Gs_b = []
+    reals_b = []
+    NoiseAmp_b = []
+    nfc_prev = 0
+    scale_num = 0
+    r_loss = nn.MSELoss()
+    dataset_a = Video_dataset(opt.video_dir, opt.num_images, opt.vid_ext, opt)
+    data_loader_a = DataLoader(dataset_a, shuffle=True, batch_size=opt.bs)
+    data_b = transform_input(opt.input_b, opt)
+    size_arr = []
+    for ii in range(0, (opt.stop_scale + 1), 1):
+        scale = math.pow(opt.scale_factor, (opt.stop_scale - ii))
+        size_arr.append(math.ceil((scale * opt.img_size)))
+    opt.switch_scale = (opt.stop_scale - opt.switch_res)
+    opt.nzx = size_arr[0]
+    opt.nzy = size_arr[0]
+    in_s = torch.full([opt.bs, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+    while (scale_num < (opt.stop_scale + 1)):
+        opt.nfc = min((opt.nfc_init * pow(2, math.floor((scale_num / 4)))), 128)
+        opt.min_nfc = min((opt.min_nfc_init * pow(2, math.floor((scale_num / 4)))), 128)
+        if (scale_num > opt.switch_scale):
+            (D_a, G_a) = init_models(opt)
+            (D_b, G_b) = init_models(opt)
+            print('No Res !!!')
+        else:
+            (D_a, G_a) = init_models_res(opt)
+            (D_b, G_b) = init_models_res(opt)
+            print('Res !!!')
+        if (nfc_prev == opt.nfc):
+            print('Load weights of last layer')
+            G_a.load_state_dict(torch.load(('%s/netG_a_%d.pth' % (opt.out, (scale_num - 1)))))
+            D_a.load_state_dict(torch.load(('%s/netD_a_%d.pth' % (opt.out, (scale_num - 1)))))
+            G_b.load_state_dict(torch.load(('%s/netG_b_%d.pth' % (opt.out, (scale_num - 1)))))
+            D_b.load_state_dict(torch.load(('%s/netD_b_%d.pth' % (opt.out, (scale_num - 1)))))
+        optimizerD = optim.Adam((list(D_a.parameters()) + list(D_b.parameters())), lr=opt.lr_d, betas=(opt.beta1, 0.999))
+        optimizerG = optim.Adam((list(G_a.parameters()) + list(G_b.parameters())), lr=opt.lr_g, betas=(opt.beta1, 0.999))
+        n_iters = int((opt.niter / opt.num_images))
+        opt.nzx = size_arr[len(Gs_a)]
+        opt.nzy = size_arr[len(Gs_a)]
+        noise_amount_a = 0
+        noise_cnt_a = 0
+        noise_amount_b = 0
+        noise_cnt_b = 0
+        i = 0
+        for epoch in range(n_iters):
+            for data_a in data_loader_a:
+                real_a = data_a[len(Gs_a)].cuda()
+                real_b = data_b[len(Gs_b)].cuda()
+                noise_ = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                if (Gs_a == []):
+                    noise_a = noise_
+                    prev_a = torch.full([opt.bs, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+                else:
+                    prev_a = draw_concat(Gs_a, list(data_a), NoiseAmp_a, in_s, 'rand', opt)
+                    noise_a = ((opt.noise_amp_a * noise_) + prev_a)
+                noise_ = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                if (Gs_b == []):
+                    noise_b = noise_
+                    prev_b = torch.full([opt.bs, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+                else:
+                    prev_b = draw_concat(Gs_b, list(data_b), NoiseAmp_b, in_s, 'rand', opt)
+                    noise_b = ((opt.noise_amp_b * noise_) + prev_b)
+                if (scale_num > opt.switch_scale):
+                    fake_a = G_a(noise_a.detach())
+                    fake_b = G_b(noise_b.detach())
+                else:
+                    fake_a = G_a(noise_a.detach(), prev_a.detach())
+                    fake_b = G_b(noise_b.detach(), prev_b.detach())
+                if (Gs_a == []):
+                    z_prev_a = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                else:
+                    z_prev_a = draw_concat(Gs_a, list(data_a), NoiseAmp_a, in_s, 'rec', opt)
+                if ((epoch == 0) and (i == 0)):
+                    if (Gs_a == []):
+                        opt.noise_amp_a = 1
+                    else:
+                        criterion = nn.MSELoss()
+                        RMSE = torch.sqrt(criterion(real_a, z_prev_a))
+                        opt.noise_amp_a = ((opt.noise_amp_init * RMSE) / opt.bs)
+                if (Gs_b == []):
+                    z_prev_b = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                else:
+                    z_prev_b = draw_concat(Gs_b, list(data_b), NoiseAmp_b, in_s, 'rec', opt)
+                if ((epoch == 0) and (i == 0)):
+                    if (Gs_b == []):
+                        opt.noise_amp_b = 1
+                    else:
+                        criterion = nn.MSELoss()
+                        RMSE = torch.sqrt(criterion(real_b, z_prev_b))
+                        opt.noise_amp_b = ((opt.noise_amp_init * RMSE) / opt.bs)
+                i += 1
+                if (scale_num > opt.switch_scale):
+                    generated_a = G_a(z_prev_a.detach())
+                    generated_b = G_b(z_prev_b.detach())
+                else:
+                    generated_a = G_a(z_prev_a.detach(), z_prev_a.detach())
+                    generated_b = G_b(z_prev_b.detach(), z_prev_b.detach())
+                if (scale_num > opt.switch_scale):
+                    mix_g_a = G_a(fake_b)
+                    mix_g_b = G_b(fake_a)
+                else:
+                    mix_g_a = G_a(fake_b, fake_b)
+                    mix_g_b = G_b(fake_a, fake_a)
+                other_noise_a = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                other_noise_b = generate_noise2([opt.bs, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+                noisy_real_b = ((opt.noise_amp_a * other_noise_a) + real_b)
+                noisy_real_a = ((opt.noise_amp_b * other_noise_b) + real_a)
+                if (opt.lambda_self > 0.0):
+                    if (scale_num > opt.switch_scale):
+                        self_a = G_a(noisy_real_b)
+                        self_b = G_b(noisy_real_a)
+                    else:
+                        self_a = G_a(noisy_real_b, noisy_real_b)
+                        self_b = G_b(noisy_real_a, noisy_real_a)
+                D_a.zero_grad()
+                output = D_a(real_a).to(opt.device)
+                errD_real = (((- 1) * (2 + opt.lambda_self)) * output.mean())
+                errD_real.backward(retain_graph=True)
+                output_a = D_a(mix_g_a.detach())
+                output_a2 = D_a(fake_a.detach())
+                if (opt.lambda_self > 0.0):
+                    output_a3 = D_a(self_a.detach())
+                    output_a3 = output_a3.mean()
+                else:
+                    output_a3 = 0
+                errD_fake_a = ((output_a.mean() + output_a2.mean()) + (opt.lambda_self * output_a3))
+                errD_fake_a.backward(retain_graph=True)
+                gradient_penalty_a = calc_gradient_penalty(D_a, real_a, mix_g_a, opt.lambda_grad, opt.device)
+                gradient_penalty_a += calc_gradient_penalty(D_a, real_a, fake_a, opt.lambda_grad, opt.device)
+                if (opt.lambda_self > 0.0):
+                    gradient_penalty_a += (opt.lambda_self * calc_gradient_penalty(D_a, real_a, self_a, opt.lambda_grad, opt.device))
+                gradient_penalty_a.backward(retain_graph=True)
+                D_b.zero_grad()
+                output = D_b(real_b).to(opt.device)
+                errD_real = (((- 1) * (2 + opt.lambda_self)) * output.mean())
+                errD_real.backward(retain_graph=True)
+                output_b = D_b(mix_g_b.detach())
+                output_b2 = D_b(fake_b.detach())
+                if (opt.lambda_self > 0.0):
+                    output_b3 = D_b(self_b.detach())
+                    output_b3 = output_b3.mean()
+                else:
+                    output_b3 = 0
+                errD_fake_b = ((output_b.mean() + output_b2.mean()) + (opt.lambda_self * output_b3))
+                errD_fake_b.backward(retain_graph=True)
+                gradient_penalty_b = calc_gradient_penalty(D_b, real_b, mix_g_b, opt.lambda_grad, opt.device)
+                gradient_penalty_b += calc_gradient_penalty(D_b, real_b, fake_b, opt.lambda_grad, opt.device)
+                if (opt.lambda_self > 0.0):
+                    gradient_penalty_b += (opt.lambda_self * calc_gradient_penalty(D_b, real_b, self_b, opt.lambda_grad, opt.device))
+                gradient_penalty_b.backward(retain_graph=True)
+                optimizerD.step()
+                G_a.zero_grad()
+                G_b.zero_grad()
+                output_a = D_a(mix_g_a)
+                output_a2 = D_a(fake_a)
+                if (opt.lambda_self > 0.0):
+                    output_a3 = D_a(self_a)
+                    output_a3 = output_a3.mean()
+                else:
+                    output_a3 = 0
+                errG_a = (((- output_a.mean()) - output_a2.mean()) - opt.lambda_self)
+                errG_a.backward(retain_graph=True)
+                output_b = D_b(mix_g_b)
+                output_b2 = D_b(fake_b)
+                if (opt.lambda_self > 0.0):
+                    output_b3 = D_b(self_a)
+                    output_b3 = output_b3.mean()
+                else:
+                    output_b3 = 0
+                errG_b = (((- output_b.mean()) - output_b2.mean()) - opt.lambda_self)
+                errG_b.backward(retain_graph=True)
+                if (opt.alpha > 0):
+                    rec_loss_a = (opt.alpha * r_loss(generated_a, real_a))
+                    rec_loss_a.backward(retain_graph=True)
+                    rec_loss_b = (opt.alpha * r_loss(generated_b, real_b))
+                    rec_loss_b.backward(retain_graph=True)
+                if (opt.beta > 0):
+                    if (scale_num > opt.switch_scale):
+                        cycle_b = G_b(mix_g_a)
+                        cycle_a = G_a(mix_g_b)
+                    else:
+                        cycle_b = G_b(mix_g_a, mix_g_a)
+                        cycle_a = G_a(mix_g_b, mix_g_b)
+                    cycle_loss_a = (opt.beta * r_loss(cycle_a, fake_a))
+                    cycle_loss_a.backward(retain_graph=True)
+                    cycle_loss_b = (opt.beta * r_loss(cycle_b, fake_b))
+                    cycle_loss_b.backward(retain_graph=True)
+                optimizerG.step()
+            if (((epoch + 1) % opt.print_interval) == 0):
+                vutils.save_image(fake_a.clone(), osp.join(opt.out, (((str(scale_num) + '_fake_a_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(mix_g_a.clone(), osp.join(opt.out, (((str(scale_num) + '_b2a_') + str(epoch)) + '.png')), normalize=True)
+                if (epoch == 0):
+                    vutils.save_image(real_a.clone(), osp.join(opt.out, (((str(scale_num) + '_real_a_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(fake_b.clone(), osp.join(opt.out, (((str(scale_num) + '_fake_b_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(mix_g_b.clone(), osp.join(opt.out, (((str(scale_num) + '_a2b_') + str(epoch)) + '.png')), normalize=True)
+                if (epoch == 0):
+                    vutils.save_image(real_b.clone(), osp.join(opt.out, (((str(scale_num) + '_real_b_') + str(epoch)) + '.png')), normalize=True)
+                print(('debug imgs saved, scale_num=%0d, epoch=%0d ' % (scale_num, epoch)))
+                sys.stdout.flush()
+        if (scale_num == opt.stop_scale):
+            vutils.save_image(fake_a.clone(), osp.join(opt.out, (('final_fake_a_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(mix_g_a.clone(), osp.join(opt.out, (('final_b2a_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(fake_b.clone(), osp.join(opt.out, (('final_fake_b_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(mix_g_b.clone(), osp.join(opt.out, (('final_a2b_' + str(epoch)) + '.png')), normalize=True)
+        Gs_a.append(G_a)
+        NoiseAmp_a.append(opt.noise_amp_a)
+        torch.save(Gs_a, ('%s/Gs_a.pth' % opt.out))
+        torch.save(reals_a, ('%s/reals_a.pth' % opt.out))
+        torch.save(NoiseAmp_a, ('%s/NoiseAmp_a.pth' % opt.out))
+        torch.save(G_a.state_dict(), ('%s/netG_a_%d.pth' % (opt.out, scale_num)))
+        torch.save(D_a.state_dict(), ('%s/netD_a_%d.pth' % (opt.out, scale_num)))
+        Gs_b.append(G_b)
+        NoiseAmp_b.append(opt.noise_amp_b)
+        torch.save(Gs_b, ('%s/Gs_b.pth' % opt.out))
+        torch.save(reals_b, ('%s/reals_b.pth' % opt.out))
+        torch.save(NoiseAmp_b, ('%s/NoiseAmp_b.pth' % opt.out))
+        torch.save(G_b.state_dict(), ('%s/netG_b_%d.pth' % (opt.out, scale_num)))
+        torch.save(D_b.state_dict(), ('%s/netD_b_%d.pth' % (opt.out, scale_num)))
+        print('Layer weights saved successfully')
+        scale_num += 1
+        nfc_prev = opt.nfc
+        del D_a, G_a
+        del D_b, G_b
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = nn.MSELoss()
+
+idx = 11:------------------- similar code ------------------ index = 28, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 64
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=False, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    lrgain = 0.01
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': (lrgain * 0.0005)}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': (lrgain * 2e-05)}], lr=(lrgain * 0.0002))
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(25, load_latest=True, fail_safe=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 12:------------------- similar code ------------------ index = 29, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 26
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    lasot_train = Lasot(settings.env.lasot_dir, split='train')
+    got10k_train = Got10k(settings.env.got10k_dir, split='train')
+    trackingnet_train = TrackingNet(settings.env.trackingnet_dir, set_ids=[0, 1, 2, 3])
+    coco_train = MSCOCOSeq(settings.env.coco_dir)
+    got10k_val = Got10k(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([lasot_train, got10k_train, trackingnet_train, coco_train], [0.25, 1, 1, 1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet18_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, final_conv=True, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters()}], lr=0.0002)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(50, load_latest=True, fail_safe=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 13:------------------- similar code ------------------ index = 32, score = 5.0 
+def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
+    ' Initialize the GANLoss class.\n        Parameters:\n            gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgan.\n            target_real_label (bool) - - label for a real image\n            target_fake_label (bool) - - label of a fake image\n        Note: Do not use sigmoid as the last layer of Discriminator.\n        LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.\n        '
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label))
+    self.register_buffer('fake_label', torch.tensor(target_fake_label))
+    self.gan_mode = gan_mode
+    if (gan_mode == 'lsgan'):
+        self.loss = nn.MSELoss()
+    elif (gan_mode == 'vanilla'):
+        self.loss = nn.BCEWithLogitsLoss()
+    elif (gan_mode in ['wgangp']):
+        self.loss = None
+    else:
+        raise NotImplementedError(('gan mode %s not implemented' % gan_mode))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.MSELoss()
+
+idx = 14:------------------- similar code ------------------ index = 34, score = 5.0 
+def __init__(self, use_lsgan=True, target_real_label=1.0, target_fake_label=0.0):
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label))
+    self.register_buffer('fake_label', torch.tensor(target_fake_label))
+    if use_lsgan:
+        self.loss = nn.MSELoss()
+    else:
+        self.loss = nn.BCELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if  ... :
+ = nn.MSELoss()
+
+idx = 15:------------------- similar code ------------------ index = 7, score = 5.0 
+def run_magnet_epoch(model, optimizer, trainloader, device, trainset, train_labels, batch_builder, print_freq, cluster_refresh_interval, criterion, eps, magnet_data, distrib_params, alpha=(10 / 255), actual_trades=False):
+    consist_crit = (nn.MSELoss() if magnet_data['mse_consistency'] else cross_ent)
+    model.train()
+    losses = AverageMeter()
+    pbar = tqdm(range(len(trainloader)))
+    for iteration in pbar:
+        (batch_inds, class_inds, clust_assigns) = batch_builder.gen_batch()
+        trainloader.sampler.batch_indices = batch_inds
+        for (img, target) in trainloader:
+            (img, target) = (img.to(device), target.to(device))
+            optimizer.zero_grad()
+            (_, embs) = model(img)
+            (loss, inst_losses, _) = criterion(embs, class_inds, clust_assigns)
+            if (magnet_data['consistency_lambda'] > 0.0):
+                probs = get_softmax_probs(embeddings=embs, magnet_data=magnet_data).to(device)
+                (_, orig_preds) = torch.max(probs.data, 1)
+                eps_p = (eps / distrib_params['std'])
+                alpha_p = (alpha / distrib_params['std'].unsqueeze(0))
+                p_labels = (embs if magnet_data['mse_consistency'] else probs)
+                adv_instances = attack_instances_consistency(model, images=img, labels=p_labels.detach(), orig_preds=orig_preds, eps=eps_p, distrib_params=distrib_params, alpha=alpha_p, criterion=consist_crit, magnet_data=magnet_data, iterations=1, rand=True, kl_loss=actual_trades)
+                (_, adv_embs) = model(adv_instances)
+                if magnet_data['mse_consistency']:
+                    consistency_loss = consist_crit(adv_embs, embs)
+                else:
+                    adv_scores = get_softmax_probs(embeddings=adv_embs, magnet_data=magnet_data, return_scores=True)
+                    consistency_loss = consist_crit(probs, adv_scores)
+                loss = (loss + (magnet_data['consistency_lambda'] * consistency_loss))
+            if (magnet_data['xent_lambda'] > 0.0):
+                xent_crit = nn.CrossEntropyLoss()
+                class_scores = get_softmax_probs(embeddings=embs, magnet_data=magnet_data, return_scores=True).to(device)
+                xent_loss = xent_crit(class_scores, target)
+                loss = (loss + (magnet_data['xent_lambda'] * xent_loss))
+            loss.backward()
+            optimizer.step()
+            with torch.no_grad():
+                batch_builder.update_losses(batch_inds, inst_losses)
+            losses.update(loss.item(), img.size(0))
+            if ((iteration % print_freq) == 0):
+                pbar.set_description(f'Loss: {losses.avg:4.3f}')
+            if (((iteration % cluster_refresh_interval) == 0) and (iteration != 0)):
+                model.eval()
+                (_, reps) = compute_reps(model, trainset, 400)
+                batch_builder.update_clusters(reps)
+                model.train()
+    return (model, batch_builder, losses)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = (nn.MSELoss() if else  ... )
+
+idx = 16:------------------- similar code ------------------ index = 33, score = 5.0 
+def create_model():
+    torch.manual_seed(opt.seed)
+    model = MLP().to(opt.device)
+    loss = nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.weight_decay)
+    logger.debug(str(model))
+    logger.debug(str(loss))
+    logger.debug(str(optimizer))
+    return (model, loss, optimizer)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = nn.MSELoss
+
+idx = 17:------------------- similar code ------------------ index = 37, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 6
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=False, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    lrgain = 0.0001
+    lrgain_i = 0.01
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': (lrgain * 0.0005)}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': (lrgain * 2e-05)}, {'params': actor.net.feature_extractor_i.parameters(), 'lr': (lrgain_i * 2e-05)}], lr=(lrgain * 0.0002))
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(25, load_latest=True, fail_safe=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 18:------------------- similar code ------------------ index = 38, score = 5.0 
+def __init__(self, lr, input_dims, fc1_dims, fc2_dims, n_actions):
+    super(DeepQNetwork, self).__init__()
+    self.input_dims = (input_dims[0] + n_actions)
+    self.fc1_dims = fc1_dims
+    self.fc2_dims = fc2_dims
+    self.n_actions = 1
+    self.fc1 = nn.Linear(self.input_dims, self.fc1_dims)
+    self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
+    self.fc3 = nn.Linear(self.fc2_dims, self.n_actions)
+    self.optimizer = optim.Adam(self.parameters(), lr=lr)
+    self.loss = nn.MSELoss()
+    if torch.cuda.is_available():
+        print('Using CUDA')
+    self.device = torch.device(('cuda:0' if torch.cuda.is_available() else 'cuda:1'))
+    self.to(self.device)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = nn.MSELoss()
+
+idx = 19:------------------- similar code ------------------ index = 1, score = 5.0 
+def train(model, num_epochs=5, lr=0.0001):
+    loss_function = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+    datasets = MovieRankDataset(pkl_file='data.p')
+    dataloader = DataLoader(datasets, batch_size=256, shuffle=True)
+    losses = []
+    writer = SummaryWriter()
+    for epoch in range(num_epochs):
+        loss_all = 0
+        for (i_batch, sample_batch) in enumerate(dataloader):
+            user_inputs = sample_batch['user_inputs']
+            movie_inputs = sample_batch['movie_inputs']
+            target = sample_batch['target'].to(device)
+            model.zero_grad()
+            (tag_rank, _, _) = model(user_inputs, movie_inputs)
+            loss = loss_function(tag_rank, target)
+            if ((i_batch % 20) == 0):
+                writer.add_scalar('data/loss', loss, (i_batch * 20))
+                print(loss)
+            loss_all += loss
+            loss.backward()
+            optimizer.step()
+        print('Epoch {}:\t loss:{}'.format(epoch, loss_all))
+    writer.export_scalars_to_json('./test.json')
+    writer.close()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = nn.MSELoss()
 
-idx = 4:------------------- similar code ------------------ index = 10, score = 3.0 
-def __init__(self):
-    super(MSETeacherPointwise, self).__init__()
-    self.mse = torch.nn.MSELoss()
+idx = 20:------------------- similar code ------------------ index = 49, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 6
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': 2e-05}], lr=0.0002)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(25, load_latest=True, fail_safe=True)
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
- =  ... .nn.MSELoss()
+     ...  = { ... : nn.MSELoss(),  ... :}
 
-idx = 5:------------------- similar code ------------------ index = 9, score = 3.0 
-def forward(self, c, iter):
-    feats_BE = self.BE.forward_branch(c)
-    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
-    feats_BD = self.BD.forward_branch(feat_SE_aux)
-    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
-    rec = feats_SD[(- 1)]
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    rec_feats_BE = self.BE.forward_branch(rec)
-    rec_perc_loss = 0
-    for i in range(len(rec_feats_BE)):
-        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
-    kd_feat_loss = 0
-    for i in range(len(feats_BD)):
-        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
-    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+idx = 21:------------------- similar code ------------------ index = 47, score = 5.0 
+def __init__(self, input_size, sad=False, encoder_relu=False, decoder_relu=True, weight_share=True, dataset='CULane'):
+    super().__init__()
+    (input_w, input_h) = input_size
+    self.fc_input_feature = ((5 * int((input_w / 16))) * int((input_h / 16)))
+    self.num_classes = (5 if (dataset != 'BDD100K') else 1)
+    self.scale_background = 0.4
+    self.scale_seg = 1.0
+    self.scale_exist = 0.1
+    self.scale_sad_seg = 1.0
+    self.scale_sad_iou = 0.1
+    self.scale_sad_exist = 0.1
+    self.scale_sad_distill = 0.1
+    self.dataset = dataset
+    if (dataset != 'BDD100K'):
+        self.ce_loss = nn.CrossEntropyLoss(weight=torch.tensor([self.scale_background, 1, 1, 1, 1]))
+        self.bce_loss = nn.BCELoss()
+        self.iou_loss = mIoULoss(n_classes=4)
+    else:
+        self.ce_loss = nn.BCEWithLogitsLoss()
+        self.bce_loss = nn.BCELoss()
+        self.iou_loss = mIoULoss(n_classes=1)
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+    def get_encoder_block(n=2):
+        seq = nn.Sequential()
+        seq.add_module(('regular%d_1' % n), RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('dilated%d_2' % n), RegularBottleneck(128, dilation=2, padding=2, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('asymmetric%d_3' % n), RegularBottleneck(128, kernel_size=5, padding=2, asymmetric=True, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('dilated%d_4' % n), RegularBottleneck(128, dilation=4, padding=4, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('regular%d_5' % n), RegularBottleneck(128, padding=1, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('dilated%d_6' % n), RegularBottleneck(128, dilation=8, padding=8, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('asymmetric%d_7' % n), RegularBottleneck(128, kernel_size=5, asymmetric=True, padding=2, dropout_prob=0.1, relu=encoder_relu))
+        seq.add_module(('dilated%d_8' % n), RegularBottleneck(128, dilation=16, padding=16, dropout_prob=0.1, relu=encoder_relu))
+        return seq
+    self.initial_block = InitialBlock(3, 16, relu=encoder_relu)
+    self.sad = sad
+    self.downsample1 = DownsamplingBottleneck(16, 64, return_indices=True, dropout_prob=0.01, relu=encoder_relu)
+    self.encoder1 = nn.Sequential()
+    self.encoder1.add_module('regular1_1', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+    self.encoder1.add_module('regular1_2', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+    self.encoder1.add_module('regular1_3', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+    self.encoder1.add_module('regular1_4', RegularBottleneck(64, padding=1, dropout_prob=0.01, relu=encoder_relu))
+    self.downsample2 = DownsamplingBottleneck(64, 128, return_indices=True, dropout_prob=0.1, relu=encoder_relu)
+    self.encoder2 = get_encoder_block(n=2)
+    self.encoder3 = (self.encoder2 if weight_share else get_encoder_block(3))
+    self.encoder4 = (self.encoder2 if weight_share else get_encoder_block(4))
+    self.upsample4_0 = UpsamplingBottleneck(256, 64, dropout_prob=0.1, relu=decoder_relu)
+    self.regular4_1 = RegularBottleneck(64, padding=1, dropout_prob=0.1, relu=decoder_relu)
+    self.regular4_2 = RegularBottleneck(64, padding=1, dropout_prob=0.1, relu=decoder_relu)
+    self.upsample5_0 = UpsamplingBottleneck(64, 16, dropout_prob=0.1, relu=decoder_relu)
+    self.regular5_1 = RegularBottleneck(16, padding=1, dropout_prob=0.1, relu=decoder_relu)
+    self.transposed_conv = nn.ConvTranspose2d(16, self.num_classes, kernel_size=3, stride=2, padding=1, bias=False)
+    if self.sad:
+        self.at_gen_upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
+        self.at_gen_l2_loss = nn.MSELoss(reduction='mean')
+    self.exist = nn.Sequential(nn.Conv2d(128, 5, 1), nn.Softmax(dim=1), nn.AvgPool2d(2, 2))
+    self.fc = nn.Sequential(nn.Linear(self.fc_input_feature, 128), nn.ReLU(), nn.Linear(128, 4), nn.Sigmoid())
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.MSELoss
+
+idx = 22:------------------- similar code ------------------ index = 46, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 6
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=False, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    lrgain = 0.01
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': (lrgain * 0.0005)}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': (lrgain * 5e-05)}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': (lrgain * 2e-05)}], lr=(lrgain * 0.0002))
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(25, load_latest=True, fail_safe=True)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+     ...  = { ... : nn.MSELoss(),  ... :}
+
+idx = 23:------------------- similar code ------------------ index = 45, score = 5.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu_id', default=0, type=int, help='gpu id, if the value is -1, the cpu is used')
+    parser.add_argument('--not_cuda', action='store_true', help='disables cuda', default=0)
+    parser.add_argument('--netG', default='', help='path to netG (to continue training)')
+    parser.add_argument('--netD', default='', help='path to netD (to continue training)')
+    parser.add_argument('--manualSeed', type=int, help='manual seed')
+    parser.add_argument('--nc_z', type=int, help='noise # channels', default=3)
+    parser.add_argument('--nc_im', type=int, help='image # channels', default=3)
+    parser.add_argument('--nfc', type=int, default=32)
+    parser.add_argument('--min_nfc', type=int, default=32)
+    parser.add_argument('--ker_size', type=int, help='kernel size', default=3)
+    parser.add_argument('--num_layer', type=int, help='number of layers', default=5)
+    parser.add_argument('--stride', help='stride', default=1)
+    parser.add_argument('--padd_size', type=int, help='net pad size', default=0)
+    parser.add_argument('--scale_factor', type=float, help='pyramid scale factor', default=0.75)
+    parser.add_argument('--noise_amp_a', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--noise_amp_b', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--min_size', type=int, help='image minimal size at the coarser scale', default=25)
+    parser.add_argument('--max_size', type=int, help='image minimal size at the coarser scale', default=250)
+    parser.add_argument('--video_dir', help='input image path', required=True)
+    parser.add_argument('--mode', help='task to be done', default='train')
+    parser.add_argument('--num_images', type=int, default=1)
+    parser.add_argument('--vid_ext', default='.jpg', help='ext for video frames')
+    parser.add_argument('--switch_res', type=int, default=2)
+    parser.add_argument('--inject_level', type=int, default=9)
+    parser.add_argument('--add_inject', type=bool, default=True)
+    parser.add_argument('--a2b', type=bool, default=False)
+    parser.add_argument('--debug', type=bool, default=False)
+    parser.add_argument('--img_size', type=int, default=220)
+    parser.add_argument('--load', default='./load/')
+    parser.add_argument('--out', default='./out/')
+    opt = parser.parse_args()
+    if (not os.path.exists(opt.out)):
+        os.makedirs(opt.out)
+    torch.cuda.set_device(opt.gpu_id)
+    opt.device = ('cuda:%s' % opt.gpu_id)
+    opt.noise_amp_init = opt.noise_amp_a
+    opt.nfc_init = opt.nfc
+    opt.min_nfc_init = opt.min_nfc
+    opt.scale_factor_init = opt.scale_factor
+    adjust_scales2image(opt.img_size, opt)
+    if (opt.manualSeed is None):
+        opt.manualSeed = random.randint(1, 10000)
+    print('Random Seed: ', opt.manualSeed)
+    random.seed(opt.manualSeed)
+    torch.manual_seed(opt.manualSeed)
+    if (torch.cuda.is_available() and (opt.gpu_id == (- 1))):
+        print('WARNING: You have a CUDA device, so you should probably run with --cuda')
+    Gs_a = []
+    reals_a = []
+    NoiseAmp_a = []
+    Gs_b = []
+    reals_b = []
+    NoiseAmp_b = []
+    nfc_prev = 0
+    scale_num = 0
+    r_loss = nn.MSELoss()
+    dataset_a = Video_dataset(opt.video_dir, opt.num_images, opt.vid_ext, opt)
+    data_loader_a = DataLoader(dataset_a, shuffle=True, batch_size=1)
+    fixed_noise = []
+    size_arr = []
+    for ii in range(0, (opt.stop_scale + 1), 1):
+        scale = math.pow(opt.scale_factor, (opt.stop_scale - ii))
+        size_arr.append(math.ceil((scale * opt.img_size)))
+        fixed_noise.append(generate_noise2([1, 3, size_arr[(- 1)], size_arr[(- 1)]], device=opt.device))
+    opt.switch_scale = (opt.stop_scale - opt.switch_res)
+    opt.nzx = size_arr[0]
+    opt.nzy = size_arr[0]
+    in_s = torch.full([1, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+    scale_num = opt.stop_scale
+    if opt.a2b:
+        (Gs_a, reals_a, NoiseAmp_a, Gs_b, reals_b, NoiseAmp_b) = load_trained_pyramid_mix(opt)
+    else:
+        (Gs_b, reals_b, NoiseAmp_b, Gs_b, reals_b, NoiseAmp_b) = load_trained_pyramid_mix(opt)
+    G_a = Gs_a[(- 1)]
+    G_b = Gs_b[(- 1)]
+    opt.noise_amp_a = NoiseAmp_a[(- 1)]
+    opt.noise_amp_b = NoiseAmp_b[(- 1)]
+    Gs_a = Gs_a[:(len(Gs_a) - 1)]
+    Gs_b = Gs_b[:(len(Gs_b) - 1)]
+    NoiseAmp_a = NoiseAmp_a[:(len(NoiseAmp_a) - 1)]
+    NoiseAmp_b = NoiseAmp_b[:(len(NoiseAmp_b) - 1)]
+    print('debug')
+    print(len(Gs_a))
+    print(len(size_arr))
+    opt.nzx = size_arr[len(Gs_a)]
+    opt.nzy = size_arr[len(Gs_a)]
+    for data in data_loader_a:
+        (data_a, idx) = data
+        real_a = data_a[len(Gs_a)].cuda()
+        noise_ = fixed_noise[len(Gs_a)]
+        prev_a = draw_concat(Gs_a, list(data_a), NoiseAmp_a, in_s, 'rand', fixed_noise, opt)
+        noise_a = ((opt.noise_amp_a * noise_) + prev_a)
+        if (scale_num > opt.switch_scale):
+            fake_a = G_a(noise_a.detach())
+        else:
+            fake_a = G_a(noise_a.detach(), prev_a.detach())
+        if (scale_num > opt.switch_scale):
+            mix_g_b = G_b(fake_a)
+        else:
+            mix_g_b = G_b(fake_a, fake_a)
+        vutils.save_image(mix_g_b.clone(), osp.join(opt.out, (str(idx.item()) + '.png')), normalize=True)
+        print(idx.item())
+        if opt.debug:
+            vutils.save_image(fake_a.clone(), osp.join(opt.out, (str(idx.item()) + '_fake_a.png')), normalize=True)
+        print(('debug imgs saved, scale_num=%0d' % scale_num))
+        sys.stdout.flush()
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = nn.MSELoss()
+
+idx = 24:------------------- similar code ------------------ index = 44, score = 5.0 
+def __init__(self, anchors, num_classes, img_dim=416):
+    super(YOLOLayer, self).__init__()
+    self.anchors = anchors
+    self.num_anchors = len(anchors)
+    self.num_classes = num_classes
+    self.ignore_thres = 0.5
+    self.mse_loss = nn.MSELoss()
+    self.bce_loss = nn.BCELoss()
+    self.obj_scale = 1
+    self.noobj_scale = 100
+    self.metrics = {}
+    self.img_dim = img_dim
+    self.grid_size_x = 0
+    self.grid_size_y = 0
+    self.stride = 0
+    self.grid_x = 0
+    self.grid_y = 0
+    self.scaled_anchors = 0
+    self.anchor_w = 0
+    self.anchor_h = 0
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+ = nn.MSELoss()
+
+idx = 25:------------------- similar code ------------------ index = 3, score = 5.0 
+if (__name__ == '__main__'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu_id', default=0, type=int, help='gpu id, if the value is -1, the cpu is used')
+    parser.add_argument('--not_cuda', action='store_true', help='disables cuda', default=0)
+    parser.add_argument('--load', default='', help='path to continue training')
+    parser.add_argument('--manualSeed', type=int, help='manual seed')
+    parser.add_argument('--nc_z', type=int, help='noise # channels', default=3)
+    parser.add_argument('--nc_im', type=int, help='image # channels', default=3)
+    parser.add_argument('--nfc', type=int, default=32)
+    parser.add_argument('--min_nfc', type=int, default=32)
+    parser.add_argument('--ker_size', type=int, help='kernel size', default=3)
+    parser.add_argument('--num_layer', type=int, help='number of layers', default=5)
+    parser.add_argument('--stride', help='stride', default=1)
+    parser.add_argument('--padd_size', type=int, help='net pad size', default=0)
+    parser.add_argument('--scale_factor', type=float, help='pyramid scale factor', default=0.75)
+    parser.add_argument('--noise_amp_a', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--noise_amp_b', type=float, help='addative noise cont weight', default=0.1)
+    parser.add_argument('--min_size', type=int, help='image minimal size at the coarser scale', default=18)
+    parser.add_argument('--max_size', type=int, help='image minimal size at the coarser scale', default=250)
+    parser.add_argument('--niter', type=int, default=20000, help='number of epochs to train per scale')
+    parser.add_argument('--lr_g', type=float, default=0.0005, help='learning rate, default=0.0005')
+    parser.add_argument('--lr_d', type=float, default=0.0001, help='learning rate, default=0.0005')
+    parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
+    parser.add_argument('--lambda_grad', type=float, help='gradient penelty weight', default=0.1)
+    parser.add_argument('--alpha', type=float, help='reconstruction loss weight', default=1.0)
+    parser.add_argument('--beta', type=float, help='cycle loss weight', default=1.0)
+    parser.add_argument('--lambda_g', type=float, default=1.0, help='change ratio between gan loss, multiply by the gan loss of image B')
+    parser.add_argument('--input_a', help='input image path', required=True)
+    parser.add_argument('--input_b', help='input image path', required=True)
+    parser.add_argument('--switch_res', type=int, default=2, help='how many levels will not be residual')
+    parser.add_argument('--img_size', type=int, default=220, help='image size of the output')
+    parser.add_argument('--out', required=True)
+    parser.add_argument('--print_interval', type=int, default=1000)
+    opt = parser.parse_args()
+    if (not os.path.exists(opt.out)):
+        os.makedirs(opt.out)
+    torch.cuda.set_device(opt.gpu_id)
+    opt.device = ('cuda:%s' % opt.gpu_id)
+    opt.niter_init = opt.niter
+    opt.noise_amp_init = opt.noise_amp_a
+    opt.nfc_init = opt.nfc
+    opt.min_nfc_init = opt.min_nfc
+    opt.scale_factor_init = opt.scale_factor
+    adjust_scales2image(opt.img_size, opt)
+    if (opt.manualSeed is None):
+        opt.manualSeed = random.randint(1, 10000)
+    print('Random Seed: ', opt.manualSeed)
+    random.seed(opt.manualSeed)
+    torch.manual_seed(opt.manualSeed)
+    if (torch.cuda.is_available() and (opt.gpu_id == (- 1))):
+        print('WARNING: You have a CUDA device, so you should probably run with --cuda')
+    Gs_a = []
+    reals_a = []
+    NoiseAmp_a = []
+    Gs_b = []
+    reals_b = []
+    NoiseAmp_b = []
+    nfc_prev = 0
+    scale_num = 0
+    r_loss = nn.MSELoss()
+    data_a = transform_input(opt.input_a, opt)
+    data_b = transform_input(opt.input_b, opt)
+    size_arr = []
+    for ii in range(0, (opt.stop_scale + 1), 1):
+        scale = math.pow(opt.scale_factor, (opt.stop_scale - ii))
+        size_arr.append(math.ceil((scale * opt.img_size)))
+    opt.switch_scale = (opt.stop_scale - opt.switch_res)
+    opt.nzx = size_arr[0]
+    opt.nzy = size_arr[0]
+    in_s = torch.full([1, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+    if (opt.load != ''):
+        Gs_a = torch.load(('%s/Gs_a.pth' % opt.load))
+        Gs_b = torch.load(('%s/Gs_b.pth' % opt.load))
+        NoiseAmp_a = torch.load(('%s/NoiseAmp_a.pth' % opt.load))
+        NoiseAmp_b = torch.load(('%s/NoiseAmp_b.pth' % opt.load))
+        scale_num = len(Gs_a)
+        opt.noise_amp_a = NoiseAmp_a[(- 1)]
+        opt.noise_amp_b = NoiseAmp_b[(- 1)]
+        print(('Loading until scale ' + str(scale_num)))
+        nfc_prev = min((opt.nfc_init * pow(2, math.floor(((scale_num - 1) / 4)))), 128)
+    else:
+        opt.load = opt.out
+    while (scale_num < (opt.stop_scale + 1)):
+        opt.nfc = min((opt.nfc_init * pow(2, math.floor((scale_num / 4)))), 128)
+        opt.min_nfc = min((opt.min_nfc_init * pow(2, math.floor((scale_num / 4)))), 128)
+        if (scale_num > opt.switch_scale):
+            (D_a, G_a) = init_models(opt)
+            (D_b, G_b) = init_models(opt)
+            print('No Residual layer')
+        else:
+            (D_a, G_a) = init_models_res(opt)
+            (D_b, G_b) = init_models_res(opt)
+            print('Residual layer')
+        if (nfc_prev == opt.nfc):
+            print(('Load weights of last layer ' + str((scale_num - 1))))
+            G_a.load_state_dict(torch.load(('%s/netG_a_%d.pth' % (opt.load, (scale_num - 1)))))
+            D_a.load_state_dict(torch.load(('%s/netD_a_%d.pth' % (opt.load, (scale_num - 1)))))
+            G_b.load_state_dict(torch.load(('%s/netG_b_%d.pth' % (opt.load, (scale_num - 1)))))
+            D_b.load_state_dict(torch.load(('%s/netD_b_%d.pth' % (opt.load, (scale_num - 1)))))
+        opt.load = opt.out
+        optimizerD = optim.Adam((list(D_a.parameters()) + list(D_b.parameters())), lr=opt.lr_d, betas=(opt.beta1, 0.999))
+        optimizerG = optim.Adam((list(G_a.parameters()) + list(G_b.parameters())), lr=opt.lr_g, betas=(opt.beta1, 0.999))
+        n_iters = opt.niter
+        opt.nzx = size_arr[len(Gs_a)]
+        opt.nzy = size_arr[len(Gs_a)]
+        noise_amount_a = 0
+        noise_cnt_a = 0
+        noise_amount_b = 0
+        noise_cnt_b = 0
+        i = 0
+        for epoch in range(n_iters):
+            real_a = data_a[len(Gs_a)].cuda()
+            real_b = data_b[len(Gs_b)].cuda()
+            noise_ = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            if (Gs_a == []):
+                noise_a = noise_
+                prev_a = torch.full([1, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+            else:
+                prev_a = draw_concat(Gs_a, list(data_a), NoiseAmp_a, in_s, 'rand', opt)
+                noise_a = ((opt.noise_amp_a * noise_) + prev_a)
+            noise_ = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            if (Gs_b == []):
+                noise_b = noise_
+                prev_b = torch.full([1, opt.nc_z, opt.nzx, opt.nzy], 0, device=opt.device)
+            else:
+                prev_b = draw_concat(Gs_b, list(data_b), NoiseAmp_b, in_s, 'rand', opt)
+                noise_b = ((opt.noise_amp_b * noise_) + prev_b)
+            if (scale_num > opt.switch_scale):
+                fake_a = G_a(noise_a.detach())
+                fake_b = G_b(noise_b.detach())
+            else:
+                fake_a = G_a(noise_a.detach(), prev_a.detach())
+                fake_b = G_b(noise_b.detach(), prev_b.detach())
+            if (Gs_a == []):
+                z_prev_a = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            else:
+                z_prev_a = draw_concat(Gs_a, list(data_a), NoiseAmp_a, in_s, 'rec', opt)
+            if ((epoch == 0) and (i == 0)):
+                if (Gs_a == []):
+                    opt.noise_amp_a = opt.noise_amp_init
+                else:
+                    criterion = nn.MSELoss()
+                    RMSE = torch.sqrt(criterion(real_a, z_prev_a))
+                    opt.noise_amp_a = (opt.noise_amp_init * RMSE)
+            if (Gs_b == []):
+                z_prev_b = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            else:
+                z_prev_b = draw_concat(Gs_b, list(data_b), NoiseAmp_b, in_s, 'rec', opt)
+            if ((epoch == 0) and (i == 0)):
+                if (Gs_b == []):
+                    opt.noise_amp_b = opt.noise_amp_init
+                else:
+                    criterion = nn.MSELoss()
+                    RMSE = torch.sqrt(criterion(real_b, z_prev_b))
+                    opt.noise_amp_b = (opt.noise_amp_init * RMSE)
+            i += 1
+            if (scale_num > opt.switch_scale):
+                generated_a = G_a(z_prev_a.detach())
+                generated_b = G_b(z_prev_b.detach())
+            else:
+                generated_a = G_a(z_prev_a.detach(), z_prev_a.detach())
+                generated_b = G_b(z_prev_b.detach(), z_prev_b.detach())
+            if (scale_num > opt.switch_scale):
+                mix_g_a = G_a(fake_b)
+                mix_g_b = G_b(fake_a)
+            else:
+                mix_g_a = G_a(fake_b, fake_b)
+                mix_g_b = G_b(fake_a, fake_a)
+            other_noise_a = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            other_noise_b = generate_noise2([1, opt.nc_z, opt.nzx, opt.nzy], device=opt.device)
+            noisy_real_b = ((opt.noise_amp_a * other_noise_a) + real_b)
+            noisy_real_a = ((opt.noise_amp_b * other_noise_b) + real_a)
+            D_a.zero_grad()
+            output = D_a(real_a).to(opt.device)
+            errD_real = ((- 2) * output.mean())
+            errD_real.backward(retain_graph=True)
+            output_a = D_a(mix_g_a.detach())
+            output_a2 = D_a(fake_a.detach())
+            errD_fake_a = (output_a.mean() + output_a2.mean())
+            errD_fake_a.backward(retain_graph=True)
+            gradient_penalty_a = calc_gradient_penalty(D_a, real_a, mix_g_a, opt.lambda_grad, opt.device)
+            gradient_penalty_a += calc_gradient_penalty(D_a, real_a, fake_a, opt.lambda_grad, opt.device)
+            gradient_penalty_a.backward(retain_graph=True)
+            D_b.zero_grad()
+            output = D_b(real_b).to(opt.device)
+            errD_real = ((- 2) * output.mean())
+            errD_real.backward(retain_graph=True)
+            output_b = D_b(mix_g_b.detach())
+            output_b2 = D_b(fake_b.detach())
+            errD_fake_b = (output_b.mean() + output_b2.mean())
+            errD_fake_b.backward(retain_graph=True)
+            gradient_penalty_b = calc_gradient_penalty(D_b, real_b, mix_g_b, opt.lambda_grad, opt.device)
+            gradient_penalty_b += calc_gradient_penalty(D_b, real_b, fake_b, opt.lambda_grad, opt.device)
+            gradient_penalty_b.backward(retain_graph=True)
+            optimizerD.step()
+            G_a.zero_grad()
+            G_b.zero_grad()
+            output_a = D_a(mix_g_a)
+            output_a2 = D_a(fake_a)
+            errG_a = ((- output_a.mean()) - output_a2.mean())
+            errG_a.backward(retain_graph=True)
+            output_b = D_b(mix_g_b)
+            output_b2 = D_b(fake_b)
+            errG_b = (opt.lambda_g * ((- output_b.mean()) - output_b2.mean()))
+            errG_b.backward(retain_graph=True)
+            if (opt.alpha > 0):
+                rec_loss_a = (opt.alpha * r_loss(generated_a, real_a))
+                rec_loss_a.backward(retain_graph=True)
+                rec_loss_b = (opt.alpha * r_loss(generated_b, real_b))
+                rec_loss_b.backward(retain_graph=True)
+            if (opt.beta > 0):
+                if (scale_num > opt.switch_scale):
+                    cycle_a = G_a(mix_g_b)
+                else:
+                    cycle_a = G_a(mix_g_b, mix_g_b)
+                cycle_loss_a = (opt.beta * r_loss(cycle_a, fake_a))
+                cycle_loss_a.backward(retain_graph=True)
+            if (opt.beta > 0):
+                if (scale_num > opt.switch_scale):
+                    cycle_b = G_b(mix_g_a)
+                else:
+                    cycle_b = G_b(mix_g_a, mix_g_a)
+                cycle_loss_b = (opt.beta * r_loss(cycle_b, fake_b))
+                cycle_loss_b.backward(retain_graph=True)
+            optimizerG.step()
+            if (((epoch + 1) % opt.print_interval) == 0):
+                vutils.save_image(fake_a.clone(), osp.join(opt.out, (((str(scale_num) + '_fake_a_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(mix_g_a.clone(), osp.join(opt.out, (((str(scale_num) + '_b2a_') + str(epoch)) + '.png')), normalize=True)
+                if (epoch == 0):
+                    vutils.save_image(real_a.clone(), osp.join(opt.out, (((str(scale_num) + '_real_a_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(fake_b.clone(), osp.join(opt.out, (((str(scale_num) + '_fake_b_') + str(epoch)) + '.png')), normalize=True)
+                vutils.save_image(mix_g_b.clone(), osp.join(opt.out, (((str(scale_num) + '_a2b_') + str(epoch)) + '.png')), normalize=True)
+                if (epoch == 0):
+                    vutils.save_image(real_b.clone(), osp.join(opt.out, (((str(scale_num) + '_real_b_') + str(epoch)) + '.png')), normalize=True)
+                print(('debug imgs saved, scale_num=%0d, epoch=%0d ' % (scale_num, epoch)))
+                sys.stdout.flush()
+        if (scale_num == opt.stop_scale):
+            vutils.save_image(fake_a.clone(), osp.join(opt.out, (('final_fake_a_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(mix_g_a.clone(), osp.join(opt.out, (('final_b2a_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(fake_b.clone(), osp.join(opt.out, (('final_fake_b_' + str(epoch)) + '.png')), normalize=True)
+            vutils.save_image(mix_g_b.clone(), osp.join(opt.out, (('final_a2b_' + str(epoch)) + '.png')), normalize=True)
+        Gs_a.append(G_a)
+        NoiseAmp_a.append(opt.noise_amp_a)
+        torch.save(Gs_a, ('%s/Gs_a.pth' % opt.out))
+        torch.save(reals_a, ('%s/reals_a.pth' % opt.out))
+        torch.save(NoiseAmp_a, ('%s/NoiseAmp_a.pth' % opt.out))
+        torch.save(G_a.state_dict(), ('%s/netG_a_%d.pth' % (opt.out, scale_num)))
+        torch.save(D_a.state_dict(), ('%s/netD_a_%d.pth' % (opt.out, scale_num)))
+        Gs_b.append(G_b)
+        NoiseAmp_b.append(opt.noise_amp_b)
+        torch.save(Gs_b, ('%s/Gs_b.pth' % opt.out))
+        torch.save(reals_b, ('%s/reals_b.pth' % opt.out))
+        torch.save(NoiseAmp_b, ('%s/NoiseAmp_b.pth' % opt.out))
+        torch.save(G_b.state_dict(), ('%s/netG_b_%d.pth' % (opt.out, scale_num)))
+        torch.save(D_b.state_dict(), ('%s/netD_b_%d.pth' % (opt.out, scale_num)))
+        print('Layer weights saved successfully')
+        scale_num += 1
+        nfc_prev = opt.nfc
+        del D_a, G_a
+        del D_b, G_b
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+if:
+     ...  = nn.MSELoss()
+
+idx = 26:------------------- similar code ------------------ index = 4, score = 5.0 
+def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
+    ' Initialize the GANLoss class.\n\n        Parameters:\n            gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgangp.\n            target_real_label (bool) - - label for a real image\n            target_fake_label (bool) - - label of a fake image\n\n        Note: Do not use sigmoid as the last layer of Discriminator.\n        LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.\n        '
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label))
+    self.register_buffer('fake_label', torch.tensor(target_fake_label))
+    self.gan_mode = gan_mode
+    if (gan_mode == 'lsgan'):
+        self.loss = nn.MSELoss()
+    elif (gan_mode == 'vanilla'):
+        self.loss = nn.BCEWithLogitsLoss()
+    elif (gan_mode in ['wgangp']):
+        self.loss = None
+    else:
+        raise NotImplementedError(('gan mode %s not implemented' % gan_mode))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.MSELoss()
+
+idx = 27:------------------- similar code ------------------ index = 5, score = 5.0 
+def forward(self, sentence_features: Iterable[Dict[(str, Tensor)]], labels: Tensor):
+    rep = self.model(sentence_features[0])['sentence_embedding']
+    loss_fct = nn.MSELoss()
+    loss = loss_fct(rep, labels)
+    return loss
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = nn.MSELoss()
 
-idx = 6:------------------- similar code ------------------ index = 6, score = 3.0 
-def __init__(self):
-    super(MSERanknetTeacher, self).__init__()
-    self.mse = torch.nn.MSELoss()
+idx = 28:------------------- similar code ------------------ index = 40, score = 5.0 
+def run(settings):
+    settings.description = 'First training with gradient descent.'
+    settings.batch_size = 6
+    settings.num_workers = 8
+    settings.print_interval = 1
+    settings.normalize_mean = [0.485, 0.456, 0.406]
+    settings.normalize_std = [0.229, 0.224, 0.225]
+    settings.search_area_factor = 5.0
+    settings.output_sigma_factor = (1 / 4)
+    settings.target_filter_sz = 4
+    settings.feature_sz = 18
+    settings.output_sz = (settings.feature_sz * 16)
+    settings.center_jitter_factor = {'train': 3, 'test': 4.5}
+    settings.scale_jitter_factor = {'train': 0.25, 'test': 0.5}
+    settings.hinge_threshold = 0.05
+    settings.print_stats = ['Loss/total', 'Loss/iou', 'ClfTrain/init_loss', 'ClfTrain/train_loss', 'ClfTrain/iter_loss', 'ClfTrain/test_loss', 'ClfTrain/test_init_loss', 'ClfTrain/test_iter_loss']
+    got10k_train = Got10k_i(settings.env.got10k_dir, split='train')
+    got10k_val = Got10k_i(settings.env.got10k_dir, split='val')
+    transform_joint = dltransforms.ToGrayscale(probability=0.05)
+    transform_train = torchvision.transforms.Compose([dltransforms.ToTensorAndJitter(0.2), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    transform_val = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize(mean=settings.normalize_mean, std=settings.normalize_std)])
+    output_sigma = (settings.output_sigma_factor / settings.search_area_factor)
+    proposal_params = {'min_iou': 0.1, 'boxes_per_frame': 8, 'sigma_factor': [0.01, 0.05, 0.1, 0.2, 0.3]}
+    label_params = {'feature_sz': settings.feature_sz, 'sigma_factor': output_sigma, 'kernel_sz': settings.target_filter_sz}
+    data_processing_train = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_train, joint_transform=transform_joint)
+    data_processing_val = processing.TrackingProcessing(search_area_factor=settings.search_area_factor, output_sz=settings.output_sz, center_jitter_factor=settings.center_jitter_factor, scale_jitter_factor=settings.scale_jitter_factor, mode='sequence', proposal_params=proposal_params, label_function_params=label_params, transform=transform_val, joint_transform=transform_joint)
+    dataset_train = sampler.RandomSequenceWithDistractors([got10k_train], [1], samples_per_epoch=26000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_train)
+    loader_train = LTRLoader('train', dataset_train, training=True, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=True, drop_last=True, stack_dim=1)
+    dataset_val = sampler.RandomSequenceWithDistractors([got10k_val], [1], samples_per_epoch=5000, max_gap=30, frame_sample_mode='causal', num_seq_test_frames=3, num_class_distractor_frames=0, num_seq_train_frames=3, num_class_distractor_train_frames=0, processing=data_processing_val)
+    loader_val = LTRLoader('val', dataset_val, training=False, batch_size=settings.batch_size, num_workers=settings.num_workers, shuffle=False, drop_last=True, epoch_interval=5, stack_dim=1)
+    net = optim_tracker_models.steepest_descent_learn_filter_resnet50_newiou(filter_size=settings.target_filter_sz, backbone_pretrained=True, optim_iter=5, clf_feat_norm=True, clf_feat_blocks=0, final_conv=True, out_feature_dim=512, optim_init_step=0.9, optim_init_reg=0.1, init_gauss_sigma=(output_sigma * settings.feature_sz), num_dist_bins=10, bin_displacement=0.5, mask_init_factor=3.0)
+    objective = {'iou': nn.MSELoss(), 'test_clf': ltr_losses.LBHinge(threshold=settings.hinge_threshold)}
+    loss_weight = {'iou': 1, 'test_clf': 100, 'train_clf': 0, 'init_clf': 0, 'test_init_clf': 100, 'test_iter_clf': 400}
+    actor = actors.OptimTrackerActor(net=net, objective=objective, loss_weight=loss_weight)
+    optimizer = optim.Adam([{'params': actor.net.classifier.filter_initializer.parameters(), 'lr': 5e-05}, {'params': actor.net.classifier.filter_optimizer.parameters(), 'lr': 0.0005}, {'params': actor.net.classifier.feature_extractor.parameters(), 'lr': 5e-05}, {'params': actor.net.bb_regressor.parameters()}, {'params': actor.net.feature_extractor.parameters(), 'lr': 2e-05}], lr=2e-05)
+    lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.2)
+    trainer = LTRTrainer(actor, [loader_train, loader_val], optimizer, settings, lr_scheduler)
+    trainer.train(25, load_latest=True, fail_safe=True)
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
- =  ... .nn.MSELoss()
+     ...  = { ... : nn.MSELoss(),  ... :}
 
-idx = 7:------------------- similar code ------------------ index = 5, score = 3.0 
-def forward(self, c, iter):
-    cF_BE = self.BE.forward_branch(c)
-    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
-    rec = self.BD(cF_SE[(- 1)])
-    sd_BE = 0
-    if ((iter % self.args.save_interval) == 0):
-        rec_BE = self.BD(cF_BE[(- 1)])
-    feat_loss = 0
-    for i in range(len(cF_BE)):
-        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    recF_BE = self.BE.forward_branch(rec)
-    rec_perc_loss = 0
-    for i in range(len(recF_BE)):
-        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
-    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
+idx = 29:------------------- similar code ------------------ index = 6, score = 5.0 
+def run_network(data, input_size, output_size, problem_type, net_kw, run_kw, num_workers=8, pin_memory=True, validate=True, val_patience=np.inf, test=False, ensemble=False, numepochs=100, wt_init=nn.init.kaiming_normal_, bias_init=(lambda x: nn.init.constant_(x, 0.1)), verbose=True):
+    "\n    ARGS:\n        data:\n            6-ary tuple (xtr,ytr, xva,yva, xte,yte) from get_data_mlp(), OR\n            Dict with keys 'train', 'val', 'test' from get_data_cnn()\n        input_size, output_size, net_kw : See Net()\n        run_kw:\n            lr: Initial learning rate\n            gamma: Learning rate decay coefficient\n            milestones: When to step decay learning rate, e.g. 0.5 will decay lr halfway through training\n            weight_decay: Default 0\n            batch_size: Default 256\n        num_workers, pin_memory: Only required if using Pytorch data loaders\n            Generally, set num_workers equal to number of threads (e.g. my Macbook pro has 4 cores x 2 = 8 threads)\n        validate: Whether to do validation at the end of every epoch.\n        val_patience: If best val acc doesn't increase for this many epochs, then stop training. Set as np.inf to never stop training (until numepochs)\n        test: True - Test at end, False - don't\n        ensemble: If True, return feedforward soft outputs to be later used for ensembling\n        numepochs: Self explanatory\n        wt_init, bias_init: Respective pytorch functions\n        verbose: Print messages\n    \n    RETURNS:\n        net: Complete net\n        recs: Dictionary with a key for each stat collected and corresponding value for all values of the stat\n    "
+    net = Net(input_size=input_size, output_size=output_size, **net_kw)
+    if (torch.cuda.device_count() > 1):
+        print('Using {0} GPUs'.format(torch.cuda.device_count()))
+        net = nn.DataParallel(net)
+    net.to(device)
+    for i in range(len(net.mlp)):
+        if (wt_init is not None):
+            wt_init(net.mlp[i].weight.data)
+        if (bias_init is not None):
+            bias_init(net.mlp[i].bias.data)
+    lr = (run_kw['lr'] if ('lr' in run_kw) else run_kws_defaults['lr'])
+    gamma = (run_kw['gamma'] if ('gamma' in run_kw) else run_kws_defaults['gamma'])
+    milestones = (run_kw['milestones'] if ('milestones' in run_kw) else run_kws_defaults['milestones'])
+    weight_decay = (run_kw['weight_decay'] if ('weight_decay' in run_kw) else run_kws_defaults['weight_decay'])
+    batch_size = (run_kw['batch_size'] if ('batch_size' in run_kw) else run_kws_defaults['batch_size'])
+    if (not isinstance(batch_size, int)):
+        batch_size = batch_size.item()
+    if (problem_type == 'classification'):
+        lossfunc = nn.CrossEntropyLoss(reduction='mean')
+    elif (problem_type == 'regression'):
+        lossfunc = nn.MSELoss()
+    opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(opt, milestones=[int((numepochs * milestone)) for milestone in milestones], gamma=gamma)
+    if (type(data) == dict):
+        loader = True
+        train_loader = torch.utils.data.DataLoader(data['train'], batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+        if (validate is True):
+            val_loader = torch.utils.data.DataLoader(data['val'], batch_size=len(data['val']), num_workers=num_workers, pin_memory=pin_memory)
+        if (test is True):
+            test_loader = torch.utils.data.DataLoader(data['test'], batch_size=len(data['test']), num_workers=num_workers, pin_memory=pin_memory)
+    else:
+        loader = False
+        (xtr, ytr, xva, yva, xte, yte) = data
+    recs = {'train_accs': np.zeros(numepochs), 'train_losses': np.zeros(numepochs), 'val_accs': (np.zeros(numepochs) if (validate is True) else None), 'val_losses': (np.zeros(numepochs) if (validate is True) else None), 'val_final_outputs': (numepochs * [0])}
+    total_t = 0
+    best_val_acc = (- np.inf)
+    best_val_loss = np.inf
+    for epoch in range(numepochs):
+        if verbose:
+            print('Epoch {0}'.format((epoch + 1)))
+        numbatches = (int(np.ceil((xtr.shape[0] / batch_size))) if (not loader) else len(train_loader))
+        if (not loader):
+            shuff = torch.randperm(xtr.shape[0])
+            (xtr, ytr) = (xtr[shuff], ytr[shuff])
+        epoch_correct = 0
+        epoch_loss = 0.0
+        t = time.time()
+        net.train()
+        for batch in tqdm((range(numbatches) if (not loader) else train_loader), leave=False):
+            if (not loader):
+                inputs = xtr[(batch * batch_size):((batch + 1) * batch_size)]
+                labels = ytr[(batch * batch_size):((batch + 1) * batch_size)]
+            else:
+                (inputs, labels) = batch
+                (inputs, labels) = (inputs.to(device), labels.to(device))
+            (batch_correct, batch_loss) = train_batch(x=inputs, y=labels, net=net, lossfunc=lossfunc, opt=opt)
+            epoch_correct += batch_correct
+            epoch_loss += batch_loss
+        t_epoch = (time.time() - t)
+        if ((epoch > 0) or (numepochs == 1)):
+            total_t += t_epoch
+        recs['train_accs'][epoch] = (((100 * epoch_correct) / xtr.shape[0]) if (not loader) else ((100 * epoch_correct) / len(data['train'])))
+        recs['train_losses'][epoch] = (epoch_loss / numbatches)
+        if verbose:
+            print('Training Acc = {0}%, Loss = {1}'.format(np.round(recs['train_accs'][epoch], 2), np.round(recs['train_losses'][epoch], 3)))
+        if (validate is True):
+            if (not loader):
+                (correct, loss, _, final_outputs) = eval_data(net=net, x=xva, ensemble=ensemble, y=yva, lossfunc=lossfunc)
+                recs['val_accs'][epoch] = ((100 * correct) / xva.shape[0])
+                recs['val_losses'][epoch] = loss
+            else:
+                epoch_correct = 0
+                epoch_loss = 0.0
+                for batch in tqdm(val_loader, leave=False):
+                    (inputs, labels) = batch
+                    (inputs, labels) = (inputs.to(device), labels.to(device))
+                    (batch_correct, batch_loss, _, final_outputs) = eval_data(net=net, x=inputs, ensemble=ensemble, y=labels, lossfunc=lossfunc)
+                    epoch_correct += batch_correct
+                    epoch_loss += batch_loss
+                val_acc = ((100 * epoch_correct) / len(data['val']))
+                val_loss = (epoch_loss / len(val_loader))
+                recs['val_accs'][epoch] = val_acc
+                recs['val_losses'][epoch] = val_loss
+            recs['val_final_outputs'][epoch] = final_outputs
+            if verbose:
+                print('Validation Acc = {0}%, Loss = {1}'.format(np.round(recs['val_accs'][epoch], 2), np.round(recs['val_losses'][epoch], 3)))
+            if (problem_type == 'classification'):
+                if (recs['val_accs'][epoch] > best_val_acc):
+                    best_val_acc = recs['val_accs'][epoch]
+                    best_val_ep = (epoch + 1)
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+            elif (problem_type == 'regression'):
+                if (recs['val_losses'][epoch] < best_val_loss):
+                    best_val_loss = recs['val_losses'][epoch]
+                    best_val_ep = (epoch + 1)
+                    val_patience_counter = 0
+                else:
+                    val_patience_counter += 1
+                    if (val_patience_counter == val_patience):
+                        print('Early stopped after epoch {0}'.format((epoch + 1)))
+                        numepochs = (epoch + 1)
+                        break
+        scheduler.step()
+    if (validate is True):
+        if (problem_type == 'classification'):
+            print('\nBest validation accuracy = {0}% obtained in epoch {1}'.format(best_val_acc, best_val_ep))
+        elif (problem_type == 'regression'):
+            print('\nBest validation loss = {0} obtained in epoch {1}'.format(best_val_loss, best_val_ep))
+    if (test is True):
+        if (not loader):
+            (correct, loss, _, final_outputs) = eval_data(net=net, x=xte, ensemble=ensemble, y=yte, lossfunc=lossfunc)
+            recs['test_acc'] = ((100 * correct) / xte.shape[0])
+            recs['test_loss'] = loss
+        else:
+            overall_correct = 0
+            overall_loss = 0.0
+            for batch in tqdm(test_loader, leave=False):
+                (inputs, labels) = batch
+                (inputs, labels) = (inputs.to(device), labels.to(device))
+                (batch_correct, batch_loss, _, final_outputs) = eval_data(net=net, x=inputs, ensemble=ensemble, y=labels, lossfunc=lossfunc)
+                overall_correct += batch_correct
+                overall_loss += batch_loss
+            recs['test_acc'] = ((100 * overall_correct) / len(data['test']))
+            recs['test_loss'] = (overall_loss / len(test_loader))
+        recs['test_final_outputs'] = final_outputs
+        print('Test accuracy = {0}%, Loss = {1}\n'.format(np.round(recs['test_acc'], 2), np.round(recs['test_loss'], 3)))
+    recs['t_epoch'] = ((total_t / (numepochs - 1)) if (numepochs > 1) else total_t)
+    print('Avg time taken per epoch = {0}'.format(recs['t_epoch']))
+    recs = {**{key: recs[key][:numepochs] for key in recs if hasattr(recs[key], '__iter__')}, **{key: recs[key] for key in recs if (not hasattr(recs[key], '__iter__'))}}
+    return (net, recs)
 
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-    for  ...  in:
-         ...  += nn.MSELoss()
+    if:    elif:
+         ...  = nn.MSELoss()
 
-idx = 8:------------------- similar code ------------------ index = 4, score = 3.0 
+idx = 30:------------------- similar code ------------------ index = 15, score = 5.0 
+def __init__(self, gan_type='wgan_gp', target_real_label=1.0, target_fake_label=0.0):
+    super(GANLoss, self).__init__()
+    self.register_buffer('real_label', torch.tensor(target_real_label))
+    self.register_buffer('fake_label', torch.tensor(target_fake_label))
+    self.gan_type = gan_type
+    if (gan_type == 'wgan_gp'):
+        self.loss = nn.MSELoss()
+    elif (gan_type == 'lsgan'):
+        self.loss = nn.MSELoss()
+    elif (gan_type == 'vanilla'):
+        self.loss = nn.BCELoss()
+    elif (gan_type == 're_s_gan'):
+        self.loss = nn.BCEWithLogitsLoss()
+    elif (gan_type == 're_avg_gan'):
+        self.loss = nn.BCEWithLogitsLoss()
+    else:
+        raise ValueError(('GAN type [%s] not recognized.' % gan_type))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+ = nn.MSELoss()
+
+idx = 31:------------------- similar code ------------------ index = 30, score = 4.0 
+def __init__(self, opt):
+    'Initialize the CycleGAN class.\n\n        Parameters:\n            opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions\n        '
+    BaseModel.__init__(self, opt)
+    torch.nn.Module.__init__(self)
+    self.loss_names = ['idt_T', 'res', 'MP', 'G', 'T', 'idt_R', 'R']
+    if self.isTrain:
+        self.visual_names = ['fake_Ts', 'fake_Rs']
+    else:
+        self.visual_names = ['fake_Ts', 'real_T', 'real_I', 'fake_Rs']
+    if self.isTrain:
+        self.model_names = ['G_T', 'G_R', 'D']
+    else:
+        self.model_names = ['G_T', 'G_R']
+    self.vgg = vgg.Vgg19(requires_grad=False).to(self.device)
+    self.netG_T = networks.define_G((opt.input_nc * 3), opt.input_nc, opt.ngf, opt.netG, opt.norm, (not opt.no_dropout), opt.init_type, opt.init_gain, self.gpu_ids)
+    self.netG_R = networks.define_G((opt.input_nc * 3), opt.output_nc, opt.ngf, opt.netG, opt.norm, (not opt.no_dropout), opt.init_type, opt.init_gain, self.gpu_ids)
+    self.netD = networks.define_D(opt.input_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
+    if self.isTrain:
+        torch.nn.utils.clip_grad_norm_(self.netG_T.parameters(), 0.25)
+        torch.nn.utils.clip_grad_norm_(self.netG_R.parameters(), 0.25)
+        self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
+        self.criterionGradient = torch.nn.L1Loss()
+        self.criterionVgg = networks.VGGLoss1(self.device, vgg=self.vgg, normalize=False)
+        self.optimizer_G = torch.optim.Adam(itertools.chain(self.netG_T.parameters(), self.netG_R.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
+        self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
+        self.optimizers.append(self.optimizer_G)
+        self.optimizers.append(self.optimizer_D)
+    self.criterionIdt = torch.nn.MSELoss()
+    resSize = 64
+    self.k_sz = np.linspace(opt.batch_size, self.opt.blurKernel, 80)
+    self.t_h = torch.zeros(opt.batch_size, (opt.ngf * 4), resSize, resSize).to(self.device)
+    self.t_c = torch.zeros(opt.batch_size, (opt.ngf * 4), resSize, resSize).to(self.device)
+    self.r_h = torch.zeros(opt.batch_size, (opt.ngf * 4), resSize, resSize).to(self.device)
+    self.r_c = torch.zeros(opt.batch_size, (opt.ngf * 4), resSize, resSize).to(self.device)
+    self.fake_T = torch.zeros(self.opt.batch_size, 3, 256, 256).to(self.device)
+    self.fake_Ts = [self.fake_T]
+    self.trainFlag = True
+    " We use both real-world data and synthetic data. If 'self.isNatural' is True, the data loaded is real-world\n        image paris. Otherwise, we use 'self.syn' to synthesize data."
+    self.isNatural = False
+    self.syn = networks.SynData(self.device)
+    self.real_I = None
+    self.real_T = None
+    self.real_T2 = None
+    self.real_T4 = None
+    self.alpha = None
+
+------------------- similar code (pruned) ------------------ score = 0.35714285714285715 
+def  ... ():
+     ... .nn
+ =  ... .MSELoss()
+
+idx = 32:------------------- similar code ------------------ index = 9, score = 3.0 
 def forward(self, c, iter):
     rec = self.SD(self.SE(c))
     rec_pixl_loss = nn.MSELoss()(rec, c.data)
@@ -286,7 +1884,25 @@ def forward(self, c, iter):
 def  ... ():
      ...  = nn.MSELoss()
 
-idx = 9:------------------- similar code ------------------ index = 3, score = 3.0 
+idx = 33:------------------- similar code ------------------ index = 11, score = 3.0 
+def str_to_loss_cls(loss_str):
+    if (loss_str.lower() == 'mse'):
+        return torch.nn.MSELoss()
+    elif (loss_str.lower() == 'weighted_mse'):
+        return (lambda y, trgt, w: torch.mean((w * ((y - trgt) ** 2))))
+    elif (loss_str.lower() == 'ce'):
+        return torch.nn.CrossEntropyLoss()
+    elif (loss_str.lower() == 'smoothl1'):
+        return torch.nn.SmoothL1Loss()
+    else:
+        raise ValueError(loss_str)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+    if:
+        return  ... .nn.MSELoss()
+
+idx = 34:------------------- similar code ------------------ index = 12, score = 3.0 
 def __init__(self):
     super(MSETeacherPointwisePassages, self).__init__()
     self.mse = torch.nn.MSELoss(reduction='none')
@@ -295,22 +1911,7 @@ def __init__(self):
 def  ... ( ... ):
  =  ... .nn.MSELoss
 
-idx = 10:------------------- similar code ------------------ index = 1, score = 3.0 
-def forward(self, c, iter):
-    rec = self.SD(self.SE(c))
-    rec_pixl_loss = nn.MSELoss()(rec, c.data)
-    recF_BE = self.BE.forward_branch(rec)
-    cF_BE = self.BE.forward_branch(c)
-    rec_perc_loss = 0
-    for i in range(len(recF_BE)):
-        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
-    return (rec_pixl_loss, rec_perc_loss, rec)
-
-------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
-def  ... ():
-     ...  = nn.MSELoss()
-
-idx = 11:------------------- similar code ------------------ index = 0, score = 3.0 
+idx = 35:------------------- similar code ------------------ index = 8, score = 3.0 
 def forward(self, c, iter):
     cF_BE = self.BE.forward_branch(c)
     cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
@@ -332,4 +1933,307 @@ def forward(self, c, iter):
 def  ... ():
     for  ...  in:
          ...  += nn.MSELoss()
+
+idx = 36:------------------- similar code ------------------ index = 13, score = 3.0 
+def set_loss_function(self):
+    self.rec_criterion = nn.MSELoss(reduction='none').cuda()
+    self.bce_criterion = nn.BCEWithLogitsLoss(reduction='none').cuda()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ = nn.MSELoss
+
+idx = 37:------------------- similar code ------------------ index = 14, score = 3.0 
+def pretrain_attention_with_random_spans(train_Xy, val_Xy, model, epochs=10, batch_size=16, cuda=True, tokenwise_attention=False, attention_acceptance='auc'):
+    " A pretraining variants that is balanced. This is similar to pretrain_tokenwise_attention_balanced\n    \n    The primary difference between this and pretrain_tokenwise_attention_balanced\n    is that the loss function here is an MSELoss, so it uses the squared error\n    between the attention mechanism's output (unnormalized if tokenwise) instead\n    of using a BCELoss.\n    "
+
+    def _prepare_random_matched_spans(model, batch_instances, cuda):
+        unk_idx = int(model.vectorizer.str_to_idx[SimpleInferenceVectorizer.PAD])
+        (Is, Cs, Os) = [PaddedSequence.autopad([torch.LongTensor(inst[x]) for inst in batch_instances], batch_first=True, padding_value=unk_idx) for x in ['I', 'C', 'O']]
+        target_spans = [inst['evidence_spans'] for inst in batch_instances]
+        target = []
+        articles = []
+        for (article, evidence_spans) in zip((x['article'] for x in batch_instances), target_spans):
+            tgt = torch.zeros(len(article))
+            for (start, end) in evidence_spans:
+                tgt[start:end] = 1
+            (start, end) = random.choice(evidence_spans)
+            random_matched_span_start = random.randint(0, len(article))
+            random_matched_span_end = ((random_matched_span_start + end) - start)
+            tgt_pos = tgt[start:end]
+            tgt_neg = tgt[random_matched_span_start:random_matched_span_end]
+            article_pos = torch.LongTensor(article[start:end])
+            article_neg = torch.LongTensor(article[random_matched_span_start:random_matched_span_end])
+            if (random.random() > 0.5):
+                articles.append(torch.cat([article_pos, article_neg]))
+                target.append(torch.cat([tgt_pos, tgt_neg]))
+            else:
+                articles.append(torch.cat([article_neg, article_pos]))
+                target.append(torch.cat([tgt_neg, tgt_pos]))
+        target = PaddedSequence.autopad(target, batch_first=True, padding_value=0)
+        articles = PaddedSequence.autopad(articles, batch_first=True, padding_value=unk_idx)
+        if cuda:
+            (articles, Is, Cs, Os, target) = (articles.cuda(), Is.cuda(), Cs.cuda(), Os.cuda(), target.cuda())
+        return (articles, Is, Cs, Os, target)
+    return pretrain_attention(train_Xy, val_Xy, model, prepare=_prepare_random_matched_spans, get_attention_weights=get_article_attention_weights, criterion=torch.nn.MSELoss(reduction='sum'), epochs=epochs, batch_size=batch_size, cuda=cuda, tokenwise_attention=tokenwise_attention, attention_acceptance=attention_acceptance)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    return  ... ( ... ,  ... ,  ... ,,,  ... = ... .nn.MSELoss,,,,,)
+
+idx = 38:------------------- similar code ------------------ index = 52, score = 3.0 
+def __init__(self, task, vocabulary, input_dim, device, loss_weight: float=1.0, topn: int=1, metric: str='avg_dist', **kwargs):
+    super().__init__(task, vocabulary, loss_weight, metric, device, **kwargs)
+    self.hidden_to_label = torch.nn.Linear(input_dim, 1)
+    self.hidden_to_label.to(device)
+    self.loss_function = torch.nn.MSELoss()
+    self.topn = topn
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+ =  ... .nn.MSELoss()
+
+idx = 39:------------------- similar code ------------------ index = 18, score = 3.0 
+def test_adam(self):
+    w = torch.tensor([0.1, (- 0.2), (- 0.1)], requires_grad=True)
+    target = torch.tensor([0.4, 0.2, (- 0.5)])
+    criterion = torch.nn.MSELoss()
+    optimizer = BertAdam(params=[w], lr=0.2, weight_decay=0.0, max_grad_norm=(- 1))
+    for _ in range(100):
+        loss = criterion(w, target)
+        loss.backward()
+        optimizer.step()
+        w.grad.detach_()
+        w.grad.zero_()
+    self.assertListAlmostEqual(w.tolist(), [0.4, 0.2, (- 0.5)], tol=0.01)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .nn.MSELoss()
+
+idx = 40:------------------- similar code ------------------ index = 22, score = 3.0 
+def forward(self, c, iter):
+    rec = self.SD(self.SE(c))
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    cF_BE = self.BE.forward_branch(c)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (rec_pixl_loss, rec_perc_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 41:------------------- similar code ------------------ index = 23, score = 3.0 
+def test_same_amsgrad(self):
+    self.reset_seed(51966)
+    (w, b) = self.gen_random_weights()
+    torch_linear = self.gen_torch_linear(w, b)
+    keras_linear = self.gen_keras_linear(w, b, amsgrad=True)
+    (w, b) = self.gen_random_weights()
+    criterion = torch.nn.MSELoss()
+    optimizer = OfficialAdaBound(torch_linear.parameters(), lr=0.001, final_lr=0.1, eps=K.epsilon(), amsbound=True)
+    for i in range(300):
+        x = np.random.standard_normal((1, 3))
+        y = (np.dot(x, w) + b)
+        optimizer.zero_grad()
+        y_hat = torch_linear(torch.Tensor(x.tolist()))
+        loss = criterion(y_hat, torch.Tensor(y.tolist()))
+        torch_loss = loss.tolist()
+        loss.backward()
+        optimizer.step()
+        keras_loss = keras_linear.train_on_batch(x, y)
+    self.assertTrue((abs((torch_loss - keras_loss)) < 0.0001))
+    self.assertTrue(np.allclose(torch_linear.weight.detach().numpy().transpose(), keras_linear.get_weights()[0], atol=0.0001))
+    self.assertTrue(np.allclose(torch_linear.bias.detach().numpy(), keras_linear.get_weights()[1], atol=0.0001))
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .nn.MSELoss()
+
+idx = 42:------------------- similar code ------------------ index = 25, score = 3.0 
+def forward(self, c, iter):
+    cF_BE = self.BE.forward_branch(c)
+    cF_SE = self.SE.forward_aux(c, self.args.updim_relu)
+    rec = self.BD(cF_SE[(- 1)])
+    sd_BE = 0
+    if ((iter % self.args.save_interval) == 0):
+        rec_BE = self.BD(cF_BE[(- 1)])
+    feat_loss = 0
+    for i in range(len(cF_BE)):
+        feat_loss += nn.MSELoss()(cF_SE[i], cF_BE[i].data)
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    recF_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(recF_BE)):
+        rec_perc_loss += nn.MSELoss()(recF_BE[i], cF_BE[i].data)
+    return (feat_loss, rec_pixl_loss, rec_perc_loss, rec, c)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    for  ...  in:
+         ...  += nn.MSELoss()
+
+idx = 43:------------------- similar code ------------------ index = 51, score = 3.0 
+def set_loss_function(self):
+    'set loss function used in training'
+    self.criterion = nn.MSELoss().cuda()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ = nn.MSELoss()
+
+idx = 44:------------------- similar code ------------------ index = 31, score = 3.0 
+def __init__(self):
+    super(MSERanknetTeacher, self).__init__()
+    self.mse = torch.nn.MSELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ =  ... .nn.MSELoss()
+
+idx = 45:------------------- similar code ------------------ index = 35, score = 3.0 
+def test_same_weight_decay(self):
+    self.reset_seed(51966)
+    (w, b) = self.gen_random_weights()
+    torch_linear = self.gen_torch_linear(w, b)
+    keras_linear = self.gen_keras_linear(w, b, weight_decay=0.1)
+    (w, b) = self.gen_random_weights()
+    criterion = torch.nn.MSELoss()
+    optimizer = OfficialAdaBound(torch_linear.parameters(), lr=0.001, final_lr=0.1, eps=K.epsilon(), weight_decay=0.1)
+    for i in range(300):
+        x = np.random.standard_normal((1, 3))
+        y = (np.dot(x, w) + b)
+        optimizer.zero_grad()
+        y_hat = torch_linear(torch.Tensor(x.tolist()))
+        loss = criterion(y_hat, torch.Tensor(y.tolist()))
+        torch_loss = loss.tolist()
+        loss.backward()
+        optimizer.step()
+        keras_loss = keras_linear.train_on_batch(x, y)
+    self.assertTrue((abs((torch_loss - keras_loss)) < 0.0001))
+    self.assertTrue(np.allclose(torch_linear.weight.detach().numpy().transpose(), keras_linear.get_weights()[0], atol=0.0001))
+    self.assertTrue(np.allclose(torch_linear.bias.detach().numpy(), keras_linear.get_weights()[1], atol=0.0001))
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .nn.MSELoss()
+
+idx = 46:------------------- similar code ------------------ index = 39, score = 3.0 
+def forward(self, c, iter):
+    feats_BE = self.BE.forward_branch(c)
+    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+    feats_BD = self.BD.forward_branch(feat_SE_aux)
+    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
+    rec = feats_SD[(- 1)]
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    rec_feats_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(rec_feats_BE)):
+        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
+    kd_feat_loss = 0
+    for i in range(len(feats_BD)):
+        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
+    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 47:------------------- similar code ------------------ index = 41, score = 3.0 
+def __init__(self):
+    super(MSETeacherPointwise, self).__init__()
+    self.mse = torch.nn.MSELoss()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ =  ... .nn.MSELoss()
+
+idx = 48:------------------- similar code ------------------ index = 42, score = 3.0 
+def set_loss_function(self):
+    self.criterion = nn.MSELoss().cuda()
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+ = nn.MSELoss()
+
+idx = 49:------------------- similar code ------------------ index = 43, score = 3.0 
+def test_same(self):
+    self.reset_seed(51966)
+    (w, b) = self.gen_random_weights()
+    torch_linear = self.gen_torch_linear(w, b)
+    keras_linear = self.gen_keras_linear(w, b)
+    model_path = os.path.join(tempfile.gettempdir(), 'keras_adabound.h5')
+    keras_linear.save(model_path)
+    keras_linear = keras.models.load_model(model_path, custom_objects={'AdaBound': AdaBound})
+    (w, b) = self.gen_random_weights()
+    criterion = torch.nn.MSELoss()
+    optimizer = OfficialAdaBound(torch_linear.parameters(), lr=0.001, final_lr=0.1, eps=1e-08)
+    for i in range(300):
+        x = np.random.standard_normal((1, 3))
+        y = (np.dot(x, w) + b)
+        optimizer.zero_grad()
+        y_hat = torch_linear(torch.Tensor(x.tolist()))
+        loss = criterion(y_hat, torch.Tensor(y.tolist()))
+        torch_loss = loss.tolist()
+        loss.backward()
+        optimizer.step()
+        keras_loss = keras_linear.train_on_batch(x, y)
+    self.assertTrue((abs((torch_loss - keras_loss)) < 0.0001))
+    self.assertTrue(np.allclose(torch_linear.weight.detach().numpy().transpose(), keras_linear.get_weights()[0], atol=0.0001))
+    self.assertTrue(np.allclose(torch_linear.bias.detach().numpy(), keras_linear.get_weights()[1], atol=0.0001))
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ( ... ):
+     ...  =  ... .nn.MSELoss()
+
+idx = 50:------------------- similar code ------------------ index = 48, score = 3.0 
+def __init__(self, opt):
+    super(CtdetLoss, self).__init__()
+    self.crit = (torch.nn.MSELoss() if opt.mse_loss else FocalLoss())
+    self.crit_reg = (RegL1Loss() if (opt.reg_loss == 'l1') else (RegLoss() if (opt.reg_loss == 'sl1') else None))
+    self.crit_wh = (torch.nn.L1Loss(reduction='sum') if opt.dense_wh else (NormRegL1Loss() if opt.norm_wh else (RegWeightedL1Loss() if opt.cat_spec_wh else self.crit_reg)))
+    self.opt = opt
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+ = ( ... .nn.MSELoss() if else)
+
+idx = 51:------------------- similar code ------------------ index = 50, score = 3.0 
+def forward(self, c, iter):
+    feats_BE = self.BE.forward_branch(c)
+    (*_, feat_SE_aux, feat_SE) = self.SE.forward_aux2(c)
+    feats_BD = self.BD.forward_branch(feat_SE_aux)
+    feats_SD = self.SD.forward_aux(feat_SE, relu=self.args.updim_relu)
+    rec = feats_SD[(- 1)]
+    rec_pixl_loss = nn.MSELoss()(rec, c.data)
+    rec_feats_BE = self.BE.forward_branch(rec)
+    rec_perc_loss = 0
+    for i in range(len(rec_feats_BE)):
+        rec_perc_loss += nn.MSELoss()(rec_feats_BE[i], feats_BE[i].data)
+    kd_feat_loss = 0
+    for i in range(len(feats_BD)):
+        kd_feat_loss += nn.MSELoss()(feats_SD[i], feats_BD[i].data)
+    return (rec_pixl_loss, rec_perc_loss, kd_feat_loss, rec)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+     ...  = nn.MSELoss()
+
+idx = 52:------------------- similar code ------------------ index = 0, score = 3.0 
+def __init__(self, crit='MSE', strength=1, skip=0, layer_to_last=3, device='gpu'):
+    super(InnerCos, self).__init__()
+    self.crit = crit
+    self.criterion = (torch.nn.MSELoss() if (self.crit == 'MSE') else torch.nn.L1Loss())
+    self.strength = strength
+    self.skip = skip
+    self.layer_to_last = layer_to_last
+    self.device = device
+    self.target = torch.tensor(1.0)
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+ = ( ... .nn.MSELoss() if else)
 

@@ -1,81 +1,748 @@
 ------------------------- example 1 ------------------------ 
-def get_book_crossing(min_positive_score=7, min_interactions_per_book=5, user_indicators=False, item_indicators=False, cold_start_users=False, cold_start_items=False):
-    "\n    Dataset from http://www2.informatik.uni-freiburg.de/~cziegler/BX/\n\n    Improving Recommendation Lists Through Topic Diversification,\n    Cai-Nicolas Ziegler, Sean M. McNee, Joseph A. Konstan, Georg Lausen; Proceedings of the 14th International World\n    Wide Web Conference (WWW '05), May 10-14, 2005, Chiba, Japan. To appear.\n\n    :param min_positive_score:\n    :return:\n    "
+def fit_transform(self, X=None, y=None, **kwargs):
+//
+------------------------- example 2 ------------------------ 
+def fit_transform(self, raw_documents, y=None):
+//
+------------------------- example 3 ------------------------ 
+def fit_transform(self, X, y=None):
+//
+------------------------- example 4 ------------------------ 
+def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snapshot=False):
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s', datefmt='%H:%M:%S')
+    conf_list = {'db': ['KDD', 'PKDD', 'ICDM', 'SDM', 'PAKDD', 'SIGMOD', 'VLDB', 'ICDE', 'PODS', 'EDBT', 'SIGIR', 'ECIR', 'ACL', 'WWW', 'CIKM', 'NIPS', 'ICML', 'ECML', 'AAAI', 'IJCAI'], 'th': ['STOC', 'FOCS', 'COLT', 'LICS', 'SCG', 'SODA', 'SPAA', 'PODC', 'ISSAC', 'CRYPTO', 'EUROCRYPT', 'CONCUR', 'ICALP', 'STACS', 'COCO', 'WADS', 'MFCS', 'SWAT', 'ESA', 'IPCO', 'LFCS', 'ALT', 'EUROCOLT', 'WDAG', 'ISTCS', 'FSTTCS', 'LATIN', 'RECOMB', 'CADE', 'ISIT', 'MEGA', 'ASIAN', 'CCCG', 'FCT', 'WG', 'CIAC', 'ICCI', 'CATS', 'COCOON', 'GD', 'ISAAC', 'SIROCCO', 'WEA', 'ALENEX', 'FTP', 'CSL', 'DMTCS']}[path]
+    observation_end = 2016
+    observation_begin = (observation_end - observation_window)
+    feature_end = observation_begin
+    feature_begin = (feature_end - (delta * n_snapshots))
+    (papers_feat_window, papers_obs_window, counter) = generate_papers('data/dblp/dblp.txt', feature_begin, feature_end, observation_begin, observation_end, conf_list)
+    (W, C, I, P) = parse_dataset(papers_feat_window, feature_begin, feature_end, counter)
+    (observed_samples, censored_samples) = generate_samples(papers_obs_window, censoring_ratio, W, C)
+    (X, Y, T) = extract_features(W, C, P, I, observed_samples, censored_samples)
+    X_list = [X]
+    if (not single_snapshot):
+        for t in range((feature_end - delta), feature_begin, (- delta)):
+            (W, C, I, P) = parse_dataset(papers_feat_window, feature_begin, t, counter)
+            (X, _, _) = extract_features(W, C, P, I, observed_samples, censored_samples)
+            X_list = ([X] + X_list)
+        for i in range(1, len(X_list)):
+            X_list[i] -= X_list[(i - 1)]
+    scaler = MinMaxScaler(copy=False)
+    for X in X_list:
+        scaler.fit_transform(X)
+    X = np.stack(X_list, axis=1)
+    T = (T - observation_begin)
+    return (X, Y, T)
+
+------------------------- example 5 ------------------------ 
+def bag_of_words(x_train, y_train, x_val, y_val, x_test, y_test, n=4):
+    '\n    Transform data into b.o.w. w/ a max of 20k tokens.\n\n    @param x_train is the training data.\n    @param y_train is the training labels.\n    @param x_val   is the validation data.\n    @param y_val   is the validation labels.\n    @param x_test  is the training data.\n    @param y_test  is the test labels.\n    @param n       is the number of sections in the input data (text/ico/reasoning).\n    @return a bag of words representation of the data.\n    '
 // your code ...
-
-    with open(paths['BX-Book-Ratings.csv'], 'rb') as ratings_file:
-        ratings_lines = ratings_file.readlines()
-        for line in ratings_lines:
-            split_line = line.decode('iso-8859-1').replace('\r', '').replace('\n', '').split('";"')
-            split_line = [snip.replace('"', '') for snip in split_line]
-            if (split_line[0] == 'User-ID'):
-                continue
-            user_id = int(split_line[0])
-            isin = split_line[1]
-            rating = int(split_line[2])
-            rating = (1 if (rating >= min_positive_score) else 0)
-            if (rating == 0):
+    X = vectorizer.fit_transform(x_train)
+    print('trained')
 // your code ...
+    return (fmt_n(X.toarray(), n), y_train, fmt_n(vectorizer.transform(x_val).toarray(), n), y_val, fmt_n(vectorizer.transform(x_test).toarray(), n), y_test)
 
-    book_metadata_raw = {}
-    with open(paths['BX-Books.csv'], 'rb') as books_file:
-        books_lines = books_file.readlines()
-        for line in books_lines:
-            split_line = line.decode('iso-8859-1').replace('\r', '').replace('\n', '').split('";"')
-            split_line = [snip.replace('"', '') for snip in split_line]
-// your code ...
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          7           ||        1         ||         0        ||        1.0         
+example2  ||          5           ||        1         ||         0        ||        1.0         
+example3  ||          3           ||        1         ||         0        ||        1.0         
+example4  ||          3           ||        25         ||         0        ||        0.04         
+example5  ||          3           ||        5         ||         2        ||        0.4         
 
-            title = split_line[1]
-            author = split_line[2]
-            year = split_line[3]
-            publisher = split_line[4]
-            cover_url = split_line[5]
-            book_metadata_raw[isbn] = (title, author, year, publisher, cover_url)
-    user_metadata_raw = {}
-    with open(paths['BX-Users.csv'], 'rb') as users_file:
-        users_lines = users_file.readlines()
-        for line in users_lines:
-            split_line = line.decode('iso-8859-1').replace('\r', '').replace('\n', '').replace('NULL', '"NULL"').split('";"')
-// your code ...
+avg       ||          8.4           ||        6.6         ||         0.4        ||         68.8        
 
-            location = split_line[1]
-            try:
-// your code ...
+idx = 0:------------------- similar code ------------------ index = 42, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    return self.fit(X=X, y=y, **kwargs)
 
-    isbn_counter = {}
-    for (_, isbn, _) in ratings:
-        isbn_counter[isbn] = (isbn_counter.get(isbn, 0) + 1)
-    ratings = [r for r in ratings if (isbn_counter[r[1]] >= min_interactions_per_book)]
-    user_to_row_map = {}
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 1:------------------- similar code ------------------ index = 32, score = 2.0 
+def fit_transform(self, data_pack: 'mz.DataPack', verbose: int=1) -> 'mz.DataPack':
+    '\n        Call fit-transform.\n\n        :param data_pack: :class:`DataPack` object to be processed.\n        :param verbose: Verbosity.\n        '
+    return self.fit(data_pack, verbose=verbose).transform(data_pack, verbose=verbose)
 
-    interactions_raw = [(user_to_row_map[user], isbn_to_column_map[isbn], score) for (user, isbn, score) in ratings]
-    (r, c, v) = zip(*interactions_raw)
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform() ->  ... :
+idx = 2:------------------- similar code ------------------ index = 22, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    return self.fit(X=X, y=y, **kwargs)
 
-    for row in range((max(row_to_user_map) + 1)):
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 3:------------------- similar code ------------------ index = 23, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    return self.fit(X=X, y=y, **kwargs)
 
-    for col in range((max(column_to_isbn_map) + 1)):
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 4:------------------- similar code ------------------ index = 10, score = 2.0 
+def fit_transform(self, raw_documents, y=None):
+    self.fit(raw_documents)
+    return self.transform(raw_documents)
 
-    book_transformers = [('title_pipeline', Pipeline([('title_extractor', TupleExtractor(0)), ('title_vectorizer', CountVectorizer(min_df=2))])), ('author_pipeline', Pipeline([('author_extractor', TupleExtractor(1)), ('author_vectorizer', PipelineLabelBinarizer(sparse_output=True))])), ('year_pipeline', Pipeline([('year_extractor', TupleExtractor(2)), ('year_vectorizer', PipelineLabelBinarizer(sparse_output=True))])), ('publisher_pipeline', Pipeline([('publisher_extractor', TupleExtractor(3)), ('publisher_vectorizer', PipelineLabelBinarizer(sparse_output=True))]))]
-    if item_indicators:
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 5:------------------- similar code ------------------ index = 27, score = 2.0 
+def fit_transform(self, X, y=None):
+    return self.fit(X, y).transform(X)
 
-    book_features = book_pipeline.fit_transform(book_metadata)
-    book_titles = [book[0] for book in book_metadata]
-    user_transformers = [('location_pipeline', Pipeline([('location_extractor', TupleExtractor(0)), ('location_vectorizer', CountVectorizer(min_df=2))])), ('age_pipeline', Pipeline([('age_extractor', TupleExtractor(1)), ('age_vectorizer', PipelineLabelBinarizer(sparse_output=True))]))]
-    if user_indicators:
-// your code ...
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 6:------------------- similar code ------------------ index = 28, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    return self.fit(X=X, y=y, **kwargs)
 
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 7:------------------- similar code ------------------ index = 31, score = 2.0 
+def fit_transform(self, raw_documents, y=None):
+    X = super(BM25Vectorizer, self).fit_transform(raw_documents)
+    X = X.tocoo()
+    (n_samples, n_features) = X.shape
+    doc_len = np.ravel(X.sum(axis=1))
+    avg_len = doc_len.mean()
+    len_norm = ((1.0 - self.b) + ((self.b * doc_len) / avg_len))
+    idf = np.log((float(n_samples) / (1 + np.bincount(X.col))))
+    X.data = (((X.data * (self.k1 + 1.0)) / ((self.k1 * len_norm[X.row]) + X.data)) * idf[X.col])
+    return X.tocsr()
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        59         ||         11        
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 8:------------------- similar code ------------------ index = 30, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    'Same as calling fit in ensemble model.\n        '
+    self.fit(X=X, y=y, **kwargs)
 
-avg       ||          2.0           ||        59.0         ||         11.0        
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 9:------------------- similar code ------------------ index = 4, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    pass
 
-idx = 0:------------------- similar code ------------------ index = 4, score = 1.0 
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+    pass
+
+idx = 10:------------------- similar code ------------------ index = 3, score = 2.0 
+def fit_transform(self, X=None, y=None, **kwargs):
+    self.fit(X=X, y=y, **kwargs)
+    ypred = self.predict(X=X)
+    gpm = GenotypePhenotypeMap.read_dataframe(dataframe=self.gpm.data[(ypred == 1)], wildtype=self.gpm.wildtype, mutations=self.gpm.mutations)
+    return gpm
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def fit_transform():
+idx = 11:------------------- similar code ------------------ index = 13, score = 2.0 
+def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snapshot=False):
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s', datefmt='%H:%M:%S')
+    conf_list = {'db': ['KDD', 'PKDD', 'ICDM', 'SDM', 'PAKDD', 'SIGMOD', 'VLDB', 'ICDE', 'PODS', 'EDBT', 'SIGIR', 'ECIR', 'ACL', 'WWW', 'CIKM', 'NIPS', 'ICML', 'ECML', 'AAAI', 'IJCAI'], 'th': ['STOC', 'FOCS', 'COLT', 'LICS', 'SCG', 'SODA', 'SPAA', 'PODC', 'ISSAC', 'CRYPTO', 'EUROCRYPT', 'CONCUR', 'ICALP', 'STACS', 'COCO', 'WADS', 'MFCS', 'SWAT', 'ESA', 'IPCO', 'LFCS', 'ALT', 'EUROCOLT', 'WDAG', 'ISTCS', 'FSTTCS', 'LATIN', 'RECOMB', 'CADE', 'ISIT', 'MEGA', 'ASIAN', 'CCCG', 'FCT', 'WG', 'CIAC', 'ICCI', 'CATS', 'COCOON', 'GD', 'ISAAC', 'SIROCCO', 'WEA', 'ALENEX', 'FTP', 'CSL', 'DMTCS']}[path]
+    observation_end = 2016
+    observation_begin = (observation_end - observation_window)
+    feature_end = observation_begin
+    feature_begin = (feature_end - (delta * n_snapshots))
+    (papers_feat_window, papers_obs_window, counter) = generate_papers('data/dblp/dblp.txt', feature_begin, feature_end, observation_begin, observation_end, conf_list)
+    (W, C, I, P) = parse_dataset(papers_feat_window, feature_begin, feature_end, counter)
+    (observed_samples, censored_samples) = generate_samples(papers_obs_window, censoring_ratio, W, C)
+    (X, Y, T) = extract_features(W, C, P, I, observed_samples, censored_samples)
+    X_list = [X]
+    if (not single_snapshot):
+        for t in range((feature_end - delta), feature_begin, (- delta)):
+            (W, C, I, P) = parse_dataset(papers_feat_window, feature_begin, t, counter)
+            (X, _, _) = extract_features(W, C, P, I, observed_samples, censored_samples)
+            X_list = ([X] + X_list)
+        for i in range(1, len(X_list)):
+            X_list[i] -= X_list[(i - 1)]
+    scaler = MinMaxScaler(copy=False)
+    for X in X_list:
+        scaler.fit_transform(X)
+    X = np.stack(X_list, axis=1)
+    T = (T - observation_begin)
+    return (X, Y, T)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    for  ...  in  ... :
+         ... .fit_transform
+
+idx = 12:------------------- similar code ------------------ index = 11, score = 2.0 
+if (__name__ == '__main__'):
+    df = pd.DataFrame({'a': [1, 2, 3], 'b': [6, 6, 5]})
+    print(df)
+    MultiColumnLabelEncoder(columns=['a', 'b']).fit_transform(df)
+    test = df.apply(LabelEncoder().fit_transform)
+    print(test)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+if:
+     ... .fit_transform
+
+idx = 13:------------------- similar code ------------------ index = 33, score = 2.0 
+@arghandler
+def fit_transform(self, X=None, y=None, **kwargs):
+    self.fit(X=X, y=y, **kwargs)
+    linear_phenotypes = self.transform(X=X, y=y)
+    gpm = GenotypePhenotypeMap.read_dataframe(dataframe=self.gpm.data, wildtype=self.gpm.wildtype, mutations=self.gpm.mutations)
+    gpm.data['phenotypes'] = linear_phenotypes
+    return gpm
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def fit_transform():
+idx = 14:------------------- similar code ------------------ index = 7, score = 2.0 
+@abstractmethod
+def fit_transform(self, X=None, y=None, **kwargs):
+    'Fit model to data and transform output according to model.\n\n        Parameters\n        ----------\n        X : None, ndarray, or list of genotypes. (default=None)\n            data used to construct X matrix that maps genotypes to\n            model coefficients. If None, the model uses genotypes in the\n            attached genotype-phenotype map. If a list of strings,\n            the strings are genotypes that will be converted to an X matrix.\n            If ndarray, the function assumes X is the X matrix used by the\n            epistasis model.\n\n        y : None or ndarray (default=None)\n            array of phenotypes. If None, the phenotypes in the attached\n            genotype-phenotype map is used.\n\n        Returns\n        -------\n        gpm : GenotypePhenotypeMap\n            The genotype-phenotype map object with transformed genotypes.\n        '
+    raise SubclassException('Must be implemented in a subclass.')
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def fit_transform():
+idx = 15:------------------- similar code ------------------ index = 36, score = 2.0 
+def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snapshot=False):
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s', datefmt='%H:%M:%S')
+    with open('data/delicious/user_contacts-timestamps.dat') as usr_usr:
+        usr_dataset = usr_usr.read().splitlines()
+    with open('data/delicious/user_taggedbookmarks-timestamps.dat') as usr_bm_tg:
+        usr_bm_tg_dataset = usr_bm_tg.read().splitlines()
+    delta = timestamp_delta_generator(months=delta)
+    observation_end = datetime(2010, 10, 1).timestamp()
+    observation_begin = (observation_end - timestamp_delta_generator(months=observation_window))
+    feature_end = observation_begin
+    feature_begin = (feature_end - (n_snapshots * delta))
+    indexer = generate_indexer(usr_dataset, usr_bm_tg_dataset, feature_begin, feature_end)
+    (contact_sparse, save_sparse, attach_sparse) = parse_dataset(usr_dataset, usr_bm_tg_dataset, feature_begin, feature_end, indexer)
+    (observed_samples, censored_samples) = sample_generator(usr_dataset, observation_begin, observation_end, contact_sparse, indexer, censoring_ratio)
+    (X, Y, T) = extract_features(contact_sparse, save_sparse, attach_sparse, observed_samples, censored_samples)
+    X_list = [X]
+    if (not single_snapshot):
+        for t in range(int((feature_end - delta)), int(feature_begin), (- int(delta))):
+            (contact_sparse, save_sparse, attach_sparse) = parse_dataset(usr_dataset, usr_bm_tg_dataset, feature_begin, t, indexer)
+            (X, _, _) = extract_features(contact_sparse, save_sparse, attach_sparse, observed_samples, censored_samples)
+            X_list = ([X] + X_list)
+        for i in range(1, len(X_list)):
+            X_list[i] -= X_list[(i - 1)]
+    scaler = MinMaxScaler(copy=False)
+    for X in X_list:
+        scaler.fit_transform(X)
+    X = np.stack(X_list, axis=1)
+    T /= delta
+    return (X, Y, T)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    for  ...  in  ... :
+         ... .fit_transform
+
+idx = 16:------------------- similar code ------------------ index = 2, score = 2.0 
+def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snapshot=False):
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s', datefmt='%H:%M:%S')
+    with open('data/movielens/user_ratedmovies-timestamps.dat') as user_rates_movies_ds:
+        user_rates_movies_ds = user_rates_movies_ds.read().splitlines()
+    with open('data/movielens/user_taggedmovies-timestamps.dat') as user_tags_movies_ds:
+        user_tags_movies_ds = user_tags_movies_ds.read().splitlines()
+    with open('data/movielens/movie_actors.dat', encoding='latin-1') as movie_actor_ds:
+        movie_actor_ds = movie_actor_ds.read().splitlines()
+    with open('data/movielens/movie_directors.dat', encoding='latin-1') as movie_director_ds:
+        movie_director_ds = movie_director_ds.read().splitlines()
+    with open('data/movielens/movie_genres.dat') as movie_genre_ds:
+        movie_genre_ds = movie_genre_ds.read().splitlines()
+    with open('data/movielens/movie_countries.dat') as movie_countries_ds:
+        movie_countries_ds = movie_countries_ds.read().splitlines()
+    delta = timestamp_delta_generator(months=delta)
+    observation_end = datetime(2009, 1, 1).timestamp()
+    observation_begin = (observation_end - timestamp_delta_generator(months=observation_window))
+    feature_end = observation_begin
+    feature_begin = (feature_end - (n_snapshots * delta))
+    indexer = generate_indexer(user_rates_movies_ds, user_tags_movies_ds, movie_actor_ds, movie_director_ds, movie_genre_ds, movie_countries_ds, feature_begin, feature_end)
+    (rate_sparse, attach_sparse, played_by_sparse, directed_by_sparse, has_genre_sparse, produced_in_sparse) = parse_dataset(user_rates_movies_ds, user_tags_movies_ds, movie_actor_ds, movie_director_ds, movie_genre_ds, movie_countries_ds, feature_begin, feature_end, indexer)
+    (observed_samples, censored_samples) = sample_generator(user_rates_movies_ds, observation_begin, observation_end, rate_sparse, indexer, censoring_ratio)
+    (X, Y, T) = extract_features(rate_sparse, attach_sparse, played_by_sparse, directed_by_sparse, has_genre_sparse, produced_in_sparse, observed_samples, censored_samples)
+    X_list = [X]
+    if (not single_snapshot):
+        for t in range(int((feature_end - delta)), int(feature_begin), (- int(delta))):
+            (rate_sparse, attach_sparse, played_by_sparse, directed_by_sparse, has_genre_sparse, produced_in_sparse) = parse_dataset(user_rates_movies_ds, user_tags_movies_ds, movie_actor_ds, movie_director_ds, movie_genre_ds, movie_countries_ds, feature_begin, t, indexer)
+            (X, _, _) = extract_features(rate_sparse, attach_sparse, played_by_sparse, directed_by_sparse, has_genre_sparse, produced_in_sparse, observed_samples, censored_samples)
+            X_list = ([X] + X_list)
+        for i in range(1, len(X_list)):
+            X_list[i] -= X_list[(i - 1)]
+    scaler = MinMaxScaler(copy=False)
+    for X in X_list:
+        scaler.fit_transform(X)
+    X = np.stack(X_list, axis=1)
+    T /= delta
+    return (X, Y, T)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def  ... ():
+    for  ...  in  ... :
+         ... .fit_transform
+
+idx = 17:------------------- similar code ------------------ index = 16, score = 1.0 
+def bag_of_words(x_train, y_train, x_val, y_val, x_test, y_test, n=4):
+    '\n    Transform data into b.o.w. w/ a max of 20k tokens.\n\n    @param x_train is the training data.\n    @param y_train is the training labels.\n    @param x_val   is the validation data.\n    @param y_val   is the validation labels.\n    @param x_test  is the training data.\n    @param y_test  is the test labels.\n    @param n       is the number of sections in the input data (text/ico/reasoning).\n    @return a bag of words representation of the data.\n    '
+    (x_train, x_val, x_test) = (flatten(x_train), flatten(x_val), flatten(x_test))
+    print('flatten')
+    vectorizer = CountVectorizer(max_features=20000)
+    X = vectorizer.fit_transform(x_train)
+    print('trained')
+    (y_train, y_val, y_test) = ((torch.tensor([[y] for y in x], dtype=torch.long).cuda() if USE_CUDA else torch.tensor([[y] for y in x], dtype=torch.long)) for x in (np.asarray(y_train), np.asarray(y_val), np.asarray(y_test)))
+    print('y_s achieved.')
+    return (fmt_n(X.toarray(), n), y_train, fmt_n(vectorizer.transform(x_val).toarray(), n), y_val, fmt_n(vectorizer.transform(x_test).toarray(), n), y_test)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 18:------------------- similar code ------------------ index = 8, score = 1.0 
+def generate_vocab(qa_pairs, instance_id):
+    questions = [qa_pair['question'] for qa_pair in qa_pairs]
+    answers = [qa_pair['answer'] for qa_pair in qa_pairs]
+    questions_cleaned = list(map(clean_str, list(questions)))
+    answers_cleaned = list(map(clean_str, answers))
+    count_vect_q = CountVectorizer(stop_words='english')
+    counts_q = count_vect_q.fit_transform(questions_cleaned)
+    count_vect_a = CountVectorizer(stop_words='english')
+    counts_a = count_vect_a.fit_transform(answers_cleaned)
+    q_vocab = (set(count_vect_q.get_feature_names()) & terms_dict[instance_id]['context_terms'])
+    a_vocab = (set(count_vect_a.get_feature_names()) & terms_dict[instance_id]['resp_terms'])
+    q_vocab_dict = {}
+    a_vocab_dict = {}
+    for term in q_vocab:
+        q_vocab_dict[term] = 1
+    for term in a_vocab:
+        a_vocab_dict[term] = 1
+    return (q_vocab_dict, a_vocab_dict)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 19:------------------- similar code ------------------ index = 5, score = 1.0 
+if (__name__ == '__main__'):
+    parser = build_parser()
+    args = parser.parse_args()
+    model_name = args.model_name
+    model_type = ('double' if (model_name == 'double_albert') else 'siamese')
+    checkpoint_dir = args.checkpoint_dir
+    log_dir = args.log_dir
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
+    main_logger = init_logger(log_dir, f'finetune_main_{model_name}.log')
+    test = pd.read_csv(f'{args.data_dir}test.csv')
+    train = pd.read_csv(f'{args.data_dir}train.csv')
+    for col in TARGETS:
+        train[col] = train[col].rank(method='average')
+    train[TARGETS] = MinMaxScaler().fit_transform(train[TARGETS])
+    y = train[TARGETS].values
+    (ids_train, seg_ids_train) = tokenize(train, pretrained_model_str=pretrained_models[model_name])
+    (cat_features_train, _) = get_ohe_categorical_features(train, test, 'category')
+    device = 'cuda'
+    num_workers = 10
+    n_folds = 10
+    lr = 1e-05
+    n_epochs = 10
+    bs = 2
+    grad_accum = 4
+    weight_decay = 0.01
+    loss_fn = nn.BCEWithLogitsLoss()
+    init_seed()
+    folds = GroupKFold(n_splits=n_folds).split(X=train['question_body'], groups=train['question_body'])
+    oofs = np.zeros((len(train), N_TARGETS))
+    main_logger.info(f'Start finetuning model {model_name}...')
+    for (fold_id, (train_index, valid_index)) in enumerate(folds):
+        main_logger.info(f'Fold {(fold_id + 1)} started at {time.ctime()}')
+        fold_logger = init_logger(log_dir, f'finetune_fold_{(fold_id + 1)}_{model_name}.log')
+        loader = DataLoader(TextDataset(cat_features_train, ids_train['question'], ids_train['answer'], seg_ids_train['question'], seg_ids_train['answer'], np.arange(len(train)), y), batch_size=bs, shuffle=False, num_workers=num_workers)
+        model = models[model_name]()
+        checkpoint_file = f'{checkpoint_dir}{model_name}_fold_{(fold_id + 1)}_best.pth'
+        fold_logger.info(f'Precompute transformer outputs for model {model_name}...')
+        (q_outputs, a_outputs) = get_model_outputs(model, loader, checkpoint_file, device, model_type)
+        train_loader = DataLoader(TransformerOutputDataset(cat_features_train, q_outputs, a_outputs, train_index, y), batch_size=bs, shuffle=True, num_workers=num_workers)
+        valid_loader = DataLoader(TransformerOutputDataset(cat_features_train, q_outputs, a_outputs, valid_index, y), batch_size=bs, shuffle=False, num_workers=num_workers, drop_last=False)
+        optimizer = AdamW(get_optimizer_param_groups(model.head, lr, weight_decay))
+        learner = Learner(model.head, optimizer, train_loader, valid_loader, loss_fn, device, n_epochs, f'{model_name}_head_fold_{(fold_id + 1)}', checkpoint_dir, scheduler=None, metric_spec={'spearmanr': spearmanr_torch}, monitor_metric=True, minimize_score=False, logger=fold_logger, grad_accum=grad_accum, batch_step_scheduler=False, eval_at_start=True)
+        learner.train()
+        oofs[valid_index] = infer(learner.model, valid_loader, learner.best_checkpoint_file, device)
+        head_checkpoint_file = f'{checkpoint_dir}{model_name}_head_fold_{(fold_id + 1)}_best.pth'
+        checkpoint = torch.load(head_checkpoint_file)
+        model.head.load_state_dict(checkpoint['model_state_dict'])
+        model.half()
+        tuned_checkpoint_file = f'{checkpoint_dir}{model_name}_tuned_fold_{(fold_id + 1)}_best.pth'
+        torch.save({'model_state_dict': model.state_dict()}, tuned_checkpoint_file)
+    main_logger.info(f'Finished tuning {model_name}')
+    ix = np.where((train.groupby('question_body')['host'].transform('count') == 1))[0]
+    main_logger.info('CVs:')
+    main_logger.info(get_cvs(oofs, y, ix))
+    os.makedirs('oofs/', exist_ok=True)
+    pd.DataFrame(oofs, columns=TARGETS).to_csv(f'oofs/{model_name}_tuned_oofs.csv')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+ =  ... ().fit_transform
+
+idx = 20:------------------- similar code ------------------ index = 9, score = 1.0 
+def get_pca(context, model, dims=2):
+    'Plot the PCA of predicate embeddings.'
+    dgen = LogicSeq([[(context, 'z(z).', 0)]], 1, train=False, shuffle=False, zeropad=False)
+    embds = model.predict_generator(dgen)
+    embds = embds.squeeze()
+    pca = PCA(dims)
+    embds = pca.fit_transform(embds)
+    print('TRANSFORMED:', embds)
+    print('VAR:', pca.explained_variance_ratio_)
+    return embds
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 21:------------------- similar code ------------------ index = 12, score = 1.0 
+def test_this():
+    train_data = mz.datasets.toy.load_data()
+    test_data = mz.datasets.toy.load_data(stage='test')
+    dssm_preprocessor = mz.preprocessors.DSSMPreprocessor()
+    train_data_processed = dssm_preprocessor.fit_transform(train_data, verbose=0)
+    type(train_data_processed)
+    test_data_transformed = dssm_preprocessor.transform(test_data)
+    type(test_data_transformed)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 22:------------------- similar code ------------------ index = 1, score = 1.0 
+def visualize(model, idx2word, args):
+    test_x = np.diag(np.ones(len(idx2word)))
+    embed_layer = model.net.layers[0]
+    embedding = ((test_x @ embed_layer.params['w']) + embed_layer.params['b'])
+    labels = list(idx2word.values())
+    embedding_reduced = TSNE().fit_transform(embedding)
+    plt.figure(figsize=(12, 6))
+    words = ['he', 'she', 'man', 'woman', 'is', 'are', 'you', 'i']
+    for word in words:
+        i = labels.index(word)
+        (x, y) = embedding_reduced[i]
+        plt.scatter(x, y)
+        plt.annotate(labels[i], (x, y))
+    if (not os.path.isdir(args.output_dir)):
+        os.makedirs(args.output_dir)
+    output_path = os.path.join(args.output_dir, 'tsne-sample.jpg')
+    plt.savefig(output_path)
+    plt.close()
+    print(f'visualization result: {output_path}')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ().fit_transform
+
+idx = 23:------------------- similar code ------------------ index = 14, score = 1.0 
+def fit(self, raw_documents, y=None):
+    'Learn vocabulary and log-entropy from training set.\n        Parameters\n        ----------\n        raw_documents : iterable\n            an iterable which yields either str, unicode or file objects\n        Returns\n        -------\n        self : LogEntropyVectorizer\n        '
+    X = super(LogEntropyVectorizer, self).fit_transform(raw_documents)
+    (n_samples, n_features) = X.shape
+    gf = np.ravel(X.sum(axis=0))
+    if self.smooth_idf:
+        n_samples += int(self.smooth_idf)
+        gf += int(self.smooth_idf)
+    P = (X * sp.spdiags((1.0 / gf), diags=0, m=n_features, n=n_features))
+    p = P.data
+    P.data = ((p * np.log2(p)) / np.log2(n_samples))
+    g = (1 + np.ravel(P.sum(axis=0)))
+    f = np.log2((1 + X.data))
+    X.data = f
+    self._G = sp.spdiags(g, diags=0, m=n_features, n=n_features)
+    return self
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 24:------------------- similar code ------------------ index = 15, score = 1.0 
+def generate_correlation_matrics(input_file_path, output_file_path):
+    blogs = []
+    with open(os.path.join(MYDIR, input_file_path), 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            content = line.split(',')[2]
+            blogs.append(content)
+    vectorizer = CountVectorizer()
+    count = vectorizer.fit_transform(blogs)
+    transformer = TfidfTransformer()
+    tfidf = transformer.fit_transform(count)
+    weight = tfidf.toarray()
+    correlation_matrics = []
+    n = len(blogs)
+    for i in range(n):
+        tmp = []
+        for j in range(n):
+            cos_between_two_matric = cos_sim(weight[i], weight[j])
+            tmp.append(cos_between_two_matric)
+        correlation_matrics.append(tmp)
+    with open(os.path.join(MYDIR, output_file_path), 'w', encoding='utf-8') as f:
+        for i in correlation_matrics:
+            content = ' '.join((('%s' % num) for num in i))
+            f.write((content + '\n'))
+    f.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 25:------------------- similar code ------------------ index = 21, score = 1.0 
+def main(data_dir, log_dir, source='xl-1542M-k40', n_train=500000, n_valid=10000, n_jobs=None, verbose=False):
+    (train_texts, train_labels) = load_split(data_dir, source, 'train', n=n_train)
+    (valid_texts, valid_labels) = load_split(data_dir, source, 'valid', n=n_valid)
+    (test_texts, test_labels) = load_split(data_dir, source, 'test')
+    vect = TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_features=(2 ** 21))
+    train_features = vect.fit_transform(train_texts)
+    valid_features = vect.transform(valid_texts)
+    test_features = vect.transform(test_texts)
+    model = LogisticRegression(solver='liblinear')
+    params = {'C': [(1 / 64), (1 / 32), (1 / 16), (1 / 8), (1 / 4), (1 / 2), 1, 2, 4, 8, 16, 32, 64]}
+    split = PredefinedSplit((([(- 1)] * n_train) + ([0] * n_valid)))
+    search = GridSearchCV(model, params, cv=split, n_jobs=n_jobs, verbose=verbose, refit=False)
+    search.fit(sparse.vstack([train_features, valid_features]), (train_labels + valid_labels))
+    model = model.set_params(**search.best_params_)
+    model.fit(train_features, train_labels)
+    valid_accuracy = (model.score(valid_features, valid_labels) * 100.0)
+    test_accuracy = (model.score(test_features, test_labels) * 100.0)
+    data = {'source': source, 'n_train': n_train, 'valid_accuracy': valid_accuracy, 'test_accuracy': test_accuracy}
+    print(data)
+    json.dump(data, open(os.path.join(log_dir, f'{source}.json'), 'w'))
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 26:------------------- similar code ------------------ index = 17, score = 1.0 
+@staticmethod
+def loading_dataset():
+    print('[INFO] loading Images')
+    image_paths = list(paths.list_images(args['dataset']))
+    sp = PreProcessor(size, size)
+    iap = ImageToArray.ImageToArrayPreprocessor()
+    sdl = DatasetLoader(preprocessors=[sp, iap])
+    (data, labels) = sdl.load(image_paths, verbose=500)
+    print(data)
+    data = (data.astype('float') / 255.0)
+    (train_x, test_x, train_y, test_y) = train_test_split(data, labels, test_size=0.25, random_state=42)
+    train_y = LabelBinarizer().fit_transform(train_y)
+    test_y = LabelBinarizer().fit_transform(test_y)
+    return (test_x, test_y, train_x, train_y)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... ().fit_transform
+
+idx = 27:------------------- similar code ------------------ index = 26, score = 1.0 
+def plot_umap(embedding, lab, lab2col, file, lab2marker=None, legend=True, size=1, title='', legendmarker=20):
+    MEDIUM_SIZE = (8 * 4)
+    SMALLER_SIZE = (6 * 4)
+    plt.rc('font', size=MEDIUM_SIZE)
+    plt.rc('axes', labelsize=MEDIUM_SIZE)
+    plt.rc('axes', titlesize=MEDIUM_SIZE)
+    plt.rc('xtick', labelsize=SMALLER_SIZE)
+    plt.rc('ytick', labelsize=SMALLER_SIZE)
+    plt.rc('figure', titlesize=MEDIUM_SIZE)
+    if (np.shape(embedding)[1] != 2):
+        embedding = umap.UMAP(random_state=1).fit_transform(embedding)
+    assert (np.shape(embedding)[1] == 2)
+    print(size)
+    plt.clf()
+    (fig, ax) = plt.subplots(figsize=((FIG_WIDTH * 4), (FIG_HEIGHT * 4)))
+    for l in lab2col:
+        ind = np.where((lab == l))[0]
+        if (len(ind) == 0):
+            continue
+        if (lab2marker is None):
+            plt.scatter(embedding[(ind, 0)], embedding[(ind, 1)], c=lab2col[l], label=l, s=size)
+        else:
+            plt.scatter(embedding[(ind, 0)], embedding[(ind, 1)], c=lab2col[l], label=l, s=size, marker=lab2marker[l])
+    if legend:
+        plt.legend(loc='lower left', ncol=6, fontsize=6)
+    plt.title(title)
+    plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
+    plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2)
+    plt.xlabel('UMAP 1')
+    plt.ylabel('UMAP 2')
+    plt.tight_layout()
+    plt.savefig(file, dpi=100)
+    if legend:
+        return
+    (handles, labels) = ax.get_legend_handles_labels()
+    fig_legend = plt.figure(figsize=(6, 6))
+    axi = fig_legend.add_subplot(111)
+    fig_legend.legend(handles, labels, loc='center', scatterpoints=1, ncol=1, frameon=False, markerscale=legendmarker)
+    axi.xaxis.set_visible(False)
+    axi.yaxis.set_visible(False)
+    plt.savefig((file + '_legend.pdf'), dpi=100)
+    plt.gcf().clear()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+         ...  =  ... .fit_transform
+
+idx = 28:------------------- similar code ------------------ index = 38, score = 1.0 
+def transform(self, X):
+    '\n        Transforms columns of X specified in self.columns using\n        LabelEncoder(). If no columns specified, transforms all\n        columns in X.\n        '
+    output = X.copy()
+    if (self.columns is not None):
+        for col in self.columns:
+            output[col] = LabelEncoder().fit_transform(output[col])
+    else:
+        for (colname, col) in output.iteritems():
+            output[colname] = LabelEncoder().fit_transform(col)
+    return output
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        for  ...  in:
+ =  ... ().fit_transform
+
+idx = 29:------------------- similar code ------------------ index = 37, score = 1.0 
+def test_resample():
+    model = mz.models.Naive()
+    prpr = model.get_default_preprocessor()
+    data_raw = mz.datasets.toy.load_data()
+    data = prpr.fit_transform(data_raw)
+    model.params.update(prpr.context)
+    model.params['task'] = mz.tasks.Ranking()
+    model.build()
+    model.compile()
+    data_gen = mz.DataGenerator(data_pack=data, mode='pair', resample=True, batch_size=4)
+
+    class CheckResample(keras.callbacks.Callback):
+
+        def __init__(self, data_gen):
+            super().__init__()
+            self._data_gen = data_gen
+            self._orig_indices = None
+            self._flags = []
+
+        def on_epoch_end(self, epoch, logs=None):
+            curr_indices = self._data_gen.batch_indices
+            if (not self._orig_indices):
+                self._orig_indices = copy.deepcopy(curr_indices)
+            else:
+                self._flags.append((self._orig_indices != curr_indices))
+                self._orig_indices = curr_indices
+    check_resample = CheckResample(data_gen)
+    model.fit_generator(data_gen, epochs=5, callbacks=[check_resample])
+    assert check_resample._flags
+    assert all(check_resample._flags)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 30:------------------- similar code ------------------ index = 35, score = 1.0 
+def fit(self, X=None, y=None):
+    'Fit pipeline.\n\n        Parameters\n        ----------\n        X : array\n            array of genotypes.\n\n        y : array\n            array of phentoypes.\n        '
+    model = self[0]
+    gpm = model.fit_transform(X=X, y=y)
+    for model in self[1:]:
+        model.add_gpm(gpm)
+        try:
+            gpm = model.fit_transform(X=X, y=y)
+        except Exception as e:
+            print('Failed with {}'.format(model))
+            print('Input was :')
+            print('X : {}'.format(X), print('y : {}'.format(y)))
+            raise e
+    return self
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+     ...  =  ... .fit_transform
+
+idx = 31:------------------- similar code ------------------ index = 34, score = 1.0 
+def bow(self, X_train):
+    self.n = X_train.shape[0]
+    tokenizer = (tokenize_fixed if self.experiment.fixed_tokenizer else tokenize)
+    if (self.experiment.vectorizer == 'tfidf'):
+        self.vec = TfidfVectorizer(ngram_range=self.experiment.ngram_range, tokenizer=tokenizer, lowercase=self.experiment.lowercase, analyzer=self.experiment.analyzer, min_df=self.experiment.min_df, max_df=self.experiment.max_df, strip_accents='unicode', use_idf=1, smooth_idf=1, sublinear_tf=1)
+    elif (self.experiment.vectorizer == 'count'):
+        self.vec = CountVectorizer(ngram_range=self.experiment.ngram_range, tokenizer=tokenizer, analyzer=self.experiment.analyzer, lowercase=self.experiment.lowercase, min_df=self.experiment.min_df, max_df=self.experiment.max_df, strip_accents='unicode')
+    else:
+        raise Exception(f'Unknown vectorizer type: {self.experiment.vectorizer}')
+    return self.vec.fit_transform(X_train)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .fit_transform
+
+idx = 32:------------------- similar code ------------------ index = 18, score = 1.0 
+if (__name__ == '__main__'):
+    parser = build_parser()
+    args = parser.parse_args()
+    model_name = args.model_name
+    model_type = ('double' if (model_name == 'double_albert') else 'siamese')
+    checkpoint_dir = args.checkpoint_dir
+    log_dir = args.log_dir
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
+    main_logger = init_logger(log_dir, f'train_main_{model_name}.log')
+    test = pd.read_csv(f'{args.data_dir}test.csv')
+    train = pd.read_csv(f'{args.data_dir}train.csv')
+    for col in TARGETS:
+        train[col] = train[col].rank(method='average')
+    train[TARGETS] = MinMaxScaler().fit_transform(train[TARGETS])
+    y = train[TARGETS].values
+    (ids_train, seg_ids_train) = tokenize(train, pretrained_model_str=pretrained_models[model_name])
+    (cat_features_train, _) = get_ohe_categorical_features(train, test, 'category')
+    device = 'cuda'
+    num_workers = 10
+    n_folds = 10
+    lr = 0.001
+    n_epochs = 10
+    bs = 2
+    grad_accum = 4
+    weight_decay = 0.01
+    loss_fn = nn.BCEWithLogitsLoss()
+    init_seed()
+    folds = GroupKFold(n_splits=n_folds).split(X=train['question_body'], groups=train['question_body'])
+    oofs = np.zeros((len(train), N_TARGETS))
+    main_logger.info(f'Start training model {model_name}...')
+    for (fold_id, (train_index, valid_index)) in enumerate(folds):
+        main_logger.info(f'Fold {(fold_id + 1)} started at {time.ctime()}')
+        fold_logger = init_logger(log_dir, f'train_fold_{(fold_id + 1)}_{model_name}.log')
+        train_loader = DataLoader(TextDataset(cat_features_train, ids_train['question'], ids_train['answer'], seg_ids_train['question'], seg_ids_train['answer'], train_index, y), batch_size=bs, shuffle=True, num_workers=num_workers)
+        valid_loader = DataLoader(TextDataset(cat_features_train, ids_train['question'], ids_train['answer'], seg_ids_train['question'], seg_ids_train['answer'], valid_index, y), batch_size=bs, shuffle=False, num_workers=num_workers)
+        model = models[model_name]()
+        optimizer = get_optimizer(model, lr, weight_decay, model_type)
+        scheduler = OneCycleLR(optimizer, n_epochs=n_epochs, n_batches=len(train_loader))
+        learner = Learner(model, optimizer, train_loader, valid_loader, loss_fn, device, n_epochs, f'{model_name}_fold_{(fold_id + 1)}', checkpoint_dir, scheduler, metric_spec={'spearmanr': spearmanr_torch}, monitor_metric=True, minimize_score=False, logger=fold_logger, grad_accum=grad_accum, batch_step_scheduler=True)
+        learner.train()
+        oofs[valid_index] = infer(learner.model, valid_loader, learner.best_checkpoint_file, device)
+    main_logger.info(f'Finished training {model_name}')
+    ix = np.where((train.groupby('question_body')['host'].transform('count') == 1))[0]
+    main_logger.info('CVs:')
+    main_logger.info(get_cvs(oofs, y, ix))
+    os.makedirs('oofs/', exist_ok=True)
+    pd.DataFrame(oofs, columns=TARGETS).to_csv(f'oofs/{model_name}_oofs.csv')
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+if:
+ =  ... ().fit_transform
+
+idx = 33:------------------- similar code ------------------ index = 29, score = 1.0 
+def OnehotTransform(labels):
+    import numpy as np
+    from sklearn.preprocessing import OneHotEncoder
+    onehot_encoder = OneHotEncoder(sparse=False)
+    labels = np.reshape(labels, (len(labels), 1))
+    labels = onehot_encoder.fit_transform(labels).astype(np.uint8)
+    return labels
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  =  ... .fit_transform
+
+idx = 34:------------------- similar code ------------------ index = 25, score = 1.0 
 def get_book_crossing(min_positive_score=7, min_interactions_per_book=5, user_indicators=False, item_indicators=False, cold_start_users=False, cold_start_items=False):
     "\n    Dataset from http://www2.informatik.uni-freiburg.de/~cziegler/BX/\n\n    Improving Recommendation Lists Through Topic Diversification,\n    Cai-Nicolas Ziegler, Sean M. McNee, Joseph A. Konstan, Georg Lausen; Proceedings of the 14th International World\n    Wide Web Conference (WWW '05), May 10-14, 2005, Chiba, Japan. To appear.\n\n    :param min_positive_score:\n    :return:\n    "
     if (cold_start_items and cold_start_users):
@@ -179,33 +846,48 @@ def get_book_crossing(min_positive_score=7, min_interactions_per_book=5, user_in
 def  ... ():
      ...  =  ... .fit_transform
 
-idx = 1:------------------- similar code ------------------ index = 3, score = 1.0 
-def main(data_dir, log_dir, source='xl-1542M-k40', n_train=500000, n_valid=10000, n_jobs=None, verbose=False):
-    (train_texts, train_labels) = load_split(data_dir, source, 'train', n=n_train)
-    (valid_texts, valid_labels) = load_split(data_dir, source, 'valid', n=n_valid)
-    (test_texts, test_labels) = load_split(data_dir, source, 'test')
-    vect = TfidfVectorizer(ngram_range=(1, 2), min_df=5, max_features=(2 ** 21))
-    train_features = vect.fit_transform(train_texts)
-    valid_features = vect.transform(valid_texts)
-    test_features = vect.transform(test_texts)
-    model = LogisticRegression(solver='liblinear')
-    params = {'C': [(1 / 64), (1 / 32), (1 / 16), (1 / 8), (1 / 4), (1 / 2), 1, 2, 4, 8, 16, 32, 64]}
-    split = PredefinedSplit((([(- 1)] * n_train) + ([0] * n_valid)))
-    search = GridSearchCV(model, params, cv=split, n_jobs=n_jobs, verbose=verbose, refit=False)
-    search.fit(sparse.vstack([train_features, valid_features]), (train_labels + valid_labels))
-    model = model.set_params(**search.best_params_)
-    model.fit(train_features, train_labels)
-    valid_accuracy = (model.score(valid_features, valid_labels) * 100.0)
-    test_accuracy = (model.score(test_features, test_labels) * 100.0)
-    data = {'source': source, 'n_train': n_train, 'valid_accuracy': valid_accuracy, 'test_accuracy': test_accuracy}
-    print(data)
-    json.dump(data, open(os.path.join(log_dir, f'{source}.json'), 'w'))
+idx = 35:------------------- similar code ------------------ index = 41, score = 1.0 
+def __call__(self, sample):
+    '\n        Parameters\n        ----------\n        sample : target label\n\n        Returns\n        -------\n        target label in multilabel format\n        '
+    if isinstance(sample, int):
+        return self._transformer.fit_transform([[sample]])[0]
+    else:
+        return self._transformer.fit_transform([sample])[0]
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    if:
+        return  ... .fit_transform
+
+idx = 36:------------------- similar code ------------------ index = 20, score = 1.0 
+def compute_topics(papers: list, weighting='tfidf', projection='svd', min_df=3, max_df=0.8, lowercase=True, norm='l2', analyzer='word', token_pattern='\\w{1,}', ngram_range=(1, 1), n_components=30, stop_words='english'):
+    '\n    Compute topics from a given list of ``papers``\n    '
+    if (weighting == 'count'):
+        model = CountVectorizer(min_df=min_df, max_df=max_df, token_pattern=token_pattern, ngram_range=ngram_range, stop_words=stop_words)
+    elif (weighting == 'tfidf'):
+        model = TfidfVectorizer(min_df=min_df, max_df=max_df, lowercase=lowercase, norm=norm, token_pattern=token_pattern, ngram_range=ngram_range, use_idf=True, smooth_idf=True, sublinear_tf=True, stop_words=stop_words)
+    elif (weighting == 'entropy'):
+        model = LogEntropyVectorizer(min_df=min_df, max_df=max_df, lowercase=lowercase, token_pattern=token_pattern, ngram_range=ngram_range, stop_words=stop_words)
+    elif (weighting == 'bm25'):
+        model = BM25Vectorizer(min_df=min_df, max_df=max_df, lowercase=lowercase, token_pattern=token_pattern, ngram_range=ngram_range, stop_words=stop_words)
+    else:
+        print("select weighting scheme from ['count', 'tfidf', 'entropy', 'bm25']")
+    X = model.fit_transform(papers)
+    if (projection == 'svd'):
+        topic_model = TruncatedSVD(n_components=n_components, algorithm='arpack')
+        X_topic = topic_model.fit_transform(X)
+    elif (projection == 'pca'):
+        topic_model = PCA(n_components=n_components)
+        X_topic = topic_model.fit_transform(X.todense())
+    else:
+        print("select projection from ['svd', 'pca']")
+    return X_topic
 
 ------------------- similar code (pruned) ------------------ score = 0.2 
 def  ... ():
      ...  =  ... .fit_transform
 
-idx = 2:------------------- similar code ------------------ index = 2, score = 1.0 
+idx = 37:------------------- similar code ------------------ index = 19, score = 1.0 
 @timing
 def fit_data(self):
     if self.saved_dots:
@@ -227,53 +909,4 @@ def  ... ( ... ):
     if:    else:
         if:
  =  ... .fit_transform
-
-idx = 3:------------------- similar code ------------------ index = 1, score = 1.0 
-def generate_vocab(qa_pairs, instance_id):
-    questions = [qa_pair['question'] for qa_pair in qa_pairs]
-    answers = [qa_pair['answer'] for qa_pair in qa_pairs]
-    questions_cleaned = list(map(clean_str, list(questions)))
-    answers_cleaned = list(map(clean_str, answers))
-    count_vect_q = CountVectorizer(stop_words='english')
-    counts_q = count_vect_q.fit_transform(questions_cleaned)
-    count_vect_a = CountVectorizer(stop_words='english')
-    counts_a = count_vect_a.fit_transform(answers_cleaned)
-    q_vocab = (set(count_vect_q.get_feature_names()) & terms_dict[instance_id]['context_terms'])
-    a_vocab = (set(count_vect_a.get_feature_names()) & terms_dict[instance_id]['resp_terms'])
-    q_vocab_dict = {}
-    a_vocab_dict = {}
-    for term in q_vocab:
-        q_vocab_dict[term] = 1
-    for term in a_vocab:
-        a_vocab_dict[term] = 1
-    return (q_vocab_dict, a_vocab_dict)
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... .fit_transform
-
-idx = 4:------------------- similar code ------------------ index = 0, score = 1.0 
-def visualize(model, idx2word, args):
-    test_x = np.diag(np.ones(len(idx2word)))
-    embed_layer = model.net.layers[0]
-    embedding = ((test_x @ embed_layer.params['w']) + embed_layer.params['b'])
-    labels = list(idx2word.values())
-    embedding_reduced = TSNE().fit_transform(embedding)
-    plt.figure(figsize=(12, 6))
-    words = ['he', 'she', 'man', 'woman', 'is', 'are', 'you', 'i']
-    for word in words:
-        i = labels.index(word)
-        (x, y) = embedding_reduced[i]
-        plt.scatter(x, y)
-        plt.annotate(labels[i], (x, y))
-    if (not os.path.isdir(args.output_dir)):
-        os.makedirs(args.output_dir)
-    output_path = os.path.join(args.output_dir, 'tsne-sample.jpg')
-    plt.savefig(output_path)
-    plt.close()
-    print(f'visualization result: {output_path}')
-
-------------------- similar code (pruned) ------------------ score = 0.2 
-def  ... ():
-     ...  =  ... ().fit_transform
 

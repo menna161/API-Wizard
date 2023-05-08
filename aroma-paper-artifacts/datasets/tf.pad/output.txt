@@ -6,11 +6,7 @@ def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True,
             if ((h % stride) == 0):
                 pad = (pad * 2)
             else:
-                pad = max((kernel - (h % stride)), 0)
-            pad_top = (pad // your code ...
- 2)
 // your code ...
-
             if (pad_type == 'zero'):
                 x = tf.pad(x, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
             if (pad_type == 'reflect'):
@@ -19,75 +15,104 @@ def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True,
             w = tf.get_variable('kernel', shape=[kernel, kernel, x.get_shape()[(- 1)], channels], initializer=weight_init, regularizer=weight_regularizer)
             x = tf.nn.conv2d(input=x, filter=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
             if use_bias:
-                bias = tf.get_variable('bias', [channels], initializer=bias_init)
-                x = tf.nn.bias_add(x, bias)
+// your code ...
         else:
             x = tf.layers.conv2d(inputs=x, filters=channels, kernel_size=kernel, kernel_initializer=weight_init, kernel_regularizer=weight_regularizer, strides=stride, use_bias=use_bias, bias_initializer=bias_init)
         return x
 
 ------------------------- example 2 ------------------------ 
+def generator_resnet(image, options, reuse=False, name='generator'):
+    with tf.variable_scope(name):
+        if reuse:
+// your code ...
+
+        def residule_block(x, dim, ks=3, s=1, name='res'):
+            p = int(((ks - 1) / 2))
+            y = tf.pad(x, [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c1')), (name + '_bn1'))
+            y = tf.pad(tf.nn.relu(y), [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c2')), (name + '_bn2'))
+// your code ...
+        c0 = tf.pad(image, [[0, 0], [3, 3], [3, 3], [0, 0]], 'REFLECT')
+// your code ...
+
+------------------------- example 3 ------------------------ 
 def discrim_conv(batch_input, out_channels, stride):
     padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
     return tf.layers.conv2d(padded_input, out_channels, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.random_normal_initializer(0, 0.02))
 
-------------------------- example 3 ------------------------ 
-@staticmethod
-def _prepare_target(target, hparams):
-
-    def convert(target: PreprocessedMelData):
-        r = hparams.outputs_per_step
-        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
-        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
-        target_length = (target.target_length + (2 * r))
-        padded_target_length = (((target_length // your code ...
- r) + 1) * r)
-
-        def padding_function(t):
-            tail_padding = (padded_target_length - target_length)
-            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
-        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
-        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
-        mel.set_shape((None, hparams.num_mels))
-        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
-        done = tf.concat([tf.zeros(((padded_target_length // your code ...
- r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
-        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-        binary_loss_mask = tf.ones(shape=(padded_target_length // your code ...
- r), dtype=tf.float32)
-        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
-    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
-
 ------------------------- example 4 ------------------------ 
-def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, scope=None):
-    "Strided 2-D convolution with 'SAME' padding.\n\n  When stride > 1, then we do explicit zero-padding, followed by conv2d with\n  'VALID' padding.\n\n  Note that\n\n     net = conv2d_same(inputs, num_outputs, 3, stride=stride)\n\n  is equivalent to\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')\n     net = subsample(net, factor=stride)\n\n  whereas\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')\n\n  is different when the input's height or width is even, which is why we add the\n  current function. For more details, see ResnetUtilsTest.testConv2DSameEven().\n\n  Args:\n    inputs: A 4-D tensor of size [batch, height_in, width_in, channels].\n    num_outputs: An integer, the number of output filters.\n    kernel_size: An int with the kernel_size of the filters.\n    stride: An integer, the output stride.\n    rate: An integer, rate for atrous convolution.\n    scope: Scope.\n\n  Returns:\n    output: A 4-D tensor of size [batch, height_out, width_out, channels] with\n      the convolution output.\n  "
-    if (stride == 1):
-        return slim.conv2d(inputs, num_outputs, kernel_size, stride=1, rate=rate, padding='SAME', scope=scope)
-    else:
-        kernel_size_effective = (kernel_size + ((kernel_size - 1) * (rate - 1)))
-        pad_total = (kernel_size_effective - 1)
-        pad_beg = (pad_total // your code ...
- 2)
-        pad_end = (pad_total - pad_beg)
-        inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
-        return slim.conv2d(inputs, num_outputs, kernel_size, stride=stride, rate=rate, padding='VALID', scope=scope)
+def __call__(self, example_string):
+    'Processes a single example string.\n\n    Extracts and processes the image, and ignores the label. We assume that the\n    image has three channels.\n\n    Args:\n      example_string: str, an Example protocol buffer.\n\n    Returns:\n      image_rescaled: the image, resized to `image_size x image_size` and\n      rescaled to [-1, 1]. Note that Gaussian data augmentation may cause values\n      to go beyond this range.\n    '
+    image_string = tf.parse_single_example(example_string, features={'image': tf.FixedLenFeature([], dtype=tf.string), 'label': tf.FixedLenFeature([], tf.int64)})['image']
+    image_decoded = tf.image.decode_image(image_string, channels=3)
+    image_decoded.set_shape([None, None, 3])
+    image_resized = tf.image.resize_images(image_decoded, [self.image_size, self.image_size], method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+    image = tf.cast(image_resized, tf.float32)
+    if (self.data_augmentation is not None):
+        if self.data_augmentation.enable_random_brightness:
+            delta = self.data_augmentation.random_brightness_delta
+            image = tf.image.random_brightness(image, delta)
+        if self.data_augmentation.enable_random_saturation:
+            delta = self.data_augmentation.random_saturation_delta
+            image = tf.image.random_saturation(image, (1 - delta), (1 + delta))
+        if self.data_augmentation.enable_random_contrast:
+            delta = self.data_augmentation.random_contrast_delta
+            image = tf.image.random_contrast(image, (1 - delta), (1 + delta))
+        if self.data_augmentation.enable_random_hue:
+            delta = self.data_augmentation.random_hue_delta
+            image = tf.image.random_hue(image, delta)
+        if self.data_augmentation.enable_random_flip:
+            image = tf.image.random_flip_left_right(image)
+    image = (2 * ((image / 255.0) - 0.5))
+    if (self.data_augmentation is not None):
+        if self.data_augmentation.enable_gaussian_noise:
+            image = (image + (tf.random_normal(tf.shape(image)) * self.data_augmentation.gaussian_noise_std))
+        if self.data_augmentation.enable_jitter:
+            j = self.data_augmentation.jitter_amount
+            paddings = tf.constant([[j, j], [j, j], [0, 0]])
+            image = tf.pad(image, paddings, 'REFLECT')
+            image = tf.image.random_crop(image, [self.image_size, self.image_size, 3])
+    return image
 
 ------------------------- example 5 ------------------------ 
-def padding_function(t):
-    tail_padding = (padded_target_length - target_length)
-    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+def _call(self, inp, output_size, is_training):
+    mod = (int(inp.shape[1]) % self.pixels_per_cell[0])
+    bottom_padding = ((self.pixels_per_cell[0] - mod) if (mod > 0) else 0)
+    padding_h = int(np.ceil((self.max_object_shape[0] / 2)))
+    mod = (int(inp.shape[2]) % self.pixels_per_cell[1])
+    right_padding = ((self.pixels_per_cell[1] - mod) if (mod > 0) else 0)
+    padding_w = int(np.ceil((self.max_object_shape[1] / 2)))
+    padding = [[0, 0], [padding_h, (bottom_padding + padding_h)], [padding_w, (right_padding + padding_w)], [0, 0]]
+    inp = tf.pad(inp, padding)
+    return super(NewBackbone, self)._call(inp, output_size, is_training)
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          5           ||        23         ||         2        
-example2  ||          7           ||        3         ||         0        
-example3  ||          2           ||        19         ||         3        
-example4  ||          3           ||        11         ||         1        
-example5  ||          2           ||        4         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          5           ||        18         ||         2        ||        0.1111111111111111         
+example2  ||          7           ||        9         ||         3        ||        0.3333333333333333         
+example3  ||          9           ||        3         ||         0        ||        0.3333333333333333         
+example4  ||          6           ||        32         ||         0        ||        0.03125         
+example5  ||          5           ||        10         ||         0        ||        0.1         
 
-avg       ||          3.8           ||        12.0         ||         1.2        
+avg       ||          13.061224489795919           ||        14.4         ||         1.0        ||         18.180555555555554        
 
-idx = 0:------------------- similar code ------------------ index = 12, score = 6.0 
+idx = 0:------------------- similar code ------------------ index = 13, score = 6.0 
+def pad_shorter(image):
+    shape = tf.shape(image)
+    (height, width) = (shape[0], shape[1])
+    larger_dim = tf.maximum(height, width)
+    h1 = ((larger_dim - height) // 2)
+    h2 = ((larger_dim - height) - h1)
+    w1 = tf.maximum(((larger_dim - width) // 2), 0)
+    w2 = ((larger_dim - width) - w1)
+    pad_shape = [[h1, h2], [w1, w2], [0, 0]]
+    return tf.pad(image, pad_shape)
+
+------------------- similar code (pruned) ------------------ score = 0.5833333333333334 
+def  ... ( ... ):
+    return tf.pad
+
+idx = 1:------------------- similar code ------------------ index = 7, score = 6.0 
 def conv(x, channels, kernel=4, stride=2, pad=0, pad_type='zero', use_bias=True, bias_init=tf.constant_initializer(0.0), sn=False, scope='conv_0'):
     with tf.variable_scope(scope):
         if (pad > 0):
@@ -121,7 +146,48 @@ def  ... ():
             if:
                  ...  = tf.pad
 
-idx = 1:------------------- similar code ------------------ index = 11, score = 6.0 
+idx = 2:------------------- similar code ------------------ index = 29, score = 6.0 
+def generator_resnet(image, options, reuse=False, name='generator'):
+    with tf.variable_scope(name):
+        if reuse:
+            tf.get_variable_scope().reuse_variables()
+        else:
+            assert (tf.get_variable_scope().reuse is False)
+
+        def residule_block(x, dim, ks=3, s=1, name='res'):
+            p = int(((ks - 1) / 2))
+            y = tf.pad(x, [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c1')), (name + '_bn1'))
+            y = tf.pad(tf.nn.relu(y), [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+            y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c2')), (name + '_bn2'))
+            return relu((y + x))
+        c0 = tf.pad(image, [[0, 0], [3, 3], [3, 3], [0, 0]], 'REFLECT')
+        c1 = relu(instance_norm(conv2d(c0, options.gf_dim, 7, 1, padding='VALID', name='g_e1_c'), 'g_e1_bn'))
+        c2 = relu(instance_norm(conv2d(c1, (options.gf_dim * 2), 3, 2, name='g_e2_c'), 'g_e2_bn'))
+        c3 = relu(instance_norm(conv2d(c2, (options.gf_dim * 4), 3, 2, name='g_e3_c'), 'g_e3_bn'))
+        r1 = residule_block(c3, (options.gf_dim * 4), name='g_r1')
+        r2 = residule_block(r1, (options.gf_dim * 4), name='g_r2')
+        r3 = residule_block(r2, (options.gf_dim * 4), name='g_r3')
+        r4 = residule_block(r3, (options.gf_dim * 4), name='g_r4')
+        r5 = residule_block(r4, (options.gf_dim * 4), name='g_r5')
+        r6 = residule_block(r5, (options.gf_dim * 4), name='g_r6')
+        r7 = residule_block(r6, (options.gf_dim * 4), name='g_r7')
+        r8 = residule_block(r7, (options.gf_dim * 4), name='g_r8')
+        r9 = residule_block(r8, (options.gf_dim * 4), name='g_r9')
+        r10 = residule_block(r9, (options.gf_dim * 4), name='g_r10')
+        d1 = relu(instance_norm(deconv2d(r10, (options.gf_dim * 2), 3, 2, name='g_d1_dc'), 'g_d1_bn'))
+        d2 = relu(instance_norm(deconv2d(d1, options.gf_dim, 3, 2, name='g_d2_dc'), 'g_d2_bn'))
+        d3 = tf.pad(d2, [[0, 0], [3, 3], [3, 3], [0, 0]], 'REFLECT')
+        pred = tf.nn.sigmoid(conv2d(d3, options.output_c_dim, 7, 1, padding='VALID', name='g_pred_c'))
+        return pred
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        def  ... ():
+             ...  = tf.pad
+
+idx = 3:------------------- similar code ------------------ index = 9, score = 6.0 
 def discrim_conv(batch_input, out_channels, stride):
     padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
     return tf.layers.conv2d(padded_input, out_channels, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.random_normal_initializer(0, 0.02))
@@ -130,7 +196,7 @@ def discrim_conv(batch_input, out_channels, stride):
 def  ... ():
      ...  = tf.pad
 
-idx = 2:------------------- similar code ------------------ index = 4, score = 6.0 
+idx = 4:------------------- similar code ------------------ index = 22, score = 6.0 
 def discrim_conv_mask(batch_input, stride):
     padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
     return tf.layers.conv2d(padded_input, 1, kernel_size=4, strides=(stride, stride), padding='valid', kernel_initializer=tf.constant_initializer((1.0 / 16)))
@@ -139,38 +205,47 @@ def discrim_conv_mask(batch_input, stride):
 def  ... ():
      ...  = tf.pad
 
-idx = 3:------------------- similar code ------------------ index = 13, score = 5.0 
-@staticmethod
-def _prepare_target(target, hparams):
-
-    def convert(target: PreprocessedMelData):
-        r = hparams.outputs_per_step
-        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
-        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
-        target_length = (target.target_length + (2 * r))
-        padded_target_length = (((target_length // r) + 1) * r)
-
-        def padding_function(t):
-            tail_padding = (padded_target_length - target_length)
-            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
-        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
-        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
-        mel.set_shape((None, hparams.num_mels))
-        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
-        done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
-        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-        binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
-        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
-    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
+idx = 5:------------------- similar code ------------------ index = 8, score = 5.0 
+def __call__(self, example_string):
+    'Processes a single example string.\n\n    Extracts and processes the image, and ignores the label. We assume that the\n    image has three channels.\n\n    Args:\n      example_string: str, an Example protocol buffer.\n\n    Returns:\n      image_rescaled: the image, resized to `image_size x image_size` and\n      rescaled to [-1, 1]. Note that Gaussian data augmentation may cause values\n      to go beyond this range.\n    '
+    image_string = tf.parse_single_example(example_string, features={'image': tf.FixedLenFeature([], dtype=tf.string), 'label': tf.FixedLenFeature([], tf.int64)})['image']
+    image_decoded = tf.image.decode_image(image_string, channels=3)
+    image_decoded.set_shape([None, None, 3])
+    image_resized = tf.image.resize_images(image_decoded, [self.image_size, self.image_size], method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+    image = tf.cast(image_resized, tf.float32)
+    if (self.data_augmentation is not None):
+        if self.data_augmentation.enable_random_brightness:
+            delta = self.data_augmentation.random_brightness_delta
+            image = tf.image.random_brightness(image, delta)
+        if self.data_augmentation.enable_random_saturation:
+            delta = self.data_augmentation.random_saturation_delta
+            image = tf.image.random_saturation(image, (1 - delta), (1 + delta))
+        if self.data_augmentation.enable_random_contrast:
+            delta = self.data_augmentation.random_contrast_delta
+            image = tf.image.random_contrast(image, (1 - delta), (1 + delta))
+        if self.data_augmentation.enable_random_hue:
+            delta = self.data_augmentation.random_hue_delta
+            image = tf.image.random_hue(image, delta)
+        if self.data_augmentation.enable_random_flip:
+            image = tf.image.random_flip_left_right(image)
+    image = (2 * ((image / 255.0) - 0.5))
+    if (self.data_augmentation is not None):
+        if self.data_augmentation.enable_gaussian_noise:
+            image = (image + (tf.random_normal(tf.shape(image)) * self.data_augmentation.gaussian_noise_std))
+        if self.data_augmentation.enable_jitter:
+            j = self.data_augmentation.jitter_amount
+            paddings = tf.constant([[j, j], [j, j], [0, 0]])
+            image = tf.pad(image, paddings, 'REFLECT')
+            image = tf.image.random_crop(image, [self.image_size, self.image_size, 3])
+    return image
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
+    if:
+        if:
+             ...  = tf.pad
 
-    def  ... ():
-         ...  = tf.pad
-
-idx = 4:------------------- similar code ------------------ index = 10, score = 5.0 
+idx = 6:------------------- similar code ------------------ index = 12, score = 5.0 
 def _call(self, inp, output_size, is_training):
     mod = (int(inp.shape[1]) % self.pixels_per_cell[0])
     bottom_padding = ((self.pixels_per_cell[0] - mod) if (mod > 0) else 0)
@@ -186,7 +261,157 @@ def _call(self, inp, output_size, is_training):
 def  ... ():
      ...  = tf.pad
 
-idx = 5:------------------- similar code ------------------ index = 9, score = 5.0 
+idx = 7:------------------- similar code ------------------ index = 11, score = 5.0 
+def conv(self, num_out_channels, k_height, k_width, d_height=1, d_width=1, mode='SAME', input_layer=None, num_channels_in=None, use_batch_norm=None, stddev=None, activation='relu', bias=0.0, kernel_initializer=None):
+    'Construct a conv2d layer on top of cnn.'
+    if (input_layer is None):
+        input_layer = self.top_layer
+    if (num_channels_in is None):
+        num_channels_in = self.top_size
+    if ((stddev is not None) and (kernel_initializer is None)):
+        kernel_initializer = tf.truncated_normal_initializer(stddev=stddev)
+    name = ('conv' + str(self.counts['conv']))
+    self.counts['conv'] += 1
+    with tf.variable_scope(name):
+        strides = [1, d_height, d_width, 1]
+        if (self.data_format == 'NCHW'):
+            strides = [strides[0], strides[3], strides[1], strides[2]]
+        if (mode != 'SAME_RESNET'):
+            conv = self._conv2d_impl(input_layer, num_channels_in, num_out_channels, kernel_size=[k_height, k_width], strides=[d_height, d_width], padding=mode, kernel_initializer=kernel_initializer)
+        elif ((d_height == 1) and (d_width == 1)):
+            conv = self._conv2d_impl(input_layer, num_channels_in, num_out_channels, kernel_size=[k_height, k_width], strides=[d_height, d_width], padding='SAME', kernel_initializer=kernel_initializer)
+        else:
+            rate = 1
+            kernel_height_effective = (k_height + ((k_height - 1) * (rate - 1)))
+            pad_h_beg = ((kernel_height_effective - 1) // 2)
+            pad_h_end = ((kernel_height_effective - 1) - pad_h_beg)
+            kernel_width_effective = (k_width + ((k_width - 1) * (rate - 1)))
+            pad_w_beg = ((kernel_width_effective - 1) // 2)
+            pad_w_end = ((kernel_width_effective - 1) - pad_w_beg)
+            padding = [[0, 0], [pad_h_beg, pad_h_end], [pad_w_beg, pad_w_end], [0, 0]]
+            if (self.data_format == 'NCHW'):
+                padding = [padding[0], padding[3], padding[1], padding[2]]
+            input_layer = tf.pad(input_layer, padding)
+            conv = self._conv2d_impl(input_layer, num_channels_in, num_out_channels, kernel_size=[k_height, k_width], strides=[d_height, d_width], padding='VALID', kernel_initializer=kernel_initializer)
+        if (use_batch_norm is None):
+            use_batch_norm = self.use_batch_norm
+        if (not use_batch_norm):
+            if (bias is not None):
+                biases = self.get_variable('biases', [num_out_channels], self.variable_dtype, self.dtype, initializer=tf.constant_initializer(bias))
+                biased = tf.reshape(tf.nn.bias_add(conv, biases, data_format=self.data_format), conv.get_shape())
+            else:
+                biased = conv
+        else:
+            self.top_layer = conv
+            self.top_size = num_out_channels
+            biased = self.batch_norm(**self.batch_norm_config)
+        if (activation == 'relu'):
+            conv1 = tf.nn.relu(biased)
+        elif ((activation == 'linear') or (activation is None)):
+            conv1 = biased
+        elif (activation == 'tanh'):
+            conv1 = tf.nn.tanh(biased)
+        else:
+            raise KeyError(("Invalid activation type '%s'" % activation))
+        self.top_layer = conv1
+        self.top_size = num_out_channels
+        return conv1
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        if:        else:
+             ...  = tf.pad
+
+idx = 8:------------------- similar code ------------------ index = 10, score = 5.0 
+def padding_function(t):
+    tail_padding = (padded_target_length - target_length)
+    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ( ... ):
+    return (lambda : tf.pad)
+
+idx = 9:------------------- similar code ------------------ index = 32, score = 5.0 
+def convert(target: PreprocessedMelData):
+    r = hparams.outputs_per_step
+    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+    target_length = (target.target_length + (2 * r))
+    padded_target_length = (((target_length // r) + 1) * r)
+
+    def padding_function(t):
+        tail_padding = (padded_target_length - target_length)
+        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+    mel.set_shape((None, hparams.num_mels))
+    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 10:------------------- similar code ------------------ index = 15, score = 5.0 
+@staticmethod
+def multi_scale_style_swap(content_features, style_features, patch_size=5):
+    c_shape = tf.shape(content_features)
+    s_shape = tf.shape(style_features)
+    channel_assertion = tf.Assert(tf.equal(c_shape[3], s_shape[3]), ['number of channels  must be the same'])
+    with tf.control_dependencies([channel_assertion]):
+        (c_height, c_width, c_channel) = (c_shape[1], c_shape[2], c_shape[3])
+        proposed_outputs = []
+        for beta in [(1.0 / 2), (1.0 / (2 ** 0.5)), 1.0]:
+            new_height = tf.cast(tf.multiply(tf.cast(s_shape[1], tf.float32), beta), tf.int32)
+            new_width = tf.cast(tf.multiply(tf.cast(s_shape[2], tf.float32), beta), tf.int32)
+            tmp_style_features = tf.image.resize_images(style_features, [new_height, new_width], method=tf.image.ResizeMethod.BILINEAR)
+            style_kernels = tf.extract_image_patches(tmp_style_features, ksizes=[1, patch_size, patch_size, 1], strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='SAME')
+            style_kernels = tf.squeeze(style_kernels, axis=0)
+            style_kernels = tf.transpose(style_kernels, perm=[2, 0, 1])
+            deconv_kernels = tf.reshape(style_kernels, shape=(patch_size, patch_size, c_channel, (- 1)))
+            kernels_norm = tf.norm(style_kernels, axis=0, keep_dims=True)
+            kernels_norm = tf.reshape(kernels_norm, shape=(1, 1, 1, (- 1)))
+            mask = tf.ones((c_height, c_width), tf.float32)
+            fullmask = tf.zeros((((c_height + patch_size) - 1), ((c_width + patch_size) - 1)), tf.float32)
+            for x in range(patch_size):
+                for y in range(patch_size):
+                    paddings = [[x, ((patch_size - x) - 1)], [y, ((patch_size - y) - 1)]]
+                    padded_mask = tf.pad(mask, paddings=paddings, mode='CONSTANT')
+                    fullmask += padded_mask
+            pad_width = int(((patch_size - 1) / 2))
+            deconv_norm = tf.slice(fullmask, [pad_width, pad_width], [c_height, c_width])
+            deconv_norm = tf.reshape(deconv_norm, shape=(1, c_height, c_width, 1))
+            pad_total = (patch_size - 1)
+            pad_beg = (pad_total // 2)
+            pad_end = (pad_total - pad_beg)
+            paddings = [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]]
+            net = tf.pad(content_features, paddings=paddings, mode='REFLECT')
+            net = tf.nn.conv2d(net, tf.div(deconv_kernels, (kernels_norm + 1e-07)), strides=[1, 1, 1, 1], padding='VALID')
+            best_match_ids = tf.argmax(net, axis=3)
+            best_match_ids = tf.cast(tf.one_hot(best_match_ids, depth=tf.shape(net)[3]), dtype=tf.float32)
+            unnormalized_output = tf.nn.conv2d_transpose(value=best_match_ids, filter=deconv_kernels, output_shape=(c_shape[0], (c_height + pad_total), (c_width + pad_total), c_channel), strides=[1, 1, 1, 1], padding='VALID')
+            unnormalized_output = tf.slice(unnormalized_output, [0, pad_beg, pad_beg, 0], c_shape)
+            output = tf.div(unnormalized_output, deconv_norm)
+            output = tf.reshape(output, shape=c_shape)
+            proposed_outputs.append(output)
+        proposed_outputs.append(content_features)
+        return proposed_outputs
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        for  ...  in:
+            for  ...  in:
+                for  ...  in:
+                     ...  = tf.pad
+
+idx = 11:------------------- similar code ------------------ index = 6, score = 5.0 
 def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, scope=None):
     "Strided 2-D convolution with 'SAME' padding.\n\n  When stride > 1, then we do explicit zero-padding, followed by conv2d with\n  'VALID' padding.\n\n  Note that\n\n     net = conv2d_same(inputs, num_outputs, 3, stride=stride)\n\n  is equivalent to\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')\n     net = subsample(net, factor=stride)\n\n  whereas\n\n     net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')\n\n  is different when the input's height or width is even, which is why we add the\n  current function. For more details, see ResnetUtilsTest.testConv2DSameEven().\n\n  Args:\n    inputs: A 4-D tensor of size [batch, height_in, width_in, channels].\n    num_outputs: An integer, the number of output filters.\n    kernel_size: An int with the kernel_size of the filters.\n    stride: An integer, the output stride.\n    rate: An integer, rate for atrous convolution.\n    scope: Scope.\n\n  Returns:\n    output: A 4-D tensor of size [batch, height_out, width_out, channels] with\n      the convolution output.\n  "
     if (stride == 1):
@@ -204,22 +429,24 @@ def  ... ():
     if:    else:
          ...  = tf.pad
 
-idx = 6:------------------- similar code ------------------ index = 8, score = 5.0 
-def process_tensor_array(tensor_array, name, shape=None):
-    tensor = tf.transpose(tensor_array.stack(), (1, 0, 2))
-    time_pad = (self.max_time_steps - tf.shape(tensor)[1])
-    padding = [[0, 0], [0, time_pad]]
-    padding += ([[0, 0]] * (len(tensor.shape) - 2))
-    tensor = tf.pad(tensor, padding, name=name)
-    if (shape is not None):
-        tensor = tf.reshape(tensor, shape)
-    return tensor
+idx = 12:------------------- similar code ------------------ index = 5, score = 5.0 
+def fixed_padding(inputs, kernel_size, data_format):
+    "Pads the input along the spatial dimensions independently of input size.\n\n  Args:\n    inputs: A tensor of size [batch, channels, height_in, width_in] or\n      [batch, height_in, width_in, channels] depending on data_format.\n    kernel_size: The kernel to be used in the conv2d or max_pool2d operation.\n                 Should be a positive integer.\n    data_format: The input format ('channels_last' or 'channels_first').\n\n  Returns:\n    A tensor with the same format as the input with the data either intact\n    (if kernel_size == 1) or padded (if kernel_size > 1).\n  "
+    pad_total = (kernel_size - 1)
+    pad_beg = (pad_total // 2)
+    pad_end = (pad_total - pad_beg)
+    if (data_format == 'channels_first'):
+        padded_inputs = tf.pad(inputs, [[0, 0], [0, 0], [pad_beg, pad_end], [pad_beg, pad_end]])
+    else:
+        padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+    return padded_inputs
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
-     ...  = tf.pad
+    if:
+         ...  = tf.pad
 
-idx = 7:------------------- similar code ------------------ index = 7, score = 5.0 
+idx = 13:------------------- similar code ------------------ index = 3, score = 5.0 
 def build_math(self):
     if (self.math_input_network is None):
         self.math_input_network = cfg.build_math_input(scope='math_input_network')
@@ -256,81 +483,100 @@ def  ... ( ... ):
     if:
          ...  = tf.pad
 
-idx = 8:------------------- similar code ------------------ index = 6, score = 5.0 
-def _fixed_padding(inputs, kernel_size, rate=1):
-    "Pads the input along the spatial dimensions independently of input size.\n\n  Pads the input such that if it was used in a convolution with 'VALID' padding,\n  the output would have the same dimensions as if the unpadded input was used\n  in a convolution with 'SAME' padding.\n\n  Args:\n    inputs: A tensor of size [batch, height_in, width_in, channels].\n    kernel_size: The kernel to be used in the conv2d or max_pool2d operation.\n    rate: An integer, rate for atrous convolution.\n\n  Returns:\n    output: A tensor of size [batch, height_out, width_out, channels] with the\n      input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).\n  "
-    kernel_size_effective = [(kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1))), (kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1)))]
-    pad_total = [(kernel_size_effective[0] - 1), (kernel_size_effective[1] - 1)]
-    pad_beg = [(pad_total[0] // 2), (pad_total[1] // 2)]
-    pad_end = [(pad_total[0] - pad_beg[0]), (pad_total[1] - pad_beg[1])]
-    padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg[0], pad_end[0]], [pad_beg[1], pad_end[1]], [0, 0]])
-    return padded_inputs
+idx = 14:------------------- similar code ------------------ index = 2, score = 5.0 
+def conv(batch_input, out_channels, stride):
+    with tf.variable_scope('conv'):
+        in_channels = batch_input.get_shape()[3]
+        filter = tf.get_variable('filter', [4, 4, in_channels, out_channels], dtype=tf.float32, initializer=tf.random_normal_initializer(0, 0.02))
+        padded_input = tf.pad(batch_input, [[0, 0], [1, 1], [1, 1], [0, 0]], mode='CONSTANT')
+        conv = tf.nn.conv2d(padded_input, filter, [1, stride, stride, 1], padding='VALID')
+        return conv
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  = tf.pad
+
+idx = 15:------------------- similar code ------------------ index = 1, score = 5.0 
+def residule_block(x, dim, ks=3, s=1, name='res'):
+    p = int(((ks - 1) / 2))
+    y = tf.pad(x, [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+    y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c1')), (name + '_bn1'))
+    y = tf.pad(tf.nn.relu(y), [[0, 0], [p, p], [p, p], [0, 0]], 'REFLECT')
+    y = instance_norm(conv2d(y, dim, ks, s, padding='VALID', name=(name + '_c2')), (name + '_bn2'))
+    return relu((y + x))
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = tf.pad
 
-idx = 9:------------------- similar code ------------------ index = 5, score = 5.0 
-def padding_function(t):
-    tail_padding = (padded_target_length - target_length)
-    padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-    return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+idx = 16:------------------- similar code ------------------ index = 14, score = 5.0 
+def dropblock(x, keep_prob, block_size, gamma_scale=1.0, seed=None, name=None, data_format='channels_last', is_training=True):
+    "\n  Dropblock layer. For more details, refer to https://arxiv.org/abs/1810.12890\n  :param x: A floating point tensor.\n  :param keep_prob: A scalar Tensor with the same type as x. The probability that each element is kept.\n  :param block_size: The block size to drop\n  :param gamma_scale: The multiplier to gamma.\n  :param seed:  Python integer. Used to create random seeds.\n  :param name: A name for this operation (optional)\n  :param data_format: 'channels_last' or 'channels_first'\n  :param is_training: If False, do nothing.\n  :return: A Tensor of the same shape of x.\n  "
+    if (not is_training):
+        return x
+    if ((isinstance(keep_prob, float) and (keep_prob == 1)) or (gamma_scale == 0)):
+        return x
+    with tf.name_scope(name, 'dropblock', [x]) as name:
+        if (not x.dtype.is_floating):
+            raise ValueError(("x has to be a floating point tensor since it's going to be scaled. Got a %s tensor instead." % x.dtype))
+        if (isinstance(keep_prob, float) and (not (0 < keep_prob <= 1))):
+            raise ValueError(('keep_prob must be a scalar tensor or a float in the range (0, 1], got %g' % keep_prob))
+        br = ((block_size - 1) // 2)
+        tl = ((block_size - 1) - br)
+        if (data_format == 'channels_last'):
+            (_, h, w, c) = x.shape.as_list()
+            sampling_mask_shape = tf.stack([1, ((h - block_size) + 1), ((w - block_size) + 1), c])
+            pad_shape = [[0, 0], [tl, br], [tl, br], [0, 0]]
+        elif (data_format == 'channels_first'):
+            (_, c, h, w) = x.shape.as_list()
+            sampling_mask_shape = tf.stack([1, c, ((h - block_size) + 1), ((w - block_size) + 1)])
+            pad_shape = [[0, 0], [0, 0], [tl, br], [tl, br]]
+        else:
+            raise NotImplementedError
+        gamma = ((((1.0 - keep_prob) * (w * h)) / (block_size ** 2)) / (((w - block_size) + 1) * ((h - block_size) + 1)))
+        gamma = (gamma_scale * gamma)
+        mask = _bernoulli(sampling_mask_shape, gamma, seed, tf.float32)
+        mask = tf.pad(mask, pad_shape)
+        xdtype_mask = tf.cast(mask, x.dtype)
+        xdtype_mask = tf.layers.max_pooling2d(inputs=xdtype_mask, pool_size=block_size, strides=1, padding='SAME', data_format=data_format)
+        xdtype_mask = (1 - xdtype_mask)
+        fp32_mask = tf.cast(xdtype_mask, tf.float32)
+        ret = tf.multiply(x, xdtype_mask)
+        float32_mask_size = tf.cast(tf.size(fp32_mask), tf.float32)
+        float32_mask_reduce_sum = tf.reduce_sum(fp32_mask)
+        normalize_factor = tf.cast((float32_mask_size / (float32_mask_reduce_sum + 1e-08)), x.dtype)
+        ret = (ret * normalize_factor)
+        return ret
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ( ... ):
-    return (lambda : tf.pad)
+def  ... ():
+    with:
+         ...  = tf.pad
 
-idx = 10:------------------- similar code ------------------ index = 3, score = 5.0 
-def convert(target: PreprocessedMelData):
-    r = hparams.outputs_per_step
-    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
-    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
-    target_length = (target.target_length + (2 * r))
-    padded_target_length = (((target_length // r) + 1) * r)
-
-    def padding_function(t):
-        tail_padding = (padded_target_length - target_length)
-        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
-    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
-    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
-    mel.set_shape((None, hparams.num_mels))
-    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
-    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
-    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
-    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+idx = 17:------------------- similar code ------------------ index = 16, score = 5.0 
+def sharpness(image, factor):
+    'Implements Sharpness function from PIL using TF ops.'
+    orig_image = image
+    image = tf.cast(image, tf.float32)
+    image = tf.expand_dims(image, 0)
+    kernel = (tf.constant([[1, 1, 1], [1, 5, 1], [1, 1, 1]], dtype=tf.float32, shape=[3, 3, 1, 1]) / 13.0)
+    kernel = tf.tile(kernel, [1, 1, 3, 1])
+    strides = [1, 1, 1, 1]
+    degenerate = tf.nn.depthwise_conv2d(image, kernel, strides, padding='VALID', rate=[1, 1])
+    degenerate = tf.clip_by_value(degenerate, 0.0, 255.0)
+    degenerate = tf.squeeze(tf.cast(degenerate, tf.uint8), [0])
+    mask = tf.ones_like(degenerate)
+    padded_mask = tf.pad(mask, [[1, 1], [1, 1], [0, 0]])
+    padded_degenerate = tf.pad(degenerate, [[1, 1], [1, 1], [0, 0]])
+    result = tf.where(tf.equal(padded_mask, 1), padded_degenerate, orig_image)
+    return blend(result, orig_image, factor)
 
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ():
      ...  = tf.pad
 
-idx = 11:------------------- similar code ------------------ index = 2, score = 5.0 
-def convert(target: PreprocessedMelData):
-    r = hparams.outputs_per_step
-    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
-    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
-    target_length = (target.target_length + (2 * r))
-    padded_target_length = (((target_length // r) + 1) * r)
-
-    def padding_function(t):
-        tail_padding = (padded_target_length - target_length)
-        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
-        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
-    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
-    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
-    mel.set_shape((None, hparams.num_mels))
-    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
-    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
-    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
-    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
-    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
-
-------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
-def  ... ():
-     ...  = tf.pad
-
-idx = 12:------------------- similar code ------------------ index = 1, score = 5.0 
+idx = 18:------------------- similar code ------------------ index = 31, score = 5.0 
 @staticmethod
 def _prepare_target(target, hparams):
 
@@ -361,7 +607,351 @@ def  ... ():
     def  ... ():
          ...  = tf.pad
 
-idx = 13:------------------- similar code ------------------ index = 0, score = 5.0 
+idx = 19:------------------- similar code ------------------ index = 17, score = 5.0 
+def bending_energy(dvf, voxel_size=None):
+    '\n    Bending Energy in TensorFlow:\n    :param dvf: with shape of (batch_size, dim0, dim1, dim2, 3)\n    :param voxel_size: physical voxel spacing in mm\n    :return: 3D bending energy\n    '
+    if (voxel_size is None):
+        voxel_size = [1, 1, 1]
+    (indices_x, indices_y, indices_z) = tf.meshgrid(tf.range(0, dvf.get_shape()[1]), tf.range(0, dvf.get_shape()[2]), tf.range(0, dvf.get_shape()[3]), indexing='ij')
+    dvf_tensor = tf.concat(([(tf.expand_dims(indices_x, (- 1)) * voxel_size[0]), (tf.expand_dims(indices_y, (- 1)) * voxel_size[1]), tf.expand_dims(indices_z, (- 1))] * voxel_size[2]), axis=(- 1))
+    dvf_tensor = tf.expand_dims(dvf_tensor, axis=0)
+    dvf_tensor = tf.tile(dvf_tensor, [tf.shape(dvf)[0], 1, 1, 1, 1])
+    dvf_tensor = tf.to_float(dvf_tensor)
+    dvf_tensor = tf.add(dvf_tensor, dvf)
+    dvf_grad_dim0 = (diff(dvf_tensor, axis=1) / voxel_size[0])
+    dvf_grad_dim1 = (diff(dvf_tensor, axis=2) / voxel_size[1])
+    dvf_grad_dim2 = (diff(dvf_tensor, axis=3) / voxel_size[2])
+    dvf_grad_dim0_dim0 = (diff(dvf_grad_dim0, axis=1) / voxel_size[0])
+    dvf_grad_dim0_dim1 = (diff(dvf_grad_dim0, axis=2) / voxel_size[1])
+    dvf_grad_dim0_dim2 = (diff(dvf_grad_dim0, axis=3) / voxel_size[2])
+    dvf_grad_dim1_dim1 = (diff(dvf_grad_dim1, axis=2) / voxel_size[1])
+    dvf_grad_dim1_dim2 = (diff(dvf_grad_dim1, axis=3) / voxel_size[2])
+    dvf_grad_dim2_dim2 = (diff(dvf_grad_dim2, axis=3) / voxel_size[2])
+    dvf_grad_dim0_dim0 = tf.pad(dvf_grad_dim0_dim0, ([0, 0], [0, 2], [0, 0], [0, 0], [0, 0]))
+    dvf_grad_dim0_dim1 = tf.pad(dvf_grad_dim0_dim1, ([0, 0], [0, 1], [0, 1], [0, 0], [0, 0]))
+    dvf_grad_dim0_dim2 = tf.pad(dvf_grad_dim0_dim2, ([0, 0], [0, 1], [0, 0], [0, 1], [0, 0]))
+    dvf_grad_dim1_dim1 = tf.pad(dvf_grad_dim1_dim1, ([0, 0], [0, 0], [0, 2], [0, 0], [0, 0]))
+    dvf_grad_dim1_dim2 = tf.pad(dvf_grad_dim1_dim2, ([0, 0], [0, 0], [0, 1], [0, 1], [0, 0]))
+    dvf_grad_dim2_dim2 = tf.pad(dvf_grad_dim2_dim2, ([0, 0], [0, 0], [0, 0], [0, 2], [0, 0]))
+    smoothness = tf.reduce_mean((((((tf.square(dvf_grad_dim0_dim0) + (2 * tf.square(dvf_grad_dim0_dim1))) + (2 * tf.square(dvf_grad_dim0_dim2))) + tf.square(dvf_grad_dim1_dim1)) + (2 * tf.square(dvf_grad_dim1_dim2))) + tf.square(dvf_grad_dim2_dim2)))
+    return smoothness
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 20:------------------- similar code ------------------ index = 18, score = 5.0 
+def residual_block(cnn, depth, stride, pre_activation):
+    'Residual block with identity short-cut.\n\n  Args:\n    cnn: the network to append residual blocks.\n    depth: the number of output filters for this residual block.\n    stride: Stride used in the first layer of the residual block.\n    pre_activation: use pre_activation structure or not.\n  '
+    input_layer = cnn.top_layer
+    in_size = cnn.top_size
+    if (in_size != depth):
+        shortcut = cnn.apool(1, 1, stride, stride, input_layer=input_layer, num_channels_in=in_size)
+        padding = ((depth - in_size) // 2)
+        if (cnn.channel_pos == 'channels_last'):
+            shortcut = tf.pad(shortcut, [[0, 0], [0, 0], [0, 0], [padding, padding]])
+        else:
+            shortcut = tf.pad(shortcut, [[0, 0], [padding, padding], [0, 0], [0, 0]])
+    else:
+        shortcut = input_layer
+    if pre_activation:
+        res = cnn.batch_norm(input_layer)
+        res = tf.nn.relu(res)
+    else:
+        res = input_layer
+    cnn.conv(depth, 3, 3, stride, stride, input_layer=res, num_channels_in=in_size, use_batch_norm=True, bias=None)
+    if pre_activation:
+        res = cnn.conv(depth, 3, 3, 1, 1, activation=None, use_batch_norm=False, bias=None)
+        output = (shortcut + res)
+    else:
+        res = cnn.conv(depth, 3, 3, 1, 1, activation=None, use_batch_norm=True, bias=None)
+        output = tf.nn.relu((shortcut + res))
+    cnn.top_layer = output
+    cnn.top_size = depth
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    if:
+        if:
+             ...  = tf.pad
+
+idx = 21:------------------- similar code ------------------ index = 19, score = 5.0 
+def call(self, inputs):
+    rejoin = (- 1)
+    x = inputs
+    for layer in self.conv:
+        if isinstance(self.conv[layer], tf.keras.layers.Conv2D):
+            block = int(layer.split('-')[1])
+            if ((block > 0) and (self.shortcuts[(block - 1)] == 1)):
+                rejoin = (block + 1)
+                y = x
+                count_downsampling = ((sum(self.apply_maxpools[block:(block + 2)]) + sum(self.strides[block:(block + 2)])) - 2)
+                for _ in range(count_downsampling):
+                    y = tf.keras.layers.AveragePooling2D(pool_size=(2, 2))(y)
+                y = tf.pad(y, [[0, 0], [0, 0], [0, 0], [0, (self.out_channels[(block + 1)] - self.out_channels[(block - 1)])]], 'CONSTANT')
+        if ((block == rejoin) and ('act' in layer)):
+            x = tf.keras.layers.Add()([x, y])
+        x = self.conv[layer](x)
+    x = tf.keras.layers.Flatten()(x)
+    for layer in self.mlp:
+        x = self.mlp[layer](x)
+    return x
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    for  ...  in:
+        if:
+            if:
+                 ...  = tf.pad
+
+idx = 22:------------------- similar code ------------------ index = 20, score = 5.0 
+def conv(x, channels, kernel=3, stride=1, pad=1, pad_type='zero', scope='conv_0'):
+    with tf.variable_scope(scope):
+        if (pad_type == 'zero'):
+            x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]])
+        if (pad_type == 'reflect'):
+            x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]], mode='REFLECT')
+        x = tf.layers.conv2d(x, channels, kernel, stride, kernel_initializer=tf.contrib.layers.xavier_initializer())
+        return x
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+        if:
+             ...  = tf.pad
+
+idx = 23:------------------- similar code ------------------ index = 21, score = 5.0 
+def process_tensor_array(tensor_array, name, shape=None):
+    tensor = tf.transpose(tensor_array.stack(), (1, 0, 2))
+    time_pad = (self.max_time_steps - tf.shape(tensor)[1])
+    padding = [[0, 0], [0, time_pad]]
+    padding += ([[0, 0]] * (len(tensor.shape) - 2))
+    tensor = tf.pad(tensor, padding, name=name)
+    if (shape is not None):
+        tensor = tf.reshape(tensor, shape)
+    return tensor
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 24:------------------- similar code ------------------ index = 23, score = 5.0 
+def add_timing_signal(x, min_timescale=1.0, max_timescale=10000.0, name=None):
+    "\n    This function adds a bunch of sinusoids of different frequencies to a\n    Tensor. See paper: `Attention is all you need'\n\n    :param x: A tensor with shape [batch, length, channels]\n    :param min_timescale: A floating point number\n    :param max_timescale: A floating point number\n    :param name: An optional string\n\n    :returns: a Tensor the same shape as x.\n    "
+    with tf.name_scope(name, default_name='add_timing_signal', values=[x]):
+        length = tf.shape(x)[1]
+        channels = tf.shape(x)[2]
+        position = tf.to_float(tf.range(length))
+        num_timescales = (channels // 2)
+        log_timescale_increment = (math.log((float(max_timescale) / float(min_timescale))) / (tf.to_float(num_timescales) - 1))
+        inv_timescales = (min_timescale * tf.exp((tf.to_float(tf.range(num_timescales)) * (- log_timescale_increment))))
+        scaled_time = (tf.expand_dims(position, 1) * tf.expand_dims(inv_timescales, 0))
+        signal = tf.concat([tf.sin(scaled_time), tf.cos(scaled_time)], axis=1)
+        signal = tf.pad(signal, [[0, 0], [0, tf.mod(channels, 2)]])
+        signal = tf.reshape(signal, [1, length, channels])
+        return (x + signal)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  = tf.pad
+
+idx = 25:------------------- similar code ------------------ index = 24, score = 5.0 
+def cutout(image, pad_size, replace=0):
+    'Apply cutout (https://arxiv.org/abs/1708.04552) to image.\n\n  This operation applies a (2*pad_size x 2*pad_size) mask of zeros to\n  a random location within `img`. The pixel values filled in will be of the\n  value `replace`. The located where the mask will be applied is randomly\n  chosen uniformly over the whole image.\n\n  Args:\n    image: An image Tensor of type uint8.\n    pad_size: Specifies how big the zero mask that will be generated is that\n      is applied to the image. The mask will be of size\n      (2*pad_size x 2*pad_size).\n    replace: What pixel value to fill in the image in the area that has\n      the cutout mask applied to it.\n\n  Returns:\n    An image Tensor that is of type uint8.\n  '
+    image_height = tf.shape(image)[0]
+    image_width = tf.shape(image)[1]
+    cutout_center_height = tf.random_uniform(shape=[], minval=0, maxval=image_height, dtype=tf.int32)
+    cutout_center_width = tf.random_uniform(shape=[], minval=0, maxval=image_width, dtype=tf.int32)
+    lower_pad = tf.maximum(0, (cutout_center_height - pad_size))
+    upper_pad = tf.maximum(0, ((image_height - cutout_center_height) - pad_size))
+    left_pad = tf.maximum(0, (cutout_center_width - pad_size))
+    right_pad = tf.maximum(0, ((image_width - cutout_center_width) - pad_size))
+    cutout_shape = [(image_height - (lower_pad + upper_pad)), (image_width - (left_pad + right_pad))]
+    padding_dims = [[lower_pad, upper_pad], [left_pad, right_pad]]
+    mask = tf.pad(tf.zeros(cutout_shape, dtype=image.dtype), padding_dims, constant_values=1)
+    mask = tf.expand_dims(mask, (- 1))
+    mask = tf.tile(mask, [1, 1, 3])
+    image = tf.where(tf.equal(mask, 0), (tf.ones_like(image, dtype=image.dtype) * replace), image)
+    return image
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 26:------------------- similar code ------------------ index = 25, score = 5.0 
+@staticmethod
+def _prepare_target(target, hparams):
+
+    def convert(target: PreprocessedMelData):
+        r = hparams.outputs_per_step
+        mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+        mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+        target_length = (target.target_length + (2 * r))
+        padded_target_length = (((target_length // r) + 1) * r)
+
+        def padding_function(t):
+            tail_padding = (padded_target_length - target_length)
+            padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+            return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+        no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+        mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+        mel.set_shape((None, hparams.num_mels))
+        padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+        done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+        spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+        binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+        return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+    return DatasetSource._decode_target(target).map((lambda inputs: convert(inputs)))
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+
+    def  ... ():
+         ...  = tf.pad
+
+idx = 27:------------------- similar code ------------------ index = 26, score = 5.0 
+def _fixed_padding(inputs, kernel_size, rate=1):
+    "Pads the input along the spatial dimensions independently of input size.\n\n  Pads the input such that if it was used in a convolution with 'VALID' padding,\n  the output would have the same dimensions as if the unpadded input was used\n  in a convolution with 'SAME' padding.\n\n  Args:\n    inputs: A tensor of size [batch, height_in, width_in, channels].\n    kernel_size: The kernel to be used in the conv2d or max_pool2d operation.\n    rate: An integer, rate for atrous convolution.\n\n  Returns:\n    output: A tensor of size [batch, height_out, width_out, channels] with the\n      input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).\n  "
+    kernel_size_effective = [(kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1))), (kernel_size[0] + ((kernel_size[0] - 1) * (rate - 1)))]
+    pad_total = [(kernel_size_effective[0] - 1), (kernel_size_effective[1] - 1)]
+    pad_beg = [(pad_total[0] // 2), (pad_total[1] // 2)]
+    pad_end = [(pad_total[0] - pad_beg[0]), (pad_total[1] - pad_beg[1])]
+    padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg[0], pad_end[0]], [pad_beg[1], pad_end[1]], [0, 0]])
+    return padded_inputs
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 28:------------------- similar code ------------------ index = 27, score = 5.0 
+def network(images, bn_training, detailed_summary=False, use_keras=False):
+    with tf.variable_scope('AdditiveNoise'):
+        images = tf.cond(bn_training, (lambda : (images + tf.round(tf.random_normal(tf.shape(images), mean=tf.round(tf.random_normal([1], mean=0, stddev=2, dtype=tf.float32)), stddev=2, dtype=tf.float32)))), (lambda : images))
+    common = {'padding': 'valid', 'activation': 'ReLu', 'bn_training': bn_training, 'use_keras': use_keras}
+    with tf.variable_scope('R1'):
+        conv1_r1 = tfu.layers.conv3d(images, 12, [3, 3, 3], scope='conv1_R1', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R2'):
+        images_r2 = tfu.layers.max_pooling3d(conv1_r1, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='same', scope='max_R2', use_keras=use_keras)
+        conv1_r2 = tfu.layers.conv3d(images_r2, 24, [3, 3, 3], scope='conv1_R2', **common)
+    with tf.variable_scope('R3'):
+        images_r3 = tfu.layers.max_pooling3d(conv1_r2, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='same', scope='max_R3', use_keras=use_keras)
+        conv1_r3 = tfu.layers.conv3d(images_r3, 28, [3, 3, 3], scope='conv1_R3', **common)
+    with tf.variable_scope('R4'):
+        images_r4 = tfu.layers.max_pooling3d(conv1_r3, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='valid', scope='max_R4', use_keras=use_keras)
+        conv1_r4 = tfu.layers.conv3d(images_r4, 32, [3, 3, 3], scope='conv1_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+        conv2_r4 = tfu.layers.conv3d(conv1_r4, 40, [3, 3, 3], scope='conv2_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+        conv3_r4 = tfu.layers.conv3d(conv2_r4, 44, [3, 3, 3], scope='conv3_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R3_Up'):
+        conv1_r3_up = tfu.layers.upsampling3d(conv3_r4, scope='conv1_R3_Up', interpolator='trilinear')
+        concat_r3_up = tf.concat([conv1_r3_up, conv1_r3], 4)
+        conv2_r3 = tfu.layers.conv3d(concat_r3_up, 32, [3, 3, 3], scope='conv2_R3_Up', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R2_Up'):
+        conv1_r2_up = tfu.layers.upsampling3d(conv2_r3, scope='conv1_R2_Up', interpolator='trilinear')
+        mr = 1
+        concat_r2_up = tf.concat([tf.pad(conv1_r2_up, ([0, 0], [mr, mr], [mr, mr], [mr, mr], [0, 0]), constant_values=0), conv1_r2], 4)
+        conv2_r2 = tfu.layers.conv3d(concat_r2_up, 18, [3, 3, 3], scope='conv2_R2_Up', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R1_Up'):
+        conv1_r1_up = tfu.layers.upsampling3d(conv2_r2, scope='conv1_R1_Up', interpolator='trilinear')
+        mr = 1
+        concat_r1_up = tf.concat([tf.pad(conv1_r1_up, ([0, 0], [mr, mr], [mr, mr], [mr, mr], [0, 0]), constant_values=0), conv1_r1], 4)
+        conv2_r1 = tfu.layers.conv3d(concat_r1_up, 12, [3, 3, 3], scope='conv1_R2_Up', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('DVF'):
+        dvf_regnet = tfu.layers.conv3d(conv2_r1, 3, [1, 1, 1], padding='valid', activation=None, bn_training=None, scope='DVF_RegNet')
+    if detailed_summary:
+        for i in range(1, 8):
+            tensor_name = (('conv' + str(i)) + '_R1')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R1_conv' + str(i)), selected_slices=1)
+        for i in range(1, 9):
+            tensor_name = (('conv' + str(i)) + '_R2')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R2_conv' + str(i)), selected_slices=1)
+        for i in range(1, 10):
+            tensor_name = (('conv' + str(i)) + '_R4')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R4_conv' + str(i)), selected_slices=1)
+    return dvf_regnet
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  =  ... . ... ([tf.pad,  ... ],  ... )
+
+idx = 29:------------------- similar code ------------------ index = 28, score = 5.0 
+def network(images, bn_training, detailed_summary=False, use_keras=False):
+    with tf.variable_scope('AdditiveNoise'):
+        images = tf.cond(bn_training, (lambda : (images + tf.round(tf.random_normal(tf.shape(images), mean=tf.round(tf.random_normal([1], mean=0, stddev=2, dtype=tf.float32)), stddev=2, dtype=tf.float32)))), (lambda : images))
+    common = {'padding': 'valid', 'activation': 'ReLu', 'bn_training': bn_training, 'use_keras': use_keras}
+    with tf.variable_scope('R1'):
+        conv1_r1 = tfu.layers.conv3d(images, 12, [3, 3, 3], scope='conv1_R1', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R2'):
+        images_r2 = tfu.layers.max_pooling3d(conv1_r1, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='same', scope='max_R2', use_keras=use_keras)
+        conv1_r2 = tfu.layers.conv3d(images_r2, 24, [3, 3, 3], scope='conv1_R2', **common)
+    with tf.variable_scope('R3'):
+        images_r3 = tfu.layers.max_pooling3d(conv1_r2, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='same', scope='max_R3', use_keras=use_keras)
+        conv1_r3 = tfu.layers.conv3d(images_r3, 28, [3, 3, 3], scope='conv1_R3', **common)
+    with tf.variable_scope('R4'):
+        images_r4 = tfu.layers.max_pooling3d(conv1_r3, pool_size=(2, 2, 2), strides=(2, 2, 2), padding='valid', scope='max_R4', use_keras=use_keras)
+        conv1_r4 = tfu.layers.conv3d(images_r4, 32, [3, 3, 3], scope='conv1_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+        conv2_r4 = tfu.layers.conv3d(conv1_r4, 40, [3, 3, 3], scope='conv2_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+        conv3_r4 = tfu.layers.conv3d(conv2_r4, 44, [3, 3, 3], scope='conv3_R4', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R3_Up'):
+        conv1_r3_up = tfu.layers.upsampling3d(conv3_r4, scope='conv1_R3_Up', interpolator='trilinear')
+        concat_r3_up = tf.concat([conv1_r3_up, conv1_r3], 4)
+        conv2_r3 = tfu.layers.conv3d(concat_r3_up, 32, [3, 3, 3], scope='conv2_R3_Up', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R2_Up'):
+        conv1_r2_up = tfu.layers.upsampling3d(conv2_r3, scope='conv1_R2_Up', interpolator='trilinear')
+        mr = 1
+        concat_r2_up = tf.concat([tf.pad(conv1_r2_up, ([0, 0], [mr, mr], [mr, mr], [mr, mr], [0, 0]), constant_values=0), conv1_r2], 4)
+        conv2_r2 = tfu.layers.conv3d(concat_r2_up, 18, [3, 3, 3], scope='conv2_R2_Up', padding='same', activation='ReLu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('R1_Up'):
+        conv1_r1_up = tfu.layers.upsampling3d(conv2_r2, scope='conv1_R1_Up', interpolator='trilinear')
+        mr = 1
+        concat_r1_up = tf.concat([tf.pad(conv1_r1_up, ([0, 0], [mr, mr], [mr, mr], [mr, mr], [0, 0]), constant_values=0), conv1_r1], 4)
+        conv2_r1 = tfu.layers.conv3d(concat_r1_up, 12, [3, 3, 3], scope='conv1_R2_Up', padding='same', activation='ELu', bn_training=bn_training, use_keras=use_keras)
+    with tf.variable_scope('DVF'):
+        dvf_regnet = tfu.layers.conv3d(conv2_r1, 3, [1, 1, 1], padding='valid', activation=None, bn_training=None, scope='DVF_RegNet')
+    if detailed_summary:
+        for i in range(1, 8):
+            tensor_name = (('conv' + str(i)) + '_R1')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R1_conv' + str(i)), selected_slices=1)
+        for i in range(1, 9):
+            tensor_name = (('conv' + str(i)) + '_R2')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R2_conv' + str(i)), selected_slices=1)
+        for i in range(1, 10):
+            tensor_name = (('conv' + str(i)) + '_R4')
+            tfu.summary.tensor2summary(eval(tensor_name.lower()), tensor_name, scope=('DetailedSummaryImages_R4_conv' + str(i)), selected_slices=1)
+    return dvf_regnet
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+    with:
+         ...  =  ... . ... ([tf.pad,  ... ],  ... )
+
+idx = 30:------------------- similar code ------------------ index = 30, score = 5.0 
+def convert(target: PreprocessedMelData):
+    r = hparams.outputs_per_step
+    mel_normalized = ((target.mel - np.array(hparams.average_mel_level_db, dtype=np.float32)) / np.array(hparams.stddev_mel_level_db, dtype=np.float32))
+    mel_with_silence = tf.pad(mel_normalized, paddings=[[r, r], [0, 0]], constant_values=hparams.silence_mel_level_db)
+    target_length = (target.target_length + (2 * r))
+    padded_target_length = (((target_length // r) + 1) * r)
+
+    def padding_function(t):
+        tail_padding = (padded_target_length - target_length)
+        padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
+        return (lambda : tf.pad(t, paddings=padding_shape, constant_values=hparams.silence_mel_level_db))
+    no_padding_condition = tf.equal(tf.to_int64(0), (target_length % r))
+    mel = tf.cond(no_padding_condition, (lambda : mel_with_silence), padding_function(mel_with_silence))
+    mel.set_shape((None, hparams.num_mels))
+    padded_target_length = tf.cond(no_padding_condition, (lambda : target_length), (lambda : padded_target_length))
+    done = tf.concat([tf.zeros(((padded_target_length // r) - 1), dtype=tf.float32), tf.ones(1, dtype=tf.float32)], axis=0)
+    spec_loss_mask = tf.ones(shape=padded_target_length, dtype=tf.float32)
+    binary_loss_mask = tf.ones(shape=(padded_target_length // r), dtype=tf.float32)
+    return MelData(target.id, target.key, mel, target.mel_width, padded_target_length, done, spec_loss_mask, binary_loss_mask)
+
+------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
+def  ... ():
+     ...  = tf.pad
+
+idx = 31:------------------- similar code ------------------ index = 0, score = 5.0 
 def padding_function(t):
     tail_padding = (padded_target_length - target_length)
     padding_shape = tf.sparse_tensor_to_dense(tf.SparseTensor(indices=[(0, 1)], values=tf.expand_dims(tail_padding, axis=0), dense_shape=(2, 2)))
@@ -370,4 +960,19 @@ def padding_function(t):
 ------------------- similar code (pruned) ------------------ score = 0.46153846153846156 
 def  ... ( ... ):
     return (lambda : tf.pad)
+
+idx = 32:------------------- similar code ------------------ index = 4, score = 4.0 
+def build_graph(self, image, label):
+    image = (image / 255.0)
+    num_blocks = [3, 4, 6, 3]
+    with argscope([Conv2D, MaxPooling, BatchNorm, GlobalAvgPooling], data_format='channels_first'), argscope(Conv2D, use_bias=False):
+        logits = LinearWrap(image).tf.pad([[0, 0], [3, 3], [3, 3], [0, 0]]).Conv2D('conv0', 64, 7, strides=2, activation=BNReLU, padding='VALID').MaxPooling('pool0', 3, strides=2, padding='SAME').apply(group_func, 'group0', block_func, 64, num_blocks[0], 1).apply(group_func, 'group1', block_func, 128, num_blocks[1], 2).apply(group_func, 'group2', block_func, 256, num_blocks[2], 2).apply(group_func, 'group3', block_func, 512, num_blocks[3], 2).GlobalAvgPooling('gap').FullyConnected('linear', 1000, activation=tf.identity)()
+    cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label)
+    cost = tf.reduce_mean(cost, name='cost')
+    return cost
+
+------------------- similar code (pruned) ------------------ score = 0.26666666666666666 
+def  ... ():
+    with,:
+         ...  =  ... .tf.pad()
 

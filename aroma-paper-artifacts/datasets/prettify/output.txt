@@ -1,4 +1,188 @@
-examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+------------------------- example 1 ------------------------ 
+def exportCASPRcables(self):
+    file = open((((self.fileDir + '/caspr/') + self.modelName) + '_cables.xml'), 'w')
+    file.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    file.write('<!DOCTYPE cables SYSTEM "../../../templates/cables.dtd">\n')
+    cables = ET.Element('cables')
+    cables.set('default_cable_set', 'WORKING')
+    cable_set = ET.SubElement(cables, 'cable_set')
+    cable_set.set('id', 'WORKING')
+    i = 0
+    for myo in self.myoMuscles:
+        cable_ideal = ET.SubElement(cable_set, 'cable_ideal')
+        cable_ideal.set('name', ('cable ' + str(i)))
+        i = (i + 1)
+        cable_ideal.set('attachment_reference', 'com')
+        properties = ET.SubElement(cable_ideal, 'properties')
+        force_min = ET.SubElement(properties, 'force_min')
+        force_min.text = '10'
+        force_max = ET.SubElement(properties, 'force_max')
+        force_max.text = '80'
+        attachments = ET.SubElement(cable_ideal, 'attachments')
+        allViaPoints = myo.viaPoints
+        allViaPoints.sort(key=(lambda x: x.number))
+        for via in allViaPoints:
+            attachment = ET.SubElement(attachments, 'attachment')
+            link = ET.SubElement(attachment, 'link')
+            link.text = via.link
+            location = ET.SubElement(attachment, 'location')
+            location.text = via.coordinates
+    file.write(prettify(cables))
+    file.close()
 
-avg       ||          0           ||        0         ||         0        ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        30         ||         0        ||        0.0         
+
+avg       ||          13.333333333333334           ||        30.0         ||         0.0        ||         0.0        
+
+idx = 0:------------------- similar code ------------------ index = 13, score = 2.0 
+def prettify(fig, ax, label=None):
+    ax.set_xlim(900.0, 1000000.0)
+    ax.set_xscale('log')
+    ax.set_ylim(0.01, 2)
+    ax.set_xlabel('rest-frame $\\lambda$ ($\\AA$)', fontsize=20)
+    ax.set_ylabel('$\\lambda \\, f_\\lambda$', fontsize=20)
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    if (label is not None):
+        ax.text(0.63, 0.85, label, transform=ax.transAxes, fontsize=16)
+    fig.tight_layout()
+    return (fig, ax)
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def prettify():
+idx = 1:------------------- similar code ------------------ index = 1, score = 2.0 
+def prettify(elem):
+    'Return a pretty-printed XML string for the Element.\n    '
+    rough_string = ET.tostring(elem, 'utf-8')
+    reparsed = DOM.parseString(rough_string)
+    return reparsed.toprettyxml(indent='\t')
+
+------------------- similar code (pruned) ------------------ score = 0.6666666666666666 
+def prettify( ... ):
+idx = 2:------------------- similar code ------------------ index = 4, score = 2.0 
+@manager.arg('where', 'w', help='Modules to check')
+@manager.command
+def prettify(where=None):
+    'Prettify code with black'
+    extra = (where.split(' ') if where else DEF_WHERE)
+    try:
+        check_call((['black'] + extra))
+    except CalledProcessError as err:
+        exit(err.returncode)
+
+------------------- similar code (pruned) ------------------ score = 0.5 
+def prettify():
+idx = 3:------------------- similar code ------------------ index = 10, score = 1.0 
+def exportCASPRcables(self):
+    file = open((((self.fileDir + '/caspr/') + self.modelName) + '_cables.xml'), 'w')
+    file.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    file.write('<!DOCTYPE cables SYSTEM "../../../templates/cables.dtd">\n')
+    cables = ET.Element('cables')
+    cables.set('default_cable_set', 'WORKING')
+    cable_set = ET.SubElement(cables, 'cable_set')
+    cable_set.set('id', 'WORKING')
+    i = 0
+    for myo in self.myoMuscles:
+        cable_ideal = ET.SubElement(cable_set, 'cable_ideal')
+        cable_ideal.set('name', ('cable ' + str(i)))
+        i = (i + 1)
+        cable_ideal.set('attachment_reference', 'com')
+        properties = ET.SubElement(cable_ideal, 'properties')
+        force_min = ET.SubElement(properties, 'force_min')
+        force_min.text = '10'
+        force_max = ET.SubElement(properties, 'force_max')
+        force_max.text = '80'
+        attachments = ET.SubElement(cable_ideal, 'attachments')
+        allViaPoints = myo.viaPoints
+        allViaPoints.sort(key=(lambda x: x.number))
+        for via in allViaPoints:
+            attachment = ET.SubElement(attachments, 'attachment')
+            link = ET.SubElement(attachment, 'link')
+            link.text = via.link
+            location = ET.SubElement(attachment, 'location')
+            location.text = via.coordinates
+    file.write(prettify(cables))
+    file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (prettify)
+
+idx = 4:------------------- similar code ------------------ index = 8, score = 1.0 
+def prettify_html(self, html):
+    soup = BeautifulSoup(str(html), 'html.parser')
+    return soup.prettify()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ():
+    return  ... .prettify()
+
+idx = 5:------------------- similar code ------------------ index = 3, score = 1.0 
+def exportCASPRbodies(self):
+    file = open((((self.fileDir + '/caspr/') + self.modelName) + '_bodies.xml'), 'w')
+    file.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    file.write('<!DOCTYPE bodies_system SYSTEM "../../../templates/bodies.dtd">\n')
+    bodies_system = ET.Element('bodies_system')
+    links = ET.SubElement(bodies_system, 'links')
+    links.set('display_range', '-0.3 0.3 0.0 1.0 -0.3 0.3')
+    links.set('view_angle', '-37 32')
+    for (parent_name, (child_name, joint)) in self.joints.items():
+        link_rigid = ET.SubElement(links, 'link_rigid')
+        link_rigid.set('num', '1')
+        link_rigid.set('name', parent_name)
+        joi = ET.SubElement(link_rigid, 'joint')
+        joi.set('type', 'R_xyx')
+        vector = joint.jointMotion.rotationAxisVector
+        joi.set('axis', vectorToString(vector.x, vector.y, vector.z))
+        joi.set('q_min', str(joint.jointMotion.rotationLimits.minimumValue))
+        joi.set('q_max', str(joint.jointMotion.rotationLimits.maximumValue))
+        physical = ET.SubElement(link_rigid, 'physical')
+        mass = ET.SubElement(physical, 'mass')
+        mass.text = str(self.totalMass[parent_name])
+        joint_origin = joint.geometryOrOriginOne.origin
+        com_origin = self.COM[parent_name]
+        com_location = ET.SubElement(physical, 'com_location')
+        com_location.text = ((((str(((com_origin.x - joint_origin.x) / 100.0)) + ' ') + str(((com_origin.y - joint_origin.y) / 100.0))) + ' ') + str(((com_origin.z - joint_origin.z) / 100.0)))
+        end_location = ET.SubElement(physical, 'end_location')
+        end_location.text = '0 0 0'
+        inertia = ET.SubElement(physical, 'inertia')
+        inertia.set('ref', 'com')
+        Ixx = ET.SubElement(inertia, 'Ixx')
+        Ixx.text = str(self.inertias[parent_name][0])
+        Iyy = ET.SubElement(inertia, 'Iyy')
+        Iyy.text = str(self.inertias[parent_name][1])
+        Izz = ET.SubElement(inertia, 'Izz')
+        Izz.text = str(self.inertias[parent_name][2])
+        Ixy = ET.SubElement(inertia, 'Ixy')
+        Ixy.text = str(self.inertias[parent_name][3])
+        Ixz = ET.SubElement(inertia, 'Ixz')
+        Ixz.text = str(self.inertias[parent_name][5])
+        Iyz = ET.SubElement(inertia, 'Iyz')
+        Iyz.text = str(self.inertias[parent_name][4])
+        print(((parent_name + ' ') + str(joint.geometryOrOriginOne.origin.asArray())))
+        print(((child_name + ' ') + str(joint.geometryOrOriginTwo.origin.asArray())))
+        parent = ET.SubElement(link_rigid, 'parent')
+        num = ET.SubElement(parent, 'num')
+        num.text = child_name
+        location = ET.SubElement(parent, 'location')
+        location.text = ((((str((joint_origin.x / 100.0)) + ' ') + str((joint_origin.y / 100.0))) + ' ') + str((joint_origin.z / 100.0)))
+    operational_spaces = ET.SubElement(bodies_system, 'operational_spaces')
+    operational_spaces.set('default_operational_set', 'test')
+    operational_set = ET.SubElement(operational_spaces, 'operational_set')
+    operational_set.set('id', 'test')
+    position = ET.SubElement(operational_set, 'position')
+    position.set('marker_id', '1')
+    position.set('name', 'test1')
+    link = ET.SubElement(position, 'link')
+    link.text = '2'
+    offset = ET.SubElement(position, 'offset')
+    offset.text = '0.0 0.0 0.0'
+    axes = ET.SubElement(position, 'axes')
+    axes.set('active_axes', 'x')
+    file.write(prettify(bodies_system))
+    file.close()
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ... . ... (prettify)
 
