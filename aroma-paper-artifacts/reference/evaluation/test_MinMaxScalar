@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root MinMaxScalar/snippets.json MinMaxScalar"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root MinMaxScalar/test.json MinMaxScalar/test.py"
+time python3 src/main/python/similar.py -c MinMaxScalar/snippets.json -d MinMaxScalar/tmpout
+time python3 src/main/python/similar.py -d MinMaxScalar/tmpout -f MinMaxScalar/test.json -o MinMaxScalar/output.txt
