@@ -1,3 +1,4 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
 
+avg       ||          0           ||        0         ||         0        ||         0        
 

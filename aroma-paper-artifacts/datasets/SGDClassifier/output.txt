@@ -1,0 +1,18 @@
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+
+avg       ||          0           ||        0         ||         0        ||         0        
+
+idx = 0:------------------- similar code ------------------ index = 0, score = 1.0 
+def get_clf(clf_method):
+    mapping = {'MNB': (MultinomialNB, {'alpha': 0.1}), 'SGD': (SGDClassifier, {'loss': 'hinge', 'penalty': 'l2', 'alpha': 0.001, 'max_iter': 5, 'tol': None}), 'RandomForest': (RandomForestClassifier, {'max_depth': 5}), 'AdaBoost': (AdaBoostClassifier, {})}
+    try:
+        (method, parameters) = mapping[clf_method]
+    except KeyError:
+        error = 'Please make sure clf_method in "MNB", "SGD", "RandomForest" or "AdaBoost".'
+        raise MethodNotFoundError(error)
+    return method(**parameters)
+
+------------------- similar code (pruned) ------------------ score = 0.2 
+def  ... ( ... ):
+     ...  = { ... :,  ... : (SGDClassifier,),  ... :,  ... :}
+

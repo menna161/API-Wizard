@@ -968,8 +968,9 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
     # get the relevant functions
     with open('relevant_functions.pkl', 'rb') as fp:
         dict = pickle.load(fp)
-        func_list = dict[api]
-        func_list.append(api)
+        if (api in dict):
+            func_list = dict[api]
+            func_list.append(api)
 
     candidate_records = find_similar(
         query_record,

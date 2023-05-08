@@ -1,6 +1,6 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
 
-avg       ||          0           ||        0         ||         0        
+avg       ||          0           ||        0         ||         0        ||         0        
 
 idx = 0:------------------- similar code ------------------ index = 1, score = 1.0 
 def build_loss(self):

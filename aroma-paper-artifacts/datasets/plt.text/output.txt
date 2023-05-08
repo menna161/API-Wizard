@@ -1,5 +1,6 @@
-examples  ||  representativeness  ||  number of lines  || number of comments 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
 
+avg       ||          0           ||        0         ||         0        ||         0        
 
 idx = 0:------------------- similar code ------------------ index = 3, score = 7.0 
 def plot_degree_distribution(network, xlabel='Node degree', ylabel_freq='Frequency', ylabel_prob='Probability', in_degree=False, out_degree=False, equation=None, equation_x=0.51, equation_y=0.76, equation_text='', equation_color='r', color='r', title=None):
