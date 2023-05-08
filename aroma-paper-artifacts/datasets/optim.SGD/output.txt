@@ -102,13 +102,13 @@ def create_optimizer(optimizer_config, model, master_params=None):
 // your code ...
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          5           ||        19         ||         3        ||        0.0         
-example2  ||          7           ||        5         ||         0        ||        0.0         
-example3  ||          5           ||        8         ||         0        ||        0.0         
-example4  ||          5           ||        21         ||         8        ||        0.0         
-example5  ||          5           ||        23         ||         6        ||        0.0         
+example1  ||          5           ||        19         ||         3        ||        0.05263157894736842         
+example2  ||          7           ||        5         ||         0        ||        0.2         
+example3  ||          5           ||        8         ||         0        ||        0.125         
+example4  ||          5           ||        21         ||         8        ||        0.047619047619047616         
+example5  ||          5           ||        23         ||         6        ||        0.13043478260869565         
 
-avg       ||          5.346534653465347           ||        15.2         ||         3.4        ||         0.0        
+avg       ||          5.346534653465347           ||        15.2         ||         3.4        ||         11.113708183502233        
 
 idx = 0:------------------- similar code ------------------ index = 55, score = 6.0 
 def make_optimizer(args, my_model):

@@ -140,13 +140,13 @@ def predicting(data, image_paths, model):
         cv2.waitKey(0)
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          2           ||        5         ||         1        ||        0.0         
-example2  ||          2           ||        39         ||         3        ||        0.0         
-example3  ||          2           ||        12         ||         4        ||        0.0         
-example4  ||          2           ||        42         ||         17        ||        0.0         
-example5  ||          2           ||        8         ||         0        ||        0.0         
+example1  ||          2           ||        5         ||         1        ||        0.4         
+example2  ||          2           ||        39         ||         3        ||        0.10256410256410256         
+example3  ||          2           ||        12         ||         4        ||        0.16666666666666666         
+example4  ||          2           ||        42         ||         17        ||        0.09523809523809523         
+example5  ||          2           ||        8         ||         0        ||        0.25         
 
-avg       ||          4.3478260869565215           ||        21.2         ||         5.0        ||         0.0        
+avg       ||          4.3478260869565215           ||        21.2         ||         5.0        ||         20.28937728937729        
 
 idx = 0:------------------- similar code ------------------ index = 31, score = 7.0 
 def showAnns(self, imgrequest=None, range=10, imgfilters=[], shuffle=True, saveimg=False):

@@ -107,11 +107,11 @@ def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snap
     return (X, Y, T)
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          2           ||        29         ||         0        ||        0.0         
-example2  ||          2           ||        48         ||         0        ||        0.0         
-example3  ||          2           ||        25         ||         0        ||        0.0         
+example1  ||          2           ||        29         ||         0        ||        0.06896551724137931         
+example2  ||          2           ||        48         ||         0        ||        0.041666666666666664         
+example3  ||          2           ||        25         ||         0        ||        0.08         
 
-avg       ||          18.181818181818183           ||        34.0         ||         0.0        ||         0.0        
+avg       ||          18.181818181818183           ||        34.0         ||         0.0        ||         6.354406130268199        
 
 idx = 0:------------------- similar code ------------------ index = 5, score = 1.0 
 def run(delta, observation_window, n_snapshots, censoring_ratio=0.5, single_snapshot=False):

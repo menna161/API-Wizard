@@ -17,10 +17,10 @@ def get_rectangle(buildings):
         return None
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          6           ||        6         ||         1        ||        0.0         
-example2  ||          2           ||        7         ||         0        ||        0.0         
+example1  ||          6           ||        6         ||         1        ||        0.3333333333333333         
+example2  ||          2           ||        7         ||         0        ||        0.14285714285714285         
 
-avg       ||          28.57142857142857           ||        6.5         ||         0.5        ||         0.0        
+avg       ||          28.57142857142857           ||        6.5         ||         0.5        ||         23.809523809523807        
 
 idx = 0:------------------- similar code ------------------ index = 7, score = 6.0 
 def find_biggest_contour(self, image):

@@ -8,9 +8,9 @@ def find_biggest_contour(self, image):
     return (biggest_contour, mask)
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          4           ||        7         ||         0        ||        0.0         
+example1  ||          4           ||        7         ||         0        ||        0.2857142857142857         
 
-avg       ||          33.33333333333333           ||        7.0         ||         0.0        ||         0.0        
+avg       ||          33.33333333333333           ||        7.0         ||         0.0        ||         28.57142857142857        
 
 idx = 0:------------------- similar code ------------------ index = 6, score = 7.0 
 def find_biggest_contour(self, image):

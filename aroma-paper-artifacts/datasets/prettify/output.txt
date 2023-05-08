@@ -31,9 +31,9 @@ def exportCASPRcables(self):
     file.close()
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          2           ||        30         ||         0        ||        0.0         
+example1  ||          2           ||        30         ||         0        ||        0.03333333333333333         
 
-avg       ||          13.333333333333334           ||        30.0         ||         0.0        ||         0.0        
+avg       ||          13.333333333333334           ||        30.0         ||         0.0        ||         3.3333333333333335        
 
 idx = 0:------------------- similar code ------------------ index = 13, score = 2.0 
 def prettify(fig, ax, label=None):

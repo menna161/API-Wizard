@@ -68,11 +68,11 @@ def value(self):
 // your code ...
 
 examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
-example1  ||          2           ||        38         ||         12        ||        0.0         
-example2  ||          2           ||        6         ||         0        ||        0.0         
-example3  ||          2           ||        4         ||         1        ||        0.0         
+example1  ||          2           ||        38         ||         12        ||        0.10526315789473684         
+example2  ||          2           ||        6         ||         0        ||        0.16666666666666666         
+example3  ||          2           ||        4         ||         1        ||        0.25         
 
-avg       ||          2.0           ||        16.0         ||         4.333333333333333        ||         0.0        
+avg       ||          2.0           ||        16.0         ||         4.333333333333333        ||         17.397660818713447        
 
 idx = 0:------------------- similar code ------------------ index = 58, score = 2.0 
 def train(ev_inf: InferenceNet, train_Xy, val_Xy, test_Xy, inference_vectorizer, epochs=10, batch_size=16, shuffle=True):
