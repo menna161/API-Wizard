@@ -1,3 +1,4 @@
+MyFunction,SuggestedFunctions
 tf.concat,split,stack,reshape,squeeze,expand_dims
 tf.pad,slice,tile,strided_slice
 tf.random.normal,uniform,poisson,gamma
@@ -36,3 +37,12 @@ torch.randperm,randn,rand,tensor
 value_counts,unique,drop_duplicates,nunique
 fit_transform,fit,transform,inverse_transform,fit_predict
 LinearRegression,fit,predict,score,coef_,intercept_,get_params,set_params,residuals,summary
+MinMaxScaler,fit_transform,transform,inverse_transform
+cv2.contourArea,drawContours,arcLength,approxPolyDP
+classification_report,confusion_matrix,accuracy_score,f1_score
+cv2.findContours,RETR_TREE,CHAIN_APPROX_SIMPLE,drawContours
+cv2.imshow,waitKey,destroyAllWindows,imwrite
+optim.SGD,zero_grad,step,backward
+prettify,BeautifulSoup,get_text,find_all
+sns.boxplot,set_title,set_xlabel,set_ylabel
+sns.scatterplot,set_title,set_xlabel,set_ylabel
