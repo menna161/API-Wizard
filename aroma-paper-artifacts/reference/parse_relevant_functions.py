@@ -52,11 +52,11 @@ filename_dict = 'relevant_functions.pkl'
 # function calls
 
 # read_csv(filename_read)
-# dict = read_csv_to_dict(filename_write)
-# save_dict(filename_dict, dict)
+dict = read_csv_to_dict(filename_write)
+save_dict(filename_dict, dict)
 
 
 # test
-# with open(filename_dict, 'rb') as fp:
-#     dict = pickle.load(fp)
-#     print(dict['value_counts'])
+with open(filename_dict, 'rb') as fp:
+    dict = pickle.load(fp)
+    print(dict['drop'])

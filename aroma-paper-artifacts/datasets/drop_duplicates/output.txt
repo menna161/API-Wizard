@@ -9,7 +9,6 @@ def load_radon_data(state_code):
         cty = pd.read_csv(f)
     cty_mn = cty[(cty.st == state_code)].copy()
 // your code ...
-
     counties = srrs_mn[['county', 'fips']].drop_duplicates()
     county_map_uranium = {a: b for (a, b) in zip(counties['county'], range(len(counties['county'])))}
     uranium_levels = cty_mn.merge(counties, on='fips')['Uppm']
@@ -17,11 +16,9 @@ def load_radon_data(state_code):
     srrs_mn_new = srrs_mn_new.drop_duplicates(subset='idnum')
     srrs_mn_new.county = srrs_mn_new.county.str.strip()
 // your code ...
-
     n_county = srrs_mn_new.groupby('county')['idnum'].count()
     uranium = np.zeros(len(n_county), dtype=np.float32)
 // your code ...
-
 
 ------------------------- example 2 ------------------------ 
 def normalize(self, df):
@@ -36,7 +33,6 @@ def normalize(self, df):
 def normalize(self):
     if ('tables' not in self.sample_json):
 // your code ...
-
     for tbl in tables:
         table_dfs[tbl['name']] = pd.DataFrame(columns=tbl['columns'])
     for (chunk_id, chunk) in enumerate(pd.read_csv(self.options.normalize, chunksize=100000, header=0)):
@@ -46,21 +42,18 @@ def normalize(self):
             for mapping in tbl['mapping']:
                 xx = chunk[mapping['fromFields']]
 // your code ...
-
                 table_df = table_df.drop_duplicates(subset=tbl['columns'])
             table_df = table_df.reset_index(drop=True)
 // your code ...
-
         for c in all_from_fields:
 // your code ...
 
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        17         ||         3        ||        0.29411764705882354         
+example2  ||          2           ||        7         ||         0        ||        0.14285714285714285         
+example3  ||          2           ||        13         ||         4        ||        0.15384615384615385         
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        20         ||         3        
-example2  ||          2           ||        7         ||         0        
-example3  ||          2           ||        17         ||         4        
-
-avg       ||          2.0           ||        14.666666666666666         ||         2.3333333333333335        
+avg       ||          16.666666666666664           ||        12.333333333333334         ||         2.3333333333333335        ||         19.694031458737342        
 
 idx = 0:------------------- similar code ------------------ index = 10, score = 1.0 
 def load_radon_data(state_code):

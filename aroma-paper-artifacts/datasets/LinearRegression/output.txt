@@ -27,10 +27,10 @@ def model_stats(self):
     self.model_rsquares = model_rsquares
     return self.model_rsquares
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          2           ||        27         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          2           ||        27         ||         0        ||        0.1111111111111111         
 
-avg       ||          2.0           ||        27.0         ||         0.0        
+avg       ||          50.0           ||        27.0         ||         0.0        ||         11.11111111111111        
 
 idx = 0:------------------- similar code ------------------ index = 1, score = 1.0 
 def model_stats(self):
