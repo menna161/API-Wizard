@@ -59,4 +59,4 @@ save_dict(filename_dict, dict)
 # test
 with open(filename_dict, 'rb') as fp:
     dict = pickle.load(fp)
-    print(dict['drop'])
+    print(dict['np.arange'])

@@ -46,3 +46,4 @@ optim.SGD,zero_grad,step,backward
 prettify,BeautifulSoup,get_text,find_all
 sns.boxplot,set_title,set_xlabel,set_ylabel
 sns.scatterplot,set_title,set_xlabel,set_ylabel
+np.arange,reshape,linspace,zeros
