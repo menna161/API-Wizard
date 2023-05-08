@@ -4,11 +4,9 @@ def test_left_jacobians():
     phi_big = (np.pi / 2)
     left_jacobian_small = SO2.left_jacobian(phi_small)
 // your code ...
-
     assert np.allclose(left_jacobian_small.dot(inv_left_jacobian_small), np.identity(2))
     left_jacobian_big = SO2.left_jacobian(phi_big)
 // your code ...
-
     assert np.allclose(left_jacobian_big.dot(inv_left_jacobian_big), np.identity(2))
 
 ------------------------- example 2 ------------------------ 
@@ -27,7 +25,6 @@ def test_inv():
 def test_zca_whitening():
     X = np.random.uniform((- 10), 10, (100, 3))
 // your code ...
-
     C = np.cov(Y, rowvar=False)
     assert np.isclose(C, np.identity(3)).all()
     assert_array_almost_equal(np.mean(Y, axis=0), np.zeros(3))
@@ -38,14 +35,14 @@ def update_weights(robustifier, x_true, x_pred, weights):
     I = np.identity(2)
     return np.array([(I * w) for w in robustifier.weights(E)])
 
-examples  ||  representativeness  ||  number of lines  || number of comments 
-example1  ||          3           ||        7         ||         2        
-example2  ||          5           ||        5         ||         0        
-example3  ||          2           ||        3         ||         0        
-example4  ||          2           ||        5         ||         1        
-example5  ||          2           ||        4         ||         0        
+examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  
+example1  ||          3           ||        7         ||         2        ||        0.2857142857142857         
+example2  ||          5           ||        5         ||         0        ||        0.4         
+example3  ||          2           ||        3         ||         0        ||        0.3333333333333333         
+example4  ||          2           ||        5         ||         1        ||        0.2         
+example5  ||          2           ||        4         ||         0        ||        0.25         
 
-avg       ||          5.833333333333333           ||        4.8         ||         0.6        
+avg       ||          5.833333333333333           ||        4.8         ||         0.6        ||         29.38095238095238        
 
 idx = 0:------------------- similar code ------------------ index = 0, score = 6.0 
 def test_left_jacobians():

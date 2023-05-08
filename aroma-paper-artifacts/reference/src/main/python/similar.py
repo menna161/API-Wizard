@@ -194,7 +194,7 @@ def ast_to_code_print_lines(ast, line_list, token_list):
     elif isinstance(ast, dict):
         if "line" in ast and ast["line"] in line_list:
             if len(token_list) > 0 and token_list[-1] == "//":
-                token_list.append(" your code ...\n")
+                token_list.append(" your code ...")
             token_list.append(ast["leading"])
             token_list.append(ast["token"])
         else:
@@ -884,7 +884,7 @@ def ast_to_code(tree):
     return "".join(token_list)
 
 
-def ast_to_code_with_full_lines(tree, fulltree, lines_count, comments_count):
+def ast_to_code_with_full_lines(tree, fulltree, lines_count, comments_count, examples):
     line_list = []
     ast_to_code_collect_lines(tree, line_list)
     token_list = []
@@ -892,7 +892,8 @@ def ast_to_code_with_full_lines(tree, fulltree, lines_count, comments_count):
     token_list.append("\n")
     # print(token_list)
     lines_count.append(token_list.count('\n')-1)
-    comments_count.append(token_list.count(' your code ...\n'))
+    comments_count.append(token_list.count(' your code ...'))
+    examples.append("".join(token_list))
     return "".join(token_list)
 
 
@@ -945,10 +946,31 @@ def cluster_and_intersect(
     return clustered_records
 
 
+def find_keyword_lines(code_snippet, keywords):
+    lines = code_snippet.split('\n')
+    keyword_lines = []
+
+    for index, line in enumerate(lines):
+        if any(keyword in line for keyword in keywords):
+            keyword_lines.append(index)
+
+    return keyword_lines
+
+
 def print_similar_and_completions(query_record, records, vectorizer, counter_matrix, output_file):
     rep = []  # to count representativeness
     lines_count = []  # to count number of lines
     comments_count = []  # to count number of comments
+    relevancy = []
+    examples = []
+    func_list = []
+
+    # get the relevant functions
+    with open('relevant_functions.pkl', 'rb') as fp:
+        dict = pickle.load(fp)
+        func_list = dict[api]
+        func_list.append(api)
+
     candidate_records = find_similar(
         query_record,
         records,
@@ -986,6 +1008,7 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
     avg_rep = 0
     avg_lines = 0
     avg_comments = 0
+    avg_relevancy = 0
     for clustered_record in clustered_records:
         print(
             f"------------------------- example {count} ------------------------"
@@ -993,17 +1016,18 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         f.write(
             f"------------------------- example {count} ------------------------ \n")
         # idxs = ({clustered_record[1:]}), score = {candidate_records[clustered_record[1]][3]}")
-        print(
-            ast_to_code_with_full_lines(
-                clustered_record[0]["ast"], clustered_record[1]["ast"], lines_count, comments_count
-            )
+        example = ast_to_code_with_full_lines(
+            clustered_record[0]["ast"], clustered_record[1]["ast"], lines_count, comments_count, examples
         )
-        lines_count.pop()
-        comments_count.pop()
-        f.write(ast_to_code_with_full_lines(
-                clustered_record[0]["ast"], clustered_record[1]["ast"], lines_count, comments_count
-                ))
+        print(example)
+
+        # lines_count.pop()
+        # comments_count.pop()
+        f.write(example)
         count += 1
+
+        # get relevancy
+        relevancy.append(len(find_keyword_lines(example, func_list)))
 
     # print(rep, lines_count, comments_count)
     print("representativeness", rep, "\n")
@@ -1011,16 +1035,19 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
     print("number of comments", comments_count, "\n")
 
     f.write(
-        "examples  ||  representativeness  ||  number of lines  || number of comments \n")
+        "examples  ||  representativeness  ||  number of lines  || number of comments   ||  relevancy  \n")
     no_examples = len(rep)
     for i in range(no_examples):
         lines_count[i] = lines_count[i]-comments_count[i]
+        relevancy[i] = relevancy[i]/lines_count[i]
         f.write("example"+str(i+1)+"  ||          "+str(rep[i])+"           ||        "+str(
-            lines_count[i])+"         ||         "+str(comments_count[i])+"        ")
+            lines_count[i])+"         ||         "+str(comments_count[i])+"        ||        "+str(
+            relevancy[i])+"         ")
         f.write("\n")
         avg_rep += rep[i]
         avg_lines += lines_count[i]
         avg_comments += comments_count[i]
+        avg_relevancy += relevancy[i]
 
     f.write("\n")
 
@@ -1031,18 +1058,20 @@ def print_similar_and_completions(query_record, records, vectorizer, counter_mat
         avg_rep = avg_rep/total_no_snippets*100
         avg_lines = avg_lines/no_examples
         avg_comments = avg_comments/no_examples
+        avg_relevancy = avg_relevancy/no_examples * 100
     else:
         avg_rep = 0
         avg_lines = 0
         avg_comments = 0
+        avg_relevancy = 0
 
     f.write("avg       ||          "+str(avg_rep)+"           ||        "+str(
-        avg_lines)+"         ||         "+str(avg_comments)+"        ")
+        avg_lines)+"         ||         "+str(avg_comments)+"        ||         "+str(avg_relevancy)+"        ")
 
     # add new row to the csv
     # row = {'A': api, 'B': no_examples, 'C': avg_lines,
     #        'D': avg_rep, 'E': avg_comments}
-    row = [api, no_examples, avg_lines, avg_rep, avg_comments]
+    row = [api, no_examples, avg_lines, avg_rep, avg_comments, avg_relevancy]
     with open(cwd_old+'/aroma_results.csv', 'a') as fn:
         # Create a dictionary writer with the dict keys as column fieldnames
         writer = csv.writer(fn)
