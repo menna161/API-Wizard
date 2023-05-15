@@ -1,0 +1,7 @@
+#!/bin/bash
+cd ..
+mvn clean package
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root flask.render_template/snippets.json flask.render_template"
+time mvn exec:java -Dexec.mainClass=ConvertJava -Dexec.args="root flask.render_template/test.json flask.render_template/test.py"
+time python3 src/main/python/similar.py -c flask.render_template/snippets.json -d flask.render_template/tmpout
+time python3 src/main/python/similar.py -d flask.render_template/tmpout -f flask.render_template/test.json -o flask.render_template/output.txt

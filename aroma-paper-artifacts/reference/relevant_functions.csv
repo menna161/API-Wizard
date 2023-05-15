@@ -47,3 +47,13 @@ prettify,BeautifulSoup,get_text,find_all
 sns.boxplot,set_title,set_xlabel,set_ylabel
 sns.scatterplot,set_title,set_xlabel,set_ylabel
 np.arange,reshape,linspace,zeros
+flask.Flask,route,run,request,redirect,url_for
+flask.render_template,render_template_string
+requests.delete,post,put,patch,options
+requests.get,post,put,patch,options
+requests.head,get,post,put,patch,options
+requests.patch,get,head,options,request,Session
+requests.post,get,head,options,patch,put,request,Session
+requests.put,get,head,options,patch,post,request,Session
+requests.request,delete,get,head,options,patch,post,put,Session
+requests.Session,delete,get,head,options,patch,post,put,request
