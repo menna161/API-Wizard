@@ -1,0 +1,474 @@
+t # 0
+v 0 Module
+v 1 Import
+v 2 ImportFrom#module=sklearn.linear_model
+v 3 Assign
+v 4 Assign
+v 5 Assign
+v 6 Assign
+v 7 alias#name=numpy#asname=np
+v 8 alias#name=LinearRegression
+v 9 Name
+v 10 Call
+v 11 Name
+v 12 Call
+v 13 Name
+v 14 Call
+v 15 Name
+v 16 Call
+v 17 Store
+v 18 Attribute#attr=reshape
+v 19 Tuple
+v 20 Store
+v 21 Attribute#attr=array
+v 22 Name
+v 23 Store
+v 24 Attribute#attr=fit
+v 25 Name
+v 26 Name
+v 27 Store
+v 28 Attribute#attr=score
+v 29 Name
+v 30 Name
+v 31 Call
+v 32 Load
+v 33 UnaryOp
+v 34 Constant
+v 35 Load
+v 36 Name
+v 37 Load
+v 38 Load
+v 39 Call
+v 40 Load
+v 41 Load
+v 42 Load
+v 43 Name
+v 44 Load
+v 45 Load
+v 46 Load
+v 47 Attribute#attr=array
+v 48 Name
+v 49 USub
+v 50 Constant
+v 51 Load
+v 52 Name#id=LinearRegression
+v 53 Load
+v 54 Name
+v 55 Load
+v 56 Load
+v 57 Load
+v 58 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 0 5 body4
+e 0 6 body5
+e 1 7 names
+e 2 8 names
+e 3 9 targets
+e 3 10 value
+e 4 11 targets
+e 4 12 value
+e 5 13 targets
+e 5 14 value
+e 6 15 targets
+e 6 16 value
+e 9 17 ctx
+e 10 18 func
+e 10 19 args
+e 11 20 ctx
+e 12 21 func
+e 12 22 args
+e 13 23 ctx
+e 14 24 func
+e 14 25 args0
+e 14 26 args1
+e 15 27 ctx
+e 16 28 func
+e 16 29 args0
+e 16 30 args1
+e 18 31 value
+e 18 32 ctx
+e 19 33 elts0
+e 19 34 elts1
+e 19 35 ctx
+e 21 36 value
+e 21 37 ctx
+e 22 38 ctx
+e 24 39 value
+e 24 40 ctx
+e 25 41 ctx
+e 26 42 ctx
+e 28 43 value
+e 28 44 ctx
+e 29 45 ctx
+e 30 46 ctx
+e 31 47 func
+e 31 48 args
+e 33 49 op
+e 33 50 operand
+e 36 51 ctx
+e 39 52 func
+e 43 53 ctx
+e 47 54 value
+e 47 55 ctx
+e 48 56 ctx
+e 52 57 ctx
+e 54 58 ctx
+t # 1
+v 0 Module
+v 1 Expr
+v 2 Assign
+v 3 Call
+v 4 Name
+v 5 Call
+v 6 Attribute#attr=fit
+v 7 Name
+v 8 Name
+v 9 Store
+v 10 Attribute#attr=fit
+v 11 Name
+v 12 Name
+v 13 Call
+v 14 Load
+v 15 Load
+v 16 Load
+v 17 Call
+v 18 Load
+v 19 Load
+v 20 Load
+v 21 Name#id=LinearRegression
+v 22 Name#id=LinearRegression
+v 23 Load
+v 24 Load
+e 0 1 body0
+e 0 2 body1
+e 1 3 value
+e 2 4 targets
+e 2 5 value
+e 3 6 func
+e 3 7 args0
+e 3 8 args1
+e 4 9 ctx
+e 5 10 func
+e 5 11 args0
+e 5 12 args1
+e 6 13 value
+e 6 14 ctx
+e 7 15 ctx
+e 8 16 ctx
+e 10 17 value
+e 10 18 ctx
+e 11 19 ctx
+e 12 20 ctx
+e 13 21 func
+e 17 22 func
+e 21 23 ctx
+e 22 24 ctx
+t # 2
+v 0 Module
+v 1 Assign
+v 2 Expr
+v 3 Name
+v 4 Call
+v 5 Call
+v 6 Store
+v 7 Attribute#attr=fit
+v 8 Name
+v 9 Name
+v 10 Name#id=print
+v 11 Call
+v 12 Name
+v 13 Load
+v 14 Load
+v 15 Load
+v 16 Load
+v 17 Attribute#attr=predict
+v 18 Name
+v 19 Load
+v 20 Name
+v 21 Load
+v 22 Load
+v 23 Load
+e 0 1 body0
+e 0 2 body1
+e 1 3 targets
+e 1 4 value
+e 2 5 value
+e 3 6 ctx
+e 4 7 func
+e 4 8 args0
+e 4 9 args1
+e 5 10 func
+e 5 11 args
+e 7 12 value
+e 7 13 ctx
+e 8 14 ctx
+e 9 15 ctx
+e 10 16 ctx
+e 11 17 func
+e 11 18 args
+e 12 19 ctx
+e 17 20 value
+e 17 21 ctx
+e 18 22 ctx
+e 20 23 ctx
+t # 3
+v 0 Module
+v 1 Import
+v 2 ImportFrom#module=sklearn.linear_model
+v 3 ImportFrom#module=sklearn.linear_model
+v 4 Assign
+v 5 Assign
+v 6 alias#name=numpy#asname=np
+v 7 alias#name=LinearRegression
+v 8 alias#name=Lasso
+v 9 Tuple
+v 10 Call
+v 11 Name
+v 12 Call
+v 13 Name
+v 14 Name
+v 15 Name
+v 16 Name
+v 17 Store
+v 18 Name#id=train_test_split
+v 19 Name
+v 20 Name
+v 21 keyword#arg=random_state
+v 22 Store
+v 23 Attribute#attr=fit
+v 24 Name
+v 25 Name
+v 26 Store
+v 27 Store
+v 28 Store
+v 29 Store
+v 30 Load
+v 31 Load
+v 32 Load
+v 33 Constant
+v 34 Call
+v 35 Load
+v 36 Load
+v 37 Load
+v 38 Name#id=LinearRegression
+v 39 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 0 5 body4
+e 1 6 names
+e 2 7 names
+e 3 8 names
+e 4 9 targets
+e 4 10 value
+e 5 11 targets
+e 5 12 value
+e 9 13 elts0
+e 9 14 elts1
+e 9 15 elts2
+e 9 16 elts3
+e 9 17 ctx
+e 10 18 func
+e 10 19 args0
+e 10 20 args1
+e 11 22 ctx
+e 12 23 func
+e 12 24 args0
+e 12 25 args1
+e 13 26 ctx
+e 14 27 ctx
+e 15 28 ctx
+e 16 29 ctx
+e 18 30 ctx
+e 19 31 ctx
+e 20 32 ctx
+e 21 33 value
+e 23 34 value
+e 23 35 ctx
+e 24 36 ctx
+e 25 37 ctx
+e 34 38 func
+e 38 39 ctx
+t # 4
+v 0 Module
+v 1 Assign
+v 2 Assign
+v 3 Expr
+v 4 Name
+v 5 Call
+v 6 Name
+v 7 Call
+v 8 Call
+v 9 Store
+v 10 Attribute#attr=LinearRegression
+v 11 keyword#arg=dim
+v 12 Store
+v 13 Attribute#attr=predict
+v 14 Name
+v 15 Attribute#attr=head
+v 16 Name
+v 17 Load
+v 18 Constant
+v 19 Name
+v 20 Load
+v 21 Load
+v 22 Call
+v 23 Load
+v 24 Load
+v 25 Load
+v 26 Attribute#attr=assign
+v 27 keyword#arg=y
+v 28 keyword#arg=ŷ
+v 29 Call
+v 30 Load
+v 31 Name
+v 32 Name
+v 33 Name#id=DataFrame
+v 34 Name
+v 35 keyword#arg=columns
+v 36 Load
+v 37 Load
+v 38 Load
+v 39 Load
+v 40 List
+v 41 Constant
+v 42 Constant
+v 43 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 1 4 targets
+e 1 5 value
+e 2 6 targets
+e 2 7 value
+e 3 8 value
+e 4 9 ctx
+e 5 10 func
+e 6 12 ctx
+e 7 13 func
+e 7 14 args
+e 8 15 func
+e 10 16 value
+e 10 17 ctx
+e 11 18 value
+e 13 19 value
+e 13 20 ctx
+e 14 21 ctx
+e 15 22 value
+e 15 23 ctx
+e 16 24 ctx
+e 19 25 ctx
+e 22 26 func
+e 22 27 keywords0
+e 22 28 keywords1
+e 26 29 value
+e 26 30 ctx
+e 27 31 value
+e 28 32 value
+e 29 33 func
+e 29 34 args
+e 31 36 ctx
+e 32 37 ctx
+e 33 38 ctx
+e 34 39 ctx
+e 35 40 value
+e 40 41 elts0
+e 40 42 elts1
+e 40 43 ctx
+t # 5
+v 0 Module
+v 1 ImportFrom#module=sklearn.linear_model
+v 2 ImportFrom#module=sklearn.model_selection
+v 3 Assign
+v 4 Assign
+v 5 Expr
+v 6 alias#name=LinearRegression
+v 7 alias#name=train_test_split
+v 8 Tuple
+v 9 Call
+v 10 Name
+v 11 Call
+v 12 Call
+v 13 Name
+v 14 Name
+v 15 Name
+v 16 Name
+v 17 Store
+v 18 Name#id=train_test_split
+v 19 Name
+v 20 Name
+v 21 keyword#arg=test_size
+v 22 keyword#arg=random_state
+v 23 Store
+v 24 Name#id=LinearRegression
+v 25 Attribute#attr=fit
+v 26 Name
+v 27 Name
+v 28 Store
+v 29 Store
+v 30 Store
+v 31 Store
+v 32 Load
+v 33 Load
+v 34 Load
+v 35 BinOp
+v 36 Constant
+v 37 Load
+v 38 Name
+v 39 Load
+v 40 Load
+v 41 Load
+v 42 Constant
+v 43 Div
+v 44 Constant
+v 45 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 0 5 body4
+e 1 6 names
+e 2 7 names
+e 3 8 targets
+e 3 9 value
+e 4 10 targets
+e 4 11 value
+e 5 12 value
+e 8 13 elts0
+e 8 14 elts1
+e 8 15 elts2
+e 8 16 elts3
+e 8 17 ctx
+e 9 18 func
+e 9 19 args0
+e 9 20 args1
+e 9 21 keywords0
+e 9 22 keywords1
+e 10 23 ctx
+e 11 24 func
+e 12 25 func
+e 12 26 args0
+e 12 27 args1
+e 13 28 ctx
+e 14 29 ctx
+e 15 30 ctx
+e 16 31 ctx
+e 18 32 ctx
+e 19 33 ctx
+e 20 34 ctx
+e 21 35 value
+e 22 36 value
+e 24 37 ctx
+e 25 38 value
+e 25 39 ctx
+e 26 40 ctx
+e 27 41 ctx
+e 35 42 left
+e 35 43 op
+e 35 44 right
+e 38 45 ctx
+t # -1
