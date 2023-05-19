@@ -1,1 +1,301 @@
+t # 0
+v 0 Module
+v 1 Import
+v 2 ImportFrom#module=sklearn.preprocessing
+v 3 Assign
+v 4 Assign
+v 5 alias#name=pandas#asname=pd
+v 6 alias#name=MinMaxScaler
+v 7 Name
+v 8 Call
+v 9 Name
+v 10 Call
+v 11 Store
+v 12 Name#id=MinMaxScaler
+v 13 Store
+v 14 Attribute#attr=fit_transform
+v 15 Name
+v 16 Load
+v 17 Name
+v 18 Load
+v 19 Load
+v 20 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 1 5 names
+e 2 6 names
+e 3 7 targets
+e 3 8 value
+e 4 9 targets
+e 4 10 value
+e 7 11 ctx
+e 8 12 func
+e 9 13 ctx
+e 10 14 func
+e 10 15 args
+e 12 16 ctx
+e 14 17 value
+e 14 18 ctx
+e 15 19 ctx
+e 17 20 ctx
+t # 1
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 Assign
+v 3 Expr
+v 4 Expr
+v 5 alias#name=MinMaxScaler
+v 6 Name
+v 7 Call
+v 8 Call
+v 9 Call
+v 10 Store
+v 11 Name#id=MinMaxScaler
+v 12 Attribute#attr=fit
+v 13 Name
+v 14 Name#id=print
+v 15 Call
+v 16 Load
+v 17 Name
+v 18 Load
+v 19 Load
+v 20 Load
+v 21 Attribute#attr=transform
+v 22 List
+v 23 Load
+v 24 Name
+v 25 Load
+v 26 List
+v 27 Load
+v 28 Load
+v 29 Constant
+v 30 Constant
+v 31 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 1 5 names
+e 2 6 targets
+e 2 7 value
+e 3 8 value
+e 4 9 value
+e 6 10 ctx
+e 7 11 func
+e 8 12 func
+e 8 13 args
+e 9 14 func
+e 9 15 args
+e 11 16 ctx
+e 12 17 value
+e 12 18 ctx
+e 13 19 ctx
+e 14 20 ctx
+e 15 21 func
+e 15 22 args
+e 17 23 ctx
+e 21 24 value
+e 21 25 ctx
+e 22 26 elts
+e 22 27 ctx
+e 24 28 ctx
+e 26 29 elts0
+e 26 30 elts1
+e 26 31 ctx
+t # 2
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 Assign
+v 3 Assign
+v 4 Expr
+v 5 alias#name=MinMaxScaler
+v 6 Name
+v 7 Call
+v 8 Name
+v 9 Call
+v 10 Call
+v 11 Store
+v 12 Name#id=MinMaxScaler
+v 13 Store
+v 14 Attribute#attr=fit_transform
+v 15 Name
+v 16 Name#id=print
+v 17 Name
+v 18 Load
+v 19 Name
+v 20 Load
+v 21 Load
+v 22 Load
+v 23 Load
+v 24 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 1 5 names
+e 2 6 targets
+e 2 7 value
+e 3 8 targets
+e 3 9 value
+e 4 10 value
+e 6 11 ctx
+e 7 12 func
+e 8 13 ctx
+e 9 14 func
+e 9 15 args
+e 10 16 func
+e 10 17 args
+e 12 18 ctx
+e 14 19 value
+e 14 20 ctx
+e 15 21 ctx
+e 16 22 ctx
+e 17 23 ctx
+e 19 24 ctx
+t # 3
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 Assign
+v 3 Assign
+v 4 Assign
+v 5 alias#name=MinMaxScaler
+v 6 Name
+v 7 Call
+v 8 Name
+v 9 Call
+v 10 Name
+v 11 Call
+v 12 Store
+v 13 Attribute#attr=fit
+v 14 Name
+v 15 Store
+v 16 Attribute#attr=transform
+v 17 Name
+v 18 Store
+v 19 Attribute#attr=transform
+v 20 Name
+v 21 Call
+v 22 Load
+v 23 Load
+v 24 Name
+v 25 Load
+v 26 Load
+v 27 Name
+v 28 Load
+v 29 Load
+v 30 Name#id=MinMaxScaler
+v 31 Load
+v 32 Load
+v 33 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 0 4 body3
+e 1 5 names
+e 2 6 targets
+e 2 7 value
+e 3 8 targets
+e 3 9 value
+e 4 10 targets
+e 4 11 value
+e 6 12 ctx
+e 7 13 func
+e 7 14 args
+e 8 15 ctx
+e 9 16 func
+e 9 17 args
+e 10 18 ctx
+e 11 19 func
+e 11 20 args
+e 13 21 value
+e 13 22 ctx
+e 14 23 ctx
+e 16 24 value
+e 16 25 ctx
+e 17 26 ctx
+e 19 27 value
+e 19 28 ctx
+e 20 29 ctx
+e 21 30 func
+e 24 31 ctx
+e 27 32 ctx
+e 30 33 ctx
+t # 4
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 Assign
+v 3 Assign
+v 4 alias#name=MinMaxScaler
+v 5 Name
+v 6 Call
+v 7 Name
+v 8 Call
+v 9 Store
+v 10 Name#id=MinMaxScaler
+v 11 Store
+v 12 Attribute#attr=fit_transform
+v 13 Name
+v 14 Load
+v 15 Name
+v 16 Load
+v 17 Load
+v 18 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 1 4 names
+e 2 5 targets
+e 2 6 value
+e 3 7 targets
+e 3 8 value
+e 5 9 ctx
+e 6 10 func
+e 7 11 ctx
+e 8 12 func
+e 8 13 args
+e 10 14 ctx
+e 12 15 value
+e 12 16 ctx
+e 13 17 ctx
+e 15 18 ctx
+t # 5
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 Assign
+v 3 Assign
+v 4 alias#name=MinMaxScaler
+v 5 Name
+v 6 Call
+v 7 Name
+v 8 Call
+v 9 Store
+v 10 Name#id=MinMaxScalar
+v 11 Store
+v 12 Attribute#attr=fit_transform
+v 13 Name
+v 14 Load
+v 15 Name
+v 16 Load
+v 17 Load
+v 18 Load
+e 0 1 body0
+e 0 2 body1
+e 0 3 body2
+e 1 4 names
+e 2 5 targets
+e 2 6 value
+e 3 7 targets
+e 3 8 value
+e 5 9 ctx
+e 6 10 func
+e 7 11 ctx
+e 8 12 func
+e 8 13 args
+e 10 14 ctx
+e 12 15 value
+e 12 16 ctx
+e 13 17 ctx
+e 15 18 ctx
 t # -1

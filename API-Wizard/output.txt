@@ -1,3 +1,1509 @@
+t # 0
+v 0 Module
+v 1 Assign
+e 0 1 body2
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 1
+v 0 Module
+v 1 Assign
+v 2 Name
+e 0 1 body2
+e 1 2 targets
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 2
+v 0 ImportFrom#module=sklearn.preprocessing
+v 1 alias#name=MinMaxScaler
+e 0 1 names
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 3
+v 0 Assign
+v 1 Name
+e 0 1 targets
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 4
+v 0 Assign
+v 1 Name
+v 2 Store
+e 0 1 targets
+e 1 2 ctx
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 5
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 6
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name#id=MinMaxScaler
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 7
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name#id=MinMaxScaler
+v 5 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 ctx
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 8
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 9
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+v 5 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 10
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+v 5 Name
+v 6 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 value
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 11
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+v 5 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 12
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 ctx
+e 4 6 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 13
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+v 7 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 func
+e 4 5 ctx
+e 4 6 value
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 14
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 15
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 4 5 ctx
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 16
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 17
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+v 7 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+e 6 7 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 18
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+v 7 Name
+v 8 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+e 6 7 value
+e 7 8 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 19
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+v 7 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 20
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+v 7 Load
+v 8 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+e 6 7 ctx
+e 6 8 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 21
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Load
+v 6 Attribute#attr=fit_transform
+v 7 Load
+v 8 Name
+v 9 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 6 func
+e 4 5 ctx
+e 6 7 ctx
+e 6 8 value
+e 8 9 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 22
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 23
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+v 6 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+e 5 6 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 24
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+v 6 Name
+v 7 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+e 5 6 value
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 25
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+v 6 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 26
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+v 6 Load
+v 7 Name
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+e 5 6 ctx
+e 5 7 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 27
+v 0 Assign
+v 1 Name
+v 2 Store
+v 3 Call
+v 4 Name
+v 5 Attribute#attr=fit_transform
+v 6 Load
+v 7 Name
+v 8 Load
+e 0 1 targets
+e 0 3 value
+e 1 2 ctx
+e 3 4 args
+e 3 5 func
+e 5 6 ctx
+e 5 7 value
+e 7 8 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 28
+v 0 Assign
+v 1 Name
+v 2 Call
+e 0 1 targets
+e 0 2 value
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 29
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name#id=MinMaxScaler
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 30
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name#id=MinMaxScaler
+v 4 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 ctx
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 31
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 32
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+v 4 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 33
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+v 4 Name
+v 5 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 value
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 34
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+v 4 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 35
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+v 4 Load
+v 5 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 ctx
+e 3 5 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 36
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Attribute#attr=fit_transform
+v 4 Load
+v 5 Name
+v 6 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 func
+e 3 4 ctx
+e 3 5 value
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 37
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 38
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 3 4 ctx
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 39
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 40
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+v 6 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+e 5 6 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 41
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+v 6 Name
+v 7 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+e 5 6 value
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 42
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+v 6 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 43
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+v 6 Load
+v 7 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+e 5 6 ctx
+e 5 7 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 44
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Load
+v 5 Attribute#attr=fit_transform
+v 6 Load
+v 7 Name
+v 8 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 5 func
+e 3 4 ctx
+e 5 6 ctx
+e 5 7 value
+e 7 8 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 45
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 46
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+v 5 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+e 4 5 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 47
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+v 5 Name
+v 6 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+e 4 5 value
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 48
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+v 5 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 49
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+e 4 5 ctx
+e 4 6 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 50
+v 0 Assign
+v 1 Name
+v 2 Call
+v 3 Name
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+v 7 Load
+e 0 1 targets
+e 0 2 value
+e 2 3 args
+e 2 4 func
+e 4 5 ctx
+e 4 6 value
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 51
+v 0 Assign
+v 1 Call
+e 0 1 value
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 52
+v 0 Assign
+v 1 Call
+v 2 Name#id=MinMaxScaler
+e 0 1 value
+e 1 2 func
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 53
+v 0 Assign
+v 1 Call
+v 2 Name#id=MinMaxScaler
+v 3 Load
+e 0 1 value
+e 1 2 func
+e 2 3 ctx
+
+Support: 4
+where: [0, 1, 2, 4]
+
+-----------------
+
+t # 54
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+e 0 1 value
+e 1 2 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 55
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+v 3 Name
+e 0 1 value
+e 1 2 func
+e 2 3 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 56
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+v 3 Name
+v 4 Load
+e 0 1 value
+e 1 2 func
+e 2 3 value
+e 3 4 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 57
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+v 3 Load
+e 0 1 value
+e 1 2 func
+e 2 3 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 58
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+v 3 Load
+v 4 Name
+e 0 1 value
+e 1 2 func
+e 2 3 ctx
+e 2 4 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 59
+v 0 Assign
+v 1 Call
+v 2 Attribute#attr=fit_transform
+v 3 Load
+v 4 Name
+v 5 Load
+e 0 1 value
+e 1 2 func
+e 2 3 ctx
+e 2 4 value
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 60
+v 0 Assign
+v 1 Call
+v 2 Name
+e 0 1 value
+e 1 2 args
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 61
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+e 0 1 value
+e 1 2 args
+e 2 3 ctx
+
+Support: 5
+where: [0, 2, 3, 4, 5]
+
+-----------------
+
+t # 62
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 63
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+v 5 Name
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+e 4 5 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 64
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+v 5 Name
+v 6 Load
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+e 4 5 value
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 65
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+v 5 Load
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 66
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+e 4 5 ctx
+e 4 6 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 67
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Load
+v 4 Attribute#attr=fit_transform
+v 5 Load
+v 6 Name
+v 7 Load
+e 0 1 value
+e 1 2 args
+e 1 4 func
+e 2 3 ctx
+e 4 5 ctx
+e 4 6 value
+e 6 7 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 68
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+e 0 1 value
+e 1 2 args
+e 1 3 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 69
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+v 4 Name
+e 0 1 value
+e 1 2 args
+e 1 3 func
+e 3 4 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 70
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+v 4 Name
+v 5 Load
+e 0 1 value
+e 1 2 args
+e 1 3 func
+e 3 4 value
+e 4 5 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 71
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+v 4 Load
+e 0 1 value
+e 1 2 args
+e 1 3 func
+e 3 4 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 72
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+v 4 Load
+v 5 Name
+e 0 1 value
+e 1 2 args
+e 1 3 func
+e 3 4 ctx
+e 3 5 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 73
+v 0 Assign
+v 1 Call
+v 2 Name
+v 3 Attribute#attr=fit_transform
+v 4 Load
+v 5 Name
+v 6 Load
+e 0 1 value
+e 1 2 args
+e 1 3 func
+e 3 4 ctx
+e 3 5 value
+e 5 6 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 74
+v 0 Name
+v 1 Store
+e 0 1 ctx
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 75
+v 0 Call
+v 1 Name#id=MinMaxScaler
+e 0 1 func
+
+Support: 5
+where: [0, 1, 2, 3, 4]
+
+-----------------
+
+t # 76
+v 0 Call
+v 1 Name#id=MinMaxScaler
+v 2 Load
+e 0 1 func
+e 1 2 ctx
+
+Support: 5
+where: [0, 1, 2, 3, 4]
+
+-----------------
+
+t # 77
+v 0 Call
+v 1 Attribute#attr=fit_transform
+e 0 1 func
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 78
+v 0 Call
+v 1 Attribute#attr=fit_transform
+v 2 Name
+e 0 1 func
+e 1 2 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 79
+v 0 Call
+v 1 Attribute#attr=fit_transform
+v 2 Load
+e 0 1 func
+e 1 2 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 80
+v 0 Call
+v 1 Name
+e 0 1 args
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 81
+v 0 Call
+v 1 Name
+v 2 Load
+e 0 1 args
+e 1 2 ctx
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 82
+v 0 Name#id=MinMaxScaler
+v 1 Load
+e 0 1 ctx
+
+Support: 5
+where: [0, 1, 2, 3, 4]
+
+-----------------
+
+t # 83
+v 0 Attribute#attr=fit_transform
+v 1 Name
+e 0 1 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 84
+v 0 Attribute#attr=fit_transform
+v 1 Name
+v 2 Load
+e 0 1 value
+e 1 2 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 85
+v 0 Attribute#attr=fit_transform
+v 1 Load
+e 0 1 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 86
+v 0 Attribute#attr=fit_transform
+v 1 Load
+v 2 Name
+e 0 1 ctx
+e 0 2 value
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 87
+v 0 Attribute#attr=fit_transform
+v 1 Load
+v 2 Name
+v 3 Load
+e 0 1 ctx
+e 0 2 value
+e 2 3 ctx
+
+Support: 4
+where: [0, 2, 4, 5]
+
+-----------------
+
+t # 88
+v 0 Name
+v 1 Load
+e 0 1 ctx
+
+Support: 6
+where: [0, 1, 2, 3, 4, 5]
+
+-----------------
+
+t # 89
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+e 0 1 body0
+
+Support: 5
+where: [1, 2, 3, 4, 5]
+
+-----------------
+
+t # 90
+v 0 Module
+v 1 ImportFrom#module=sklearn.preprocessing
+v 2 alias#name=MinMaxScaler
+e 0 1 body0
+e 1 2 names
+
+Support: 5
+where: [1, 2, 3, 4, 5]
+
+-----------------
+
+t # 91
+v 0 Module
+v 1 Assign
+e 0 1 body1
+
+Support: 5
+where: [1, 2, 3, 4, 5]
+
+-----------------
+
+t # 92
+v 0 Module
+v 1 Assign
+v 2 Name
+e 0 1 body1
+e 1 2 targets
+
+Support: 5
+where: [1, 2, 3, 4, 5]
+
+-----------------
+
 Read:	0.0 s
-Mine:	0.0 s
-Total:	0.0 s
+Mine:	0.45 s
+Total:	0.45 s
