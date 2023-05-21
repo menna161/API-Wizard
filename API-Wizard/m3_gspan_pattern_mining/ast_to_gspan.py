@@ -1,7 +1,20 @@
 import ast
 import re
 
+
+#This Function traverses each ast tree and convert it to the gsapn format
+
+#gspan format:
+# t # 0
+# v 0 vertex name
+# v 1 vertex name
+# e 0 1 edge label
+
+#takes ast trees as input and the file name we want the results to be stored in
+#include_vars=False , means that the variable/parameter names will not appear
+
 def ast_to_gspan(filename ,trees, include_vars=False):
+  # Open the specified file in write mode
   file = open(filename, "w")
   i=0
 
@@ -15,6 +28,7 @@ def ast_to_gspan(filename ,trees, include_vars=False):
     i+=1
     first = True
 
+    # Traverse the AST tree nodes
     for node in ast.walk(snippet_tree):
         n = str(node).split()[0][6:]
         parent_n += 1
@@ -26,6 +40,7 @@ def ast_to_gspan(filename ,trees, include_vars=False):
           v_write.append('v '+str(v_n)+' '+str(type(node).__name__)+'\n')
           first = False
 
+        # Iterate over the child nodes of the current node
         for index,x in enumerate(ast.iter_child_nodes(node)): 
             child = type(x).__name__
             try:
@@ -108,9 +123,8 @@ def ast_to_gspan(filename ,trees, include_vars=False):
               e_n+=1
 
 
-    # sort the array based on the number after v in each string
+    # Sort the vertex and edge lists based on the number after 'v' and 'e' in each string
     v_write = sorted(v_write, key=lambda x: int(re.search(r'v (\d+)', x).group(1)))
-
     e_write = sorted(e_write, key=lambda x: int(re.search(r'e (\d+)', x).group(1)))
 
     for y in v_write:
@@ -119,6 +133,6 @@ def ast_to_gspan(filename ,trees, include_vars=False):
     for y in e_write:
       file.write(y)
           
-
+  # Write the termination line for the gSpan format
   file.write("t # -1\n")
   file.close()

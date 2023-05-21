@@ -3,10 +3,8 @@ import json
 import os
 import ast
 import astor
-# import re
 import pandas
 from os import fsdecode
-# from collections import deque
 import subprocess
 
 
@@ -25,15 +23,7 @@ from helpers.remove_placeholders import remove_placeholders
 from evaluation.calc_representative import calc_representative
 from evaluation.calc_consiceness import calc_consiceness 
 
-
-# from Input_preprocessing import read_dir, snippets_to_ast, ast_to_gspan
-# from code_template import common_patterns, get_code_templates
-# from complete_code import add_placeholders, calc_scores
-# from evaluation import *
-
-
-"""#Driver Code"""
-
+#Driver Code
 
 def main():
     api_name = 'MinMaxScaler'
@@ -48,27 +38,16 @@ def main():
     extracted_subgraphs = add_placeholders(extracted_subgraphs)
     print('Generated Code Templats Successfully')
     
-    
-
     code_output = calc_scores(where_code_output, extracted_subgraphs)
 
 
     print('################################ Output #################################')
     unique_list = sort_lines(code_output)
     unique_list = remove_repeated(unique_list)
-    
-    
-    
-   
     unique_list = sorted(unique_list, key=custom_key)
-    
-
     unique_list = remove_placeholders(unique_list)
-
-
     joined_lines = ''.join(unique_list)
     print(joined_lines)
-
 
     
     print('################################ Evaluation ################################')
@@ -79,18 +58,6 @@ def main():
     consiceness = calc_consiceness(unique_list)
     print('conciseness:   ', consiceness)
 
-
-
-# ex = [] #filtered code examples in the dataset
-# trees = [] #ast trees of the filtered code examples
-# input_count = 0
-# extracted_subgraphs = [] #Gspan format of all output patterns
-# where_code_output = [] # array of the source of each pattern# lg_v = {}
-
-# code_output = [] # pattern output code with placeholder 
-# code_output_ast = [] # pattern output ast tree with placeholder 
-
-# score = {} #to store trees scores 
 
 if __name__ == "__main__":
     main()

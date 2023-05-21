@@ -1,6 +1,8 @@
 from m4_maximal_frequent_subtrees.parallel_subgraph_bfs import parallel_subgraph_bfs
 
+#This function utilizes parallel BFS to determine if one graph is a subgraph of another
 def parallel_bfs_supgraphs_helper(lg_v, sm_v, lg_edges, sm_edges ):
+    # Set the search_string to the first vertex in the small graph
     search_string = sm_v[0]
     found_search = False
     foundV_key= 0
@@ -15,8 +17,8 @@ def parallel_bfs_supgraphs_helper(lg_v, sm_v, lg_edges, sm_edges ):
           
     # If no matching node was found or the graphs are not subgraphs, return
     if (not found_search) :
-      # print(f'The Two graphs are NOT subgraph')
+      #The Two graphs are NOT subgraphs
       return False
     else:
-      # print(f'found a subgraph')
+      #found a subgraph
       return True
