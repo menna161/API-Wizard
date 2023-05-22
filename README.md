@@ -12,7 +12,7 @@ These are the 6 main milestones of API-Wizrd. API Wizard takes a set of filtered
 ![image](https://github.com/menna161/API-Wizard/assets/57011308/51b7cb33-77bd-46ec-9b6a-83bdc93d4bd7)
 
 
-In this API-Wizard folder, you can find the source code for API-Wizard. The subfiles are numbered according to the function corresponding milestone. There is also the helper folder that contains the functions used throughout the project in different milestones. The evaluation folder has the code for calculating some of our evaluation metrics: conciseness and representativeness. API_WIzard.py is the file that contains the main function for the tool. The dataset folder holds all the dataset we have tested our tool with. PyAroma folders holds the source code of our re-implemetation of Aroma. It also has a readme file illusterating how PyAroma works and how to reproduce the results generated from PyAroma. The folder dataset_extraction_code has the scripts used to extract our dataset.
+In this API-Wizard folder, you can find the source code for API-Wizard. The subfiles are numbered according to the function corresponding milestone. There is also the helper folder that contains the functions used throughout the project in different milestones. The evaluation folder has the code for calculating some of our evaluation metrics: conciseness and representativeness. API_WIzard.py is the file that contains the main function for the tool. The dataset folder holds all the dataset we have tested our tool with. PyAroma folders holds the source code of our re-implemetation of Aroma. The folder dataset_extraction_code has the scripts used to extract our dataset.
 
 
 # Getting Started
@@ -20,9 +20,18 @@ To use the plugin you need Visula Studio Code and then to use the extension you 
 Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
 
 # Usage
-To use API Wizard, follow these steps:
+Steps to run API-Wizard:
+first, there are some packaes you need to install before running our tool. To install them use these commands in the project folder:
+- pip install gspan-mining
+- pip install astor
+
 Type the name of the API you want an example for
 Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
+
+Steps to run PyAroma:
+- cd PyAroma/reference/evaluation/
+- ./run_all
+The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory.
 
 
 # Contributing
