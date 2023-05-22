@@ -16,23 +16,25 @@ In this API-Wizard folder, you can find the source code for API-Wizard. The subf
 
 
 # Getting Started
-To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
-Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
 
-# Usage
 Steps to run API-Wizard:
+
 first, there are some packaes you need to install before running our tool. To install them use these commands in the project folder:
 - pip install gspan-mining
 - pip install astor
 
-Type the name of the API you want an example for
-Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
+To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
+Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
+
 
 Steps to run PyAroma:
 - cd PyAroma/reference/evaluation/
 - ./run_all
 The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory.
 
+# Usage
+Type the name of the API you want an example for
+Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
 
 # Contributing
 Contributions are welcome and encouraged! To contribute to API Wizard, follow these steps:
@@ -41,6 +43,7 @@ Create a new branch for your changes.
 Make your changes and commit them.
 Push your changes to your forked repository.
 Submit a pull request.
+
 
 # License
 API Wizard is licensed under the MIT license. See LICENSE for more information.
