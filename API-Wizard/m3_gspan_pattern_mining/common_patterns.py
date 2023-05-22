@@ -1,6 +1,7 @@
 import globals
 import warnings
 import os
+import subprocess
 
 
 #This function genrates the common patterns between the trees inside "input.txt" using gspan tool
@@ -19,4 +20,8 @@ def common_patterns():
         warnings.simplefilter(action='ignore')
         
         # Execute the gSpan mining command using the subprocess module
-        os.system("python -m gspan_mining -s " + str(minsupport) + " -d True -w True ./input.txt > output.txt")
+        # os.system("python -m gspan_mining -s " + str(minsupport) + " -d True -w True ./input.txt > output.txt")
+     # Execute the gSpan mining command using subprocess and redirect output/error streams
+    with open(os.devnull, 'w') as devnull:
+        subprocess.call(["python", "-m", "gspan_mining", "-s", str(minsupport), "-d", "True", "-w", "True", "./input.txt"], stdout=devnull, stderr=devnull)
+

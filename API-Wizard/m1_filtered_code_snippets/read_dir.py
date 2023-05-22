@@ -26,8 +26,7 @@ def read_dir(api_name):
                 # Append the file contents to the 'ex' list
                 ex.append(text)
     
-    # Print the number of files read successfully
-    print('Read Files Successfully:', len(ex))
+    print('Read Files Succesfully')
     
     # Return the list of file contents
     return ex

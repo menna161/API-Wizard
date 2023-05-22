@@ -15,7 +15,8 @@ def snippets_to_ast(ex):
             pass
 
     # Print a success message
-    print('Converted Code Snippets to AST Trees Successfully')
+    print('Converted Code Snippets to AST Trees Succesfully')
+
 
     # Calculate the number of inputs (AST trees)
     input_count = len(globals.trees)

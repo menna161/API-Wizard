@@ -1504,6 +1504,6 @@ where: [1, 2, 3, 4, 5]
 
 -----------------
 
-Read:	0.01 s
-Mine:	1.09 s
-Total:	1.1 s
+Read:	0.0 s
+Mine:	0.48 s
+Total:	0.48 s
