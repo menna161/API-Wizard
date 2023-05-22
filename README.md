@@ -6,7 +6,7 @@ Supervised by Dr.Sarah Nadi (nadi@ualberta.ca) and Dr.Ahmead Rafea (rafea@aucegy
 API Wizard is a VSCode IDE plugin based on pattern mining that allows users to view a common usage example of a certain Python API they would like to use.
 Using this plugin, you can easily use a keyboard shortcut over the API query to invoke the IDE plugin which views the usage example of this API.
 This project reimplements the algorithm of the state-of-the-art tool Exempla Gratis with some modifications to overcome the limitations discussed in our paper.
-Api Wizard uses gSpan as its mining frequent subgraphs algorithm.
+API Wizard uses gSpan as its mining frequent subgraphs algorithm.
 
 
 # Getting Started
