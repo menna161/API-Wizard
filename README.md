@@ -30,7 +30,7 @@ Then you need to replace the code in the package.js with the code in this reposi
 Steps to run PyAroma:
 - cd PyAroma/reference/evaluation/
 - ./run_all
-The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory.
+The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory. Note that new results are appended to the end of this file.
 
 # Usage
 Type the name of the API you want an example for. Then, Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
