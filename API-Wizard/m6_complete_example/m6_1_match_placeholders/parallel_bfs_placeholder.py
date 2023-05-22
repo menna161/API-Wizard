@@ -1,7 +1,9 @@
 from collections import deque
 import re
 
-
+#this function performes a parallel bfs on both the large and
+# small tree to determine if they are subgraphs of each other or not but
+#  taking the nodes with placeholders into consideration
 def parallel_bfs_placeholder(lg_v, sm_v, adj_list_lg, adj_list_sm, start_node):    
     # Initialize two empty sets 'visited_lg' and 'visited_sm', and two empty queues 'queue_lg' and 'queue_sm'.
     visited_lg = set()
@@ -29,19 +31,22 @@ def parallel_bfs_placeholder(lg_v, sm_v, adj_list_lg, adj_list_sm, start_node):
         
         node1 = queue_lg[0]
         node2 = queue_sm[0]
+        # Check if the vertex in 'queue_sm' is a placeholder or a regex pattern.
         if('PLACEHOLDER' in  sm_v[node2[0]] or '(.*)' in sm_v[node2[0]]):
           isPlaceholder = True
           sm_v[node2[0]] = sm_v[node2[0]].replace('PLACEHOLDER', '(.*)')
           tmp_score['placeholder'+str(placeholder_n)] = {}
           
-      
+      # Match the pattern in 'sm_v' with the value in 'lg_v'
         match = re.findall( sm_v[node2[0]], lg_v[node1[0]])
         
+        # If no match is found, dequeue the first node from 'queue_lg' and continue the loop.
         if( not match):    
           node1 = queue_lg.popleft()
           continue
 
         else: 
+           # If the vertex is a placeholder, store the match in 'tmp_score' and update the placeholder count.
           if isPlaceholder:
             tmp_score['placeholder'+str(placeholder_n)][match[0]] = 1
             placeholder_n = placeholder_n+1

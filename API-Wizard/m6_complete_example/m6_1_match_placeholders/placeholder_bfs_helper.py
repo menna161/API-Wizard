@@ -3,7 +3,7 @@ import re
 from globals import score
 from .parallel_bfs_placeholder import parallel_bfs_placeholder
 
-
+#This function utilizes parallel BFS to determine if one graph is a subgraph of another
 def placeholder_bfs_helper(lgGraph, smGraph ,new_template ):
     lg_v = {}
     sm_v = {}

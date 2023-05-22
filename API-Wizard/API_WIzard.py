@@ -26,20 +26,30 @@ from evaluation.calc_consiceness import calc_consiceness
 #Driver Code
 
 def main():
+    #pass the api name you want an example for 
     api_name = 'MinMaxScaler'
+    #check the path of the dataset is correct inside read_dir
+
+    # m1 get the filtered code snippets
     ex = read_dir(api_name)
+    # m2 for each snippet construct an ast tree
     input_count, trees = snippets_to_ast(ex)
     
+    # m3 convert ast represenation to gspan 
+    #version without var names (used to find common patterns)
     ast_to_gspan('input.txt', trees)
+    #version with var names (used to later to obtain placeholder values)
     ast_to_gspan('input_with_vars.txt', trees, True)
+    #find common patterns in input.txt
     common_patterns()
 
+    #m4 and m5 obtain maximal frequent subtrees and form a code template
     extracted_subgraphs, where_code_output =  get_code_templates()
     extracted_subgraphs = add_placeholders(extracted_subgraphs)
     print('Generated Code Templats Successfully')
     
+    #m6 generate a complete code example by replacing placeholders with var and param names with max score
     code_output = calc_scores(where_code_output, extracted_subgraphs)
-
 
     print('################################ Output #################################')
     unique_list = sort_lines(code_output)
@@ -49,7 +59,6 @@ def main():
     joined_lines = ''.join(unique_list)
     print(joined_lines)
 
-    
     print('################################ Evaluation ################################')
     
     repr = calc_representative(where_code_output, input_count)

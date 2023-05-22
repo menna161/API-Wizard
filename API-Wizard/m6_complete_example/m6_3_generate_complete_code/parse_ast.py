@@ -1,5 +1,8 @@
 import ast
 
+
+#this function creates an ast tree based on this documentation: https://docs.python.org/3/library/ast.html
+#based on the node and its edges a tree is created
 def parse_ast(nodes, edges):
     # Create a dictionary of nodes
     ex =''
@@ -7,8 +10,8 @@ def parse_ast(nodes, edges):
     node_type= ''
     node_id = -1
     ast_nodes = {}
+    #loop on all nodes and create a node based on their name
     for node in nodes:
-        # print(node)
         # Parse the node ID and type
         node_id = node_id+1
         node_type = node
@@ -19,14 +22,10 @@ def parse_ast(nodes, edges):
             ast_node = ast.Name(id=name, ctx=ast.Load())
         elif node_type == 'Name':
           ast_node = ast.Name(id='PLACEHOLDER', ctx=ast.Load())
-        # elif node_type.startswith('Attribute#attr'):
-        #     attr = node_type[15:]
-        #     ast_node = ast.Attribute(value=ast.Name('PLACEHOLDER',None), attr=attr, ctx=ast.Load())
         elif node_type == 'Call':
             ast_node = ast.Call(func=ast.Name('PLACEHOLDER',None), args=[], keywords=[])
         elif node_type == 'Assign':
             ast_node = ast.Assign(targets=[], value=ast.Name(id='PLACEHOLDER', ctx=ast.Load()))
-
         elif node_type == 'Load':
             ast_node = ast.Load()
         elif node_type == 'Store':
@@ -38,7 +37,6 @@ def parse_ast(nodes, edges):
             ast_node = ast.Import(names=[])
         elif node_type.startswith('ImportFrom'):
             module_name = node_type[18:]
-            # print('module_name',module_name)
             ast_node = ast.ImportFrom(module=module_name, names=[], level=0)
 
         elif node_type == 'Add':
@@ -108,7 +106,6 @@ def parse_ast(nodes, edges):
               asname = node_type[second_eq_idx + 1:].strip()
               ast_node = ast.alias(name,asname)
             
-      ################# DINA ##################################
         elif node_type == 'BoolOp':
             ast_node = ast.BoolOp(op=ast.And(), values=[])
         elif node_type == 'UnaryOp':
@@ -147,7 +144,7 @@ def parse_ast(nodes, edges):
           ast_node = ast.comprehension(target=None, iter=None, ifs=[], is_async=False)
         elif node_type == 'Compare':
           ast_node = ast.Compare(left=None, ops=[], comparators=[])
-          
+          #NOT USED ANYMORE IN NEWER VERSIONS
         # elif node_type == 'MatchValue':
         #     ast_node = ast.MatchValue(value=None)
         # elif node_type == 'MatchSingleton':
@@ -165,7 +162,6 @@ def parse_ast(nodes, edges):
         # elif node_type == 'MatchOr':
         #     ast_node = ast.MatchOr(patterns=[])
 
-        ################# This is the new added nodes ##################################
         elif node_type.startswith('FunctionDef'):
           func_name = node_type.split('=')[1]
           ast_node = ast.FunctionDef(name=func_name, args= ast.arguments(posonlyargs=[], args=[], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[], decorator_list=[])
@@ -181,16 +177,13 @@ def parse_ast(nodes, edges):
           if len(node_type.split('=')) > 2:
               tmp = node_type.split('=')[2]
               kind_node= tmp.split('#')[0]
-          # print(value_node, kind_node)
           if(value_node.isdigit()):
             value_node= int(value_node)
           ast_node = ast.Constant(value=tmp,kind=kind_node)
-          # ast_node = ast.Constant(value='PLACEHOLDER',kind=None)
 
         elif node_type == 'List':
           ast_node = ast.List(elts=[],ctx=ast.Load())
         elif node_type == 'Module':
-          # print('creating Module')
           ast_node = ast.Module(body=[],type_ignores=[])
         elif node_type == 'arguments':
           ast_node = ast.arguments(posonlyargs=[], args=[], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[])
@@ -293,18 +286,14 @@ def parse_ast(nodes, edges):
             raise ValueError(f"Invalid node type: {node_type}")
         ast_nodes[node_id] = ast_node
 
-    # Create the AST by adding edges
-    # print('created nodes',ast_nodes)
-                                                      # edges edges edges edges edges edges edges #
+    # Create the AST by adding edges                                                 
 ############################################################################ EDGES #########################################################################3
+    #loop on all the edges and based on the edge label complete the arguments of the ast node
     for parent_id, child_id , edge_type in edges:
         parent_node = ast_nodes[parent_id]
         child_node = ast_nodes[child_id]
-        # print('p',ast.dump(parent_node))
-        # print('c',ast.dump(child_node))
 
         if isinstance(parent_node, ast.Call):
-            # print('EDGE TYPE',edge_type)
             if edge_type.startswith('arg'):
                 # Add the child node as an argument to the Call node
                 parent_node.args.append(child_node)
@@ -315,37 +304,25 @@ def parse_ast(nodes, edges):
                 # Add the child node as a keyword argument to the Call node
                 key, value = child_node.arg, child_node.value
                 parent_node.keywords.append(ast.keyword(arg=key, value=value))
-            # print('FOUND call',ast.dump(parent_node))
-            # print('\n')
 
         elif isinstance(parent_node, ast.Assign):
             # Add the child node as a target or value of the Assign node
-             #ast.Assign(targets, value, type_comment)
-            # print('assign edge type: ', edge_type)
             if edge_type.startswith('targets'):
                 parent_node.targets.append(child_node)
             elif edge_type.startswith('value'):
                 parent_node.value = child_node
             else:
                 raise ValueError(f"Invalid edge: {parent_id} -> {child_id} {edge_type} {edge_type}")
-            # print('FOUND assign',ast.dump(parent_node))
-            # print('\n')
 
         elif isinstance(parent_node, ast.Name):
           if edge_type == 'ctx':
             parent_node.ctx = child_node
-            # print('FOUND name',ast.dump(parent_node))
-            # print('\n')
-
         elif isinstance(parent_node, ast.Attribute):
-            # print('EDGE TYPE',edge_type)
             if edge_type == 'value':
                 # Add the child node as an argument to the Call node
               parent_node.value = child_node
             elif edge_type == 'ctx':
               parent_node.ctx = child_node
-            # print('FOUND attr',ast.dump(parent_node))
-            # print('\n')
 
         elif isinstance(parent_node, ast.Import):
             # Add the child node as a name of the Import node
@@ -456,7 +433,7 @@ def parse_ast(nodes, edges):
           elif edge_type == 'comparators':
               parent_node.comparators.append(child_node)
               
-              ########################## xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX NOT CHECKED -MATCH XXXXXXXXXXXXXXXXXXXXX#########################3
+              ########################## xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX NOT USED-MATCH XXXXXXXXXXXXXXXXXXXXX#########################3
         # elif isinstance(parent_node, (ast.MatchValue, ast.MatchSingleton, ast.MatchStar, ast.MatchAs)):
         #     if edge_type == 'value':
         #         parent_node.value = child_node
@@ -484,7 +461,6 @@ def parse_ast(nodes, edges):
         #   elif edge_type == 'kwd_patterns':
         #       parent_node.kwd_patterns = child_node
 
-        ###################### his is the new added nodes MENNA ########################
         elif isinstance(parent_node,  ast.FunctionDef) or isinstance(parent_node,  ast.AsyncFunctionDef):
           if edge_type.startswith('args'):
             parent_node.args = child_node
@@ -500,9 +476,7 @@ def parse_ast(nodes, edges):
           pass
         elif isinstance(parent_node,  ast.List):
           if edge_type.startswith('elts'):
-              # print('appending children', ast.dump(child_node))
               parent_node.elts.append(child_node)
-              # print('parent after append', ast.dump(parent_node))
           elif edge_type == 'ctx':
                parent_node.ctx = child_node
         elif isinstance(parent_node, ast.Module):
@@ -515,7 +489,6 @@ def parse_ast(nodes, edges):
           if edge_type == 'posonlyargs':
             parent_node.posonlyargs.append(child_node)
           elif edge_type.startswith('args'):
-            # print('adding args to argument', ast.dump(child_node))
             parent_node.args.append(child_node)
           elif edge_type == 'vararg':
             parent_node.vararg = child_node
@@ -665,9 +638,7 @@ def parse_ast(nodes, edges):
         else:
             raise ValueError(f"Invalid parent node type: {type(parent_node)}")
 
-    # Create the root node of the AST
-    # if(not isinstance(ast_nodes[0],ast.Module)): root = ast.Module(body=[ast_nodes[0]])
     # Fix missing locations in the AST
     ast.fix_missing_locations(ast_nodes[0])
-
+    #return the ast tree representaion of the given tree 
     return ast_nodes[0]
