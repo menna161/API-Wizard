@@ -37,11 +37,11 @@ Type the name of the API you want an example for. Then, Initiate the plugin usin
 
 # Contributing
 Contributions are welcome and encouraged! To contribute to API Wizard, follow these steps:
-Fork the repository.
-Create a new branch for your changes.
-Make your changes and commit them.
-Push your changes to your forked repository.
-Submit a pull request.
+- Fork the repository.
+- Create a new branch for your changes.
+- Make your changes and commit them.
+- Push your changes to your forked repository.
+- Submit a pull request.
 
 
 # License
