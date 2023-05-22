@@ -33,8 +33,7 @@ Steps to run PyAroma:
 The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory.
 
 # Usage
-Type the name of the API you want an example for
-Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
+Type the name of the API you want an example for. Then, Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
 
 # Contributing
 Contributions are welcome and encouraged! To contribute to API Wizard, follow these steps:
