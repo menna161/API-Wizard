@@ -4,17 +4,15 @@ Supervised by Dr.Sarah Nadi (nadi@ualberta.ca) and Dr.Ahmead Rafea (rafea@aucegy
 
 # Overview
 API Wizard is a VSCode IDE plugin based on pattern mining that allows users to view a common usage example of a certain Python API they would like to use.
-Using this plugin, you can easily use a keyboard shortcut over the API query to invoke the IDE plugin which views the usage example of this API.
-This project reimplements the algorithm of the state-of-the-art tool Exempla Gratis with some modifications to overcome the limitations discussed in our paper.
+Using this plugin, you can easily use a keyboard shortcut over the API query to invoke the IDE plugin which views the usage example of this API. This project reimplements the algorithm of the state-of-the-art tool Exempla Gratis with some modifications to overcome the limitations discussed in our paper.
 API Wizard uses Gspan as its mining frequent subgraphs algorithm.
 
 These are the 6 main milestones of API-Wizrd. API Wizard takes a set of filtered code snippets, each code snippet is represented by an AST tree. Then we find the common patterns between the different AST trees using the Gspan tool. The Gspan is a pattern mining tool that outputs patterns that exists in 50% of the trees. So, Next we  remove the subtrees that exists in larger tress. So, We only consider the maximal frequent subtree. The maximal frequent subtrees forms an  incomplete code template with placeholders that needs to be filled to finally generate a complete code example.
 
-
 ![image](https://github.com/menna161/API-Wizard/assets/57011308/51b7cb33-77bd-46ec-9b6a-83bdc93d4bd7)
 
 
-In this API-Wizard folder, you can find the source code for API-Wizard. The subfiles are numbered according to the function corresponding milestone. API_WIzard.py is the file that contains the main function for the tool. The dataset folder holds all the dataset we have tested our tool with. PyAroma folders holds the source code of our re-implemetation of Aroma. It also has a readme file illusterating how PyAroma works and how to reproduce the results generated from PyAroma. The folder dataset_extraction_code has the scripts used to extract our dataset. 
+In this API-Wizard folder, you can find the source code for API-Wizard. The subfiles are numbered according to the function corresponding milestone. There is also the helper folder that contains the functions used throughout the project in different milestones. The evaluation folder has the code for calculating some of our evaluation metrics: conciseness and representativeness. API_WIzard.py is the file that contains the main function for the tool. The dataset folder holds all the dataset we have tested our tool with. PyAroma folders holds the source code of our re-implemetation of Aroma. It also has a readme file illusterating how PyAroma works and how to reproduce the results generated from PyAroma. The folder dataset_extraction_code has the scripts used to extract our dataset.
 
 
 # Getting Started
