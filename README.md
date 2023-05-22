@@ -10,7 +10,8 @@ API Wizard uses gSpan as its mining frequent subgraphs algorithm.
 
 
 # Getting Started
-(how to add the plugin )
+To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
+Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
 
 # Usage
 To use API Wizard, follow these steps:
