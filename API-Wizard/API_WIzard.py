@@ -27,7 +27,8 @@ from evaluation.calc_consiceness import calc_consiceness
 
 def main():
     #pass the api name you want an example for 
-    api_name = 'tf.pad'
+    # api_name = 'tf.pad'
+    api_name = input('')
     #check the path of the dataset is correct inside read_dir
 
     # m1 get the filtered code snippets
@@ -37,9 +38,16 @@ def main():
     
     # m3 convert ast represenation to gspan 
     #version without var names (used to find common patterns)
-    ast_to_gspan('input.txt', trees)
+    current_file_path = os.path.dirname(os.path.abspath(__file__))
+    input_path = os.path.join(current_file_path, 'input.txt')
+    input_path = input_path.replace("\\", "/")
+    print('updated_input_path', input_path)
+    ast_to_gspan(input_path, trees)
     #version with var names (used to later to obtain placeholder values)
-    ast_to_gspan('input_with_vars.txt', trees, True)
+    input_with_vars_path = os.path.join(current_file_path, 'input_with_vars.txt')
+    input_with_vars_path = input_with_vars_path.replace("\\", "/")
+    print('updated_input_with_vars', input_with_vars_path)
+    ast_to_gspan(input_with_vars_path, trees, True)
     #find common patterns in input.txt
     common_patterns()
 
@@ -51,7 +59,7 @@ def main():
     #m6 generate a complete code example by replacing placeholders with var and param names with max score
     code_output = calc_scores(where_code_output, extracted_subgraphs)
 
-    print('################################ Output #################################')
+    print('Output')
     unique_list = sort_lines(code_output)
     unique_list = remove_repeated(unique_list)
     unique_list = sorted(unique_list, key=custom_key)
@@ -59,7 +67,7 @@ def main():
     joined_lines = ''.join(unique_list)
     print(joined_lines)
 
-    print('################################ Evaluation ################################')
+    print('Evaluation')
     
     repr = calc_representative(where_code_output, input_count)
     print('representativeness:   ', repr)
