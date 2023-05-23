@@ -17,11 +17,14 @@ In this API-Wizard folder, you can find the source code for API-Wizard. The subf
 
 # Getting Started
 
-Steps to run API-Wizard:
+Steps to run API-Wizard using command line:
 
 first, there are some packaes you need to install before running our tool. To install them use these commands in the project folder:
 - pip install gspan-mining
 - pip install astor
+- cd .\API-Wizard\
+- cd .\API-Wizard\
+- python .\API_WIzard.py
 
 To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
 Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
