@@ -1,6 +1,7 @@
 {
-  "name": "API_Wizrd_IDE",
+  "name": "API-Wizard",
   "displayName": "API_Wizrd",
+  "publisher": "API-Wizard",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -13,7 +14,7 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "API_Wizrd_IDE.helloWorld",
+      "command": "API-Wizard.helloWorld",
       "title": "API Wizard"
     }]
   },

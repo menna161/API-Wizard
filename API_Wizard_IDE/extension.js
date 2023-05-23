@@ -1,11 +1,11 @@
 const vscode = require('vscode');
 const cp = require('child_process');
 const path = require('path');
-
+//xesfevcuwbgrellkrcs44tme66yxrosvz3xfjm6nmo3jiqysxkbq
 function activate(context) {
 	console.log('Congratulations, your extension " api wizard" is now active!');
 
-	let disposable = vscode.commands.registerCommand('API_Wizrd_IDE.helloWorld', function () {
+	let disposable = vscode.commands.registerCommand('API-Wizard.helloWorld', function () {
 		const editor = vscode.window.activeTextEditor;
 		const selectedText = editor.selection;
 		const text = editor.document.getText(selectedText);
