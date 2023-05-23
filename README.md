@@ -16,7 +16,7 @@ In this API-Wizard folder, you can find the source code for API-Wizard. The subf
 
 
 # Getting Started
-In order ti use the IDE plugin, install the API Wizard extension in vscode through this link https://marketplace.visualstudio.com/items?itemName=API-Wizard.API-Wizard and use it as instructed. 
+In order to use the IDE plugin, install the API Wizard extension in vscode through this link https://marketplace.visualstudio.com/items?itemName=API-Wizard.API-Wizard and use it as instructed. 
 
 Steps to run API-Wizard using command line:
 
@@ -27,9 +27,6 @@ first, there are some packaes you need to install before running our tool. To in
 - cd .\API-Wizard\
 - python .\API_WIzard.py
 
-To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
-Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
-
 
 Steps to run PyAroma:
 - cd PyAroma/reference/evaluation/
@@ -37,7 +34,17 @@ Steps to run PyAroma:
 The results are expected to be found in the file called "aroma_results.csv" inside the "reference" directory. Note that new results are appended to the end of this file.
 
 # Usage
-Type the name of the API you want an example for. Then, Initiate the plugin using the keyboard shortcut (ctrl+alt+w)
+To use API Wizard from command line run API-Wizard (as mentioned in getting started section). Then, write the API you want to use. You will view the output and the results generated in the terminal.
+
+To use API Wizard extension in VSCode:
+- Install it
+- highlight the API Name you want to use. 
+- from the command palette (ctrl+shift+P), search for API Wizard and select it.
+
+The evaluation results will be displayed in the bottom window and the output will open in the side window as shown in the below image.
+
+![image](https://github.com/menna161/API-Wizard/assets/57011308/f2acdf5c-4bca-4d87-b7be-18a12c160eb4)
+
 
 # Contributing
 Contributions are welcome and encouraged! To contribute to API Wizard, follow these steps:
