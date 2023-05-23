@@ -7,10 +7,12 @@ import pandas as pd
 
 def read_dir(api_name):
     # Define the directory path where the files are located
-    dir_path = '../Test_Data/'
+    dir_path = '../Dataset/Dataset/'
 
     # Append the specified API name to the directory path
     dir_path = dir_path + api_name
+
+    dir_path = dir_path + '/snippets/'
 
     # Create an empty list to store the file contents
     ex = []

@@ -58,5 +58,4 @@ def placeholder_bfs_helper(lgGraph, smGraph ,new_template ):
               score[key][sub_key] = 1
       return score ,merged_vertex_numbers
     else:
-      print('##############did not find the pattern in the big tree')
       return None ,None

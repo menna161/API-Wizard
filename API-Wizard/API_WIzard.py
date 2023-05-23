@@ -27,7 +27,7 @@ from evaluation.calc_consiceness import calc_consiceness
 
 def main():
     #pass the api name you want an example for 
-    api_name = 'MinMaxScaler'
+    api_name = 'tf.pad'
     #check the path of the dataset is correct inside read_dir
 
     # m1 get the filtered code snippets
