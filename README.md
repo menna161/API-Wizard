@@ -9,7 +9,7 @@ API Wizard uses Gspan as its mining frequent subgraphs algorithm.
 
 These are the 6 main milestones of API-Wizrd. API Wizard takes a set of filtered code snippets, each code snippet is represented by an AST tree. Then we find the common patterns between the different AST trees using the Gspan tool. The Gspan is a pattern mining tool that outputs patterns that exists in 50% of the trees. So, Next we  remove the subtrees that exists in larger tress. So, We only consider the maximal frequent subtree. The maximal frequent subtrees forms an  incomplete code template with placeholders that needs to be filled to finally generate a complete code example.
 
-![image](https://github.com/menna161/API-Wizard/assets/57011308/51b7cb33-77bd-46ec-9b6a-83bdc93d4bd7)
+![image](https://github.com/menna161/API-Wizard/assets/57011308/115feaf1-82dc-49e4-a412-da3a83014bc2)
 
 
 In this API-Wizard folder, you can find the source code for API-Wizard. The subfiles are numbered according to the function corresponding milestone. There is also the helper folder that contains the functions used throughout the project in different milestones. The evaluation folder has the code for calculating some of our evaluation metrics: conciseness and representativeness. API_WIzard.py is the file that contains the main function for the tool. The dataset folder holds all the dataset we have tested our tool with. PyAroma folders holds the source code of our re-implemetation of Aroma. The folder dataset_extraction_code has the scripts used to extract our dataset.
@@ -17,11 +17,14 @@ In this API-Wizard folder, you can find the source code for API-Wizard. The subf
 
 # Getting Started
 
-Steps to run API-Wizard:
+Steps to run API-Wizard using command line:
 
 first, there are some packaes you need to install before running our tool. To install them use these commands in the project folder:
 - pip install gspan-mining
 - pip install astor
+- cd .\API-Wizard\
+- cd .\API-Wizard\
+- python .\API_WIzard.py
 
 To use the plugin you need Visula Studio Code and then to use the extension you follow the steps in this link https://code.visualstudio.com/api/get-started/your-first-extension 
 Then you need to replace the code in the package.js with the code in this reposity under the same name. Then in order to test it, open a python file in vscode and write a python API and then run the extension using ctrs+shift+P and then choose API Wizard from the drop down menu. 
