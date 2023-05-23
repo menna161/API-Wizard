@@ -16,6 +16,7 @@ In this API-Wizard folder, you can find the source code for API-Wizard. The subf
 
 
 # Getting Started
+In order ti use the IDE plugin, install the API Wizard extension in vscode through this link https://marketplace.visualstudio.com/items?itemName=API-Wizard.API-Wizard and use it as instructed. 
 
 Steps to run API-Wizard using command line:
 
